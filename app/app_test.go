@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tm-db"
+	db "github.com/tendermint/tm-db"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
