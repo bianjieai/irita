@@ -14,19 +14,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	tmtypes "github.com/tendermint/tendermint/types"
+
+	"github.com/stretchr/testify/require"
+
+	"gitlab.bianjie.ai/irita/irita/app"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/tests"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/gov"
-
 	"github.com/cosmos/cosmos-sdk/x/mint"
-	"gitlab.bianjie.ai/irita/irita/app"
 )
 
 func TestIrisCLIKeysAddMultisig(t *testing.T) {
