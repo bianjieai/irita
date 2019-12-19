@@ -1,11 +1,13 @@
 package simapp
 
 import (
-	"github.com/irisnet/modules/incubator/nft"
-	"gitlab.bianjie.ai/irita/irita/modules/guardian"
-	"gitlab.bianjie.ai/irita/irita/modules/service"
 	"io"
 	"os"
+
+	"github.com/irisnet/modules/incubator/nft"
+
+	"gitlab.bianjie.ai/irita/irita/modules/guardian"
+	"gitlab.bianjie.ai/irita/irita/modules/service"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
