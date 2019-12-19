@@ -116,4 +116,4 @@ iriscli service withdraw-fees --chain-id=<chain-id> --from=<key-name> --fee=0.3i
 
 * IDL文件参照
 
-    [test.proto](https://gitlab.bianjie.ai/iridas/iridas/blob/master/docs/features/test.proto)
+    [test.proto](https://gitlab.bianjie.ai/irita/irita/blob/master/docs/features/test.proto)

@@ -26,7 +26,7 @@ Then it will show the current protocol information and the protocol information 
     "Success": true,
     "Protocol": {
       "version": "0",
-      "software": "https://gitlab.bianjie.ai/iridas/iridas/tree/v0.10.0",
+      "software": "https://gitlab.bianjie.ai/irita/irita/tree/v0.10.0",
       "height": "1"
     }
   },
@@ -34,7 +34,7 @@ Then it will show the current protocol information and the protocol information 
     "ProposalID": "3",
     "Definition": {
       "version": "1",
-      "software": "https://gitlab.bianjie.ai/iridas/iridas/tree/v0.10.1",
+      "software": "https://gitlab.bianjie.ai/irita/irita/tree/v0.10.1",
       "height": "8000"
     }
   }

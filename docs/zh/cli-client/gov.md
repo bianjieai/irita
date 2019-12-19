@@ -217,7 +217,7 @@ iriscli gov submit-proposal --chain-id=irishub --title=<proposal-title> --descri
 **必须参数：** `--software`, `--version`, `--switch-height`, `--threshold`
 
 ```bash
-iriscli gov submit-proposal --chain-id=irishub --title=<proposal-title> --description=<proposal-description> --from=<key-name> --fee=0.3iris --deposit=2000iris --type=SoftwareUpgrade --software=https://gitlab.bianjie.ai/iridas/iridas/tree/v0.15.1 --version=2 --switch-height=8000 --threshold=0.8
+iriscli gov submit-proposal --chain-id=irishub --title=<proposal-title> --description=<proposal-description> --from=<key-name> --fee=0.3iris --deposit=2000iris --type=SoftwareUpgrade --software=https://gitlab.bianjie.ai/irita/irita/tree/v0.15.1 --version=2 --switch-height=8000 --threshold=0.8
 ```
 
 ### 提交通证添加提案

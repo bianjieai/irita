@@ -26,7 +26,7 @@ iriscli upgrade info
     "Success": true,
     "Protocol": {
       "version": "0",
-      "software": "https://gitlab.bianjie.ai/iridas/iridas/tree/v0.10.0",
+      "software": "https://gitlab.bianjie.ai/irita/irita/tree/v0.10.0",
       "height": "1"
     }
   },
@@ -34,7 +34,7 @@ iriscli upgrade info
     "ProposalID": "3",
     "Definition": {
       "version": "1",
-      "software": "https://gitlab.bianjie.ai/iridas/iridas/tree/v0.10.1",
+      "software": "https://gitlab.bianjie.ai/irita/irita/tree/v0.10.1",
       "height": "8000"
     }
   }

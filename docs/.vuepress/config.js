@@ -50,7 +50,7 @@ module.exports = {
         }
     },
     themeConfig: {
-        repo: "iridas/iridas",
+        repo: "irisnet/irishub",
         docsDir: "docs",
         editLinks: true,
         docsBranch: "master",

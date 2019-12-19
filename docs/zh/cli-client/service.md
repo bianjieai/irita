@@ -58,7 +58,7 @@ iriscli service define --chain-id=<chain-id>  --from=<key-name> --fee=0.3iris --
 
 * IDL文件示例
 
-    [test.proto](https://gitlab.bianjie.ai/iridas/iridas/blob/master/docs/features/test.proto)
+    [test.proto](https://gitlab.bianjie.ai/irita/irita/blob/master/docs/features/test.proto)
 
 ## iriscli service definition
 

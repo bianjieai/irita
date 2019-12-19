@@ -134,7 +134,7 @@ Please refer to [Export Blockchain State](export.md)
 
 ```bash
 # Work from the irishub repo
-cd $GOPATH/src/gitlab.bianjie.ai/iridas/iridas
+cd $GOPATH/src/gitlab.bianjie.ai/irita/irita
 
 # Build the linux binary in ./build
 make build_linux

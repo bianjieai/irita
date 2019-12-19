@@ -58,7 +58,7 @@ Idl-content can be replaced by file if the file item is not empty.  [Example of 
 
 * IDL file example
 
-    [test.proto](https://gitlab.bianjie.ai/iridas/iridas/blob/master/docs/features/test.proto)
+    [test.proto](https://gitlab.bianjie.ai/irita/irita/blob/master/docs/features/test.proto)
 
 ## iriscli service definition
 

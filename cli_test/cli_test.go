@@ -14,20 +14,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	tmtypes "github.com/tendermint/tendermint/types"
-
 	"github.com/stretchr/testify/require"
 
-	"gitlab.bianjie.ai/iridas/iridas/app"
+	"github.com/tendermint/tendermint/crypto/ed25519"
+	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/tests"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/gov"
+
 	"github.com/cosmos/cosmos-sdk/x/mint"
+	"gitlab.bianjie.ai/irita/irita/app"
 )
 
 func TestIrisCLIKeysAddMultisig(t *testing.T) {
@@ -62,7 +61,7 @@ func TestIrisCLIKeysAddRecover(t *testing.T) {
 
 	exitSuccess, _, _ = f.KeysAddRecover("test-recover", "dentist task convince chimney quality leave banana trade firm crawl eternal easily")
 	require.True(t, exitSuccess)
-	require.Equal(t, "cosmos1qcfdf69js922qrdr4yaww3ax7gjml6pdds46f4", f.KeyAddress("test-recover").String())
+	require.Equal(t, "faa1qcfdf69js922qrdr4yaww3ax7gjml6pdqannte", f.KeyAddress("test-recover").String())
 
 	// Cleanup testing directories
 	f.Cleanup()
@@ -73,16 +72,16 @@ func TestIrisCLIKeysAddRecoverHDPath(t *testing.T) {
 	f := InitFixtures(t)
 
 	f.KeysAddRecoverHDPath("test-recoverHD1", "dentist task convince chimney quality leave banana trade firm crawl eternal easily", 0, 0)
-	require.Equal(t, "cosmos1qcfdf69js922qrdr4yaww3ax7gjml6pdds46f4", f.KeyAddress("test-recoverHD1").String())
+	require.Equal(t, "faa1qcfdf69js922qrdr4yaww3ax7gjml6pdqannte", f.KeyAddress("test-recoverHD1").String())
 
 	f.KeysAddRecoverHDPath("test-recoverH2", "dentist task convince chimney quality leave banana trade firm crawl eternal easily", 1, 5)
-	require.Equal(t, "cosmos1pdfav2cjhry9k79nu6r8kgknnjtq6a7rykmafy", f.KeyAddress("test-recoverH2").String())
+	require.Equal(t, "faa1pdfav2cjhry9k79nu6r8kgknnjtq6a7rfma5tg", f.KeyAddress("test-recoverH2").String())
 
 	f.KeysAddRecoverHDPath("test-recoverH3", "dentist task convince chimney quality leave banana trade firm crawl eternal easily", 1, 17)
-	require.Equal(t, "cosmos1909k354n6wl8ujzu6kmh49w4d02ax7qvlkv4sn", f.KeyAddress("test-recoverH3").String())
+	require.Equal(t, "faa1909k354n6wl8ujzu6kmh49w4d02ax7qvjm2ujl", f.KeyAddress("test-recoverH3").String())
 
 	f.KeysAddRecoverHDPath("test-recoverH4", "dentist task convince chimney quality leave banana trade firm crawl eternal easily", 2, 17)
-	require.Equal(t, "cosmos1v9plmhvyhgxk3th9ydacm7j4z357s3nhtwsjat", f.KeyAddress("test-recoverH4").String())
+	require.Equal(t, "faa1v9plmhvyhgxk3th9ydacm7j4z357s3nhxrkml8", f.KeyAddress("test-recoverH4").String())
 
 	// Cleanup testing directories
 	f.Cleanup()
@@ -603,8 +602,9 @@ func TestIrisCLISubmitProposal(t *testing.T) {
 	tests.WaitForNextNBlocksTM(1, f.Port)
 
 	// Test limit on proposals query
-	proposalsQuery = f.QueryGovProposals("--limit=1")
-	require.Equal(t, uint64(2), proposalsQuery[0].ProposalID)
+	proposalsQuery = f.QueryGovProposals("--limit=2")
+	require.Len(t, proposalsQuery, 2)
+	require.Equal(t, uint64(1), proposalsQuery[0].ProposalID)
 
 	f.Cleanup()
 }
@@ -1272,12 +1272,12 @@ func TestIrisdAddGenesisAccount(t *testing.T) {
 	genesisState := f.GenesisState()
 
 	cdc := app.MakeCodec()
-	accounts := genaccounts.GetGenesisStateFromAppState(cdc, genesisState)
+	accounts := auth.GetGenesisStateFromAppState(cdc, genesisState).Accounts
 
-	require.Equal(t, accounts[0].Address, f.KeyAddress(keyFoo))
-	require.Equal(t, accounts[1].Address, f.KeyAddress(keyBar))
-	require.True(t, accounts[0].Coins.IsEqual(startCoins))
-	require.True(t, accounts[1].Coins.IsEqual(bazCoins))
+	require.Equal(t, accounts[0].GetAddress(), f.KeyAddress(keyFoo))
+	require.Equal(t, accounts[1].GetAddress(), f.KeyAddress(keyBar))
+	require.True(t, accounts[0].GetCoins().IsEqual(startCoins))
+	require.True(t, accounts[1].GetCoins().IsEqual(bazCoins))
 
 	// Cleanup testing directories
 	f.Cleanup()

@@ -567,10 +567,9 @@ func TestSubmitProposal(t *testing.T) {
 	// check if tx was committed
 	require.Equal(t, uint32(0), resultTx.Code)
 
-	var proposalID uint64
 	bz, err := hex.DecodeString(resultTx.Data)
 	require.NoError(t, err)
-	cdc.MustUnmarshalBinaryLengthPrefixed(bz, &proposalID)
+	proposalID := gov.GetProposalIDFromBytes(bz)
 
 	// verify balance
 	acc = getAccount(t, port, addr)
@@ -606,10 +605,9 @@ func TestSubmitCommunityPoolSpendProposal(t *testing.T) {
 	// check if tx was committed
 	require.Equal(t, uint32(0), resultTx.Code)
 
-	var proposalID uint64
 	bz, err := hex.DecodeString(resultTx.Data)
 	require.NoError(t, err)
-	cdc.MustUnmarshalBinaryLengthPrefixed(bz, &proposalID)
+	proposalID := gov.GetProposalIDFromBytes(bz)
 
 	// verify balance
 	acc = getAccount(t, port, addr)
@@ -645,10 +643,9 @@ func TestSubmitParamChangeProposal(t *testing.T) {
 	// check if tx was committed
 	require.Equal(t, uint32(0), resultTx.Code)
 
-	var proposalID uint64
 	bz, err := hex.DecodeString(resultTx.Data)
 	require.NoError(t, err)
-	cdc.MustUnmarshalBinaryLengthPrefixed(bz, &proposalID)
+	proposalID := gov.GetProposalIDFromBytes(bz)
 
 	// verify balance
 	acc = getAccount(t, port, addr)
@@ -684,10 +681,9 @@ func TestDeposit(t *testing.T) {
 	// check if tx was committed
 	require.Equal(t, uint32(0), resultTx.Code)
 
-	var proposalID uint64
 	bz, err := hex.DecodeString(resultTx.Data)
 	require.NoError(t, err)
-	cdc.MustUnmarshalBinaryLengthPrefixed(bz, &proposalID)
+	proposalID := gov.GetProposalIDFromBytes(bz)
 
 	// verify balance
 	acc = getAccount(t, port, addr)
@@ -745,10 +741,9 @@ func TestVote(t *testing.T) {
 	// check if tx was committed
 	require.Equal(t, uint32(0), resultTx.Code)
 
-	var proposalID uint64
 	bz, err := hex.DecodeString(resultTx.Data)
 	require.NoError(t, err)
-	cdc.MustUnmarshalBinaryLengthPrefixed(bz, &proposalID)
+	proposalID := gov.GetProposalIDFromBytes(bz)
 
 	// verify balance
 	acc = getAccount(t, port, addr)
@@ -852,25 +847,25 @@ func TestProposalsQuery(t *testing.T) {
 
 	// Addr1 proposes (and deposits) proposals #1 and #2
 	resultTx := doSubmitProposal(t, port, seeds[0], names[0], passwords[0], addrs[0], halfMinDeposit, fees)
-	var proposalID1 uint64
 	bz, err := hex.DecodeString(resultTx.Data)
 	require.NoError(t, err)
-	cdc.MustUnmarshalBinaryLengthPrefixed(bz, &proposalID1)
+
+	proposalID1 := gov.GetProposalIDFromBytes(bz)
 	tests.WaitForHeight(resultTx.Height+1, port)
 
 	resultTx = doSubmitProposal(t, port, seeds[0], names[0], passwords[0], addrs[0], halfMinDeposit, fees)
-	var proposalID2 uint64
 	bz, err = hex.DecodeString(resultTx.Data)
 	require.NoError(t, err)
-	cdc.MustUnmarshalBinaryLengthPrefixed(bz, &proposalID2)
+
+	proposalID2 := gov.GetProposalIDFromBytes(bz)
 	tests.WaitForHeight(resultTx.Height+1, port)
 
 	// Addr2 proposes (and deposits) proposals #3
 	resultTx = doSubmitProposal(t, port, seeds[1], names[1], passwords[1], addrs[1], halfMinDeposit, fees)
-	var proposalID3 uint64
 	bz, err = hex.DecodeString(resultTx.Data)
 	require.NoError(t, err)
-	cdc.MustUnmarshalBinaryLengthPrefixed(bz, &proposalID3)
+
+	proposalID3 := gov.GetProposalIDFromBytes(bz)
 	tests.WaitForHeight(resultTx.Height+1, port)
 
 	// Addr2 deposits on proposals #2 & #3

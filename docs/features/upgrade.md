@@ -26,7 +26,7 @@ You need to start a local testnet first:
 
 ```bash
 # Send an upgrade proposal
-iriscli gov submit-proposal --title=<title> --description=<description> --type="SoftwareUpgrade" --deposit=100iris --from=<key-name> --chain-id=<chain-id> --fee=0.3iris --software=https://gitlab.bianjie.ai/iridas/iridas/tree/v0.13.1 --version=2 --switch-height=80 --threshold=0.9 --commit
+iriscli gov submit-proposal --title=<title> --description=<description> --type="SoftwareUpgrade" --deposit=100iris --from=<key-name> --chain-id=<chain-id> --fee=0.3iris --software=https://gitlab.bianjie.ai/irita/irita/tree/v0.13.1 --version=2 --switch-height=80 --threshold=0.9 --commit
 
 # Deposit for a proposal
 iriscli gov deposit --proposal-id=<proposal-id> --deposit=1000iris --from=<key-name> --chain-id=<chain-id> --fee=0.3iris --commit
@@ -79,7 +79,7 @@ iriscli upgrade info --trust-node
 ## Command details
 
 ```bash
-iriscli gov submit-proposal --title=<title> --description=<description> --type="SoftwareUpgrade" --deposit=100iris --from=<key-name> --chain-id=<chain-id> --fee=0.3iris --software=https://gitlab.bianjie.ai/iridas/iridas/tree/v0.13.1 --version=2 --switch-height=80 --threshold=0.9 --commit
+iriscli gov submit-proposal --title=<title> --description=<description> --type="SoftwareUpgrade" --deposit=100iris --from=<key-name> --chain-id=<chain-id> --fee=0.3iris --software=https://gitlab.bianjie.ai/irita/irita/tree/v0.13.1 --version=2 --switch-height=80 --threshold=0.9 --commit
 ```
 
 * `--type`  The type of Software upgrade proposal is "SoftwareUpgrade"
