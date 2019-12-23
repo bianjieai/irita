@@ -29,7 +29,7 @@ func GetCmdQueryProfilers(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "profilers",
 		Short:   "Query for all profilers",
-		Example: "iriscli query guardian profilers",
+		Example: "iritacli query guardian profilers",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
@@ -55,7 +55,7 @@ func GetCmdQueryTrustees(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "trustees",
 		Short:   "Query for all trustees",
-		Example: "iriscli query guardian trustees",
+		Example: "iritacli query guardian trustees",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 

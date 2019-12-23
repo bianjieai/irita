@@ -45,8 +45,8 @@ func main() {
 	// with the cdc
 
 	rootCmd := &cobra.Command{
-		Use:   "iriscli",
-		Short: "Command line interface for interacting with iris",
+		Use:   "iritacli",
+		Short: "Command line interface for interacting with irita",
 	}
 
 	// Add --chain-id to persistent flags and mark it required

@@ -49,9 +49,9 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 # process linker flags
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=iris \
-		  -X github.com/cosmos/cosmos-sdk/version.ServerName=iris \
-		  -X github.com/cosmos/cosmos-sdk/version.ClientName=iriscli \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=irita \
+		  -X github.com/cosmos/cosmos-sdk/version.ServerName=irita \
+		  -X github.com/cosmos/cosmos-sdk/version.ClientName=iritacli \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
@@ -77,11 +77,11 @@ include contrib/devtools/Makefile
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
-	go build $(BUILD_FLAGS) -o build/iris.exe ./cmd/iris
-	go build $(BUILD_FLAGS) -o build/iriscli.exe ./cmd/iriscli
+	go build $(BUILD_FLAGS) -o build/irita.exe ./cmd/irita
+	go build $(BUILD_FLAGS) -o build/iritacli.exe ./cmd/iritacli
 else
-	go build $(BUILD_FLAGS) -o build/iris ./cmd/iris
-	go build $(BUILD_FLAGS) -o build/iriscli ./cmd/iriscli
+	go build $(BUILD_FLAGS) -o build/irita ./cmd/irita
+	go build $(BUILD_FLAGS) -o build/iritacli ./cmd/iritacli
 endif
 
 build-linux: go.sum
@@ -95,11 +95,11 @@ else
 endif
 
 install: go.sum
-	go install $(BUILD_FLAGS) ./cmd/iris
-	go install $(BUILD_FLAGS) ./cmd/iriscli
+	go install $(BUILD_FLAGS) ./cmd/irita
+	go install $(BUILD_FLAGS) ./cmd/iritacli
 
 install-tool: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/iristool
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/iritatool
 
 ########################################
 ### Tools & dependencies
@@ -115,7 +115,7 @@ go.sum: go.mod
 draw-deps:
 	@# requires brew install graphviz or apt-get install graphviz
 	go get github.com/RobotsAndPencils/goviz
-	@goviz -i ./cmd/iris -d 2 | dot -Tpng -o dependency-graph.png
+	@goviz -i ./cmd/irita -d 2 | dot -Tpng -o dependency-graph.png
 
 clean:
 	rm -rf snapcraft-local.yaml build/
@@ -161,14 +161,14 @@ benchmark:
 ### Local validator nodes using docker and docker-compose
 
 testnet-init:
-	@if ! [ -f build/iris ]; then $(MAKE) build_linux ; fi
-	@if ! [ -f build/nodecluster/node0/iris/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/home ubuntu:16.04 /home/iris testnet --v 4 --output-dir /home/nodecluster --chain-id irishub-test --starting-ip-address 192.168.10.2 ; fi
+	@if ! [ -f build/irita ]; then $(MAKE) build_linux ; fi
+	@if ! [ -f build/nodecluster/node0/irita/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/home ubuntu:16.04 /home/irita testnet --v 4 --output-dir /home/nodecluster --chain-id irishub-test --starting-ip-address 192.168.10.2 ; fi
 	@echo "To install jq command, please refer to this page: https://stedolan.github.io/jq/download/"
-	@if [ ${NetworkType} = "testnet" ]; then jq '.app_state.accounts+= [{"address": "faa1ljemm0yznz58qxxs8xyak7fashcfxf5lssn6jm", "coins": [ "1000000iris" ], "sequence_number": "0", "account_number": "0"}]' build/nodecluster/node0/iris/config/genesis.json > build/genesis_temp.json ; else jq '.app_state.accounts+= [{"address": "iaa1ljemm0yznz58qxxs8xyak7fashcfxf5lgl4zjx", "coins": [ "1000000iris" ], "sequence_number": "0", "account_number": "0"}]' build/nodecluster/node0/iris/config/genesis.json > build/genesis_temp.json ; fi
-	@sudo cp build/genesis_temp.json build/nodecluster/node0/iris/config/genesis.json
-	@sudo cp build/genesis_temp.json build/nodecluster/node1/iris/config/genesis.json
-	@sudo cp build/genesis_temp.json build/nodecluster/node2/iris/config/genesis.json
-	@sudo cp build/genesis_temp.json build/nodecluster/node3/iris/config/genesis.json
+	@if [ ${NetworkType} = "testnet" ]; then jq '.app_state.accounts+= [{"address": "faa1ljemm0yznz58qxxs8xyak7fashcfxf5lssn6jm", "coins": [ "1000000iris" ], "sequence_number": "0", "account_number": "0"}]' build/nodecluster/node0/irita/config/genesis.json > build/genesis_temp.json ; else jq '.app_state.accounts+= [{"address": "iaa1ljemm0yznz58qxxs8xyak7fashcfxf5lgl4zjx", "coins": [ "1000000iris" ], "sequence_number": "0", "account_number": "0"}]' build/nodecluster/node0/irita/config/genesis.json > build/genesis_temp.json ; fi
+	@sudo cp build/genesis_temp.json build/nodecluster/node0/irita/config/genesis.json
+	@sudo cp build/genesis_temp.json build/nodecluster/node1/irita/config/genesis.json
+	@sudo cp build/genesis_temp.json build/nodecluster/node2/irita/config/genesis.json
+	@sudo cp build/genesis_temp.json build/nodecluster/node3/irita/config/genesis.json
 	@rm build/genesis_temp.json
 	@if [ ${NetworkType} = "testnet" ]; then echo "Faucet address: faa1ljemm0yznz58qxxs8xyak7fashcfxf5lssn6jm" ; else echo "Faucet address: iaa1ljemm0yznz58qxxs8xyak7fashcfxf5lgl4zjx" ; fi
 	@echo "Faucet coin amount: 1000000iris"

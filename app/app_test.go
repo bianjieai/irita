@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
-	db "github.com/tendermint/tm-db"
+	"github.com/tendermint/tm-db"
 
 	"gitlab.bianjie.ai/irita/irita/simapp"
 )
@@ -34,7 +34,7 @@ func TestBlackListedAddrs(t *testing.T) {
 	}
 }
 
-func setGenesis(gapp *IrisApp) error {
+func setGenesis(gapp *IritaApp) error {
 	genesisState := simapp.NewDefaultGenesisState()
 	stateBytes, err := codec.MarshalJSONIndent(gapp.cdc, genesisState)
 	if err != nil {

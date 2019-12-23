@@ -16,7 +16,7 @@ func GetCmdQuerySvcDef(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "definition",
 		Short:   "Query service definition",
-		Example: "iriscli query service definition <def-chain-id> <service name>",
+		Example: "iritacli query service definition <def-chain-id> <service name>",
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -54,7 +54,7 @@ func GetCmdQuerySvcBind(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "binding",
 		Short:   "Query service binding",
-		Example: "iriscli query service binding <def-chain-id> <service name> <bind-chain-id> <provider>",
+		Example: "iritacli query service binding <def-chain-id> <service name> <bind-chain-id> <provider>",
 		Args:    cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -99,7 +99,7 @@ func GetCmdQuerySvcBinds(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "bindings",
 		Short:   "Query service bindings",
-		Example: "iriscli query service bindings <def-chain-id> <service name>",
+		Example: "iritacli query service bindings <def-chain-id> <service name>",
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -137,7 +137,7 @@ func GetCmdQuerySvcRequests(queryRoute string, cdc *codec.Codec) *cobra.Command 
 	cmd := &cobra.Command{
 		Use:     "requests",
 		Short:   "Query service requests",
-		Example: "iriscli query service requests <def-chain-id> <service-name> <bind-chain-id> <provider>",
+		Example: "iritacli query service requests <def-chain-id> <service-name> <bind-chain-id> <provider>",
 		Args:    cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -182,7 +182,7 @@ func GetCmdQuerySvcResponse(queryRoute string, cdc *codec.Codec) *cobra.Command 
 	cmd := &cobra.Command{
 		Use:     "response",
 		Short:   "Query a service response",
-		Example: "iriscli query service response <req-chain-id> <request-id>",
+		Example: "iritacli query service response <req-chain-id> <request-id>",
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -220,7 +220,7 @@ func GetCmdQuerySvcFees(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "fees",
 		Short:   "Query returned and incoming fee of a particular address",
-		Example: "iriscli query service fees <account address>",
+		Example: "iritacli query service fees <account address>",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)

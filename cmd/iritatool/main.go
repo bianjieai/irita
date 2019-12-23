@@ -16,7 +16,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 
-	iris "gitlab.bianjie.ai/irita/irita/app"
+	irita "gitlab.bianjie.ai/irita/irita/app"
 )
 
 func init() {
@@ -34,14 +34,14 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:          "iristool",
+	Use:          "iritatool",
 	Short:        "Iris debug tool",
 	SilenceUsage: true,
 }
 
 var txCmd = &cobra.Command{
 	Use:   "tx",
-	Short: "Decode a iris tx from hex or base64",
+	Short: "Decode a irita tx from hex or base64",
 	RunE:  runTxCmd,
 }
 
@@ -131,7 +131,7 @@ func runPubKeyCmd(cmd *cobra.Command, args []string) error {
 		pubkeyBytes = pubKey[:]
 	}
 
-	cdc := iris.MakeCodec()
+	cdc := irita.MakeCodec()
 	pubKeyJSONBytes, err := cdc.MarshalJSON(pubKey)
 	if err != nil {
 		return err
@@ -218,7 +218,7 @@ func runTxCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	var tx = auth.StdTx{}
-	cdc := iris.MakeCodec()
+	cdc := irita.MakeCodec()
 
 	err = cdc.UnmarshalBinaryLengthPrefixed(txBytes, &tx)
 	if err != nil {

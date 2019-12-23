@@ -38,7 +38,7 @@ func init() {
 	simapp.GetSimulatorFlags()
 }
 
-func testAndRunTxs(app *IrisApp, config simulation.Config) []simulation.WeightedOperation {
+func testAndRunTxs(app *IritaApp, config simulation.Config) []simulation.WeightedOperation {
 	ap := make(simulation.AppParams)
 
 	paramChanges := app.sm.GenerateParamChanges(config.Seed)

@@ -34,14 +34,14 @@ import (
 	"gitlab.bianjie.ai/irita/irita/modules/service"
 )
 
-const appName = "IrisApp"
+const appName = "IritaApp"
 
 var (
-	// default home directories for iriscli
-	DefaultCLIHome = os.ExpandEnv("$HOME/.iriscli")
+	// default home directories for iritacli
+	DefaultCLIHome = os.ExpandEnv("$HOME/.iritacli")
 
-	// default home directories for iris
-	DefaultNodeHome = os.ExpandEnv("$HOME/.iris")
+	// default home directories for irita
+	DefaultNodeHome = os.ExpandEnv("$HOME/.irita")
 
 	// The module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
@@ -92,7 +92,7 @@ func MakeCodec() *codec.Codec {
 }
 
 // IrisApp extended ABCI application
-type IrisApp struct {
+type IritaApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
@@ -127,7 +127,7 @@ type IrisApp struct {
 
 // NewIrisApp returns a reference to an initialized IrisApp.
 func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
-	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp)) *IrisApp {
+	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp)) *IritaApp {
 
 	cdc := MakeCodec()
 
@@ -143,7 +143,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
-	app := &IrisApp{
+	app := &IritaApp{
 		BaseApp:        bApp,
 		cdc:            cdc,
 		invCheckPeriod: invCheckPeriod,
@@ -291,17 +291,17 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 }
 
 // application updates every begin block
-func (app *IrisApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *IritaApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // application updates every end block
-func (app *IrisApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *IritaApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
 // application update at chain initialization
-func (app *IrisApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
 
@@ -309,12 +309,12 @@ func (app *IrisApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci
 }
 
 // load a particular height
-func (app *IrisApp) LoadHeight(height int64) error {
+func (app *IritaApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *IrisApp) ModuleAccountAddrs() map[string]bool {
+func (app *IritaApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
@@ -324,7 +324,7 @@ func (app *IrisApp) ModuleAccountAddrs() map[string]bool {
 }
 
 // Codec returns the application's sealed codec.
-func (app *IrisApp) Codec() *codec.Codec {
+func (app *IritaApp) Codec() *codec.Codec {
 	return app.cdc
 }
 
