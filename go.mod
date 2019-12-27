@@ -9,7 +9,7 @@ require (
 	github.com/go-kit/kit v0.9.0
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.3
-	github.com/irisnet/modules/incubator/nft v0.0.0-20191216100546-7165b1641726
+	github.com/irisnet/modules/incubator/nft v0.0.0-20191227115435-b1f409214596
 	github.com/keybase/go-keychain v0.0.0-20191114153608-ccd67945d59e // indirect
 	github.com/mattn/go-isatty v0.0.11 // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect

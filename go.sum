@@ -150,6 +150,8 @@ github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NH
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/irisnet/modules/incubator/nft v0.0.0-20191216100546-7165b1641726 h1:o4oGLtiDzP/JZwGGOt2ULNO42IWQw1w8xSUcRNTK9dk=
 github.com/irisnet/modules/incubator/nft v0.0.0-20191216100546-7165b1641726/go.mod h1:eAEAXtq0beSm7YFfpVqZ4ZnjCz/8kFbLxcDmR/38Z+4=
+github.com/irisnet/modules/incubator/nft v0.0.0-20191227115435-b1f409214596 h1:OBrTMZpnWOhNeci8QFmLHmpZMUsFMQYuAVvnC3gJo7g=
+github.com/irisnet/modules/incubator/nft v0.0.0-20191227115435-b1f409214596/go.mod h1:eAEAXtq0beSm7YFfpVqZ4ZnjCz/8kFbLxcDmR/38Z+4=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jmhodges/levigo v1.0.0 h1:q5EC36kV79HWeTBWsod3mG11EgStG3qArTKcvlksN1U=
 github.com/jmhodges/levigo v1.0.0/go.mod h1:Q6Qx+uH3RAqyK4rFQroq9RL7mdkABMcfhEI+nNuzMJQ=
