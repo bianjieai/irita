@@ -27,8 +27,6 @@ import (
 	govrest "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	gcutils "github.com/cosmos/cosmos-sdk/x/gov/client/utils"
 	paramscutils "github.com/cosmos/cosmos-sdk/x/params/client/utils"
-	"github.com/cosmos/cosmos-sdk/x/slashing"
-	slashingrest "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingrest "github.com/cosmos/cosmos-sdk/x/staking/client/rest"
 
@@ -1067,103 +1065,6 @@ func getVotingParam(t *testing.T, port string) gov.VotingParams {
 	err := cdc.UnmarshalJSON([]byte(body), &votingParams)
 	require.Nil(t, err)
 	return votingParams
-}
-
-// ----------------------------------------------------------------------
-// ICS 23 - Slashing
-// ----------------------------------------------------------------------
-// GET /slashing/validators/{validatorPubKey}/signing_info Get sign info of given validator
-func getSigningInfo(t *testing.T, port string, validatorPubKey string) slashing.ValidatorSigningInfo {
-	res, body := Request(t, port, "GET", fmt.Sprintf("/slashing/validators/%s/signing_info", validatorPubKey), nil)
-	require.Equal(t, http.StatusOK, res.StatusCode, body)
-
-	var signingInfo slashing.ValidatorSigningInfo
-	err := cdc.UnmarshalJSON(extractResultFromResponse(t, []byte(body)), &signingInfo)
-	require.Nil(t, err)
-
-	return signingInfo
-}
-
-// ----------------------------------------------------------------------
-// ICS 23 - SlashingList
-// ----------------------------------------------------------------------
-// GET /slashing/signing_infos Get sign info of all validators with pagination
-func getSigningInfoList(t *testing.T, port string) []slashing.ValidatorSigningInfo {
-	res, body := Request(t, port, "GET", "/slashing/signing_infos?page=1&limit=1", nil)
-	require.Equal(t, http.StatusOK, res.StatusCode, body)
-
-	var signingInfo []slashing.ValidatorSigningInfo
-	err := cdc.UnmarshalJSON(extractResultFromResponse(t, []byte(body)), &signingInfo)
-	require.Nil(t, err)
-
-	return signingInfo
-}
-
-// TODO: Test this functionality, it is not currently in any of the tests
-// POST /slashing/validators/{validatorAddr}/unjail Unjail a jailed validator
-func doUnjail(
-	t *testing.T, port, seed, name, pwd string, valAddr sdk.ValAddress, fees sdk.Coins,
-) sdk.TxResponse {
-
-	acc := getAccount(t, port, sdk.AccAddress(valAddr.Bytes()))
-	from := acc.GetAddress().String()
-	chainID := viper.GetString(client.FlagChainID)
-
-	baseReq := rest.NewBaseReq(from, "", chainID, "", "", 1, 1, fees, nil, false)
-	ur := slashingrest.UnjailReq{
-		BaseReq: baseReq,
-	}
-	req, err := cdc.MarshalJSON(ur)
-	require.NoError(t, err)
-
-	resp, body := Request(t, port, "POST", fmt.Sprintf("/slashing/validators/%s/unjail", valAddr.String()), req)
-	require.Equal(t, http.StatusOK, resp.StatusCode, body)
-
-	resp, body = signAndBroadcastGenTx(t, port, name, pwd, body, acc, client.DefaultGasAdjustment, false)
-	require.Equal(t, http.StatusOK, resp.StatusCode, body)
-
-	var txResp sdk.TxResponse
-	err = cdc.UnmarshalJSON([]byte(body), &txResp)
-	require.NoError(t, err)
-
-	return txResp
-}
-
-type unjailReq struct {
-	BaseReq rest.BaseReq `json:"base_req"`
-}
-
-// ICS24 - fee distribution
-
-// POST /distribution/delegators/{delgatorAddr}/rewards Withdraw delegator rewards
-func doWithdrawDelegatorAllRewards(
-	t *testing.T, port, seed, name, pwd string, delegatorAddr sdk.AccAddress, fees sdk.Coins,
-) sdk.TxResponse {
-	// get the account to get the sequence
-	acc := getAccount(t, port, delegatorAddr)
-	accnum := acc.GetAccountNumber()
-	sequence := acc.GetSequence()
-	chainID := viper.GetString(client.FlagChainID)
-	from := acc.GetAddress().String()
-
-	baseReq := rest.NewBaseReq(from, "", chainID, "", "", accnum, sequence, fees, nil, false)
-	wr := struct {
-		BaseReq rest.BaseReq `json:"base_req"`
-	}{BaseReq: baseReq}
-
-	req := cdc.MustMarshalJSON(wr)
-
-	resp, body := Request(t, port, "POST", fmt.Sprintf("/distribution/delegators/%s/rewards", delegatorAddr), req)
-	require.Equal(t, http.StatusOK, resp.StatusCode, body)
-
-	resp, body = signAndBroadcastGenTx(t, port, name, pwd, body, acc, client.DefaultGasAdjustment, false)
-	require.Equal(t, http.StatusOK, resp.StatusCode, body)
-
-	var txResp sdk.TxResponse
-	err := cdc.UnmarshalJSON([]byte(body), &txResp)
-	require.NoError(t, err)
-
-	return txResp
 }
 
 func mustParseDecCoins(dcstring string) sdk.DecCoins {

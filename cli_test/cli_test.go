@@ -6,16 +6,14 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/tendermint/tendermint/crypto/ed25519"
+	tmtypes "github.com/tendermint/tendermint/types"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
-
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/stretchr/testify/require"
 
@@ -26,10 +24,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/gov"
-	"github.com/cosmos/cosmos-sdk/x/mint"
 )
 
-func TestIrisCLIKeysAddMultisig(t *testing.T) {
+func TestIritaCLIKeysAddMultisig(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
@@ -52,7 +49,7 @@ func TestIrisCLIKeysAddMultisig(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIKeysAddRecover(t *testing.T) {
+func TestIritaCLIKeysAddRecover(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
@@ -67,7 +64,7 @@ func TestIrisCLIKeysAddRecover(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIKeysAddRecoverHDPath(t *testing.T) {
+func TestIritaCLIKeysAddRecoverHDPath(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
@@ -87,11 +84,11 @@ func TestIrisCLIKeysAddRecoverHDPath(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIMinimumFees(t *testing.T) {
+func TestIritaCLIMinimumFees(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server with minimum fees
+	// start irita server with minimum fees
 	minGasPrice, _ := sdk.NewDecFromStr("0.000006")
 	fees := fmt.Sprintf(
 		"--minimum-gas-prices=%s,%s",
@@ -125,11 +122,11 @@ func TestIrisCLIMinimumFees(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIGasPrices(t *testing.T) {
+func TestIritaCLIGasPrices(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server with minimum fees
+	// start irita server with minimum fees
 	minGasPrice, _ := sdk.NewDecFromStr("0.000006")
 	proc := f.GDStart(fmt.Sprintf("--minimum-gas-prices=%s", sdk.NewDecCoinFromDec(feeDenom, minGasPrice)))
 	defer proc.Stop(false)
@@ -159,11 +156,11 @@ func TestIrisCLIGasPrices(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIFeesDeduction(t *testing.T) {
+func TestIritaCLIFeesDeduction(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server with minimum fees
+	// start irita server with minimum fees
 	minGasPrice, _ := sdk.NewDecFromStr("0.000006")
 	proc := f.GDStart(fmt.Sprintf("--minimum-gas-prices=%s", sdk.NewDecCoinFromDec(feeDenom, minGasPrice)))
 	defer proc.Stop(false)
@@ -212,11 +209,11 @@ func TestIrisCLIFeesDeduction(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLISend(t *testing.T) {
+func TestIritaCLISend(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -281,11 +278,11 @@ func TestIrisCLISend(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIGasAuto(t *testing.T) {
+func TestIritaCLIGasAuto(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -341,11 +338,11 @@ func TestIrisCLIGasAuto(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLICreateValidator(t *testing.T) {
+func TestIritaCLICreateValidator(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -414,44 +411,11 @@ func TestIrisCLICreateValidator(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIQueryRewards(t *testing.T) {
-	t.Parallel()
-	f := InitFixtures(t)
-	cdc := app.MakeCodec()
-
-	genesisState := f.GenesisState()
-	inflationMin := sdk.MustNewDecFromStr("10000.0")
-	var mintData mint.GenesisState
-	cdc.UnmarshalJSON(genesisState[mint.ModuleName], &mintData)
-	mintData.Minter.Inflation = inflationMin
-	mintData.Params.InflationMin = inflationMin
-	mintData.Params.InflationMax = sdk.MustNewDecFromStr("15000.0")
-	mintDataBz, err := cdc.MarshalJSON(mintData)
-	require.NoError(t, err)
-	genesisState[mint.ModuleName] = mintDataBz
-
-	genFile := filepath.Join(f.IrisdHome, "config", "genesis.json")
-	genDoc, err := tmtypes.GenesisDocFromFile(genFile)
-	require.NoError(t, err)
-	genDoc.AppState, err = cdc.MarshalJSON(genesisState)
-	require.NoError(t, genDoc.SaveAs(genFile))
-
-	// start iris server
-	proc := f.GDStart()
-	defer proc.Stop(false)
-
-	fooAddr := f.KeyAddress(keyFoo)
-	rewards := f.QueryRewards(fooAddr)
-	require.Equal(t, 1, len(rewards.Rewards))
-
-	f.Cleanup()
-}
-
-func TestIrisCLIQuerySupply(t *testing.T) {
+func TestIritaCLIQuerySupply(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -464,11 +428,11 @@ func TestIrisCLIQuerySupply(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLISubmitProposal(t *testing.T) {
+func TestIritaCLISubmitProposal(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -609,7 +573,7 @@ func TestIrisCLISubmitProposal(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLISubmitParamChangeProposal(t *testing.T) {
+func TestIritaCLISubmitParamChangeProposal(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
@@ -673,95 +637,11 @@ func TestIrisCLISubmitParamChangeProposal(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLISubmitCommunityPoolSpendProposal(t *testing.T) {
+func TestIritaCLIQueryTxPagination(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// create some inflation
-	cdc := app.MakeCodec()
-	genesisState := f.GenesisState()
-	inflationMin := sdk.MustNewDecFromStr("10000.0")
-	var mintData mint.GenesisState
-	cdc.UnmarshalJSON(genesisState[mint.ModuleName], &mintData)
-	mintData.Minter.Inflation = inflationMin
-	mintData.Params.InflationMin = inflationMin
-	mintData.Params.InflationMax = sdk.MustNewDecFromStr("15000.0")
-	mintDataBz, err := cdc.MarshalJSON(mintData)
-	require.NoError(t, err)
-	genesisState[mint.ModuleName] = mintDataBz
-
-	genFile := filepath.Join(f.IrisdHome, "config", "genesis.json")
-	genDoc, err := tmtypes.GenesisDocFromFile(genFile)
-	require.NoError(t, err)
-	genDoc.AppState, err = cdc.MarshalJSON(genesisState)
-	require.NoError(t, genDoc.SaveAs(genFile))
-
-	proc := f.GDStart()
-	defer proc.Stop(false)
-
-	fooAddr := f.KeyAddress(keyFoo)
-	fooAcc := f.QueryAccount(fooAddr)
-	startTokens := sdk.TokensFromConsensusPower(50)
-	require.Equal(t, startTokens, fooAcc.GetCoins().AmountOf(sdk.DefaultBondDenom))
-
-	tests.WaitForNextNBlocksTM(3, f.Port)
-
-	// write proposal to file
-	proposalTokens := sdk.TokensFromConsensusPower(5)
-	proposal := fmt.Sprintf(`{
-  "title": "Community Pool Spend",
-  "description": "Spend from community pool",
-  "recipient": "%s",
-  "amount": [
-    {
-      "denom": "%s",
-      "amount": "1"
-    }
-  ],
-  "deposit": [
-    {
-      "denom": "%s",
-      "amount": "%s"
-    }
-  ]
-}
-`, fooAddr, sdk.DefaultBondDenom, sdk.DefaultBondDenom, proposalTokens.String())
-	proposalFile := WriteToNewTempFile(t, proposal)
-
-	// create the param change proposal
-	f.TxGovSubmitCommunityPoolSpendProposal(keyFoo, proposalFile.Name(), sdk.NewCoin(denom, proposalTokens), "-y")
-	tests.WaitForNextNBlocksTM(1, f.Port)
-
-	// ensure transaction tags can be queried
-	txsPage := f.QueryTxs(1, 50, "message.action:submit_proposal", fmt.Sprintf("message.sender:%s", fooAddr))
-	require.Len(t, txsPage.Txs, 1)
-
-	// ensure deposit was deducted
-	fooAcc = f.QueryAccount(fooAddr)
-	require.Equal(t, startTokens.Sub(proposalTokens).String(), fooAcc.GetCoins().AmountOf(sdk.DefaultBondDenom).String())
-
-	// ensure proposal is directly queryable
-	proposal1 := f.QueryGovProposal(1)
-	require.Equal(t, uint64(1), proposal1.ProposalID)
-	require.Equal(t, gov.StatusDepositPeriod, proposal1.Status)
-
-	// ensure correct query proposals result
-	proposalsQuery := f.QueryGovProposals()
-	require.Equal(t, uint64(1), proposalsQuery[0].ProposalID)
-
-	// ensure the correct deposit amount on the proposal
-	deposit := f.QueryGovDeposit(1, fooAddr)
-	require.Equal(t, proposalTokens, deposit.Amount.AmountOf(denom))
-
-	// Cleanup testing directories
-	f.Cleanup()
-}
-
-func TestIrisCLIQueryTxPagination(t *testing.T) {
-	t.Parallel()
-	f := InitFixtures(t)
-
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -807,11 +687,11 @@ func TestIrisCLIQueryTxPagination(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIValidateSignatures(t *testing.T) {
+func TestIritaCLIValidateSignatures(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -857,11 +737,11 @@ func TestIrisCLIValidateSignatures(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLISendGenerateSignAndBroadcast(t *testing.T) {
+func TestIritaCLISendGenerateSignAndBroadcast(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -941,11 +821,11 @@ func TestIrisCLISendGenerateSignAndBroadcast(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIMultisignInsufficientCosigners(t *testing.T) {
+func TestIritaCLIMultisignInsufficientCosigners(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server with minimum fees
+	// start irita server with minimum fees
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -994,11 +874,11 @@ func TestIrisCLIMultisignInsufficientCosigners(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIEncode(t *testing.T) {
+func TestIritaCLIEncode(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -1032,11 +912,11 @@ func TestIrisCLIEncode(t *testing.T) {
 	require.Equal(t, "deadbeef", decodedTx.Memo)
 }
 
-func TestIrisCLIMultisignSortSignatures(t *testing.T) {
+func TestIritaCLIMultisignSortSignatures(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server with minimum fees
+	// start irita server with minimum fees
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -1097,11 +977,11 @@ func TestIrisCLIMultisignSortSignatures(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIMultisign(t *testing.T) {
+func TestIritaCLIMultisign(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server with minimum fees
+	// start irita server with minimum fees
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -1163,7 +1043,7 @@ func TestIrisCLIMultisign(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIConfig(t *testing.T) {
+func TestIritaCLIConfig(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 	node := fmt.Sprintf("%s:%s", f.RPCAddr, f.Port)
@@ -1177,7 +1057,7 @@ func TestIrisCLIConfig(t *testing.T) {
 	f.CLIConfig("trace", "false")
 	f.CLIConfig("indent", "true")
 
-	config, err := ioutil.ReadFile(path.Join(f.IriscliHome, "config", "config.toml"))
+	config, err := ioutil.ReadFile(path.Join(f.IritaCLIHome, "config", "config.toml"))
 	require.NoError(t, err)
 	expectedConfig := fmt.Sprintf(`broadcast-mode = "block"
 chain-id = "%s"
@@ -1192,7 +1072,7 @@ trust-node = true
 	f.Cleanup()
 }
 
-func TestIrisdCollectGentxs(t *testing.T) {
+func TestIritadCollectGentxs(t *testing.T) {
 	t.Parallel()
 	var customMaxBytes, customMaxGas int64 = 99999999, 1234567
 	f := NewFixtures(t)
@@ -1240,7 +1120,7 @@ func TestIrisdCollectGentxs(t *testing.T) {
 	f.Cleanup(gentxDir)
 }
 
-func TestIrisdAddGenesisAccount(t *testing.T) {
+func TestIritadAddGenesisAccount(t *testing.T) {
 	t.Parallel()
 	f := NewFixtures(t)
 
@@ -1283,32 +1163,11 @@ func TestIrisdAddGenesisAccount(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestSlashingGetParams(t *testing.T) {
-	t.Parallel()
-	f := InitFixtures(t)
-
-	// start iris server
-	proc := f.GDStart()
-	defer proc.Stop(false)
-
-	params := f.QuerySlashingParams()
-	require.Equal(t, time.Duration(120000000000), params.MaxEvidenceAge)
-	require.Equal(t, int64(100), params.SignedBlocksWindow)
-	require.Equal(t, sdk.NewDecWithPrec(5, 1), params.MinSignedPerWindow)
-
-	sinfo := f.QuerySigningInfo(f.GDTendermint("show-validator"))
-	require.Equal(t, int64(0), sinfo.StartHeight)
-	require.False(t, sinfo.Tombstoned)
-
-	// Cleanup testing directories
-	f.Cleanup()
-}
-
 func TestValidateGenesis(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
