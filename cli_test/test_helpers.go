@@ -177,7 +177,7 @@ func InitFixtures(t *testing.T) (f *Fixtures) {
 		f.KeyAddress(keyVesting), startCoins,
 		fmt.Sprintf("--vesting-amount=%s", vestingCoins),
 		fmt.Sprintf("--vesting-start-time=%d", time.Now().UTC().UnixNano()),
-		fmt.Sprintf("--vesting-end-time=%d", time.Now().Add(60 * time.Second).UTC().UnixNano()),
+		fmt.Sprintf("--vesting-end-time=%d", time.Now().Add(60*time.Second).UTC().UnixNano()),
 	)
 
 	f.GenTx(keyFoo)
