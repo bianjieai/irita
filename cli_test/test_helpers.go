@@ -51,7 +51,7 @@ var (
 		sdk.NewCoin(fee2Denom, sdk.TokensFromConsensusPower(2000000)),
 		sdk.NewCoin(feeDenom, sdk.TokensFromConsensusPower(2000000)),
 		sdk.NewCoin(fooDenom, sdk.TokensFromConsensusPower(2000)),
-		sdk.NewCoin(denom, sdk.TokensFromConsensusPower(300).Add(sdk.NewInt(12))), // add coins from inflation
+		sdk.NewCoin(denom, sdk.TokensFromConsensusPower(300)),
 	)
 
 	startCoins = sdk.NewCoins(
@@ -69,10 +69,10 @@ var (
 func init() {
 	// set Bech32 config
 	config := sdk.GetConfig()
-	irisConfig := iconfig.GetConfig()
-	config.SetBech32PrefixForAccount(irisConfig.GetBech32AccountAddrPrefix(), irisConfig.GetBech32AccountPubPrefix())
-	config.SetBech32PrefixForValidator(irisConfig.GetBech32ValidatorAddrPrefix(), irisConfig.GetBech32ValidatorPubPrefix())
-	config.SetBech32PrefixForConsensusNode(irisConfig.GetBech32ConsensusAddrPrefix(), irisConfig.GetBech32ConsensusPubPrefix())
+	iritaConfig := iconfig.GetConfig()
+	config.SetBech32PrefixForAccount(iritaConfig.GetBech32AccountAddrPrefix(), iritaConfig.GetBech32AccountPubPrefix())
+	config.SetBech32PrefixForValidator(iritaConfig.GetBech32ValidatorAddrPrefix(), iritaConfig.GetBech32ValidatorPubPrefix())
+	config.SetBech32PrefixForConsensusNode(iritaConfig.GetBech32ConsensusAddrPrefix(), iritaConfig.GetBech32ConsensusPubPrefix())
 	config.Seal()
 }
 
@@ -81,22 +81,22 @@ func init() {
 
 // Fixtures is used to setup the testing environment
 type Fixtures struct {
-	BuildDir      string
-	RootDir       string
-	IrisdBinary   string
-	IriscliBinary string
-	ChainID       string
-	RPCAddr       string
-	Port          string
-	IrisdHome     string
-	IriscliHome   string
-	P2PAddr       string
-	T             *testing.T
+	BuildDir       string
+	RootDir        string
+	IritadBinary   string
+	IritaCLIBinary string
+	ChainID        string
+	RPCAddr        string
+	Port           string
+	IritadHome     string
+	IritaCLIHome   string
+	P2PAddr        string
+	T              *testing.T
 }
 
 // NewFixtures creates a new instance of Fixtures with many vars set
 func NewFixtures(t *testing.T) *Fixtures {
-	tmpDir, err := ioutil.TempDir("", "iris_integration_"+t.Name()+"_")
+	tmpDir, err := ioutil.TempDir("", "irita_integration_"+t.Name()+"_")
 	require.NoError(t, err)
 
 	servAddr, port, err := server.FreeTCPAddr()
@@ -112,22 +112,22 @@ func NewFixtures(t *testing.T) *Fixtures {
 	}
 
 	return &Fixtures{
-		T:             t,
-		BuildDir:      buildDir,
-		RootDir:       tmpDir,
-		IrisdBinary:   filepath.Join(buildDir, "iris"),
-		IriscliBinary: filepath.Join(buildDir, "iriscli"),
-		IrisdHome:     filepath.Join(tmpDir, ".iris"),
-		IriscliHome:   filepath.Join(tmpDir, ".iriscli"),
-		RPCAddr:       servAddr,
-		P2PAddr:       p2pAddr,
-		Port:          port,
+		T:              t,
+		BuildDir:       buildDir,
+		RootDir:        tmpDir,
+		IritadBinary:   filepath.Join(buildDir, "irita"),
+		IritaCLIBinary: filepath.Join(buildDir, "iritacli"),
+		IritadHome:     filepath.Join(tmpDir, ".irita"),
+		IritaCLIHome:   filepath.Join(tmpDir, ".iritacli"),
+		RPCAddr:        servAddr,
+		P2PAddr:        p2pAddr,
+		Port:           port,
 	}
 }
 
 // GenesisFile returns the path of the genesis file
 func (f Fixtures) GenesisFile() string {
-	return filepath.Join(f.IrisdHome, "config", "genesis.json")
+	return filepath.Join(f.IritadHome, "config", "genesis.json")
 }
 
 // GenesisFile returns the application's genesis state
@@ -213,24 +213,24 @@ func (f *Fixtures) Cleanup(dirs ...string) {
 
 // Flags returns the flags necessary for making most CLI calls
 func (f *Fixtures) Flags() string {
-	return fmt.Sprintf("--home=%s --node=%s", f.IriscliHome, f.RPCAddr)
+	return fmt.Sprintf("--home=%s --node=%s", f.IritaCLIHome, f.RPCAddr)
 }
 
 //___________________________________________________________________________________
-// iris
+// irita
 
-// UnsafeResetAll is iris unsafe-reset-all
+// UnsafeResetAll is irita unsafe-reset-all
 func (f *Fixtures) UnsafeResetAll(flags ...string) {
-	cmd := fmt.Sprintf("%s --home=%s unsafe-reset-all", f.IrisdBinary, f.IrisdHome)
+	cmd := fmt.Sprintf("%s --home=%s unsafe-reset-all", f.IritadBinary, f.IritadHome)
 	executeWrite(f.T, addFlags(cmd, flags))
-	err := os.RemoveAll(filepath.Join(f.IrisdHome, "config", "gentx"))
+	err := os.RemoveAll(filepath.Join(f.IritadHome, "config", "gentx"))
 	require.NoError(f.T, err)
 }
 
-// GDInit is iris init
+// GDInit is irita init
 // NOTE: GDInit sets the ChainID for the Fixtures instance
 func (f *Fixtures) GDInit(moniker string, flags ...string) {
-	cmd := fmt.Sprintf("%s init -o --home=%s %s", f.IrisdBinary, f.IrisdHome, moniker)
+	cmd := fmt.Sprintf("%s init -o --home=%s %s", f.IritadBinary, f.IritadHome, moniker)
 	_, stderr := tests.ExecuteT(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 
 	var chainID string
@@ -245,78 +245,78 @@ func (f *Fixtures) GDInit(moniker string, flags ...string) {
 	f.ChainID = chainID
 }
 
-// AddGenesisAccount is iris add-genesis-account
+// AddGenesisAccount is irita add-genesis-account
 func (f *Fixtures) AddGenesisAccount(address sdk.AccAddress, coins sdk.Coins, flags ...string) {
-	cmd := fmt.Sprintf("%s add-genesis-account %s %s --home=%s", f.IrisdBinary, address, coins, f.IrisdHome)
+	cmd := fmt.Sprintf("%s add-genesis-account %s %s --home=%s", f.IritadBinary, address, coins, f.IritadHome)
 	executeWriteCheckErr(f.T, addFlags(cmd, flags))
 }
 
-// GenTx is iris gentx
+// GenTx is irita gentx
 func (f *Fixtures) GenTx(name string, flags ...string) {
-	cmd := fmt.Sprintf("%s gentx --name=%s --home=%s --home-client=%s", f.IrisdBinary, name, f.IrisdHome, f.IriscliHome)
+	cmd := fmt.Sprintf("%s gentx --name=%s --home=%s --home-client=%s", f.IritadBinary, name, f.IritadHome, f.IritaCLIHome)
 	executeWriteCheckErr(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// CollectGenTxs is iris collect-gentxs
+// CollectGenTxs is irita collect-gentxs
 func (f *Fixtures) CollectGenTxs(flags ...string) {
-	cmd := fmt.Sprintf("%s collect-gentxs --home=%s", f.IrisdBinary, f.IrisdHome)
+	cmd := fmt.Sprintf("%s collect-gentxs --home=%s", f.IritadBinary, f.IritadHome)
 	executeWriteCheckErr(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// GDStart runs iris start with the appropriate flags and returns a process
+// GDStart runs irita start with the appropriate flags and returns a process
 func (f *Fixtures) GDStart(flags ...string) *tests.Process {
-	cmd := fmt.Sprintf("%s start --home=%s --rpc.laddr=%v --p2p.laddr=%v", f.IrisdBinary, f.IrisdHome, f.RPCAddr, f.P2PAddr)
+	cmd := fmt.Sprintf("%s start --home=%s --rpc.laddr=%v --p2p.laddr=%v", f.IritadBinary, f.IritadHome, f.RPCAddr, f.P2PAddr)
 	proc := tests.GoExecuteTWithStdout(f.T, addFlags(cmd, flags))
 	tests.WaitForTMStart(f.Port)
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	return proc
 }
 
-// GDTendermint returns the results of iris tendermint [query]
+// GDTendermint returns the results of irita tendermint [query]
 func (f *Fixtures) GDTendermint(query string) string {
-	cmd := fmt.Sprintf("%s tendermint %s --home=%s", f.IrisdBinary, query, f.IrisdHome)
+	cmd := fmt.Sprintf("%s tendermint %s --home=%s", f.IritadBinary, query, f.IritadHome)
 	success, stdout, stderr := executeWriteRetStdStreams(f.T, cmd)
 	require.Empty(f.T, stderr)
 	require.True(f.T, success)
 	return strings.TrimSpace(stdout)
 }
 
-// ValidateGenesis runs iris validate-genesis
+// ValidateGenesis runs irita validate-genesis
 func (f *Fixtures) ValidateGenesis() {
-	cmd := fmt.Sprintf("%s validate-genesis --home=%s", f.IrisdBinary, f.IrisdHome)
+	cmd := fmt.Sprintf("%s validate-genesis --home=%s", f.IritadBinary, f.IritadHome)
 	executeWriteCheckErr(f.T, cmd)
 }
 
 //___________________________________________________________________________________
-// iriscli keys
+// iritacli keys
 
-// KeysDelete is iriscli keys delete
+// KeysDelete is iritacli keys delete
 func (f *Fixtures) KeysDelete(name string, flags ...string) {
-	cmd := fmt.Sprintf("%s keys delete --home=%s %s", f.IriscliBinary, f.IriscliHome, name)
+	cmd := fmt.Sprintf("%s keys delete --home=%s %s", f.IritaCLIBinary, f.IritaCLIHome, name)
 	executeWrite(f.T, addFlags(cmd, append(append(flags, "-y"), "-f")))
 }
 
-// KeysAdd is iriscli keys add
+// KeysAdd is iritacli keys add
 func (f *Fixtures) KeysAdd(name string, flags ...string) {
-	cmd := fmt.Sprintf("%s keys add --home=%s %s", f.IriscliBinary, f.IriscliHome, name)
+	cmd := fmt.Sprintf("%s keys add --home=%s %s", f.IritaCLIBinary, f.IritaCLIHome, name)
 	executeWriteCheckErr(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// KeysAddRecover prepares iriscli keys add --recover
+// KeysAddRecover prepares iritacli keys add --recover
 func (f *Fixtures) KeysAddRecover(name, mnemonic string, flags ...string) (exitSuccess bool, stdout, stderr string) {
-	cmd := fmt.Sprintf("%s keys add --home=%s --recover %s", f.IriscliBinary, f.IriscliHome, name)
+	cmd := fmt.Sprintf("%s keys add --home=%s --recover %s", f.IritaCLIBinary, f.IritaCLIHome, name)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass, mnemonic)
 }
 
-// KeysAddRecoverHDPath prepares iriscli keys add --recover --account --index
+// KeysAddRecoverHDPath prepares iritacli keys add --recover --account --index
 func (f *Fixtures) KeysAddRecoverHDPath(name, mnemonic string, account uint32, index uint32, flags ...string) {
-	cmd := fmt.Sprintf("%s keys add --home=%s --recover %s --account %d --index %d", f.IriscliBinary, f.IriscliHome, name, account, index)
+	cmd := fmt.Sprintf("%s keys add --home=%s --recover %s --account %d --index %d", f.IritaCLIBinary, f.IritaCLIHome, name, account, index)
 	executeWriteCheckErr(f.T, addFlags(cmd, flags), client.DefaultKeyPass, mnemonic)
 }
 
-// KeysShow is iriscli keys show
+// KeysShow is iritacli keys show
 func (f *Fixtures) KeysShow(name string, flags ...string) keys.KeyOutput {
-	cmd := fmt.Sprintf("%s keys show --home=%s %s", f.IriscliBinary, f.IriscliHome, name)
+	cmd := fmt.Sprintf("%s keys show --home=%s %s", f.IritaCLIBinary, f.IritaCLIHome, name)
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var ko keys.KeyOutput
 	err := clientkeys.UnmarshalJSON([]byte(out), &ko)
@@ -333,88 +333,88 @@ func (f *Fixtures) KeyAddress(name string) sdk.AccAddress {
 }
 
 //___________________________________________________________________________________
-// iriscli config
+// iritacli config
 
-// CLIConfig is iriscli config
+// CLIConfig is iritacli config
 func (f *Fixtures) CLIConfig(key, value string, flags ...string) {
-	cmd := fmt.Sprintf("%s config --home=%s %s %s", f.IriscliBinary, f.IriscliHome, key, value)
+	cmd := fmt.Sprintf("%s config --home=%s %s %s", f.IritaCLIBinary, f.IritaCLIHome, key, value)
 	executeWriteCheckErr(f.T, addFlags(cmd, flags))
 }
 
 //___________________________________________________________________________________
-// iriscli tx send/sign/broadcast
+// iritacli tx send/sign/broadcast
 
-// TxSend is iriscli tx send
+// TxSend is iritacli tx send
 func (f *Fixtures) TxSend(from string, to sdk.AccAddress, amount sdk.Coin, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx send %s %s %s %v", f.IriscliBinary, from, to, amount, f.Flags())
+	cmd := fmt.Sprintf("%s tx send %s %s %s %v", f.IritaCLIBinary, from, to, amount, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxSign is iriscli tx sign
+// TxSign is iritacli tx sign
 func (f *Fixtures) TxSign(signer, fileName string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx sign %v --from=%s %v", f.IriscliBinary, f.Flags(), signer, fileName)
+	cmd := fmt.Sprintf("%s tx sign %v --from=%s %v", f.IritaCLIBinary, f.Flags(), signer, fileName)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxBroadcast is iriscli tx broadcast
+// TxBroadcast is iritacli tx broadcast
 func (f *Fixtures) TxBroadcast(fileName string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx broadcast %v %v", f.IriscliBinary, f.Flags(), fileName)
+	cmd := fmt.Sprintf("%s tx broadcast %v %v", f.IritaCLIBinary, f.Flags(), fileName)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxEncode is iriscli tx encode
+// TxEncode is iritacli tx encode
 func (f *Fixtures) TxEncode(fileName string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx encode %v %v", f.IriscliBinary, f.Flags(), fileName)
+	cmd := fmt.Sprintf("%s tx encode %v %v", f.IritaCLIBinary, f.Flags(), fileName)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxMultisign is iriscli tx multisign
+// TxMultisign is iritacli tx multisign
 func (f *Fixtures) TxMultisign(fileName, name string, signaturesFiles []string,
 	flags ...string) (bool, string, string) {
 
-	cmd := fmt.Sprintf("%s tx multisign %v %s %s %s", f.IriscliBinary, f.Flags(),
+	cmd := fmt.Sprintf("%s tx multisign %v %s %s %s", f.IritaCLIBinary, f.Flags(),
 		fileName, name, strings.Join(signaturesFiles, " "),
 	)
 	return executeWriteRetStdStreams(f.T, cmd)
 }
 
 //___________________________________________________________________________________
-// iriscli tx staking
+// iritacli tx staking
 
-// TxStakingCreateValidator is iriscli tx staking create-validator
+// TxStakingCreateValidator is iritacli tx staking create-validator
 func (f *Fixtures) TxStakingCreateValidator(from, consPubKey string, amount sdk.Coin, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx staking create-validator %v --from=%s --pubkey=%s", f.IriscliBinary, f.Flags(), from, consPubKey)
+	cmd := fmt.Sprintf("%s tx staking create-validator %v --from=%s --pubkey=%s", f.IritaCLIBinary, f.Flags(), from, consPubKey)
 	cmd += fmt.Sprintf(" --amount=%v --moniker=%v --commission-rate=%v", amount, from, "0.05")
 	cmd += fmt.Sprintf(" --commission-max-rate=%v --commission-max-change-rate=%v", "0.20", "0.10")
 	cmd += fmt.Sprintf(" --min-self-delegation=%v", "1")
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxStakingUnbond is iriscli tx staking unbond
+// TxStakingUnbond is iritacli tx staking unbond
 func (f *Fixtures) TxStakingUnbond(from, shares string, validator sdk.ValAddress, flags ...string) bool {
-	cmd := fmt.Sprintf("%s tx staking unbond %s %v --from=%s %v", f.IriscliBinary, validator, shares, from, f.Flags())
+	cmd := fmt.Sprintf("%s tx staking unbond %s %v --from=%s %v", f.IritaCLIBinary, validator, shares, from, f.Flags())
 	return executeWrite(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
 //___________________________________________________________________________________
-// iriscli tx gov
+// iritacli tx gov
 
-// TxGovSubmitProposal is iriscli tx gov submit-proposal
+// TxGovSubmitProposal is iritacli tx gov submit-proposal
 func (f *Fixtures) TxGovSubmitProposal(from, typ, title, description string, deposit sdk.Coin, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx gov submit-proposal %v --from=%s --type=%s", f.IriscliBinary, f.Flags(), from, typ)
+	cmd := fmt.Sprintf("%s tx gov submit-proposal %v --from=%s --type=%s", f.IritaCLIBinary, f.Flags(), from, typ)
 	cmd += fmt.Sprintf(" --title=%s --description=%s --deposit=%s", title, description, deposit)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxGovDeposit is iriscli tx gov deposit
+// TxGovDeposit is iritacli tx gov deposit
 func (f *Fixtures) TxGovDeposit(proposalID int, from string, amount sdk.Coin, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx gov deposit %d %s --from=%s %v", f.IriscliBinary, proposalID, amount, from, f.Flags())
+	cmd := fmt.Sprintf("%s tx gov deposit %d %s --from=%s %v", f.IritaCLIBinary, proposalID, amount, from, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxGovVote is iriscli tx gov vote
+// TxGovVote is iritacli tx gov vote
 func (f *Fixtures) TxGovVote(proposalID int, option gov.VoteOption, from string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx gov vote %d %s --from=%s %v", f.IriscliBinary, proposalID, option, from, f.Flags())
+	cmd := fmt.Sprintf("%s tx gov vote %d %s --from=%s %v", f.IritaCLIBinary, proposalID, option, from, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
@@ -426,7 +426,7 @@ func (f *Fixtures) TxGovSubmitParamChangeProposal(
 
 	cmd := fmt.Sprintf(
 		"%s tx gov submit-proposal param-change %s --from=%s %v",
-		f.IriscliBinary, proposalPath, from, f.Flags(),
+		f.IritaCLIBinary, proposalPath, from, f.Flags(),
 	)
 
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
@@ -440,18 +440,18 @@ func (f *Fixtures) TxGovSubmitCommunityPoolSpendProposal(
 
 	cmd := fmt.Sprintf(
 		"%s tx gov submit-proposal community-pool-spend %s --from=%s %v",
-		f.IriscliBinary, proposalPath, from, f.Flags(),
+		f.IritaCLIBinary, proposalPath, from, f.Flags(),
 	)
 
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
 //___________________________________________________________________________________
-// iriscli query account
+// iritacli query account
 
-// QueryAccount is iriscli query account
+// QueryAccount is iritacli query account
 func (f *Fixtures) QueryAccount(address sdk.AccAddress, flags ...string) auth.BaseAccount {
-	cmd := fmt.Sprintf("%s query account %s %v", f.IriscliBinary, address, f.Flags())
+	cmd := fmt.Sprintf("%s query account %s %v", f.IritaCLIBinary, address, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var initRes map[string]json.RawMessage
 	err := json.Unmarshal([]byte(out), &initRes)
@@ -466,11 +466,11 @@ func (f *Fixtures) QueryAccount(address sdk.AccAddress, flags ...string) auth.Ba
 }
 
 //___________________________________________________________________________________
-// iriscli query txs
+// iritacli query txs
 
-// QueryTxs is iriscli query txs
+// QueryTxs is iritacli query txs
 func (f *Fixtures) QueryTxs(page, limit int, tags ...string) *sdk.SearchTxsResult {
-	cmd := fmt.Sprintf("%s query txs --page=%d --limit=%d --tags='%s' %v", f.IriscliBinary, page, limit, queryTags(tags), f.Flags())
+	cmd := fmt.Sprintf("%s query txs --page=%d --limit=%d --tags='%s' %v", f.IritaCLIBinary, page, limit, queryTags(tags), f.Flags())
 	out, _ := tests.ExecuteT(f.T, cmd, "")
 	var result sdk.SearchTxsResult
 	cdc := app.MakeCodec()
@@ -481,17 +481,17 @@ func (f *Fixtures) QueryTxs(page, limit int, tags ...string) *sdk.SearchTxsResul
 
 // QueryTxsInvalid query txs with wrong parameters and compare expected error
 func (f *Fixtures) QueryTxsInvalid(expectedErr error, page, limit int, tags ...string) {
-	cmd := fmt.Sprintf("%s query txs --page=%d --limit=%d --tags='%s' %v", f.IriscliBinary, page, limit, queryTags(tags), f.Flags())
+	cmd := fmt.Sprintf("%s query txs --page=%d --limit=%d --tags='%s' %v", f.IritaCLIBinary, page, limit, queryTags(tags), f.Flags())
 	_, err := tests.ExecuteT(f.T, cmd, "")
 	require.EqualError(f.T, expectedErr, err)
 }
 
 //___________________________________________________________________________________
-// iriscli query staking
+// iritacli query staking
 
-// QueryStakingValidator is iriscli query staking validator
+// QueryStakingValidator is iritacli query staking validator
 func (f *Fixtures) QueryStakingValidator(valAddr sdk.ValAddress, flags ...string) staking.Validator {
-	cmd := fmt.Sprintf("%s query staking validator %s %v", f.IriscliBinary, valAddr, f.Flags())
+	cmd := fmt.Sprintf("%s query staking validator %s %v", f.IritaCLIBinary, valAddr, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var validator staking.Validator
 	cdc := app.MakeCodec()
@@ -500,9 +500,9 @@ func (f *Fixtures) QueryStakingValidator(valAddr sdk.ValAddress, flags ...string
 	return validator
 }
 
-// QueryStakingUnbondingDelegationsFrom is iriscli query staking unbonding-delegations-from
+// QueryStakingUnbondingDelegationsFrom is iritacli query staking unbonding-delegations-from
 func (f *Fixtures) QueryStakingUnbondingDelegationsFrom(valAddr sdk.ValAddress, flags ...string) []staking.UnbondingDelegation {
-	cmd := fmt.Sprintf("%s query staking unbonding-delegations-from %s %v", f.IriscliBinary, valAddr, f.Flags())
+	cmd := fmt.Sprintf("%s query staking unbonding-delegations-from %s %v", f.IritaCLIBinary, valAddr, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var ubds []staking.UnbondingDelegation
 	cdc := app.MakeCodec()
@@ -511,9 +511,9 @@ func (f *Fixtures) QueryStakingUnbondingDelegationsFrom(valAddr sdk.ValAddress, 
 	return ubds
 }
 
-// QueryStakingDelegationsTo is iriscli query staking delegations-to
+// QueryStakingDelegationsTo is iritacli query staking delegations-to
 func (f *Fixtures) QueryStakingDelegationsTo(valAddr sdk.ValAddress, flags ...string) []staking.Delegation {
-	cmd := fmt.Sprintf("%s query staking delegations-to %s %v", f.IriscliBinary, valAddr, f.Flags())
+	cmd := fmt.Sprintf("%s query staking delegations-to %s %v", f.IritaCLIBinary, valAddr, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var delegations []staking.Delegation
 	cdc := app.MakeCodec()
@@ -522,9 +522,9 @@ func (f *Fixtures) QueryStakingDelegationsTo(valAddr sdk.ValAddress, flags ...st
 	return delegations
 }
 
-// QueryStakingPool is iriscli query staking pool
+// QueryStakingPool is iritacli query staking pool
 func (f *Fixtures) QueryStakingPool(flags ...string) staking.Pool {
-	cmd := fmt.Sprintf("%s query staking pool %v", f.IriscliBinary, f.Flags())
+	cmd := fmt.Sprintf("%s query staking pool %v", f.IritaCLIBinary, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var pool staking.Pool
 	cdc := app.MakeCodec()
@@ -533,9 +533,9 @@ func (f *Fixtures) QueryStakingPool(flags ...string) staking.Pool {
 	return pool
 }
 
-// QueryStakingParameters is iriscli query staking parameters
+// QueryStakingParameters is iritacli query staking parameters
 func (f *Fixtures) QueryStakingParameters(flags ...string) staking.Params {
-	cmd := fmt.Sprintf("%s query staking params %v", f.IriscliBinary, f.Flags())
+	cmd := fmt.Sprintf("%s query staking params %v", f.IritaCLIBinary, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var params staking.Params
 	cdc := app.MakeCodec()
@@ -545,11 +545,11 @@ func (f *Fixtures) QueryStakingParameters(flags ...string) staking.Params {
 }
 
 //___________________________________________________________________________________
-// iriscli query gov
+// iritacli query gov
 
-// QueryGovParamDeposit is iriscli query gov param deposit
+// QueryGovParamDeposit is iritacli query gov param deposit
 func (f *Fixtures) QueryGovParamDeposit() gov.DepositParams {
-	cmd := fmt.Sprintf("%s query gov param deposit %s", f.IriscliBinary, f.Flags())
+	cmd := fmt.Sprintf("%s query gov param deposit %s", f.IritaCLIBinary, f.Flags())
 	out, _ := tests.ExecuteT(f.T, cmd, "")
 	var depositParam gov.DepositParams
 	cdc := app.MakeCodec()
@@ -558,9 +558,9 @@ func (f *Fixtures) QueryGovParamDeposit() gov.DepositParams {
 	return depositParam
 }
 
-// QueryGovParamVoting is iriscli query gov param voting
+// QueryGovParamVoting is iritacli query gov param voting
 func (f *Fixtures) QueryGovParamVoting() gov.VotingParams {
-	cmd := fmt.Sprintf("%s query gov param voting %s", f.IriscliBinary, f.Flags())
+	cmd := fmt.Sprintf("%s query gov param voting %s", f.IritaCLIBinary, f.Flags())
 	out, _ := tests.ExecuteT(f.T, cmd, "")
 	var votingParam gov.VotingParams
 	cdc := app.MakeCodec()
@@ -569,9 +569,9 @@ func (f *Fixtures) QueryGovParamVoting() gov.VotingParams {
 	return votingParam
 }
 
-// QueryGovParamTallying is iriscli query gov param tallying
+// QueryGovParamTallying is iritacli query gov param tallying
 func (f *Fixtures) QueryGovParamTallying() gov.TallyParams {
-	cmd := fmt.Sprintf("%s query gov param tallying %s", f.IriscliBinary, f.Flags())
+	cmd := fmt.Sprintf("%s query gov param tallying %s", f.IritaCLIBinary, f.Flags())
 	out, _ := tests.ExecuteT(f.T, cmd, "")
 	var tallyingParam gov.TallyParams
 	cdc := app.MakeCodec()
@@ -580,9 +580,9 @@ func (f *Fixtures) QueryGovParamTallying() gov.TallyParams {
 	return tallyingParam
 }
 
-// QueryGovProposals is iriscli query gov proposals
+// QueryGovProposals is iritacli query gov proposals
 func (f *Fixtures) QueryGovProposals(flags ...string) gov.Proposals {
-	cmd := fmt.Sprintf("%s query gov proposals %v", f.IriscliBinary, f.Flags())
+	cmd := fmt.Sprintf("%s query gov proposals %v", f.IritaCLIBinary, f.Flags())
 	stdout, stderr := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	if strings.Contains(stderr, "no matching proposals found") {
 		return gov.Proposals{}
@@ -595,9 +595,9 @@ func (f *Fixtures) QueryGovProposals(flags ...string) gov.Proposals {
 	return out
 }
 
-// QueryGovProposal is iriscli query gov proposal
+// QueryGovProposal is iritacli query gov proposal
 func (f *Fixtures) QueryGovProposal(proposalID int, flags ...string) gov.Proposal {
-	cmd := fmt.Sprintf("%s query gov proposal %d %v", f.IriscliBinary, proposalID, f.Flags())
+	cmd := fmt.Sprintf("%s query gov proposal %d %v", f.IritaCLIBinary, proposalID, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var proposal gov.Proposal
 	cdc := app.MakeCodec()
@@ -606,9 +606,9 @@ func (f *Fixtures) QueryGovProposal(proposalID int, flags ...string) gov.Proposa
 	return proposal
 }
 
-// QueryGovVote is iriscli query gov vote
+// QueryGovVote is iritacli query gov vote
 func (f *Fixtures) QueryGovVote(proposalID int, voter sdk.AccAddress, flags ...string) gov.Vote {
-	cmd := fmt.Sprintf("%s query gov vote %d %s %v", f.IriscliBinary, proposalID, voter, f.Flags())
+	cmd := fmt.Sprintf("%s query gov vote %d %s %v", f.IritaCLIBinary, proposalID, voter, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var vote gov.Vote
 	cdc := app.MakeCodec()
@@ -617,9 +617,9 @@ func (f *Fixtures) QueryGovVote(proposalID int, voter sdk.AccAddress, flags ...s
 	return vote
 }
 
-// QueryGovVotes is iriscli query gov votes
+// QueryGovVotes is iritacli query gov votes
 func (f *Fixtures) QueryGovVotes(proposalID int, flags ...string) []gov.Vote {
-	cmd := fmt.Sprintf("%s query gov votes %d %v", f.IriscliBinary, proposalID, f.Flags())
+	cmd := fmt.Sprintf("%s query gov votes %d %v", f.IritaCLIBinary, proposalID, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var votes []gov.Vote
 	cdc := app.MakeCodec()
@@ -628,9 +628,9 @@ func (f *Fixtures) QueryGovVotes(proposalID int, flags ...string) []gov.Vote {
 	return votes
 }
 
-// QueryGovDeposit is iriscli query gov deposit
+// QueryGovDeposit is iritacli query gov deposit
 func (f *Fixtures) QueryGovDeposit(proposalID int, depositor sdk.AccAddress, flags ...string) gov.Deposit {
-	cmd := fmt.Sprintf("%s query gov deposit %d %s %v", f.IriscliBinary, proposalID, depositor, f.Flags())
+	cmd := fmt.Sprintf("%s query gov deposit %d %s %v", f.IritaCLIBinary, proposalID, depositor, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var deposit gov.Deposit
 	cdc := app.MakeCodec()
@@ -639,9 +639,9 @@ func (f *Fixtures) QueryGovDeposit(proposalID int, depositor sdk.AccAddress, fla
 	return deposit
 }
 
-// QueryGovDeposits is iriscli query gov deposits
+// QueryGovDeposits is iritacli query gov deposits
 func (f *Fixtures) QueryGovDeposits(propsalID int, flags ...string) []gov.Deposit {
-	cmd := fmt.Sprintf("%s query gov deposits %d %v", f.IriscliBinary, propsalID, f.Flags())
+	cmd := fmt.Sprintf("%s query gov deposits %d %v", f.IritaCLIBinary, propsalID, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
 	var deposits []gov.Deposit
 	cdc := app.MakeCodec()
@@ -655,7 +655,7 @@ func (f *Fixtures) QueryGovDeposits(propsalID int, flags ...string) []gov.Deposi
 
 // QuerySigningInfo returns the signing info for a validator
 func (f *Fixtures) QuerySigningInfo(val string) slashing.ValidatorSigningInfo {
-	cmd := fmt.Sprintf("%s query slashing signing-info %s %s", f.IriscliBinary, val, f.Flags())
+	cmd := fmt.Sprintf("%s query slashing signing-info %s %s", f.IritaCLIBinary, val, f.Flags())
 	res, errStr := tests.ExecuteT(f.T, cmd, "")
 	require.Empty(f.T, errStr)
 	cdc := app.MakeCodec()
@@ -665,9 +665,9 @@ func (f *Fixtures) QuerySigningInfo(val string) slashing.ValidatorSigningInfo {
 	return sinfo
 }
 
-// QuerySlashingParams is iriscli query slashing params
+// QuerySlashingParams is iritacli query slashing params
 func (f *Fixtures) QuerySlashingParams() slashing.Params {
-	cmd := fmt.Sprintf("%s query slashing params %s", f.IriscliBinary, f.Flags())
+	cmd := fmt.Sprintf("%s query slashing params %s", f.IritaCLIBinary, f.Flags())
 	res, errStr := tests.ExecuteT(f.T, cmd, "")
 	require.Empty(f.T, errStr)
 	cdc := app.MakeCodec()
@@ -682,7 +682,7 @@ func (f *Fixtures) QuerySlashingParams() slashing.Params {
 
 // QueryRewards returns the rewards of a delegator
 func (f *Fixtures) QueryRewards(delAddr sdk.AccAddress, flags ...string) distribution.QueryDelegatorTotalRewardsResponse {
-	cmd := fmt.Sprintf("%s query distribution rewards %s %s", f.IriscliBinary, delAddr, f.Flags())
+	cmd := fmt.Sprintf("%s query distribution rewards %s %s", f.IritaCLIBinary, delAddr, f.Flags())
 	res, errStr := tests.ExecuteT(f.T, cmd, "")
 	require.Empty(f.T, errStr)
 	cdc := app.MakeCodec()
@@ -697,7 +697,7 @@ func (f *Fixtures) QueryRewards(delAddr sdk.AccAddress, flags ...string) distrib
 
 // QueryTotalSupply returns the total supply of coins
 func (f *Fixtures) QueryTotalSupply(flags ...string) (totalSupply sdk.Coins) {
-	cmd := fmt.Sprintf("%s query supply total %s", f.IriscliBinary, f.Flags())
+	cmd := fmt.Sprintf("%s query supply total %s", f.IritaCLIBinary, f.Flags())
 	res, errStr := tests.ExecuteT(f.T, cmd, "")
 	require.Empty(f.T, errStr)
 	cdc := app.MakeCodec()
@@ -708,7 +708,7 @@ func (f *Fixtures) QueryTotalSupply(flags ...string) (totalSupply sdk.Coins) {
 
 // QueryTotalSupplyOf returns the total supply of a given coin denom
 func (f *Fixtures) QueryTotalSupplyOf(denom string, flags ...string) sdk.Int {
-	cmd := fmt.Sprintf("%s query supply total %s %s", f.IriscliBinary, denom, f.Flags())
+	cmd := fmt.Sprintf("%s query supply total %s %s", f.IritaCLIBinary, denom, f.Flags())
 	res, errStr := tests.ExecuteT(f.T, cmd, "")
 	require.Empty(f.T, errStr)
 	cdc := app.MakeCodec()

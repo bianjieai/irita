@@ -12,14 +12,14 @@ import (
 	"github.com/bianjieai/irita/modules/guardian"
 )
 
-func TestIrisCLIAddProfiler(t *testing.T) {
+func TestIritaCLIAddProfiler(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
 	fooAddr := f.KeyAddress(keyFoo)
 	barAddr := f.KeyAddress(keyBar)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -57,11 +57,11 @@ func TestIrisCLIAddProfiler(t *testing.T) {
 	f.Cleanup()
 }
 
-func TestIrisCLIAddTrustee(t *testing.T) {
+func TestIritaCLIAddTrustee(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	// start iris server
+	// start irita server
 	proc := f.GDStart()
 	defer proc.Stop(false)
 
@@ -103,35 +103,35 @@ func TestIrisCLIAddTrustee(t *testing.T) {
 }
 
 //___________________________________________________________________________________
-// iriscli tx guardian
+// iritacli tx guardian
 
-// TxAddProfiler is iriscli tx guardian add-profiler
+// TxAddProfiler is iritacli tx guardian add-profiler
 func (f *Fixtures) TxAddProfiler(from, address, description string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx guardian add-profiler %v --from=%s --address=%s --description=%s", f.IriscliBinary, f.Flags(), from, address, description)
+	cmd := fmt.Sprintf("%s tx guardian add-profiler %v --from=%s --address=%s --description=%s", f.IritaCLIBinary, f.Flags(), from, address, description)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxAddTrustee is iriscli tx guardian add-trustee
+// TxAddTrustee is iritacli tx guardian add-trustee
 func (f *Fixtures) TxAddTrustee(from, address, description string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx guardian add-trustee %v --from=%s --address=%s --description=%s", f.IriscliBinary, f.Flags(), from, address, description)
+	cmd := fmt.Sprintf("%s tx guardian add-trustee %v --from=%s --address=%s --description=%s", f.IritaCLIBinary, f.Flags(), from, address, description)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxDeleteProfiler is iriscli tx guardian delete-profiler
+// TxDeleteProfiler is iritacli tx guardian delete-profiler
 func (f *Fixtures) TxDeleteProfiler(from, address string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx guardian delete-profiler %v --from=%s --address=%s", f.IriscliBinary, f.Flags(), from, address)
+	cmd := fmt.Sprintf("%s tx guardian delete-profiler %v --from=%s --address=%s", f.IritaCLIBinary, f.Flags(), from, address)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// TxDeleteTrustee is iriscli tx guardian delete-trustee
+// TxDeleteTrustee is iritacli tx guardian delete-trustee
 func (f *Fixtures) TxDeleteTrustee(from, address string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx guardian  delete-trustee %v --from=%s --address=%s", f.IriscliBinary, f.Flags(), from, address)
+	cmd := fmt.Sprintf("%s tx guardian  delete-trustee %v --from=%s --address=%s", f.IritaCLIBinary, f.Flags(), from, address)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
 }
 
-// QueryProfiler is iriscli query guardian profilers
+// QueryProfiler is iritacli query guardian profilers
 func (f *Fixtures) QueryProfilers() (result guardian.Profilers) {
-	cmd := fmt.Sprintf("%s query guardian profilers --output=%s %v", f.IriscliBinary, "json", f.Flags())
+	cmd := fmt.Sprintf("%s query guardian profilers --output=%s %v", f.IritaCLIBinary, "json", f.Flags())
 	out, _ := tests.ExecuteT(f.T, cmd, "")
 	cdc := app.MakeCodec()
 	err := cdc.UnmarshalJSON([]byte(out), &result)
@@ -139,9 +139,9 @@ func (f *Fixtures) QueryProfilers() (result guardian.Profilers) {
 	return
 }
 
-// QueryTrustee is iriscli query guardian profilers
+// QueryTrustee is iritacli query guardian profilers
 func (f *Fixtures) QueryTrustees() (result guardian.Trustees) {
-	cmd := fmt.Sprintf("%s query guardian trustees --output=%s %v", f.IriscliBinary, "json", f.Flags())
+	cmd := fmt.Sprintf("%s query guardian trustees --output=%s %v", f.IritaCLIBinary, "json", f.Flags())
 	out, _ := tests.ExecuteT(f.T, cmd, "")
 	cdc := app.MakeCodec()
 	err := cdc.UnmarshalJSON([]byte(out), &result)

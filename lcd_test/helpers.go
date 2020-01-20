@@ -26,9 +26,7 @@ import (
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authexported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
-	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
@@ -234,38 +232,14 @@ func defaultGenesis(config *tmcfg.Config, nValidators int, initAddrs []sdk.AccAd
 	cdc.MustUnmarshalJSON(stakingDataBz, &stakingData)
 	genesisState[staking.ModuleName] = cdc.MustMarshalJSON(stakingData)
 
-	// distr data
-	distrDataBz := genesisState[distr.ModuleName]
-	var distrData distr.GenesisState
-	cdc.MustUnmarshalJSON(distrDataBz, &distrData)
-
-	commPoolAmt := sdk.NewInt(10)
-	distrData.FeePool.CommunityPool = sdk.DecCoins{sdk.NewDecCoin(sdk.DefaultBondDenom, commPoolAmt)}
-	distrDataBz = cdc.MustMarshalJSON(distrData)
-	genesisState[distr.ModuleName] = distrDataBz
-
 	// supply data
 	supplyDataBz := genesisState[supply.ModuleName]
 	var supplyData supply.GenesisState
 	cdc.MustUnmarshalJSON(supplyDataBz, &supplyData)
 
-	supplyData.Supply = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, totalSupply.Add(commPoolAmt)))
+	supplyData.Supply = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, totalSupply))
 	supplyDataBz = cdc.MustMarshalJSON(supplyData)
 	genesisState[supply.ModuleName] = supplyDataBz
-
-	// mint genesis (none set within genesisState)
-	mintData := mint.DefaultGenesisState()
-	inflationMin := sdk.ZeroDec()
-	if minting {
-		inflationMin = sdk.MustNewDecFromStr("10000.0")
-		mintData.Params.InflationMax = sdk.MustNewDecFromStr("15000.0")
-	} else {
-		mintData.Params.InflationMax = inflationMin
-	}
-	mintData.Minter.Inflation = inflationMin
-	mintData.Params.InflationMin = inflationMin
-	mintDataBz := cdc.MustMarshalJSON(mintData)
-	genesisState[mint.ModuleName] = mintDataBz
 
 	// initialize crisis data
 	crisisDataBz := genesisState[crisis.ModuleName]
@@ -274,23 +248,6 @@ func defaultGenesis(config *tmcfg.Config, nValidators int, initAddrs []sdk.AccAd
 	crisisData.ConstantFee = sdk.NewInt64Coin(sdk.DefaultBondDenom, 1000)
 	crisisDataBz = cdc.MustMarshalJSON(crisisData)
 	genesisState[crisis.ModuleName] = crisisDataBz
-
-	//// double check inflation is set according to the minting boolean flag
-	if minting {
-		if !(mintData.Params.InflationMax.Equal(sdk.MustNewDecFromStr("15000.0")) &&
-			mintData.Minter.Inflation.Equal(sdk.MustNewDecFromStr("10000.0")) &&
-			mintData.Params.InflationMin.Equal(sdk.MustNewDecFromStr("10000.0"))) {
-			err = errors.New("Mint parameters does not correspond to their defaults")
-			return
-		}
-	} else {
-		if !(mintData.Params.InflationMax.Equal(sdk.ZeroDec()) &&
-			mintData.Minter.Inflation.Equal(sdk.ZeroDec()) &&
-			mintData.Params.InflationMin.Equal(sdk.ZeroDec())) {
-			err = errors.New("Mint parameters not equal to decimal 0")
-			return
-		}
-	}
 
 	appState, err := codec.MarshalJSONIndent(cdc, genesisState)
 	if err != nil {
@@ -354,7 +311,7 @@ func startLCD(logger log.Logger, listenAddr string, cdc *codec.Codec) (net.Liste
 	return listener, nil
 }
 
-// NOTE: If making updates here also update cmd/iris/cmd/iriscli/main.go
+// NOTE: If making updates here also update cmd/iris/cmd/iritacli/main.go
 func registerRoutes(rs *lcd.RestServer) {
 	client.RegisterRoutes(rs.CliCtx, rs.Mux)
 	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
