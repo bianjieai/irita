@@ -3,6 +3,7 @@ package app
 import (
 	"io"
 	"os"
+	"path/filepath"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -23,13 +24,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/irisnet/modules/incubator/nft"
+	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/cli"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bianjieai/irita/modules/guardian"
 	"github.com/bianjieai/irita/modules/service"
+	"github.com/bianjieai/irita/modules/wasm"
 )
 
 const appName = "IritaApp"
@@ -56,6 +60,7 @@ var (
 		guardian.AppModuleBasic{},
 		service.AppModuleBasic{},
 		nft.AppModuleBasic{},
+		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -107,6 +112,7 @@ type IritaApp struct {
 	serviceKeeper  service.Keeper
 	guardianKeeper guardian.Keeper
 	nftKeeper      nft.Keeper
+	wasmKeeper     wasm.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -128,7 +134,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey, supply.StoreKey,
 		gov.StoreKey, params.StoreKey, evidence.StoreKey,
-		guardian.StoreKey, service.StoreKey, nft.StoreKey,
+		guardian.StoreKey, service.StoreKey, nft.StoreKey, wasm.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -158,6 +164,13 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.cdc, keys[staking.StoreKey], app.supplyKeeper, stakingSubspace, staking.DefaultCodespace,
 	)
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
+
+	// just re-use the full router - do we want to limit this more?
+	var wasmRouter = bApp.Router()
+	// better way to get this dir???
+	homeDir := viper.GetString(cli.HomeFlag)
+	wasmDir := filepath.Join(homeDir, "wasm")
+	app.wasmKeeper = wasm.NewKeeper(app.cdc, keys[wasm.StoreKey], app.accountKeeper, app.bankKeeper, wasmRouter, wasmDir)
 
 	// create evidence keeper with evidence router
 	app.evidenceKeeper = evidence.NewKeeper(
@@ -205,6 +218,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		guardian.NewAppModule(app.guardianKeeper),
 		service.NewAppModule(app.serviceKeeper),
 		nft.NewAppModule(app.nftKeeper),
+		wasm.NewAppModule(app.wasmKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -222,6 +236,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName, evidence.ModuleName,
 		guardian.ModuleName, service.ModuleName, nft.ModuleName,
+		wasm.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
