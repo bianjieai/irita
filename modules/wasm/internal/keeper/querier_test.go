@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/bianjieai/irita/modules/wasm/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/bianjieai/irita/modules/wasm/internal/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
