@@ -3,6 +3,7 @@ module github.com/bianjieai/irita
 require (
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/confio/go-cosmwasm v0.6.0
 	github.com/cosmos/cosmos-sdk v0.34.4-0.20191108144056-d81d46192a0c
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d // indirect
 	github.com/emicklei/proto v1.9.0
