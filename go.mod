@@ -41,4 +41,6 @@ require (
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
 
+replace github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20200211150728-333107dcfb47
+
 go 1.13
