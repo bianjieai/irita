@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bianjieai/irita/modules/service/internal/types"
 	"github.com/bianjieai/irita/utils/protoidl"
@@ -16,10 +17,10 @@ func (k Keeper) AddServiceDefinition(
 	author sdk.AccAddress,
 	authorDescription,
 	idlContent string,
-) sdk.Error {
+) error {
 	_, found := k.GetServiceDefinition(ctx, chainId, name)
 	if found {
-		return types.ErrSvcDefExists(k.codespace, chainId, name)
+		return sdkerrors.Wrapf(types.ErrUnknownSvcDef, "name: %s", name)
 	}
 
 	svcDef := types.NewSvcDef(name, chainId, description, tags, author, authorDescription, idlContent)
@@ -36,7 +37,7 @@ func (k Keeper) SetServiceDefinition(ctx sdk.Context, svcDef types.SvcDef) {
 }
 
 // TODO
-func (k Keeper) AddMethods(ctx sdk.Context, svcDef types.SvcDef) sdk.Error {
+func (k Keeper) AddMethods(ctx sdk.Context, svcDef types.SvcDef) error {
 	methods, err := protoidl.GetMethods(svcDef.IDLContent)
 	if err != nil {
 		panic(err)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bianjieai/irita/modules/service/internal/types"
 )
@@ -20,30 +21,31 @@ func (k Keeper) AddRequest(
 	input []byte,
 	serviceFee sdk.Coins,
 	profiling bool,
-) (req types.SvcRequest, err sdk.Error) {
+) (req types.SvcRequest, err error) {
 	binding, found := k.GetServiceBinding(ctx, defChainID, defName, bindChainID, provider)
 	if !found {
-		return req, types.ErrSvcBindingNotExists(k.codespace)
+		return req, types.ErrUnknownSvcBinding
 	}
 
 	if !binding.Available {
-		return req, types.ErrSvcBindingNotAvailable(k.codespace)
+		return req, types.ErrUnavailable
 	}
 
 	_, found = k.GetMethod(ctx, defChainID, defName, methodID)
 	if !found {
-		return req, types.ErrMethodNotExists(k.codespace, methodID)
+		return req, types.ErrUnknownMethod
 	}
 
 	if profiling {
 		if _, found := k.gk.GetProfiler(ctx, consumer); !found {
-			return req, types.ErrNotProfiler(k.codespace, consumer)
+			return req, sdkerrors.Wrap(types.ErrUnknownProfiler, consumer.String())
 		}
 	}
 
 	//Method id start at 1
 	if len(binding.Prices) >= int(methodID) && !serviceFee.IsAllGTE(sdk.Coins{binding.Prices[methodID-1]}) {
-		return req, types.ErrLtServiceFee(k.codespace, sdk.Coins{binding.Prices[methodID-1]})
+		return req, sdkerrors.Wrapf(types.ErrLtServiceFee, "service fee: %s, price: %s",
+			serviceFee.String(), sdk.Coins{binding.Prices[methodID-1]}.String())
 	}
 
 	// request service fee is equal to service binding service fee if not profiling
@@ -148,7 +150,7 @@ func (k Keeper) AddResponse(
 	provider sdk.AccAddress,
 	output,
 	errorMsg []byte,
-) (resp types.SvcResponse, err sdk.Error) {
+) (resp types.SvcResponse, err error) {
 	expHeight, reqHeight, counter, _ := types.ConvertRequestID(requestID)
 
 	req, found := k.GetActiveRequest(ctx, expHeight, reqHeight, counter)
@@ -157,15 +159,17 @@ func (k Keeper) AddResponse(
 		req.RequestHeight = reqHeight
 		req.RequestIntraTxCounter = counter
 
-		return resp, types.ErrRequestNotActive(k.codespace, req.RequestID())
+		return resp, sdkerrors.Wrap(types.ErrUnknownActiveRequest, req.RequestID())
 	}
 
 	if !(provider.Equals(req.Provider)) {
-		return resp, types.ErrNotMatchingProvider(k.codespace, provider)
+		return resp, sdkerrors.Wrapf(types.ErrNotMatchingProvider,
+			"expected: %s, got: %s", provider.String(), req.Provider.String())
 	}
 
 	if reqChainID != req.ReqChainID {
-		return resp, types.ErrNotMatchingReqChainID(k.codespace, reqChainID)
+		return resp, sdkerrors.Wrapf(types.ErrNotMatchingReqChainID,
+			"expected: %s, got: %s", reqChainID, req.ReqChainID)
 	}
 
 	err = k.AddIncomingFee(ctx, provider, req.ServiceFee)
@@ -202,7 +206,7 @@ func (k Keeper) GetResponse(ctx sdk.Context, reqChainID string, eHeight, rHeight
 	return resp, true
 }
 
-func (k Keeper) Slash(ctx sdk.Context, binding types.SvcBinding, slashCoins sdk.Coins) sdk.Error {
+func (k Keeper) Slash(ctx sdk.Context, binding types.SvcBinding, slashCoins sdk.Coins) error {
 	deposit, hasNeg := binding.Deposit.SafeSub(slashCoins)
 	if hasNeg {
 		errMsg := fmt.Sprintf("%s is less than %s", binding.Deposit, slashCoins)
@@ -240,7 +244,7 @@ func (k Keeper) AddReturnFee(ctx sdk.Context, address sdk.AccAddress, coins sdk.
 		return
 	}
 
-	k.SetReturnFee(ctx, address, fee.Coins.Add(coins))
+	k.SetReturnFee(ctx, address, fee.Coins.Add(coins...))
 }
 
 func (k Keeper) SetReturnFee(ctx sdk.Context, address sdk.AccAddress, coins sdk.Coins) {
@@ -270,10 +274,10 @@ func (k Keeper) GetReturnFee(ctx sdk.Context, address sdk.AccAddress) (fee types
 }
 
 // refund fees from a particular consumer, and delete it
-func (k Keeper) RefundFee(ctx sdk.Context, address sdk.AccAddress) sdk.Error {
+func (k Keeper) RefundFee(ctx sdk.Context, address sdk.AccAddress) error {
 	fee, found := k.GetReturnFee(ctx, address)
 	if !found {
-		return types.ErrReturnFeeNotExists(k.codespace, address)
+		return types.ErrUnknownReturnFee
 	}
 
 	err := k.sk.SendCoinsFromModuleToAccount(ctx, types.RequestAccName, address, fee.Coins)
@@ -288,14 +292,14 @@ func (k Keeper) RefundFee(ctx sdk.Context, address sdk.AccAddress) sdk.Error {
 }
 
 // Add incoming fee for a particular provider, if it is not existed will create a new
-func (k Keeper) AddIncomingFee(ctx sdk.Context, address sdk.AccAddress, coins sdk.Coins) sdk.Error {
+func (k Keeper) AddIncomingFee(ctx sdk.Context, address sdk.AccAddress, coins sdk.Coins) error {
 	params := k.GetParams(ctx)
 	feeTax := params.ServiceFeeTax
 
 	taxCoins := sdk.Coins{}
 	for _, coin := range coins {
 		taxAmount := sdk.NewDecFromInt(coin.Amount).Mul(feeTax).TruncateInt()
-		taxCoins = taxCoins.Add(sdk.NewCoins(sdk.NewCoin(coin.Denom, taxAmount)))
+		taxCoins = taxCoins.Add(sdk.NewCoin(coin.Denom, taxAmount))
 	}
 
 	err := k.sk.SendCoinsFromModuleToModule(ctx, types.RequestAccName, types.TaxAccName, taxCoins)
@@ -305,12 +309,13 @@ func (k Keeper) AddIncomingFee(ctx sdk.Context, address sdk.AccAddress, coins sd
 
 	incomingFee, hasNeg := coins.SafeSub(taxCoins)
 	if hasNeg {
-		errMsg := fmt.Sprintf("%s is less than %s", coins, taxCoins)
-		return sdk.ErrInsufficientFunds(errMsg)
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds, "insufficient account funds; %s < %s", coins, taxCoins,
+		)
 	}
 
 	fee, _ := k.GetIncomingFee(ctx, address)
-	k.SetIncomingFee(ctx, address, fee.Coins.Add(incomingFee))
+	k.SetIncomingFee(ctx, address, fee.Coins.Add(incomingFee...))
 	return nil
 }
 
@@ -341,10 +346,10 @@ func (k Keeper) GetIncomingFee(ctx sdk.Context, address sdk.AccAddress) (fee typ
 }
 
 // withdraw fees from a particular provider, and delete it
-func (k Keeper) WithdrawFee(ctx sdk.Context, address sdk.AccAddress) sdk.Error {
+func (k Keeper) WithdrawFee(ctx sdk.Context, address sdk.AccAddress) error {
 	fee, found := k.GetIncomingFee(ctx, address)
 	if !found {
-		return types.ErrWithdrawFeeNotExists(k.codespace, address)
+		return types.ErrUnknownWithdrawFee
 	}
 
 	err := k.sk.SendCoinsFromModuleToAccount(ctx, types.RequestAccName, address, fee.Coins)
@@ -358,10 +363,10 @@ func (k Keeper) WithdrawFee(ctx sdk.Context, address sdk.AccAddress) sdk.Error {
 	return nil
 }
 
-func (k Keeper) WithdrawTax(ctx sdk.Context, trustee sdk.AccAddress, destAddress sdk.AccAddress, amt sdk.Coins) sdk.Error {
+func (k Keeper) WithdrawTax(ctx sdk.Context, trustee sdk.AccAddress, destAddress sdk.AccAddress, amt sdk.Coins) error {
 	_, found := k.gk.GetTrustee(ctx, trustee)
 	if !found {
-		return types.ErrNotTrustee(k.codespace, trustee)
+		return types.ErrUnknownTrustee
 	}
 
 	err := k.sk.SendCoinsFromModuleToAccount(ctx, types.TaxAccName, destAddress, amt)
@@ -381,7 +386,7 @@ func (k Keeper) AllIncomingFeesIterator(ctx sdk.Context) sdk.Iterator {
 }
 
 // RefundReturnedFees refunds all the returned fees
-func (k Keeper) RefundReturnedFees(ctx sdk.Context) sdk.Error {
+func (k Keeper) RefundReturnedFees(ctx sdk.Context) error {
 	iterator := k.AllReturnedFeesIterator(ctx)
 	defer iterator.Close()
 
@@ -399,7 +404,7 @@ func (k Keeper) RefundReturnedFees(ctx sdk.Context) sdk.Error {
 }
 
 // RefundIncomingFees refunds all the incoming fees
-func (k Keeper) RefundIncomingFees(ctx sdk.Context) sdk.Error {
+func (k Keeper) RefundIncomingFees(ctx sdk.Context) error {
 	iterator := k.AllIncomingFeesIterator(ctx)
 	defer iterator.Close()
 
@@ -417,7 +422,7 @@ func (k Keeper) RefundIncomingFees(ctx sdk.Context) sdk.Error {
 }
 
 // RefundServiceFees refunds the service fees of all the active requests
-func (k Keeper) RefundServiceFees(ctx sdk.Context) sdk.Error {
+func (k Keeper) RefundServiceFees(ctx sdk.Context) error {
 	iterator := k.ActiveAllRequestQueueIterator(ctx)
 	defer iterator.Close()
 
