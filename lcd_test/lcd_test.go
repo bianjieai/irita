@@ -11,7 +11,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/mintkey"
 	"github.com/cosmos/cosmos-sdk/tests"
@@ -26,7 +26,7 @@ import (
 const (
 	name1 = "test1"
 	memo  = "LCD test tx"
-	pw    = client.DefaultKeyPass
+	pw    = keys.DefaultKeyPass
 )
 
 var fees = sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 5)}
@@ -124,7 +124,7 @@ func TestCoinSend(t *testing.T) {
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
 	// test failure with wrong adjustment
-	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, client.GasFlagAuto, 0.1, false, true, fees)
+	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, flags.GasFlagAuto, 0.1, false, true, fees)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
 	// run simulation and test success with estimated gas
@@ -220,7 +220,7 @@ func TestCoinSendGenerateSignAndBroadcast(t *testing.T) {
 
 	// simulate tx
 	res, body, _ := doTransferWithGas(
-		t, port, seed, name1, memo, "", addr, client.GasFlagAuto, 1.0, true, false, fees,
+		t, port, seed, name1, memo, "", addr, flags.GasFlagAuto, 1.0, true, false, fees,
 	)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 

@@ -3,6 +3,7 @@ package lcdtest
 import (
 	"bytes"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"io/ioutil"
 	"net"
 	"os"
@@ -62,7 +63,7 @@ func InitializeLCD(nValidators int, initAddrs []sdk.AccAddress, minting bool, po
 	}
 	config.Consensus.TimeoutCommit = 100
 	config.Consensus.SkipTimeoutCommit = false
-	config.TxIndex.IndexAllTags = true
+	config.TxIndex.IndexAllKeys = true
 
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 	logger = log.NewFilter(logger, log.AllowError())
@@ -89,10 +90,10 @@ func InitializeLCD(nValidators int, initAddrs []sdk.AccAddress, minting bool, po
 	}
 
 	// XXX: Need to set this so LCD knows the tendermint node address!
-	viper.Set(client.FlagNode, config.RPC.ListenAddress)
-	viper.Set(client.FlagChainID, genDoc.ChainID)
+	viper.Set(flags.FlagNode, config.RPC.ListenAddress)
+	viper.Set(flags.FlagChainID, genDoc.ChainID)
 	// TODO Set to false once the upstream Tendermint proof verification issue is fixed.
-	viper.Set(client.FlagTrustNode, true)
+	viper.Set(flags.FlagTrustNode, true)
 
 	node, err := startTM(config, logger, genDoc, privVal, gapp)
 	if err != nil {
