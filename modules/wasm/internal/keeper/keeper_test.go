@@ -88,7 +88,7 @@ func TestIsSimulationMode(t *testing.T) {
 			exp: true,
 		},
 	}
-	for msg, _ := range specs {
+	for msg := range specs {
 		t.Run(msg, func(t *testing.T) {
 			//assert.Equal(t, spec.exp, isSimulationMode(spec.ctx))
 		})

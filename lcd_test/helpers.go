@@ -3,13 +3,14 @@ package lcdtest
 import (
 	"bytes"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"

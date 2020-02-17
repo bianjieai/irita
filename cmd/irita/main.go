@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"io"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/server"
