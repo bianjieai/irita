@@ -50,7 +50,7 @@ func testnetCmd(ctx *server.Context, cdc *codec.Codec,
 
 	cmd := &cobra.Command{
 		Use:   "testnet",
-		Short: "Initialize files for a Wasmd testnet",
+		Short: "Initialize files for a irita testnet",
 		Long: `testnet will create "v" number of directories and populate each with
 necessary files (private validator, genesis, config, etc.).
 Note, strict routability for addresses is turned off in the config file.
@@ -111,8 +111,8 @@ func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 	nodeIDs := make([]string, numValidators)
 	valPubKeys := make([]crypto.PubKey, numValidators)
 
-	wasmConfig := srvconfig.DefaultConfig()
-	wasmConfig.MinGasPrices = minGasPrices
+	iritaConfig := srvconfig.DefaultConfig()
+	iritaConfig.MinGasPrices = minGasPrices
 
 	//nolint:prealloc
 	var (
@@ -229,8 +229,8 @@ func InitTestnet(cmd *cobra.Command, config *tmconfig.Config, cdc *codec.Codec,
 
 		// TODO: Rename config file to server.toml as it's not particular to Gaia
 		// (REF: https://github.com/cosmos/cosmos-sdk/issues/4125).
-		wasmConfigFilePath := filepath.Join(nodeDir, "config/wasmd.toml")
-		srvconfig.WriteConfigFile(wasmConfigFilePath, wasmConfig)
+		iritaConfigFilePath := filepath.Join(nodeDir, "config/irita.toml")
+		srvconfig.WriteConfigFile(iritaConfigFilePath, iritaConfig)
 	}
 
 	if err := initGenFiles(cdc, mbm, chainID, genAccounts, genFiles, numValidators); err != nil {
