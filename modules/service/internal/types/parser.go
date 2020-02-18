@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bianjieai/irita/utils/protoidl"
@@ -12,15 +13,24 @@ const (
 	description   = "description"
 )
 
-// TODO
-func ParseMethods(content string) (methods []string, err error) {
-	return
-}
+func validateMethods(content string) (err error) {
+	methods, err := protoidl.GetMethods(content)
+	if err != nil {
+		return err
+	}
+	if len(methods) == 0 {
+		return errors.New("empty methods")
+	}
 
-// TODO New MethodToMethodProperty process
-//func MethodToMethodProperty(index int, method string) (methodProperty MethodProperty, err sdk.Error) {
-//	return
-//}
+	for index, method := range methods {
+		_, err := MethodToMethodProperty(index+1, method)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 func MethodToMethodProperty(index int, method protoidl.Method) (methodProperty MethodProperty, err error) {
 	// set default value

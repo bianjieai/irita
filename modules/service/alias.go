@@ -123,7 +123,6 @@ var (
 	DefaultParams                        = types.DefaultParams
 	MustUnmarshalParams                  = types.MustUnmarshalParams
 	UnmarshalParams                      = types.UnmarshalParams
-	ParseMethods                         = types.ParseMethods
 	MethodToMethodProperty               = types.MethodToMethodProperty
 
 	// variable aliases

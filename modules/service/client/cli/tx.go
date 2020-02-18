@@ -30,7 +30,7 @@ func GetCmdSvcDef(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			name := viper.GetString(FlagServiceName)
 			description := viper.GetString(FlagServiceDescription)
@@ -81,7 +81,7 @@ func GetCmdSvcBind(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -146,7 +146,7 @@ func GetCmdSvcBindUpdate(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -214,7 +214,7 @@ func GetCmdSvcDisable(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -247,7 +247,7 @@ func GetCmdSvcEnable(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -287,7 +287,7 @@ func GetCmdSvcRefundDeposit(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -320,7 +320,7 @@ func GetCmdSvcCall(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -380,7 +380,7 @@ func GetCmdSvcRespond(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -424,7 +424,7 @@ func GetCmdSvcRefundFees(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -448,7 +448,7 @@ func GetCmdSvcWithdrawFees(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -472,7 +472,7 @@ func GetCmdSvcWithdrawTax(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 

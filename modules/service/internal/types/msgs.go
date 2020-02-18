@@ -90,13 +90,8 @@ func (msg MsgSvcDef) ValidateBasic() error {
 		return err
 	}
 
-	methods, err := ParseMethods(msg.IDLContent)
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid IDL content")
-	}
-
-	if valid, err := validateMethods(methods); !valid {
-		return err
+	if err := validateMethods(msg.IDLContent); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid IDL content, %s", err.Error())
 	}
 
 	return nil
@@ -104,10 +99,6 @@ func (msg MsgSvcDef) ValidateBasic() error {
 
 func (msg MsgSvcDef) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Author}
-}
-
-func validateMethods(methods []string) (bool, error) {
-	return true, nil
 }
 
 //______________________________________________________________________

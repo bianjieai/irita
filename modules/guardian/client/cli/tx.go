@@ -46,7 +46,7 @@ func GetCmdCreateProfiler(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -79,7 +79,7 @@ func GetCmdDeleteProfiler(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 			paStr := viper.GetString(FlagAddress)
@@ -106,7 +106,7 @@ func GetCmdCreateTrustee(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 			taStr := viper.GetString(FlagAddress)
@@ -137,7 +137,7 @@ func GetCmdDeleteTrustee(cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 			taStr := viper.GetString(FlagAddress)
