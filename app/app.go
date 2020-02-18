@@ -15,7 +15,6 @@ import (
 	authvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -53,7 +52,7 @@ var (
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		staking.AppModuleBasic{},
-		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler),
+		gov.NewAppModuleBasic(paramsclient.ProposalHandler),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		supply.AppModuleBasic{},
@@ -236,7 +235,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		staking.ModuleName, auth.ModuleName, bank.ModuleName,
 		gov.ModuleName,
 		supply.ModuleName,
-		crisis.ModuleName, genutil.ModuleName, evidence.ModuleName,
+		crisis.ModuleName, genutil.ModuleName,
 		guardian.ModuleName, service.ModuleName, nft.ModuleName,
 		wasm.ModuleName,
 	)
