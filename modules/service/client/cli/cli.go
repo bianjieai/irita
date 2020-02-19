@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -20,7 +21,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	serviceQueryCmd.AddCommand(client.GetCommands(
+	serviceQueryCmd.AddCommand(flags.GetCommands(
 		GetCmdQuerySvcDef(queryRoute, cdc),
 		GetCmdQuerySvcBind(queryRoute, cdc),
 		GetCmdQuerySvcBinds(queryRoute, cdc),
@@ -41,7 +42,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	serviceTxCmd.AddCommand(client.PostCommands(
+	serviceTxCmd.AddCommand(flags.PostCommands(
 		GetCmdSvcDef(cdc),
 		GetCmdSvcBind(cdc),
 		GetCmdSvcBindUpdate(cdc),

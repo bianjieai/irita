@@ -1,17 +1,17 @@
 package cli
 
 import (
+	"bufio"
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	cmn "github.com/tendermint/tendermint/libs/common"
-
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -28,8 +28,9 @@ func GetCmdSvcDef(cdc *codec.Codec) *cobra.Command {
 			"--service-name=<service name> --service-description=<service description> --author-description=<author description> " +
 			"--tags=tag1,tag2 --idl-content=<interface description content> --file=test.proto",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			name := viper.GetString(FlagServiceName)
 			description := viper.GetString(FlagServiceDescription)
@@ -43,7 +44,7 @@ func GetCmdSvcDef(cdc *codec.Codec) *cobra.Command {
 
 			filePath := viper.GetString(FlagFile)
 			if len(filePath) > 0 {
-				contentBytes, err := cmn.ReadFile(filePath)
+				contentBytes, err := ioutil.ReadFile(filePath)
 				if err != nil {
 					return err
 				}
@@ -52,7 +53,7 @@ func GetCmdSvcDef(cdc *codec.Codec) *cobra.Command {
 
 			fmt.Printf("idl condent: \n%s\n", content)
 
-			chainID := viper.GetString(client.FlagChainID)
+			chainID := viper.GetString(flags.FlagChainID)
 			fromAddr := cliCtx.GetFromAddress()
 
 			msg := types.NewMsgSvcDef(name, chainID, description, tags, fromAddr, authorDescription, content)
@@ -78,12 +79,13 @@ func GetCmdSvcBind(cdc *codec.Codec) *cobra.Command {
 			"--service-name=<service name> --def-chain-id=<chain-id> --bind-type=Local " +
 			"--deposit=1iris --prices=1iris,2iris --avg-rsp-time=10000 --usable-time=100",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
-			chainID := viper.GetString(client.FlagChainID)
+			chainID := viper.GetString(flags.FlagChainID)
 			name := viper.GetString(FlagServiceName)
 			defChainID := viper.GetString(FlagDefChainID)
 			initialDeposit := viper.GetString(FlagDeposit)
@@ -142,12 +144,13 @@ func GetCmdSvcBindUpdate(cdc *codec.Codec) *cobra.Command {
 			"--service-name=<service name> --def-chain-id=<chain-id> --bind-type=Local " +
 			"--deposit=1iris --prices=1iris,2iris --avg-rsp-time=10000 --usable-time=100",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
-			chainID := viper.GetString(client.FlagChainID)
+			chainID := viper.GetString(flags.FlagChainID)
 			name := viper.GetString(FlagServiceName)
 			defChainID := viper.GetString(FlagDefChainID)
 			initialDeposit := viper.GetString(FlagDeposit)
@@ -209,12 +212,13 @@ func GetCmdSvcDisable(cdc *codec.Codec) *cobra.Command {
 		Example: "iritacli tx service disable --chain-id=<chain-id> --from=<key-name> --fee=0.3iris " +
 			"--service-name=<service name> --def-chain-id=<chain-id>",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
-			chainID := viper.GetString(client.FlagChainID)
+			chainID := viper.GetString(flags.FlagChainID)
 			name := viper.GetString(FlagServiceName)
 			defChainID := viper.GetString(FlagDefChainID)
 
@@ -241,12 +245,13 @@ func GetCmdSvcEnable(cdc *codec.Codec) *cobra.Command {
 		Example: "iritacli tx service enable --chain-id=<chain-id> --from=<key-name> --fee=0.3iris " +
 			"--service-name=<service name> --def-chain-id=<chain-id> --deposit=1iris",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
-			chainID := viper.GetString(client.FlagChainID)
+			chainID := viper.GetString(flags.FlagChainID)
 			name := viper.GetString(FlagServiceName)
 			defChainID := viper.GetString(FlagDefChainID)
 
@@ -280,12 +285,13 @@ func GetCmdSvcRefundDeposit(cdc *codec.Codec) *cobra.Command {
 		Example: "iritacli tx service refund-deposit --chain-id=<chain-id> --from=<key-name> --fee=0.3iris " +
 			"--service-name=<service name> --def-chain-id=<chain-id>",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
-			chainID := viper.GetString(client.FlagChainID)
+			chainID := viper.GetString(flags.FlagChainID)
 			name := viper.GetString(FlagServiceName)
 			defChainID := viper.GetString(FlagDefChainID)
 
@@ -312,12 +318,13 @@ func GetCmdSvcCall(cdc *codec.Codec) *cobra.Command {
 		Example: "iritacli tx service call --chain-id=<chain-id> --from=<key-name> --fee=0.3iris --def-chain-id=<bind-chain-id> " +
 			"--service-name=<service name> --method-id=<method-id> --bind-chain-id=<chain-id> --provider=<provider> --service-fee=1iris --request-data=<req>",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
-			chainID := viper.GetString(client.FlagChainID)
+			chainID := viper.GetString(flags.FlagChainID)
 			defChainID := viper.GetString(FlagDefChainID)
 			name := viper.GetString(FlagServiceName)
 			bindChainID := viper.GetString(FlagBindChainID)
@@ -371,8 +378,9 @@ func GetCmdSvcRespond(cdc *codec.Codec) *cobra.Command {
 		Example: "iritacli service respond --chain-id=<chain-id> --from=<key-name> --fee=0.3iris --request-chain-id=<call-chain-id> " +
 			"--request-id=<request-id> --response-data=<resp>",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -414,8 +422,9 @@ func GetCmdSvcRefundFees(cdc *codec.Codec) *cobra.Command {
 		Short:   "Refund all fees from service call timeout",
 		Example: "iritacli tx service refund-fees --chain-id=<chain-id> --from=<key-name> --fee=0.3iris --dest-address=<account address> --withdraw-amount 1iris",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -437,8 +446,9 @@ func GetCmdSvcWithdrawFees(cdc *codec.Codec) *cobra.Command {
 		Short:   "withdraw all fees from service call reward",
 		Example: "iritacli tx service withdraw-fees --chain-id=<chain-id> --from=<key-name> --fee=0.3iris",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
@@ -460,8 +470,9 @@ func GetCmdSvcWithdrawTax(cdc *codec.Codec) *cobra.Command {
 		Short:   "withdraw service fee tax to an account",
 		Example: "iritacli tx service withdraw-tax --chain-id=<chain-id> --from=<key-name> --fee=0.3iris --dest-address=<account address> --withdraw-amount=1iris",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			txBldr := auth.NewTxBuilderFromCLI().WithTxEncoder(auth.DefaultTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			fromAddr := cliCtx.GetFromAddress()
 
