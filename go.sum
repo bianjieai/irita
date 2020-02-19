@@ -170,6 +170,8 @@ github.com/irisnet/modules/incubator/nft v0.0.0-20200214081658-d4bc8a908f48 h1:c
 github.com/irisnet/modules/incubator/nft v0.0.0-20200214081658-d4bc8a908f48/go.mod h1:kSjR+FGYLeoFE/MqgUEW0AyoYjE5yXJ8NqCA6Rl68Dc=
 github.com/irisnet/modules/incubator/nft v0.0.0-20200219030845-bba9836491f9 h1:oCv07UnerjrJEjAjvBDvvOOmn94/tqAdBXRNBuPsAcg=
 github.com/irisnet/modules/incubator/nft v0.0.0-20200219030845-bba9836491f9/go.mod h1:kSjR+FGYLeoFE/MqgUEW0AyoYjE5yXJ8NqCA6Rl68Dc=
+github.com/irisnet/modules/incubator/nft v0.0.0-20200219072844-ccf6f7ece3e1 h1:LArE+dAnlRImrONLnwKk6+jw79/+w1FzYGgVjznkTkw=
+github.com/irisnet/modules/incubator/nft v0.0.0-20200219072844-ccf6f7ece3e1/go.mod h1:kSjR+FGYLeoFE/MqgUEW0AyoYjE5yXJ8NqCA6Rl68Dc=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jmhodges/levigo v1.0.0 h1:q5EC36kV79HWeTBWsod3mG11EgStG3qArTKcvlksN1U=
 github.com/jmhodges/levigo v1.0.0/go.mod h1:Q6Qx+uH3RAqyK4rFQroq9RL7mdkABMcfhEI+nNuzMJQ=
