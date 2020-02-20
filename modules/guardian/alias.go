@@ -11,16 +11,6 @@ import (
 )
 
 const (
-	DefaultCodespace            = types.DefaultCodespace
-	CodeInvalidOperator         = types.CodeInvalidOperator
-	CodeProfilerExists          = types.CodeProfilerExists
-	CodeProfilerNotExists       = types.CodeProfilerNotExists
-	CodeTrusteeExists           = types.CodeTrusteeExists
-	CodeTrusteeNotExists        = types.CodeTrusteeNotExists
-	CodeInvalidDescription      = types.CodeInvalidDescription
-	CodeDeleteGenesisProfiler   = types.CodeDeleteGenesisProfiler
-	CodeDeleteGenesisTrustee    = types.CodeDeleteGenesisTrustee
-	CodeInvalidGuardian         = types.CodeInvalidGuardian
 	EventTypeAddProfiler        = types.EventTypeAddProfiler
 	EventTypeAddTrustee         = types.EventTypeAddTrustee
 	EventTypeDeleteProfiler     = types.EventTypeDeleteProfiler
@@ -33,6 +23,10 @@ const (
 	ModuleName                  = types.ModuleName
 	StoreKey                    = types.StoreKey
 	RouterKey                   = types.RouterKey
+	TypeMsgAddProfiler          = types.TypeMsgAddProfiler
+	TypeMsgDeleteProfiler       = types.TypeMsgDeleteProfiler
+	TypeMsgAddTrustee           = types.TypeMsgAddTrustee
+	TypeMsgDeleteTrustee        = types.TypeMsgDeleteTrustee
 	QuerierRoute                = types.QuerierRoute
 	QueryProfilers              = types.QueryProfilers
 	QueryTrustees               = types.QueryTrustees
@@ -42,30 +36,28 @@ const (
 
 var (
 	// functions aliases
-	NewKeeper                  = keeper.NewKeeper
-	NewQuerier                 = keeper.NewQuerier
-	RegisterCodec              = types.RegisterCodec
-	ErrInvalidOperator         = types.ErrInvalidOperator
-	ErrProfilerNotExists       = types.ErrProfilerNotExists
-	ErrDeleteGenesisProfiler   = types.ErrDeleteGenesisProfiler
-	ErrProfilerExists          = types.ErrProfilerExists
-	ErrTrusteeExists           = types.ErrTrusteeExists
-	ErrTrusteeNotExists        = types.ErrTrusteeNotExists
-	ErrDeleteGenesisTrustee    = types.ErrDeleteGenesisTrustee
-	ErrInvalidDescription      = types.ErrInvalidDescription
-	NewGenesisState            = types.NewGenesisState
-	DefaultGenesisState        = types.DefaultGenesisState
-	DefaultGenesisStateForTest = types.DefaultGenesisStateForTest
-	GetProfilerKey             = types.GetProfilerKey
-	GetTrusteeKey              = types.GetTrusteeKey
-	GetProfilersSubspaceKey    = types.GetProfilersSubspaceKey
-	GetTrusteesSubspaceKey     = types.GetTrusteesSubspaceKey
-	NewMsgAddProfiler          = types.NewMsgAddProfiler
-	NewMsgDeleteProfiler       = types.NewMsgDeleteProfiler
-	NewMsgAddTrustee           = types.NewMsgAddTrustee
-	NewMsgDeleteTrustee        = types.NewMsgDeleteTrustee
-	NewGuardian                = types.NewGuardian
-	AccountTypeFromString      = types.AccountTypeFromString
+	NewKeeper                = keeper.NewKeeper
+	NewQuerier               = keeper.NewQuerier
+	RegisterCodec            = types.RegisterCodec
+	ErrUnknownOperator       = types.ErrUnknownOperator
+	ErrUnknownProfiler       = types.ErrUnknownProfiler
+	ErrUnknownTrustee        = types.ErrUnknownTrustee
+	ErrDeleteGenesisProfiler = types.ErrDeleteGenesisProfiler
+	ErrDeleteGenesisTrustee  = types.ErrDeleteGenesisTrustee
+	NewGenesisState          = types.NewGenesisState
+	DefaultGenesisState      = types.DefaultGenesisState
+	ProfilerKey              = types.ProfilerKey
+	TrusteeKey               = types.TrusteeKey
+	GetProfilerKey           = types.GetProfilerKey
+	GetTrusteeKey            = types.GetTrusteeKey
+	GetProfilersSubspaceKey  = types.GetProfilersSubspaceKey
+	GetTrusteesSubspaceKey   = types.GetTrusteesSubspaceKey
+	NewMsgAddProfiler        = types.NewMsgAddProfiler
+	NewMsgDeleteProfiler     = types.NewMsgDeleteProfiler
+	NewMsgAddTrustee         = types.NewMsgAddTrustee
+	NewMsgDeleteTrustee      = types.NewMsgDeleteTrustee
+	NewGuardian              = types.NewGuardian
+	AccountTypeFromString    = types.AccountTypeFromString
 
 	// variable aliases
 	ModuleCdc = types.ModuleCdc

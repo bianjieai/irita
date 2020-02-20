@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	authexported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -16,14 +15,22 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
+
+	wasmTypes "github.com/bianjieai/irita/modules/wasm/internal/types"
 )
+
+const flagLRUCacheSize = "lru_size"
+const flagQueryGasLimit = "query_gas_limit"
 
 func MakeTestCodec() *codec.Codec {
 	var cdc = codec.New()
 
 	// Register AppAccount
-	cdc.RegisterInterface((*authexported.Account)(nil), nil)
-	cdc.RegisterConcrete(&auth.BaseAccount{}, "test/wasm/BaseAccount", nil)
+	// cdc.RegisterInterface((*authexported.Account)(nil), nil)
+	// cdc.RegisterConcrete(&auth.BaseAccount{}, "test/wasm/BaseAccount", nil)
+	auth.AppModuleBasic{}.RegisterCodec(cdc)
+	bank.AppModuleBasic{}.RegisterCodec(cdc)
+	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 
 	return cdc
@@ -47,7 +54,7 @@ func CreateTestInput(t *testing.T, isCheckTx bool, tempDir string) (sdk.Context,
 	ctx := sdk.NewContext(ms, abci.Header{}, isCheckTx, log.NewNopLogger())
 	cdc := MakeTestCodec()
 
-	pk := params.NewKeeper(cdc, keyParams, tkeyParams, params.DefaultCodespace)
+	pk := params.NewKeeper(cdc, keyParams, tkeyParams)
 
 	accountKeeper := auth.NewAccountKeeper(
 		cdc,    // amino codec
@@ -59,7 +66,6 @@ func CreateTestInput(t *testing.T, isCheckTx bool, tempDir string) (sdk.Context,
 	bk := bank.NewBaseKeeper(
 		accountKeeper,
 		pk.Subspace(bank.DefaultParamspace),
-		bank.DefaultCodespace,
 		nil,
 	)
 	bk.SetSendEnabled(ctx, true)
@@ -69,7 +75,10 @@ func CreateTestInput(t *testing.T, isCheckTx bool, tempDir string) (sdk.Context,
 	h := bank.NewHandler(bk)
 	router.AddRoute(bank.RouterKey, h)
 
-	keeper := NewKeeper(cdc, keyContract, accountKeeper, bk, router, tempDir)
+	// Load default wasm config
+	wasmConfig := wasmTypes.DefaultWasmConfig()
+
+	keeper := NewKeeper(cdc, keyContract, accountKeeper, bk, router, tempDir, wasmConfig)
 
 	return ctx, accountKeeper, keeper
 }

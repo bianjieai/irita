@@ -2,23 +2,24 @@ package keeper
 
 import (
 	"encoding/json"
+	"sort"
 	"strconv"
 
+	"github.com/bianjieai/irita/modules/wasm/internal/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkErrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-
-	"github.com/bianjieai/irita/modules/wasm/internal/types"
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 )
 
 const (
-	QueryListContracts    = "list-contracts"
-	QueryGetContract      = "contract-info"
-	QueryGetContractState = "contract-state"
-	QueryGetCode          = "code"
-	QueryListCode         = "list-code"
+	QueryListContracts      = "list-contracts"
+	QueryListContractByCode = "list-contracts-by-code"
+	QueryGetContract        = "contract-info"
+	QueryGetContractState   = "contract-state"
+	QueryGetCode            = "code"
+	QueryListCode           = "list-code"
 )
 
 const (
@@ -32,31 +33,17 @@ const debug = false
 
 // NewQuerier creates a new querier
 func NewQuerier(keeper Keeper) sdk.Querier {
-	q := newQuerier(keeper)
-	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
-		res, err := q(ctx, path, req)
-		// convert returned errors
-		if err != nil {
-			space, code, log := sdkErrors.ABCIInfo(err, debug)
-			sdkErr := sdk.NewError(sdk.CodespaceType(space), sdk.CodeType(code), log)
-			return nil, sdkErr
-		}
-		return res, nil
-	}
-}
-
-// pull this out as a separate function for testing.
-// this returns proper error before redacting, NewQuerier is adapting to 0.37 style
-func newQuerier(keeper Keeper) func(sdk.Context, []string, abci.RequestQuery) ([]byte, error) {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
 		case QueryGetContract:
 			return queryContractInfo(ctx, path[1], req, keeper)
 		case QueryListContracts:
 			return queryContractList(ctx, req, keeper)
+		case QueryListContractByCode:
+			return queryContractListByCode(ctx, path[1], req, keeper)
 		case QueryGetContractState:
 			if len(path) < 3 {
-				return nil, sdkErrors.Wrap(sdkErrors.ErrUnknownRequest, "unknown data query endpoint")
+				return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown data query endpoint")
 			}
 			return queryContractState(ctx, path[1], path[2], req, keeper)
 		case QueryGetCode:
@@ -64,21 +51,21 @@ func newQuerier(keeper Keeper) func(sdk.Context, []string, abci.RequestQuery) ([
 		case QueryListCode:
 			return queryCodeList(ctx, req, keeper)
 		default:
-			return nil, sdkErrors.Wrap(sdkErrors.ErrUnknownRequest, "unknown data query endpoint")
+			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown data query endpoint")
 		}
 	}
 }
 
-func queryContractInfo(ctx sdk.Context, bech string, req abci.RequestQuery, keeper Keeper) ([]byte, sdk.Error) {
+func queryContractInfo(ctx sdk.Context, bech string, req abci.RequestQuery, keeper Keeper) ([]byte, error) {
 	addr, err := sdk.AccAddressFromBech32(bech)
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, err.Error())
 	}
 	info := keeper.GetContractInfo(ctx, addr)
 
 	bz, err := json.MarshalIndent(info, "", "  ")
 	if err != nil {
-		return nil, sdk.ErrInvalidAddress(err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	return bz, nil
 }
@@ -89,9 +76,30 @@ func queryContractList(ctx sdk.Context, req abci.RequestQuery, keeper Keeper) ([
 		addrs = append(addrs, addr.String())
 		return false
 	})
+	sort.Strings(addrs)
 	bz, err := json.MarshalIndent(addrs, "", "  ")
 	if err != nil {
-		return nil, sdkErrors.Wrap(sdkErrors.ErrJSONMarshal, err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return bz, nil
+}
+
+func queryContractListByCode(ctx sdk.Context, codeIDstr string, req abci.RequestQuery, keeper Keeper) ([]byte, error) {
+	codeID, err := strconv.ParseUint(codeIDstr, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	var contracts []types.ContractInfo
+	keeper.ListContractInfo(ctx, func(addr sdk.AccAddress, info types.ContractInfo) bool {
+		if info.CodeID == codeID {
+			contracts = append(contracts, info)
+		}
+		return false
+	})
+	bz, err := json.MarshalIndent(contracts, "", "  ")
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	return bz, nil
 }
@@ -99,31 +107,34 @@ func queryContractList(ctx sdk.Context, req abci.RequestQuery, keeper Keeper) ([
 func queryContractState(ctx sdk.Context, bech, queryMethod string, req abci.RequestQuery, keeper Keeper) ([]byte, error) {
 	contractAddr, err := sdk.AccAddressFromBech32(bech)
 	if err != nil {
-		return nil, sdkErrors.Wrap(sdkErrors.ErrInvalidAddress, bech)
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, bech)
 	}
 
 	var resultData []types.Model
 	switch queryMethod {
 	case QueryMethodContractStateAll:
+		// this returns a serialized json object (which internally encoded binary fields properly)
 		for iter := keeper.GetContractState(ctx, contractAddr); iter.Valid(); iter.Next() {
 			resultData = append(resultData, types.Model{
-				Key:   string(iter.Key()),
-				Value: string(iter.Value()),
+				Key:   iter.Key(),
+				Value: iter.Value(),
 			})
 		}
 		if resultData == nil {
 			resultData = make([]types.Model, 0)
 		}
 	case QueryMethodContractStateRaw:
+		// this returns a serialized json object
 		resultData = keeper.QueryRaw(ctx, contractAddr, req.Data)
 	case QueryMethodContractStateSmart:
+		// this returns raw bytes (must be base64-encoded)
 		return keeper.QuerySmart(ctx, contractAddr, req.Data)
 	default:
-		return nil, sdkErrors.Wrap(sdkErrors.ErrUnknownRequest, queryMethod)
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, queryMethod)
 	}
-	bz, err := json.MarshalIndent(resultData, "", "  ")
+	bz, err := json.Marshal(resultData)
 	if err != nil {
-		return nil, sdkErrors.Wrap(sdkErrors.ErrJSONMarshal, err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	return bz, nil
 }
@@ -135,25 +146,27 @@ type GetCodeResponse struct {
 func queryCode(ctx sdk.Context, codeIDstr string, req abci.RequestQuery, keeper Keeper) ([]byte, error) {
 	codeID, err := strconv.ParseUint(codeIDstr, 10, 64)
 	if err != nil {
-		return nil, sdkErrors.Wrap(sdkErrors.ErrUnknownRequest, "invalid codeID: "+err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid codeID: "+err.Error())
 	}
 
 	code, err := keeper.GetByteCode(ctx, codeID)
 	if err != nil {
-		return nil, sdkErrors.Wrap(err, "loading wasm code")
+		return nil, sdkerrors.Wrap(err, "loading wasm code")
 	}
 
 	bz, err := json.MarshalIndent(GetCodeResponse{code}, "", "  ")
 	if err != nil {
-		return nil, sdkErrors.Wrap(sdkErrors.ErrJSONMarshal, err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	return bz, nil
 }
 
 type ListCodeResponse struct {
-	ID       uint64         `json:"id"`
-	Creator  sdk.AccAddress `json:"creator"`
-	CodeHash cmn.HexBytes   `json:"code_hash"`
+	ID       uint64           `json:"id"`
+	Creator  sdk.AccAddress   `json:"creator"`
+	CodeHash tmbytes.HexBytes `json:"code_hash"`
+	Source   string           `json:"source"`
+	Builder  string           `json:"builder"`
 }
 
 func queryCodeList(ctx sdk.Context, req abci.RequestQuery, keeper Keeper) ([]byte, error) {
@@ -170,12 +183,14 @@ func queryCodeList(ctx sdk.Context, req abci.RequestQuery, keeper Keeper) ([]byt
 			ID:       i,
 			Creator:  res.Creator,
 			CodeHash: res.CodeHash,
+			Source:   res.Source,
+			Builder:  res.Builder,
 		})
 	}
 
 	bz, err := json.MarshalIndent(info, "", "  ")
 	if err != nil {
-		return nil, sdkErrors.Wrap(sdkErrors.ErrJSONMarshal, err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	return bz, nil
 }

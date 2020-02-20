@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/client"
+	clientkeys "github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/tests"
 	"github.com/stretchr/testify/require"
 
@@ -31,7 +31,7 @@ func TestIritaCLIAddProfiler(t *testing.T) {
 
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	// Ensure transaction tags can be queried
-	searchResult := f.QueryTxs(1, 50, "message.action:add_profiler", fmt.Sprintf("message.sender:%s", fooAddr))
+	searchResult := f.QueryTxs(1, 50, "message.action=add_profiler", fmt.Sprintf("message.sender=%s", fooAddr))
 	require.Len(t, searchResult.Txs, 1)
 
 	expGuardian := guardian.NewGuardian(description, guardian.Ordinary, barAddr, fooAddr)
@@ -46,7 +46,7 @@ func TestIritaCLIAddProfiler(t *testing.T) {
 
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	// Ensure transaction tags can be queried
-	searchResult = f.QueryTxs(1, 50, "message.action:delete_profiler", fmt.Sprintf("message.sender:%s", fooAddr))
+	searchResult = f.QueryTxs(1, 50, "message.action=delete_profiler", fmt.Sprintf("message.sender=%s", fooAddr))
 	require.Len(t, searchResult.Txs, 1)
 
 	res = f.QueryProfilers()
@@ -78,7 +78,7 @@ func TestIritaCLIAddTrustee(t *testing.T) {
 
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	// Ensure transaction tags can be queried
-	searchResult := f.QueryTxs(1, 50, "message.action:add_trustee", fmt.Sprintf("message.sender:%s", fooAddr))
+	searchResult := f.QueryTxs(1, 50, "message.action=add_trustee", fmt.Sprintf("message.sender=%s", fooAddr))
 	require.Len(t, searchResult.Txs, 1)
 
 	res := f.QueryTrustees()
@@ -91,7 +91,7 @@ func TestIritaCLIAddTrustee(t *testing.T) {
 
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	// Ensure transaction tags can be queried
-	searchResult = f.QueryTxs(1, 50, "message.action:delete_trustee", fmt.Sprintf("message.sender:%s", fooAddr))
+	searchResult = f.QueryTxs(1, 50, "message.action=delete_trustee", fmt.Sprintf("message.sender=%s", fooAddr))
 	require.Len(t, searchResult.Txs, 1)
 
 	res = f.QueryTrustees()
@@ -107,26 +107,26 @@ func TestIritaCLIAddTrustee(t *testing.T) {
 
 // TxAddProfiler is iritacli tx guardian add-profiler
 func (f *Fixtures) TxAddProfiler(from, address, description string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx guardian add-profiler %v --from=%s --address=%s --description=%s", f.IritaCLIBinary, f.Flags(), from, address, description)
-	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
+	cmd := fmt.Sprintf("%s tx guardian add-profiler %v --keyring-backend=test --from=%s --address=%s --description=%s", f.IritaCLIBinary, f.Flags(), from, address, description)
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), clientkeys.DefaultKeyPass)
 }
 
 // TxAddTrustee is iritacli tx guardian add-trustee
 func (f *Fixtures) TxAddTrustee(from, address, description string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx guardian add-trustee %v --from=%s --address=%s --description=%s", f.IritaCLIBinary, f.Flags(), from, address, description)
-	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
+	cmd := fmt.Sprintf("%s tx guardian add-trustee %v --keyring-backend=test --from=%s --address=%s --description=%s", f.IritaCLIBinary, f.Flags(), from, address, description)
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), clientkeys.DefaultKeyPass)
 }
 
 // TxDeleteProfiler is iritacli tx guardian delete-profiler
 func (f *Fixtures) TxDeleteProfiler(from, address string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx guardian delete-profiler %v --from=%s --address=%s", f.IritaCLIBinary, f.Flags(), from, address)
-	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
+	cmd := fmt.Sprintf("%s tx guardian delete-profiler %v --keyring-backend=test --from=%s --address=%s", f.IritaCLIBinary, f.Flags(), from, address)
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), clientkeys.DefaultKeyPass)
 }
 
 // TxDeleteTrustee is iritacli tx guardian delete-trustee
 func (f *Fixtures) TxDeleteTrustee(from, address string, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("%s tx guardian  delete-trustee %v --from=%s --address=%s", f.IritaCLIBinary, f.Flags(), from, address)
-	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), client.DefaultKeyPass)
+	cmd := fmt.Sprintf("%s tx guardian  delete-trustee %v --keyring-backend=test --from=%s --address=%s", f.IritaCLIBinary, f.Flags(), from, address)
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), clientkeys.DefaultKeyPass)
 }
 
 // QueryProfiler is iritacli query guardian profilers

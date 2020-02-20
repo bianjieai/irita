@@ -15,6 +15,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/codec"
 	crkeys "github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -25,8 +27,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authexported "github.com/cosmos/cosmos-sdk/x/auth/exported"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
@@ -49,6 +53,7 @@ import (
 )
 
 // TODO: Make InitializeTestLCD safe to call in multiple tests at the same time
+
 // InitializeLCD starts Tendermint and the LCD in process, listening on
 // their respective sockets where nValidators is the total number of validators
 // and initAddrs are the accounts to initialize with some stake tokens. It
@@ -62,7 +67,7 @@ func InitializeLCD(nValidators int, initAddrs []sdk.AccAddress, minting bool, po
 	}
 	config.Consensus.TimeoutCommit = 100
 	config.Consensus.SkipTimeoutCommit = false
-	config.TxIndex.IndexAllTags = true
+	config.TxIndex.IndexAllKeys = true
 
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 	logger = log.NewFilter(logger, log.AllowError())
@@ -89,10 +94,10 @@ func InitializeLCD(nValidators int, initAddrs []sdk.AccAddress, minting bool, po
 	}
 
 	// XXX: Need to set this so LCD knows the tendermint node address!
-	viper.Set(client.FlagNode, config.RPC.ListenAddress)
-	viper.Set(client.FlagChainID, genDoc.ChainID)
+	viper.Set(flags.FlagNode, config.RPC.ListenAddress)
+	viper.Set(flags.FlagChainID, genDoc.ChainID)
 	// TODO Set to false once the upstream Tendermint proof verification issue is fixed.
-	viper.Set(client.FlagTrustNode, true)
+	viper.Set(flags.FlagTrustNode, true)
 
 	node, err := startTM(config, logger, genDoc, privVal, gapp)
 	if err != nil {
@@ -100,6 +105,7 @@ func InitializeLCD(nValidators int, initAddrs []sdk.AccAddress, minting bool, po
 	}
 
 	tests.WaitForNextHeightTM(tests.ExtractPortFromAddress(config.RPC.ListenAddress))
+
 	lcdInstance, err := startLCD(logger, listenAddr, cdc)
 	if err != nil {
 		return
@@ -132,7 +138,7 @@ func defaultGenesis(config *tmcfg.Config, nValidators int, initAddrs []sdk.AccAd
 	privVal.Reset()
 
 	if nValidators < 1 {
-		err = errors.New("InitializeLCD must use at least one validator")
+		err = errors.New("initializeLCD must use at least one validator")
 		return
 	}
 
@@ -221,33 +227,64 @@ func defaultGenesis(config *tmcfg.Config, nValidators int, initAddrs []sdk.AccAd
 	}
 
 	// auth genesis state: params and genesis accounts
-	authDataBz := genesisState[auth.ModuleName]
 	var authGenState auth.GenesisState
-	cdc.MustUnmarshalJSON(authDataBz, &authGenState)
+	cdc.MustUnmarshalJSON(genesisState[auth.ModuleName], &authGenState)
 	authGenState.Accounts = genAccounts
 	genesisState[auth.ModuleName] = cdc.MustMarshalJSON(authGenState)
 
-	stakingDataBz := genesisState[staking.ModuleName]
+	var bankGenState bank.GenesisState
+	cdc.MustUnmarshalJSON(genesisState[bank.ModuleName], &bankGenState)
+	bankGenState.SendEnabled = true
+	genesisState[bank.ModuleName] = cdc.MustMarshalJSON(bankGenState)
+
 	var stakingData staking.GenesisState
-	cdc.MustUnmarshalJSON(stakingDataBz, &stakingData)
+	cdc.MustUnmarshalJSON(genesisState[staking.ModuleName], &stakingData)
 	genesisState[staking.ModuleName] = cdc.MustMarshalJSON(stakingData)
 
 	// supply data
-	supplyDataBz := genesisState[supply.ModuleName]
 	var supplyData supply.GenesisState
-	cdc.MustUnmarshalJSON(supplyDataBz, &supplyData)
+	cdc.MustUnmarshalJSON(genesisState[supply.ModuleName], &supplyData)
 
 	supplyData.Supply = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, totalSupply))
-	supplyDataBz = cdc.MustMarshalJSON(supplyData)
-	genesisState[supply.ModuleName] = supplyDataBz
+	genesisState[supply.ModuleName] = cdc.MustMarshalJSON(supplyData)
+
+	// mint genesis (none set within genesisState)
+	mintData := mint.DefaultGenesisState()
+	inflationMin := sdk.ZeroDec()
+	if minting {
+		inflationMin = sdk.MustNewDecFromStr("0.9")
+		mintData.Params.InflationMax = sdk.MustNewDecFromStr("1.0")
+	} else {
+		mintData.Params.InflationMax = inflationMin
+	}
+
+	mintData.Minter.Inflation = inflationMin
+	mintData.Params.InflationMin = inflationMin
+	genesisState[mint.ModuleName] = cdc.MustMarshalJSON(mintData)
 
 	// initialize crisis data
-	crisisDataBz := genesisState[crisis.ModuleName]
 	var crisisData crisis.GenesisState
-	cdc.MustUnmarshalJSON(crisisDataBz, &crisisData)
+	cdc.MustUnmarshalJSON(genesisState[crisis.ModuleName], &crisisData)
+
 	crisisData.ConstantFee = sdk.NewInt64Coin(sdk.DefaultBondDenom, 1000)
-	crisisDataBz = cdc.MustMarshalJSON(crisisData)
-	genesisState[crisis.ModuleName] = crisisDataBz
+	genesisState[crisis.ModuleName] = cdc.MustMarshalJSON(crisisData)
+
+	//// double check inflation is set according to the minting boolean flag
+	if minting {
+		if !(mintData.Params.InflationMax.Equal(sdk.MustNewDecFromStr("1.0")) &&
+			mintData.Minter.Inflation.Equal(sdk.MustNewDecFromStr("0.9")) &&
+			mintData.Params.InflationMin.Equal(sdk.MustNewDecFromStr("0.9"))) {
+			err = errors.New("mint parameters does not correspond to their defaults")
+			return
+		}
+	} else {
+		if !(mintData.Params.InflationMax.Equal(sdk.ZeroDec()) &&
+			mintData.Minter.Inflation.Equal(sdk.ZeroDec()) &&
+			mintData.Params.InflationMin.Equal(sdk.ZeroDec())) {
+			err = errors.New("mint parameters not equal to decimal 0")
+			return
+		}
+	}
 
 	appState, err := codec.MarshalJSONIndent(cdc, genesisState)
 	if err != nil {
@@ -255,7 +292,7 @@ func defaultGenesis(config *tmcfg.Config, nValidators int, initAddrs []sdk.AccAd
 	}
 
 	genDoc.AppState = appState
-	return
+	return genDoc, valConsPubKeys, valOperAddrs, privVal, err
 }
 
 // startTM creates and starts an in-process Tendermint node with memDB and
@@ -311,7 +348,7 @@ func startLCD(logger log.Logger, listenAddr string, cdc *codec.Codec) (net.Liste
 	return listener, nil
 }
 
-// NOTE: If making updates here also update cmd/iris/cmd/iritacli/main.go
+// NOTE: If making updates here also update cmd/gaia/cmd/gaiacli/main.go
 func registerRoutes(rs *lcd.RestServer) {
 	client.RegisterRoutes(rs.CliCtx, rs.Mux)
 	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
@@ -326,19 +363,19 @@ func init() {
 
 // CreateAddr adds an address to the key store and returns an address and seed.
 // It also requires that the key could be created.
-func CreateAddr(name, password string, kb crkeys.Keybase) (sdk.AccAddress, string, error) {
+func CreateAddr(name string, kb crkeys.Keybase) (sdk.AccAddress, string, error) {
 	var (
 		err  error
 		info crkeys.Info
 		seed string
 	)
-	info, seed, err = kb.CreateMnemonic(name, crkeys.English, password, crkeys.Secp256k1)
+	info, seed, err = kb.CreateMnemonic(name, crkeys.English, keys.DefaultKeyPass, crkeys.Secp256k1)
 	return sdk.AccAddress(info.GetPubKey().Address()), seed, err
 }
 
-// CreateAddr adds multiple address to the key store and returns the addresses and associated seeds in lexographical order by address.
+// CreateAddrs adds multiple address to the key store and returns the addresses and associated seeds in lexographical order by address.
 // It also requires that the keys could be created.
-func CreateAddrs(kb crkeys.Keybase, numAddrs int) (addrs []sdk.AccAddress, seeds, names, passwords []string, errs []error) {
+func CreateAddrs(kb crkeys.Keybase, numAddrs int) (addrs []sdk.AccAddress, seeds, names []string, errs []error) {
 	var (
 		err  error
 		info crkeys.Info
@@ -349,12 +386,11 @@ func CreateAddrs(kb crkeys.Keybase, numAddrs int) (addrs []sdk.AccAddress, seeds
 
 	for i := 0; i < numAddrs; i++ {
 		name := fmt.Sprintf("test%d", i)
-		password := "1234567890"
-		info, seed, err = kb.CreateMnemonic(name, crkeys.English, password, crkeys.Secp256k1)
+		info, seed, err = kb.CreateMnemonic(name, crkeys.English, keys.DefaultKeyPass, crkeys.Secp256k1)
 		if err != nil {
 			errs = append(errs, err)
 		}
-		addrSeeds = append(addrSeeds, AddrSeed{Address: sdk.AccAddress(info.GetPubKey().Address()), Seed: seed, Name: name, Password: password})
+		addrSeeds = append(addrSeeds, AddrSeed{Address: sdk.AccAddress(info.GetPubKey().Address()), Seed: seed, Name: name})
 	}
 	if len(errs) > 0 {
 		return
@@ -366,18 +402,16 @@ func CreateAddrs(kb crkeys.Keybase, numAddrs int) (addrs []sdk.AccAddress, seeds
 		addrs = append(addrs, addrSeeds[i].Address)
 		seeds = append(seeds, addrSeeds[i].Seed)
 		names = append(names, addrSeeds[i].Name)
-		passwords = append(passwords, addrSeeds[i].Password)
 	}
 
-	return
+	return addrs, seeds, names, errs
 }
 
 // AddrSeed combines an Address with the mnemonic of the private key to that address
 type AddrSeed struct {
-	Address  sdk.AccAddress
-	Seed     string
-	Name     string
-	Password string
+	Address sdk.AccAddress
+	Seed    string
+	Name    string
 }
 
 // AddrSeedSlice implements `Interface` in sort package.
