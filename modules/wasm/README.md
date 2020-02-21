@@ -32,7 +32,7 @@ irita start --home mytestnet/node0/irita
 
 ```shell
 # add key node1
-iritacli keys add node1 --home mytestnet/node0/iritacli
+iritacli keys add node1
 
 # both should be empty
 iritacli query wasm list-code
@@ -40,7 +40,7 @@ iritacli query wasm list-contracts
 
 # upload and see we create code 1
 # gas is huge due to wasm size... but auto-zipping reduced this from 800k to around 260k
-iritacli tx wasm store $(iritacli keys show node0 -a --home mytestnet/node0/iritacli/) contract.wasm --gas 3000000 --from node0  -y --home mytestnet/node0/iritacli/ -b block --chain-id test
+iritacli tx wasm store contract.wasm --gas 3000000 --from node0  -y -b block --chain-id test
 iritacli query wasm list-code
 ```
 
@@ -48,9 +48,9 @@ iritacli query wasm list-code
 
 ```shell
 # instantiate contract and verify
-INIT="{\"arbiter\":\"$(iritacli keys show node0 -a --home mytestnet/node0/iritacli/)\", \"recipient\":\"$(iritacli keys show node1 -a --home mytestnet/node0/iritacli/)\", \"end_time\":0, \"end_height\":0}"
+INIT="{\"arbiter\":\"$(iritacli keys show node0 -a)\", \"recipient\":\"$(iritacli keys show node1 -a)\", \"end_time\":0, \"end_height\":0}"
 
-iritacli tx wasm instantiate $(iritacli keys show node0 -a --home mytestnet/node0/iritacli/) 1 "$INIT" --from node0 --amount=50000stake  -y --home mytestnet/node0/iritacli/ -b block --chain-id test
+iritacli tx wasm instantiate 1 "$INIT" --from node0 --amount=50000stake  -y --from node0 -b block --chain-id test
 
 # check the contract state (and account balance)
 iritacli query wasm list-contracts
