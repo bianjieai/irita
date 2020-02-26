@@ -1,7 +1,6 @@
 package clitest
 
 import (
-	"encoding/hex"
 	"fmt"
 	"testing"
 
@@ -49,16 +48,16 @@ func TestIritaCLICreateRecord(t *testing.T) {
 		}
 	}
 
-	hexTxHash := searchResult.Txs[0].TxHash
-	txHash, err := hex.DecodeString(hexTxHash)
-	require.NoError(f.T, err)
-	expRecord := record.NewRecord(txHash,
-		[]record.Content{{
+	expRecord := record.RecordOutput{
+		TxHash: searchResult.Txs[0].TxHash,
+		Contents: []record.Content{{
 			Digest:     digest,
 			DigestAlgo: digestAlgo,
 			URI:        uri,
 			Meta:       meta,
-		}}, fooAddr)
+		}},
+		Creator: fooAddr,
+	}
 
 	res := f.QueryRecord(recordID)
 	require.NotEmpty(f.T, res)
@@ -75,7 +74,7 @@ func (f *Fixtures) TxCreateRecord(from, digest, digestAlgo, uri, meta string, fl
 }
 
 // QueryRecord is iritacli query record record
-func (f *Fixtures) QueryRecord(recordID string) (result record.Record) {
+func (f *Fixtures) QueryRecord(recordID string) (result record.RecordOutput) {
 	cmd := fmt.Sprintf("%s query record record %s --output=%s %v", f.IritaCLIBinary, recordID, "json", f.Flags())
 	out, _ := tests.ExecuteT(f.T, cmd, "")
 	cdc := app.MakeCodec()

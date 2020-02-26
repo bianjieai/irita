@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bianjieai/irita/modules/record"
-
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -33,6 +31,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bianjieai/irita/modules/guardian"
+	"github.com/bianjieai/irita/modules/record"
 	"github.com/bianjieai/irita/modules/service"
 	"github.com/bianjieai/irita/modules/wasm"
 )
