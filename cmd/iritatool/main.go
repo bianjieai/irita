@@ -14,7 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/crypto/algo"
 
 	irita "github.com/bianjieai/irita/app"
 )
@@ -116,40 +116,35 @@ func runPubKeyCmd(cmd *cobra.Command, args []string) error {
 								bech32 Cons: %v`,
 							err, err2, err3, err4, err5)
 					}
-
 				}
 			}
-
 		}
 	}
 
-	var pubKey ed25519.PubKeyEd25519
 	if pubKeyI == nil {
-		copy(pubKey[:], pubkeyBytes)
+		pubKeyI = algo.GetPubKeyFromData(algo.Algo, pubkeyBytes)
 	} else {
-		pubKey = pubKeyI.(ed25519.PubKeyEd25519)
-		pubkeyBytes = pubKey[:]
+		pubkeyBytes = algo.GetPubKeyBytes(pubKeyI)
 	}
 
 	cdc := irita.MakeCodec()
-	pubKeyJSONBytes, err := cdc.MarshalJSON(pubKey)
+	pubKeyJSONBytes, err := cdc.MarshalJSON(pubKeyI)
 	if err != nil {
 		return err
 	}
-	accPub, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubKey)
+	accPub, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, pubKeyI)
 	if err != nil {
 		return err
 	}
-	valPub, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeValPub, pubKey)
+	valPub, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeValPub, pubKeyI)
 	if err != nil {
 		return err
 	}
-
-	consenusPub, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pubKey)
+	consenusPub, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, pubKeyI)
 	if err != nil {
 		return err
 	}
-	fmt.Println("Address:", pubKey.Address())
+	fmt.Println("Address:", pubKeyI.Address())
 	fmt.Printf("Hex: %X\n", pubkeyBytes)
 	fmt.Println("JSON (base64):", string(pubKeyJSONBytes))
 	fmt.Println("Bech32 Acc:", accPub)
