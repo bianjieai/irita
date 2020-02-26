@@ -18,10 +18,9 @@ const (
 	QueryRecord = "record"
 )
 
-var IntraTxCounter = ModuleName + "_intra_tx_counter"
-
 var (
-	RecordKey = []byte{0x00} // record key
+	RecordKey         = []byte{0x00} // record key
+	IntraTxCounterKey = []byte{0x01} // key for intra-block tx index
 )
 
 // GetRecordKey returns record key bytes

@@ -115,7 +115,9 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 }
 
 // BeginBlock returns the begin blocker for the guardian module.
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
+func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
+	am.keeper.SetIntraTxCounter(ctx, 0)
+}
 
 // EndBlock returns the end blocker for the guardian module. It returns no validator
 // updates.

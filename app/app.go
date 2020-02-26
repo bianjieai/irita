@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/bianjieai/irita/modules/record"
+
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -59,6 +61,7 @@ var (
 		guardian.AppModuleBasic{},
 		service.AppModuleBasic{},
 		nft.AppModuleBasic{},
+		record.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 	)
 
@@ -110,6 +113,7 @@ type IritaApp struct {
 	serviceKeeper  service.Keeper
 	guardianKeeper guardian.Keeper
 	nftKeeper      nft.Keeper
+	recordKeeper   record.Keeper
 	wasmKeeper     wasm.Keeper
 
 	// the module manager
@@ -138,7 +142,8 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey, supply.StoreKey,
 		gov.StoreKey, params.StoreKey, evidence.StoreKey,
-		guardian.StoreKey, service.StoreKey, nft.StoreKey, wasm.StoreKey,
+		guardian.StoreKey, service.StoreKey, nft.StoreKey, record.StoreKey,
+		wasm.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -205,6 +210,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	)
 
 	app.nftKeeper = nft.NewKeeper(app.cdc, keys[nft.StoreKey])
+	app.recordKeeper = record.NewKeeper(app.cdc, keys[record.StoreKey])
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -219,13 +225,14 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		guardian.NewAppModule(app.guardianKeeper),
 		service.NewAppModule(app.serviceKeeper),
 		nft.NewAppModule(app.nftKeeper),
+		record.NewAppModule(app.recordKeeper),
 		wasm.NewAppModule(app.wasmKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
-	app.mm.SetOrderBeginBlockers()
+	app.mm.SetOrderBeginBlockers(record.ModuleName)
 
 	app.mm.SetOrderEndBlockers(crisis.ModuleName, gov.ModuleName, service.ModuleName, staking.ModuleName)
 
@@ -237,7 +244,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName,
 		guardian.ModuleName, service.ModuleName, nft.ModuleName,
-		wasm.ModuleName,
+		record.ModuleName, wasm.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)

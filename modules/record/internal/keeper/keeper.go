@@ -1,14 +1,16 @@
 package keeper
 
 import (
+	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
+	"math"
 
 	"github.com/bianjieai/irita/modules/record/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
+	"golang.org/x/crypto/ripemd160"
 )
 
 // Keeper of the guardian store
@@ -35,13 +37,18 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) AddRecord(ctx sdk.Context, record types.Record) []byte {
 	store := ctx.KVStore(k.storeKey)
 	recordBz := k.cdc.MustMarshalBinaryLengthPrefixed(record)
+	intraTxCounter := k.GetIntraTxCounter(ctx)
 
-	bz := make([]byte, 4+len(recordBz))
-	bz[0:len(recordBz)] = recordBz[:]
-	binary.BigEndian.PutUint16(bz[len(recordBz):], k.GetIntraTxCounter(ctx))
+	bz := make([]byte, 2+len(recordBz))
+	copy(bz[:len(recordBz)], recordBz[:])
+	intraTxCounter = intraTxCounter + math.MaxUint16
+	binary.BigEndian.PutUint16(bz[len(recordBz):], intraTxCounter)
 
-	recordID := tmhash.New().Sum(bz)
+	recordID := getRecordId(bz)
 	store.Set(types.GetRecordKey(recordID), recordBz)
+
+	// update intraTxCounter + 1
+	k.SetIntraTxCounter(ctx, intraTxCounter+1)
 	return recordID
 }
 
@@ -61,7 +68,35 @@ func (k Keeper) RecordsIterator(ctx sdk.Context) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(store, types.RecordKey)
 }
 
-// get the current in-block request operation counter
+// GetIntraTxCounter gets the current in-block request operation counter
 func (k Keeper) GetIntraTxCounter(ctx sdk.Context) uint16 {
-	return ctx.Context().Value(types.IntraTxCounter).(uint16)
+	store := ctx.KVStore(k.storeKey)
+
+	b := store.Get(types.IntraTxCounterKey)
+	if b == nil {
+		return 0
+	}
+
+	var counter uint16
+	k.cdc.MustUnmarshalBinaryLengthPrefixed(b, &counter)
+
+	return counter
+}
+
+// SetIntraTxCounter sets the current in-block request counter
+func (k Keeper) SetIntraTxCounter(ctx sdk.Context, counter uint16) {
+	store := ctx.KVStore(k.storeKey)
+
+	bz := k.cdc.MustMarshalBinaryLengthPrefixed(counter)
+	store.Set(types.IntraTxCounterKey, bz)
+}
+
+func getRecordId(bz []byte) []byte {
+	hasherSHA256 := sha256.New()
+	hasherSHA256.Write(bz[:]) // does not error
+	sha := hasherSHA256.Sum(nil)
+
+	hasherRIPEMD160 := ripemd160.New()
+	hasherRIPEMD160.Write(sha) // does not error
+	return hasherRIPEMD160.Sum(nil)
 }
