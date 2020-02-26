@@ -32,7 +32,13 @@ func queryRecord(ctx sdk.Context, k Keeper, req abci.RequestQuery) ([]byte, erro
 		return nil, types.ErrUnknownRecord
 	}
 
-	bz, err := codec.MarshalJSONIndent(k.cdc, record)
+	recordOutput := types.RecordOutput{
+		TxHash:   record.TxHash.String(),
+		Contents: record.Contents,
+		Creator:  record.Creator,
+	}
+
+	bz, err := codec.MarshalJSONIndent(k.cdc, recordOutput)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

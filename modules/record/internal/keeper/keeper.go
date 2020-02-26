@@ -1,16 +1,14 @@
 package keeper
 
 import (
-	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
-	"math"
 
 	"github.com/bianjieai/irita/modules/record/internal/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
-	"golang.org/x/crypto/ripemd160"
 )
 
 // Keeper of the guardian store
@@ -41,7 +39,6 @@ func (k Keeper) AddRecord(ctx sdk.Context, record types.Record) []byte {
 
 	bz := make([]byte, 2+len(recordBz))
 	copy(bz[:len(recordBz)], recordBz[:])
-	intraTxCounter = intraTxCounter + math.MaxUint16
 	binary.BigEndian.PutUint16(bz[len(recordBz):], intraTxCounter)
 
 	recordID := getRecordId(bz)
@@ -92,11 +89,5 @@ func (k Keeper) SetIntraTxCounter(ctx sdk.Context, counter uint16) {
 }
 
 func getRecordId(bz []byte) []byte {
-	hasherSHA256 := sha256.New()
-	hasherSHA256.Write(bz[:]) // does not error
-	sha := hasherSHA256.Sum(nil)
-
-	hasherRIPEMD160 := ripemd160.New()
-	hasherRIPEMD160.Write(sha) // does not error
-	return hasherRIPEMD160.Sum(nil)
+	return tmhash.Sum(bz)
 }

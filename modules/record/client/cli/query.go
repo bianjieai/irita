@@ -59,7 +59,7 @@ func GetCmdQueryRecord(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			var record types.Record
+			var record types.RecordOutput
 			if err := cdc.UnmarshalJSON(res, &record); err != nil {
 				return err
 			}

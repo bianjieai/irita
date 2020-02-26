@@ -33,6 +33,7 @@ type (
 	Keeper          = keeper.Keeper
 	GenesisState    = types.GenesisState
 	Record          = types.Record
+	RecordOutput    = types.RecordOutput
 	Content         = types.Content
 	MsgCreateRecord = types.MsgCreateRecord
 )

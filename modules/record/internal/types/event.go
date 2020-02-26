@@ -4,7 +4,7 @@ package types
 const (
 	EventTypeCreateRecord = "create_record"
 	AttributeKeyCreator   = "creator"
-	AttributeKeyRecordID  = "Record_id"
+	AttributeKeyRecordID  = "record_id"
 
 	AttributeValueCategory = ModuleName
 )
