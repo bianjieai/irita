@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/bianjieai/irita/modules/guardian/client/cli"
+	"github.com/bianjieai/irita/modules/record/client/cli"
 )
 
 var (
@@ -21,46 +21,46 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 )
 
-// AppModuleBasic defines the basic application module used by the guardian module.
+// AppModuleBasic defines the basic application module used by the record module.
 type AppModuleBasic struct{}
 
-// Name returns the guardian module's name.
+// Name returns the record module's name.
 func (AppModuleBasic) Name() string {
 	return ModuleName
 }
 
-// RegisterCodec registers the guardian module's types for the given codec.
+// RegisterCodec registers the record module's types for the given codec.
 func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) {
 	RegisterCodec(cdc)
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the guardian module
+// DefaultGenesis returns default genesis state as raw bytes for the record module
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {
 	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
 }
 
-// ValidateGenesis performs genesis state validation for the guardian module.
+// ValidateGenesis performs genesis state validation for the record module.
 func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 	var data GenesisState
 	return ModuleCdc.UnmarshalJSON(bz, &data)
 }
 
-// RegisterRESTRoutes registers the REST routes for the guardian module.
+// RegisterRESTRoutes registers the REST routes for the record module.
 func (AppModuleBasic) RegisterRESTRoutes(_ context.CLIContext, _ *mux.Router) {}
 
-// GetTxCmd returns no root tx command for the guardian module.
+// GetTxCmd returns no root tx command for the record module.
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	return cli.GetTxCmd(cdc)
 }
 
-// GetQueryCmd returns the root query command for the guardian module.
+// GetQueryCmd returns the root query command for the record module.
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	return cli.GetQueryCmd(cdc)
 }
 
 //____________________________________________________________________________
 
-// AppModule implements an application module for the guardian module.
+// AppModule implements an application module for the record module.
 type AppModule struct {
 	AppModuleBasic
 	keeper Keeper
@@ -74,31 +74,31 @@ func NewAppModule(keeper Keeper) AppModule {
 	}
 }
 
-// Name returns the guardian module's name.
+// Name returns the record module's name.
 func (AppModule) Name() string {
 	return ModuleName
 }
 
-// RegisterInvariants registers the guardian module invariants.
+// RegisterInvariants registers the record module invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// Route returns the message routing key for the guardian module.
+// Route returns the message routing key for the record module.
 func (AppModule) Route() string { return RouterKey }
 
-// NewHandler returns an sdk.Handler for the guardian module.
+// NewHandler returns an sdk.Handler for the record module.
 func (am AppModule) NewHandler() sdk.Handler { return NewHandler(am.keeper) }
 
-// QuerierRoute returns the guardian module's querier route name.
+// QuerierRoute returns the record module's querier route name.
 func (AppModule) QuerierRoute() string {
 	return QuerierRoute
 }
 
-// NewQuerierHandler returns the guardian module sdk.Querier.
+// NewQuerierHandler returns the record module sdk.Querier.
 func (am AppModule) NewQuerierHandler() sdk.Querier {
 	return NewQuerier(am.keeper)
 }
 
-// InitGenesis performs genesis initialization for the guardian module. It returns
+// InitGenesis performs genesis initialization for the record module. It returns
 // no validator updates.
 func (am AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
@@ -114,12 +114,12 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 	return ModuleCdc.MustMarshalJSON(gs)
 }
 
-// BeginBlock returns the begin blocker for the guardian module.
+// BeginBlock returns the begin blocker for the record module.
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	am.keeper.SetIntraTxCounter(ctx, 0)
 }
 
-// EndBlock returns the end blocker for the guardian module. It returns no validator
+// EndBlock returns the end blocker for the record module. It returns no validator
 // updates.
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}

@@ -9,8 +9,8 @@ var ModuleCdc *codec.Codec
 
 // RegisterCodec registers concrete types on the codec.
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgCreateRecord{}, "irishub/guardian/MsgCreateRecord", nil)
-	cdc.RegisterConcrete(Record{}, "irishub/guardian/Record", nil)
+	cdc.RegisterConcrete(MsgCreateRecord{}, "irishub/record/MsgCreateRecord", nil)
+	cdc.RegisterConcrete(Record{}, "irishub/record/Record", nil)
 
 }
 

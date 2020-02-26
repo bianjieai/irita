@@ -11,13 +11,13 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 )
 
-// Keeper of the guardian store
+// Keeper of the record store
 type Keeper struct {
 	storeKey sdk.StoreKey
 	cdc      *codec.Codec
 }
 
-// NewKeeper returns a guardian keeper
+// NewKeeper returns a record keeper
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey) Keeper {
 	keeper := Keeper{
 		storeKey: key,

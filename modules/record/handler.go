@@ -8,7 +8,7 @@ import (
 	"github.com/tendermint/tendermint/crypto/tmhash"
 )
 
-// NewHandler returns a handler for all "guardian" type messages.
+// NewHandler returns a handler for all "record" type messages.
 func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())

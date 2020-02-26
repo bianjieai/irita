@@ -37,7 +37,7 @@ func GetCmdCreateRecord(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Create a new record",
-		Example: "iritacli tx guardian create [digest] [digest-algo] --uri=<uri> --meta=<meta-data> " +
+		Example: "iritacli tx record create [digest] [digest-algo] --uri=<uri> --meta=<meta-data> " +
 			"--chain-id=<chain-id> --from=<key-name> --fees=0.3iris",
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {

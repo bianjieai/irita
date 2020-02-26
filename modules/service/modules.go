@@ -15,8 +15,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	sim "github.com/cosmos/cosmos-sdk/x/simulation"
 
-	"github.com/bianjieai/irita/modules/record/client/cli"
-	"github.com/bianjieai/irita/modules/record/client/rest"
+	"github.com/bianjieai/irita/modules/service/client/cli"
+	"github.com/bianjieai/irita/modules/service/client/rest"
+	"github.com/bianjieai/irita/modules/service/simulation"
 )
 
 var (
@@ -63,12 +64,12 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 
 // GetTxCmd returns the root tx command for the service module.
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetTxCmd(cdc)
+	return cli.GetTxCmd(StoreKey, cdc)
 }
 
 // GetQueryCmd returns no root query command for the service module.
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(cdc)
+	return cli.GetQueryCmd(StoreKey, cdc)
 }
 
 //____________________________________________________________________________
@@ -78,17 +79,17 @@ type AppModuleSimulation struct{}
 
 // RegisterStoreDecoder registers a decoder for service module's types
 func (AppModuleSimulation) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
-
+	sdr[StoreKey] = simulation.DecodeStore
 }
 
 // GenerateGenesisState creates a randomized GenState of the service module.
 func (AppModuleSimulation) GenerateGenesisState(simState *module.SimulationState) {
-
+	simulation.RandomizedGenState(simState)
 }
 
 // RandomizedParams creates randomized service param changes for the simulator.
 func (AppModuleSimulation) RandomizedParams(r *rand.Rand) []sim.ParamChange {
-	return nil
+	return simulation.ParamChanges(r)
 }
 
 //____________________________________________________________________________
