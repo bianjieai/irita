@@ -56,7 +56,9 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=irita \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
 		  -X github.com/irisnet/irishub/cmd/config.NetworkType=${NetworkType} \
-		  -X github.com/cosmos/cosmos-sdk/types.reDnmString=[a-z][a-z0-9:-]{2,15}
+		  -X github.com/cosmos/cosmos-sdk/types.reDnmString=[a-z][a-z0-9:-]{2,15} \
+		  -X github.com/cosmos/cosmos-sdk/crypto/keys.DefaultAlgoString=sm2 \
+		  -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2
 
 denomflags = -X github.com/cosmos/cosmos-sdk/types.reDnmString=[a-z][a-z0-9:-]{2,15}
 
