@@ -33,6 +33,7 @@ import (
 	"github.com/irisnet/modules/incubator/nft"
 
 	"github.com/bianjieai/irita/modules/guardian"
+	"github.com/bianjieai/irita/modules/record"
 	"github.com/bianjieai/irita/modules/service"
 )
 
@@ -64,6 +65,7 @@ var (
 		guardian.AppModuleBasic{},
 		service.AppModuleBasic{},
 		nft.AppModuleBasic{},
+		record.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -121,6 +123,7 @@ type SimApp struct {
 	ServiceKeeper  service.Keeper
 	GuardianKeeper guardian.Keeper
 	NftKeeper      nft.Keeper
+	RecordKeeper   record.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -144,7 +147,7 @@ func NewSimApp(
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey, supply.StoreKey, mint.StoreKey,
 		distr.StoreKey, slashing.StoreKey, gov.StoreKey, params.StoreKey,
-		evidence.StoreKey, guardian.StoreKey, service.StoreKey, nft.StoreKey,
+		evidence.StoreKey, guardian.StoreKey, service.StoreKey, nft.StoreKey, record.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
@@ -232,6 +235,7 @@ func NewSimApp(
 	)
 
 	app.NftKeeper = nft.NewKeeper(app.cdc, keys[nft.StoreKey])
+	app.RecordKeeper = record.NewKeeper(app.cdc, keys[record.StoreKey])
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -250,12 +254,13 @@ func NewSimApp(
 		guardian.NewAppModule(app.GuardianKeeper),
 		service.NewAppModule(app.ServiceKeeper),
 		nft.NewAppModule(app.NftKeeper),
+		record.NewAppModule(app.RecordKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
-	app.mm.SetOrderBeginBlockers(mint.ModuleName, distr.ModuleName, slashing.ModuleName)
+	app.mm.SetOrderBeginBlockers(mint.ModuleName, distr.ModuleName, slashing.ModuleName, record.ModuleName)
 	app.mm.SetOrderEndBlockers(crisis.ModuleName, gov.ModuleName, service.ModuleName, staking.ModuleName)
 
 	// NOTE: The genutils moodule must occur after staking so that pools are
@@ -264,7 +269,7 @@ func NewSimApp(
 		auth.ModuleName, distr.ModuleName, staking.ModuleName, bank.ModuleName,
 		slashing.ModuleName, gov.ModuleName, mint.ModuleName, supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName, evidence.ModuleName,
-		guardian.ModuleName, service.ModuleName, nft.ModuleName,
+		guardian.ModuleName, service.ModuleName, nft.ModuleName, record.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
