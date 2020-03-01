@@ -35,4 +35,9 @@ require (
 	google.golang.org/genproto v0.0.0-20191216205247-b31c10ee225f // indirect
 )
 
+replace (
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.38.2-0.20200301161841-39f57e10d3d6
+	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.33.0-irita-200302
+)
+
 go 1.13
