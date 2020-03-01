@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/crypto/algo"
 )
 
 func TestNewKeeper(t *testing.T) {
@@ -151,7 +151,7 @@ func TestInstantiate(t *testing.T) {
 	require.Equal(t, "cosmos18vd8fpwxzck93qlwghaj6arh4p7c5n89uzcee5", addr.String())
 
 	gasAfter := ctx.GasMeter().GasConsumed()
-	require.Equal(t, uint64(28426), gasAfter-gasBefore)
+	require.Equal(t, uint64(0x6f0a), gasAfter-gasBefore)
 }
 
 func TestInstantiateWithNonExistingCodeID(t *testing.T) {
@@ -236,7 +236,7 @@ func TestExecute(t *testing.T) {
 
 	// make sure gas is properly deducted from ctx
 	gasAfter := ctx.GasMeter().GasConsumed()
-	require.Equal(t, uint64(31754), gasAfter-gasBefore)
+	require.Equal(t, uint64(0x7c0a), gasAfter-gasBefore)
 
 	// ensure bob now exists and got both payments released
 	bobAcct = accKeeper.GetAccount(ctx, bob)
@@ -411,7 +411,7 @@ func keyPubAddr() (crypto.PrivKey, crypto.PubKey, sdk.AccAddress) {
 	seed := make([]byte, 8)
 	binary.BigEndian.PutUint64(seed, keyCounter)
 
-	key := ed25519.GenPrivKeyFromSecret(seed)
+	key := algo.GenPrivKeyFromSecret(seed)
 	pub := key.PubKey()
 	addr := sdk.AccAddress(pub.Address())
 	return key, pub, addr

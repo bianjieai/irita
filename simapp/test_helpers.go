@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/crypto/algo"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
@@ -81,7 +81,7 @@ func SetupWithGenesisAccounts(genAccs []authexported.GenesisAccount) *SimApp {
 func AddTestAddrs(app *SimApp, ctx sdk.Context, accNum int, accAmt sdk.Int) []sdk.AccAddress {
 	testAddrs := make([]sdk.AccAddress, accNum)
 	for i := 0; i < accNum; i++ {
-		pk := ed25519.GenPrivKey().PubKey()
+		pk := algo.GenPrivKey().PubKey()
 		testAddrs[i] = sdk.AccAddress(pk.Address())
 	}
 

@@ -55,10 +55,14 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=irita \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
-		  -X github.com/irisnet/irishub/cmd/config.NetworkType=${NetworkType} \
-		  -X github.com/cosmos/cosmos-sdk/types.reDnmString=[a-z][a-z0-9:-]{2,15}
+		  -X github.com/bianjieai/irita/config.NetworkType=${NetworkType} \
+		  -X github.com/cosmos/cosmos-sdk/types.reDnmString=[a-z][a-z0-9:-]{2,15} \
+		  -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2
 
-denomflags = -X github.com/cosmos/cosmos-sdk/types.reDnmString=[a-z][a-z0-9:-]{2,15}
+testflags = -X github.com/cosmos/cosmos-sdk/types.reDnmString=[a-z][a-z0-9:-]{2,15}
+
+buildflags = -X github.com/cosmos/cosmos-sdk/types.reDnmString=[a-z][a-z0-9:-]{2,15} \
+             -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2
 
 ifeq ($(WITH_CLEVELDB),yes)
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
@@ -131,7 +135,7 @@ test: test-unit test-build
 test-all: check test-race test-cover
 
 test-unit:
-	@VERSION=$(VERSION) go test -ldflags='$(denomflags)' -mod=readonly -tags='ledger test_ledger_mock' ${PACKAGES_UNITTEST}
+	@VERSION=$(VERSION) go test -ldflags='$(testflags)' -mod=readonly -tags='ledger test_ledger_mock' ${PACKAGES_UNITTEST}
 
 test-race:
 	@VERSION=$(VERSION) go test -mod=readonly -race -tags='ledger test_ledger_mock' ./...
@@ -140,7 +144,7 @@ test-cover:
 	@go test -mod=readonly -timeout 30m -race -coverprofile=coverage.txt -covermode=atomic -tags='ledger test_ledger_mock' ./...
 
 test-build: build
-	@go test -ldflags='$(denomflags)' -mod=readonly -p 4 `go list ./cli_test/...` -tags=cli_test -v
+	@go test -ldflags='$(buildflags)' -mod=readonly -p 4 `go list ./cli_test/...` -tags=cli_test -v
 
 
 lint: golangci-lint
