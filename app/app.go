@@ -3,7 +3,6 @@ package app
 import (
 	"io"
 	"os"
-	"path/filepath"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -23,9 +22,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/irisnet/modules/incubator/nft"
-	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
@@ -33,7 +30,6 @@ import (
 	"github.com/bianjieai/irita/modules/guardian"
 	"github.com/bianjieai/irita/modules/record"
 	"github.com/bianjieai/irita/modules/service"
-	"github.com/bianjieai/irita/modules/wasm"
 )
 
 const appName = "IritaApp"
@@ -61,7 +57,7 @@ var (
 		service.AppModuleBasic{},
 		nft.AppModuleBasic{},
 		record.AppModuleBasic{},
-		wasm.AppModuleBasic{},
+		//wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -113,7 +109,7 @@ type IritaApp struct {
 	guardianKeeper guardian.Keeper
 	nftKeeper      nft.Keeper
 	recordKeeper   record.Keeper
-	wasmKeeper     wasm.Keeper
+	//wasmKeeper     wasm.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -124,9 +120,9 @@ type IritaApp struct {
 
 // WasmWrapper allows us to use namespacing in the config file
 // This is only used for parsing in the app, x/wasm expects WasmConfig
-type WasmWrapper struct {
-	Wasm wasm.WasmConfig `mapstructure:"wasm"`
-}
+//type WasmWrapper struct {
+//	Wasm wasm.WasmConfig `mapstructure:"wasm"`
+//}
 
 // NewIrisApp returns a reference to an initialized IrisApp.
 func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
@@ -142,7 +138,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey, supply.StoreKey,
 		gov.StoreKey, params.StoreKey, evidence.StoreKey,
 		guardian.StoreKey, service.StoreKey, nft.StoreKey, record.StoreKey,
-		wasm.StoreKey,
+		//wasm.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -173,19 +169,19 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
 
 	// just re-use the full router - do we want to limit this more?
-	var wasmRouter = bApp.Router()
-	// better way to get this dir???
-	homeDir := viper.GetString(cli.HomeFlag)
-	wasmDir := filepath.Join(homeDir, "wasm")
-
-	wasmWrap := WasmWrapper{Wasm: wasm.DefaultWasmConfig()}
-	err := viper.Unmarshal(&wasmWrap)
-	if err != nil {
-		panic("error while reading wasm config: " + err.Error())
-	}
-	wasmConfig := wasmWrap.Wasm
-
-	app.wasmKeeper = wasm.NewKeeper(app.cdc, keys[wasm.StoreKey], app.accountKeeper, app.bankKeeper, wasmRouter, wasmDir, wasmConfig)
+	//var wasmRouter = bApp.Router()
+	//// better way to get this dir???
+	//homeDir := viper.GetString(cli.HomeFlag)
+	//wasmDir := filepath.Join(homeDir, "wasm")
+	//
+	//wasmWrap := WasmWrapper{Wasm: wasm.DefaultWasmConfig()}
+	//err := viper.Unmarshal(&wasmWrap)
+	//if err != nil {
+	//	panic("error while reading wasm config: " + err.Error())
+	//}
+	//wasmConfig := wasmWrap.Wasm
+	//
+	//app.wasmKeeper = wasm.NewKeeper(app.cdc, keys[wasm.StoreKey], app.accountKeeper, app.bankKeeper, wasmRouter, wasmDir, wasmConfig)
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -225,7 +221,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		service.NewAppModule(app.serviceKeeper),
 		nft.NewAppModule(app.nftKeeper),
 		record.NewAppModule(app.recordKeeper),
-		wasm.NewAppModule(app.wasmKeeper),
+		//wasm.NewAppModule(app.wasmKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -243,7 +239,8 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName,
 		guardian.ModuleName, service.ModuleName, nft.ModuleName,
-		record.ModuleName, wasm.ModuleName,
+		record.ModuleName,
+		//wasm.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)

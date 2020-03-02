@@ -9,7 +9,7 @@ require (
 	github.com/go-kit/kit v0.9.0
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.3
-	github.com/irisnet/modules/incubator/nft v0.0.0-20200219072844-ccf6f7ece3e1
+	github.com/irisnet/modules/incubator/nft v0.0.0-20200220090632-add1621d4538
 	github.com/keybase/go-keychain v0.0.0-20191114153608-ccd67945d59e // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
@@ -31,14 +31,14 @@ require (
 	github.com/tendermint/go-amino v0.15.1
 	github.com/tendermint/tendermint v0.33.0
 	github.com/tendermint/tm-db v0.4.0
-	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
+	golang.org/x/crypto v0.0.0-20191219195013-becbf705a915
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20191216205247-b31c10ee225f // indirect
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.38.2-0.20200301161841-39f57e10d3d6
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.38.1-irita-200302
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.33.0-irita-200302
 )
 
