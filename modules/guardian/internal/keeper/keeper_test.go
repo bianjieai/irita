@@ -1,14 +1,13 @@
 package keeper_test
 
 import (
-	"encoding/hex"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/crypto/algo"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,9 +18,9 @@ import (
 
 var (
 	pks = []crypto.PubKey{
-		newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50"),
-		newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB51"),
-		newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB52"),
+		algo.GenPrivKeyFromSecret([]byte("secret1")).PubKey(),
+		algo.GenPrivKeyFromSecret([]byte("secret2")).PubKey(),
+		algo.GenPrivKeyFromSecret([]byte("secret3")).PubKey(),
 	}
 	addrs = []sdk.AccAddress{
 		sdk.AccAddress(pks[0].Address()),
@@ -152,14 +151,4 @@ func (suite *KeeperTestSuite) TestQueryTrustees() {
 	suite.NoError(err)
 	suite.Len(trustees, 2)
 	suite.Contains(trustees, trustee)
-}
-
-func newPubKey(pk string) (res crypto.PubKey) {
-	pkBytes, err := hex.DecodeString(pk)
-	if err != nil {
-		panic(err)
-	}
-	var pkEd ed25519.PubKeyEd25519
-	copy(pkEd[:], pkBytes[:])
-	return pkEd
 }

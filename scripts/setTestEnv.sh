@@ -4,7 +4,7 @@
 # Edit the script to set environment variables for your own network
 
 # Network type: testnet, mainnet
-export NetworkType="mainnet"
+export NetworkType="testnet"
 
 # Disable invariant chcecking: "no"
 # Panic on invariant failure: "panic"
