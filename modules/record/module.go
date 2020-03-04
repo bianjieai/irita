@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/bianjieai/irita/modules/record/client/cli"
+	"github.com/bianjieai/irita/modules/record/client/rest"
 )
 
 var (
@@ -46,7 +47,9 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 }
 
 // RegisterRESTRoutes registers the REST routes for the record module.
-func (AppModuleBasic) RegisterRESTRoutes(_ context.CLIContext, _ *mux.Router) {}
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, r *mux.Router) {
+	rest.RegisterRoutes(ctx, r)
+}
 
 // GetTxCmd returns no root tx command for the record module.
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
