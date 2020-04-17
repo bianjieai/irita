@@ -28,8 +28,8 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bianjieai/irita/modules/guardian"
-	"github.com/bianjieai/irita/modules/record"
 	"github.com/bianjieai/irita/modules/service"
+	"github.com/irismod/record"
 )
 
 const appName = "IritaApp"
@@ -220,7 +220,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		guardian.NewAppModule(app.guardianKeeper),
 		service.NewAppModule(app.serviceKeeper),
 		nft.NewAppModule(app.nftKeeper),
-		record.NewAppModule(app.recordKeeper),
+		record.NewAppModule(app.recordKeeper, app.accountKeeper),
 		//wasm.NewAppModule(app.wasmKeeper),
 	)
 

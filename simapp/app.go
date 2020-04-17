@@ -33,8 +33,8 @@ import (
 	"github.com/irisnet/modules/incubator/nft"
 
 	"github.com/bianjieai/irita/modules/guardian"
-	"github.com/bianjieai/irita/modules/record"
 	"github.com/bianjieai/irita/modules/service"
+	"github.com/irismod/record"
 )
 
 const appName = "SimApp"
@@ -254,7 +254,7 @@ func NewSimApp(
 		guardian.NewAppModule(app.GuardianKeeper),
 		service.NewAppModule(app.ServiceKeeper),
 		nft.NewAppModule(app.NftKeeper),
-		record.NewAppModule(app.RecordKeeper),
+		record.NewAppModule(app.RecordKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -288,6 +288,7 @@ func NewSimApp(
 		distr.NewAppModule(app.DistrKeeper, app.AccountKeeper, app.SupplyKeeper, app.StakingKeeper),
 		staking.NewAppModule(app.StakingKeeper, app.AccountKeeper, app.SupplyKeeper),
 		slashing.NewAppModule(app.SlashingKeeper, app.AccountKeeper, app.StakingKeeper),
+		record.NewAppModule(app.RecordKeeper, app.AccountKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()

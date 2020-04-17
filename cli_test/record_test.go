@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/bianjieai/irita/app"
-	"github.com/bianjieai/irita/modules/record"
 	clientkeys "github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/tests"
+	"github.com/irismod/record"
 	"github.com/stretchr/testify/require"
 )
 
