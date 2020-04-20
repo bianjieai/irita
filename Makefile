@@ -79,7 +79,7 @@ all: tools install lint check
 # The below include contains the tools.
 include contrib/devtools/Makefile
 
-build: go.sum
+build: go.sum update-swagger-docs
 ifeq ($(OS),Windows_NT)
 	go build $(BUILD_FLAGS) -o build/irita.exe ./cmd/irita
 	go build $(BUILD_FLAGS) -o build/iritacli.exe ./cmd/iritacli
@@ -88,7 +88,7 @@ else
 	go build $(BUILD_FLAGS) -o build/iritacli ./cmd/iritacli
 endif
 
-build-linux: go.sum
+build-linux: go.sum update-swagger-docs
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
 
 build-contract-tests-hooks:
@@ -98,12 +98,21 @@ else
 	go build -mod=readonly $(BUILD_FLAGS) -o build/contract_tests ./cmd/contract_tests
 endif
 
-install: go.sum
+install: go.sum update-swagger-docs
 	go install $(BUILD_FLAGS) ./cmd/irita
 	go install $(BUILD_FLAGS) ./cmd/iritacli
 
 install-tool: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/iritatool
+
+update-swagger-docs:
+	statik -src=lite/swagger-ui -dest=lite -f -m
+	@if [ -n "$(git status --porcelain)" ]; then \
+        echo "\033[91mSwagger docs are out of sync!!!\033[0m";\
+        exit 1;\
+    else \
+    	echo "\033[92mSwagger docs are in sync\033[0m";\
+    fi
 
 ########################################
 ### Tools & dependencies
