@@ -21,8 +21,12 @@ tags:
     description: Supply module APIs
   - name: Token
     description: Token module APIs
+  - name: NFT
+    description: NFT module APIs
   - name: Record
     description: Record module APIs
+  - name: Service
+    description: Service module APIs
   - name: Misc
     description: Query app version
 host: localhost:1317
@@ -1511,7 +1515,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/token/{symbol}':
+  '/token/tokens/{symbol}':
     get:
       summary: Query a token by symbol
       tags:
@@ -1571,7 +1575,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/token/{symbol}/mint':
+  '/token/tokens/{symbol}/mint':
     post:
       summary: Mint tokens to a specified address
       consumes:
@@ -1609,7 +1613,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/token/{symbol}/transfer':
+  '/token/tokens/{symbol}/transfer':
     post:
       summary: Transfer the ownership of the token to a new owner
       consumes:
@@ -1644,7 +1648,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/token/{symbol}/fee':
+  '/token/tokens/{symbol}/fee':
     get:
       summary: Query the fees for issuing and minting the token with the given symbol
       tags:
@@ -1665,6 +1669,293 @@ paths:
                 $ref: '#/definitions/TokenFeesOutput'
         400:
           description: Invalid symbol
+        500:
+          description: Internal Server Error
+  '/nft/nfts/mint':
+    post:
+      summary: Mint an NFT to a specified address
+      tags:
+        - NFT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: MintNFTReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+              recipient:
+                $ref: '#/definitions/Address'
+                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+              id:
+                type: string
+              token_uri:
+                type: string
+              denom:
+                type: string
+      responses:
+        200:
+          description: Unsigned tx was succesfully generated
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/nft/nfts/{denom}/{id}':
+    get:
+      summary: Query an NFT by the denom and ID
+      tags:
+        - NFT
+      parameters:
+        - in: path
+          name: denom
+          description: denom of the NFT
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: ID of the NFT
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/NFT'
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+    put:
+      summary: Edit an NFT of the specified denom and ID
+      tags:
+        - NFT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: denom
+          description: denom of the NFT
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: ID of the NFT
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: EditNFTReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+              token_uri:
+                type: string
+      responses:
+        200:
+          description: Unsigned tx was succesfully generated
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/nft/nfts/{denom}/{id}/transfer':
+    post:
+      summary: Transfer the ownership of an NFT of the specified denom and ID
+      tags:
+        - NFT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: denom
+          description: denom of the NFT
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: ID of the NFT
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: TransferNFTReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+              recipient:
+                $ref: '#/definitions/Address'
+                example: 'cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc'
+      responses:
+        200:
+          description: Unsigned tx was succesfully generated
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/nft/nfts/{denom}/{id}/burn':
+    post:
+      summary: Burn an NFT of the specified denom and ID
+      tags:
+        - NFT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: denom
+          description: denom of the NFT
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: id
+          description: ID of the NFT
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: BurnNFTReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+      responses:
+        200:
+          description: Unsigned tx was succesfully generated
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/nft/nfts/collections/{denom}':
+    get:
+      summary: Query the NFT collection of the specified denom
+      tags:
+        - NFT
+      parameters:
+        - in: path
+          name: denom
+          description: denom of the collection
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/nft/nfts/owners/{address}':
+    get:
+      summary: Query the collections of NFTs owned by an address
+      tags:
+        - NFT
+      parameters:
+        - in: path
+          name: address
+          description: owner address
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: denom
+          description: optional denom
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/definitions/NFTOwner'
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/nft/nfts/denoms':
+    get:
+      summary: Query all existing denoms
+      tags:
+        - NFT
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/nft/nfts/supplies/{denom}':
+    get:
+      summary: Query the supply of NFTs of the specified denom
+      tags:
+        - NFT
+      parameters:
+        - in: path
+          name: denom
+          description: denom of NFTs
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: integer
+        400:
+          description: Invalid parameters
         500:
           description: Internal Server Error
   '/record/records':
@@ -1749,6 +2040,859 @@ paths:
         400:
           description: Invalid symbol
         500:
+          description: Internal Server Error
+'/service/definitions':
+    post:
+      summary: Define a service
+      description: Define a service with JSON schemas
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: DefineServiceReq
+          required: true:
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              name:
+                type: string
+              description:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+              author:
+                $ref: '#/definitions/Address'
+              author_description:
+                type: string
+              schemas:
+                type: string
+                example: '{"input":{"type":"object"},"output":{"type":"object"}}'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error    
+  '/service/definitions/{service-name}':
+    get:
+      summary: Query a service definition
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: service-name
+          description: service name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ServiceDefinition'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/bindings':
+    post:
+      summary: Bind a service
+      description: Bind a service
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: BindServiceReq
+          required: true::
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              service_name:
+                type: string
+              provider:
+                $ref: '#/definitions/Address'
+              deposit:
+                type: string
+                example: '10000iris'
+              pricing:
+                type: string
+                example: '{"price":"1iris"}'
+              min_resp_time:
+                type: integer
+                example: '50'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/bindings/{service-name}/{provider}':
+    get:
+      summary: Query a service binding
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: service-name
+          description: service name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: provider
+          description: provider address
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ServiceBinding'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+    put:
+      summary: Update a service binding
+      description: Update a service binding
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: service-name
+          description: service name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: provider
+          description: provider address
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: UpdateServiceBindingReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              deposit:
+                type: string
+                example: '1iris'
+              pricing:
+                type: string
+                example: '{"price":"1iris"}'
+              min_resp_time:
+                type: integer
+                example: '50'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/bindings/{service-name}':
+    get:
+      summary: Query all bindings of a service definition
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: service-name
+          description: service name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/definitions/ServiceBinding'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/providers/{provider}/withdraw-address':
+    get:
+      summary: Query the withdrawal address of a provider
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: provider
+          description: provider address
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Address'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+    post:
+      summary: Set a withdrawal address for a provider
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: provider
+          description: provider adress
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: SetWithdrawAddrReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              withdraw_address:
+                $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/bindings/{service-name}/{provider}/disable':
+    post:
+      summary: Disable an available service binding
+      description: Disable an available service binding by the service name and provider
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: service-name
+          description: service name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: provider
+          description: provider address
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: DisableServiceBindingReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/bindings/{service-name}/{provider}/enable':
+    post:
+      summary: Enable an unavailable service binding
+      description: Enable an unavailable service binding by the service name and provider
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: service-name
+          description: service name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: provider
+          description: provider address
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: EnableServiceBindingReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              deposit:
+                type: string
+                example: '1iris'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/bindings/{service-name}/{provider}/refund-deposit':
+    post:
+      summary: Refund all deposit from a service binding
+      description: Refund all deposit from a service binding
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: service-name
+          description: service name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: provider
+          description: provider address
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: RefundServiceDepositReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/contexts':
+    post:
+      summary: Initiate a service call
+      description: Initiate a service call with the specified params
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: CallServiceReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              service_name:
+                type: string
+              providers:
+                type: array
+                items: 
+                  $ref: '#/definitions/Address'
+              consumer:
+                $ref: '#/definitions/Address'
+              input:
+                type: string
+                example: '{"id":1}'
+              service_fee_cap:
+                type: string
+                example: '1iris'
+              timeout:
+                type: integer
+                example: '20'
+              super_mode:
+                type: boolean
+                example: false
+              repeated:
+                type: boolean
+                example: true
+              repeated_frequency:
+                type: integer
+                example: '50'
+              repeated_total:
+                type: integer
+                example: '100'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/contexts/{request-context-id}':
+    get:
+      summary: Query a request context
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: request-context-id
+          description: request context ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/RequestContext'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+    put:
+      summary: Update a request context
+      description: Update a request context
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: request-context-id
+          description: request context ID
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: UpdateRequestContextReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              providers:
+                type: array
+                items:
+                  $ref: '#/definitions/Address'
+              service_fee_cap:
+                type: string
+                example: '1iris'
+              timeout:
+                type: integer
+                example: '0'
+              repeated_frequency:
+                type: integer
+                example: '0'
+              repeated_total:
+                type: integer
+                example: '0'
+              consumer:
+                $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/contexts/{request-context-id}/pause':
+    post:
+      summary: Pause a running request context
+      description: Pause a running request context
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: request-context-id
+          description: request context ID
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: PauseRequestContextReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              consumer:
+                $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/contexts/{request-context-id}/start':
+    post:
+      summary: Start a paused request context
+      description: Start a paused request context
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: request-context-id
+          description: request context ID
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: StartRequestContextReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              consumer:
+                $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/contexts/{request-context-id}/kill':
+    post:
+      summary: Terminate a request context
+      description: Terminate a request context
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: request-context-id
+          description: request context ID
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: KillRequestContextReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              consumer:
+                $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/requests/{request-id}':
+    get:
+      summary: Query a request by the request ID
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: request-id
+          description: request ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ServiceRequest'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/requests/{service-name}/{provider}':
+    get:
+      summary: Query active requests of a service binding
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: service-name
+          description: service name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: provider
+          description: provider address
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/definitions/ServiceRequest'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/responses':
+    post:
+      summary: Respond to a service request
+      description: Respond to a service request by the request ID
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: RespondServiceReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              request_id:
+                type: string
+              provider:
+                $ref: '#/definitions/Address'
+              result:
+                type: string
+                example: '{"code":200,"message":""}'
+              output:
+                type: string
+                example: '{"name":"irisnet"}'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/responses/{request-id}':
+    get:
+      summary: Query a response by the request ID
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: request-id
+          description: request ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ServiceResponse'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/requests/{request-context-id}/{batch-counter}':
+    get:
+      summary: Query active requests by the request context ID and batch counter
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: request-context-id
+          description: request context ID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: batch-counter
+          description: batch counter
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/definitions/ServiceRequest'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/responses/{request-context-id}/{batch-counter}':
+    get:
+      summary: Query active responses by the request context ID and batch counter
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: request-context-id
+          description: request context ID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: batch-counter
+          description: batch counter
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/definitions/ServiceResponse'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/fees/{provider}/withdraw':
+    post:
+      summary: Withdraw the earned fees of a provider
+      description: Withdraw the earned fees of a provider
+      tags:
+        - Service
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: provider
+          description: provider address
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: WithdrawEarnedFeesReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/fees/{provider}':
+    get:
+      summary: Query the earned fees of a provider
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: provider
+          description: provider
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/EarnedFees'
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Internal Server Error
+  '/service/schemas/{schema-name}':
+    get:
+      summary: Query the system schema by the schema name
+      tags:
+        - Service
+      parameters:
+        - in: path
+          name: schema-name
+          description: schema name, only pricing and result allowed
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '400':
+          description: Invalid parameters
+        '500':
           description: Internal Server Error
 definitions:
   CheckTxResult:
@@ -2356,3 +3500,192 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Coin"
+  Token:
+      type: object
+      properties:
+        symbol:
+          type: string
+        name:
+          type: string
+        min_unit:
+          type: string
+        scale:
+          type: integer
+        initial_supply:
+          type: string
+        max_supply:
+          type: string
+        mintable:
+          type: boolean
+        owner:
+          $ref: '#/definitions/Address'
+  TokenFeesOutput:
+    type: object
+    properties:
+      exist:
+        type: boolean
+      issue_fee:
+        $ref: '#/definitions/Coin'
+      mint_fee:
+        $ref: '#/definitions/Coin'
+  NFT:
+    type: object
+    properties:
+      id:
+        type: string
+      owner:
+        $ref: '#/definitions/Address'
+      token_uri:
+        type: string
+  IDCollection:
+    type: object
+    properties:
+      denom:
+        type: string
+      IDs:
+        type: array
+        items:
+          type: string
+  NFTOwner:
+    type: object
+    properties:
+      address:
+        $ref: '#/definitions/Address'
+      id_collections:
+        type: array
+        items:
+          $ref: '#/definitions/IDCollection'
+  ServiceDefinition:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      tags:
+        type: array
+        items:
+          type: string
+      author:
+        $ref: '#/definitions/Address'
+      author_description:
+        type: string
+      schemas:
+        type: string
+        example: '{"input":{"type":"object"},"output":{"type":"object"},"error":{"type":"object"}}'
+  ServiceBinding:
+    type: object
+    properties:
+      service_name:
+        type: string
+      provider:
+        $ref: '#/definitions/Address'
+      deposit:
+        type: array
+        items:
+          $ref: '#/definitions/Coin'
+      pricing:
+        type: string
+        example: '{"price":"1iris"}'
+      min_resp_time:
+        type: integer
+      available:
+        type: boolean
+      disabled_time:
+        type: string
+  ServiceRequest:
+    type: object
+    properties:
+      service_name:
+        type: string
+      provider:
+        $ref: '#/definitions/Address'
+      consumer:
+        $ref: '#/definitions/Address'
+      input:
+        type: string
+        example: '{"id":1}'
+      service_fee:
+        type: array
+        items:
+          $ref: '#/definitions/Coin'
+      super_mode:
+        type: boolean
+      request_height:
+        type: integer
+      expiration_height:
+        type: integer
+      request_context_id:
+        type: string
+      request_context_batch_counter:
+        type: integer
+  ServiceResponse:
+    type: object
+    properties:
+      provider:
+        $ref: '#/definitions/Address'
+      consumer:
+        $ref: '#/definitions/Address'
+      result:
+        type: string
+        example: '{"code":200,"message":""}'
+      output:
+        type: string
+        example: '{"name":"irisnet"}'
+      request_context_id:
+        type: string
+      request_context_batch_counter:
+        type: integer
+  RequestContext:
+    type: object
+    properties:
+      service_name:
+        type: string
+      providers:
+        type: array
+        items: 
+          $ref: '#/definitions/Address'
+      consumer:
+        $ref: '#/definitions/Address'
+      input:
+        type: string
+        example: '{"id":1}'
+      service_fee_cap:
+        type: array
+        items:
+          $ref: '#/definitions/Coin'
+      timeout:
+        type: integer
+      super_mode:
+        type: boolean
+      repeated:
+        type: boolean
+      repeated_frequency:
+        type: integer
+      repeated_total:
+        type: integer
+      batch_counter:
+        type: integer
+      batch_request_count:
+        type: integer
+      batch_response_count:
+        type: integer
+      batch_response_threshold:
+        type: integer
+      batch_state:
+        type: string
+      state:
+        type: string
+      response_threshold:
+        type: integer
+      module_name:
+        type: string
+  EarnedFees:
+    type: object
+    properties:
+      address:
+        $ref: '#/definitions/Address'
+      coins:
+        type: array
+        items:
+          $ref: '#/definitions/Coin'
