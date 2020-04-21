@@ -30,11 +30,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
-	"github.com/irisnet/modules/incubator/nft"
-
 	"github.com/bianjieai/irita/modules/guardian"
-	"github.com/bianjieai/irita/modules/record"
 	"github.com/bianjieai/irita/modules/service"
+	"github.com/irismod/nft"
+	"github.com/irismod/record"
+	"github.com/irismod/token"
 )
 
 const appName = "SimApp"
@@ -64,6 +64,7 @@ var (
 		evidence.AppModuleBasic{},
 		guardian.AppModuleBasic{},
 		service.AppModuleBasic{},
+		token.AppModuleBasic{},
 		nft.AppModuleBasic{},
 		record.AppModuleBasic{},
 	)
@@ -79,6 +80,7 @@ var (
 		service.DepositAccName:    {supply.Burner},
 		service.RequestAccName:    nil,
 		service.TaxAccName:        nil,
+		token.ModuleName:          {supply.Minter, supply.Burner},
 	}
 )
 
@@ -122,6 +124,7 @@ type SimApp struct {
 	EvidenceKeeper evidence.Keeper
 	ServiceKeeper  service.Keeper
 	GuardianKeeper guardian.Keeper
+	TokenKeeper    token.Keeper
 	NftKeeper      nft.Keeper
 	RecordKeeper   record.Keeper
 
@@ -147,7 +150,8 @@ func NewSimApp(
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey, supply.StoreKey, mint.StoreKey,
 		distr.StoreKey, slashing.StoreKey, gov.StoreKey, params.StoreKey,
-		evidence.StoreKey, guardian.StoreKey, service.StoreKey, nft.StoreKey, record.StoreKey,
+		evidence.StoreKey, guardian.StoreKey, service.StoreKey,
+		token.StoreKey, nft.StoreKey, record.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
 
@@ -172,6 +176,7 @@ func NewSimApp(
 	app.subspaces[crisis.ModuleName] = app.ParamsKeeper.Subspace(crisis.DefaultParamspace)
 	app.subspaces[evidence.ModuleName] = app.ParamsKeeper.Subspace(evidence.DefaultParamspace)
 	serviceSubspace := app.ParamsKeeper.Subspace(service.DefaultParamspace)
+	tokenSubspace := app.ParamsKeeper.Subspace(token.DefaultParamspace)
 
 	// add keepers
 	app.AccountKeeper = auth.NewAccountKeeper(
@@ -234,6 +239,7 @@ func NewSimApp(
 		app.cdc, keys[service.StoreKey], app.SupplyKeeper, app.GuardianKeeper, serviceSubspace,
 	)
 
+	app.TokenKeeper = token.NewKeeper(app.cdc, keys[token.StoreKey], tokenSubspace, app.SupplyKeeper, auth.FeeCollectorName)
 	app.NftKeeper = nft.NewKeeper(app.cdc, keys[nft.StoreKey])
 	app.RecordKeeper = record.NewKeeper(app.cdc, keys[record.StoreKey])
 
@@ -253,8 +259,9 @@ func NewSimApp(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		guardian.NewAppModule(app.GuardianKeeper),
 		service.NewAppModule(app.ServiceKeeper),
-		nft.NewAppModule(app.NftKeeper),
-		record.NewAppModule(app.RecordKeeper),
+		token.NewAppModule(app.TokenKeeper, app.AccountKeeper),
+		nft.NewAppModule(app.NftKeeper, app.AccountKeeper),
+		record.NewAppModule(app.RecordKeeper, app.AccountKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -269,7 +276,8 @@ func NewSimApp(
 		auth.ModuleName, distr.ModuleName, staking.ModuleName, bank.ModuleName,
 		slashing.ModuleName, gov.ModuleName, mint.ModuleName, supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName, evidence.ModuleName,
-		guardian.ModuleName, service.ModuleName, nft.ModuleName, record.ModuleName,
+		guardian.ModuleName, service.ModuleName,
+		token.ModuleName, nft.ModuleName, record.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -288,6 +296,9 @@ func NewSimApp(
 		distr.NewAppModule(app.DistrKeeper, app.AccountKeeper, app.SupplyKeeper, app.StakingKeeper),
 		staking.NewAppModule(app.StakingKeeper, app.AccountKeeper, app.SupplyKeeper),
 		slashing.NewAppModule(app.SlashingKeeper, app.AccountKeeper, app.StakingKeeper),
+		token.NewAppModule(app.TokenKeeper, app.AccountKeeper),
+		nft.NewAppModule(app.NftKeeper, app.AccountKeeper),
+		record.NewAppModule(app.RecordKeeper, app.AccountKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()

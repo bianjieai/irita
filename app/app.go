@@ -21,15 +21,16 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	"github.com/irisnet/modules/incubator/nft"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bianjieai/irita/modules/guardian"
-	"github.com/bianjieai/irita/modules/record"
 	"github.com/bianjieai/irita/modules/service"
+	"github.com/irismod/nft"
+	"github.com/irismod/record"
+	"github.com/irismod/token"
 )
 
 const appName = "IritaApp"
@@ -55,6 +56,7 @@ var (
 		supply.AppModuleBasic{},
 		guardian.AppModuleBasic{},
 		service.AppModuleBasic{},
+		token.AppModuleBasic{},
 		nft.AppModuleBasic{},
 		record.AppModuleBasic{},
 		//wasm.AppModuleBasic{},
@@ -69,6 +71,7 @@ var (
 		service.DepositAccName:    {supply.Burner},
 		service.RequestAccName:    nil,
 		service.TaxAccName:        nil,
+		token.ModuleName:          {supply.Minter, supply.Burner},
 	}
 )
 
@@ -107,6 +110,7 @@ type IritaApp struct {
 	paramsKeeper   params.Keeper
 	serviceKeeper  service.Keeper
 	guardianKeeper guardian.Keeper
+	tokenKeeper    token.Keeper
 	nftKeeper      nft.Keeper
 	recordKeeper   record.Keeper
 	//wasmKeeper     wasm.Keeper
@@ -137,7 +141,8 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey, supply.StoreKey,
 		gov.StoreKey, params.StoreKey, evidence.StoreKey,
-		guardian.StoreKey, service.StoreKey, nft.StoreKey, record.StoreKey,
+		guardian.StoreKey, service.StoreKey,
+		token.StoreKey, nft.StoreKey, record.StoreKey,
 		//wasm.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
@@ -158,6 +163,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	govSubspace := app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
 	crisisSubspace := app.paramsKeeper.Subspace(crisis.DefaultParamspace)
 	serviceSubspace := app.paramsKeeper.Subspace(service.DefaultParamspace)
+	tokenSubspace := app.paramsKeeper.Subspace(token.DefaultParamspace)
 
 	// add keepers
 	app.accountKeeper = auth.NewAccountKeeper(app.cdc, keys[auth.StoreKey], authSubspace, auth.ProtoBaseAccount)
@@ -204,6 +210,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.cdc, keys[service.StoreKey], app.supplyKeeper, app.guardianKeeper, serviceSubspace,
 	)
 
+	app.tokenKeeper = token.NewKeeper(app.cdc, keys[token.StoreKey], tokenSubspace, app.supplyKeeper, auth.FeeCollectorName)
 	app.nftKeeper = nft.NewKeeper(app.cdc, keys[nft.StoreKey])
 	app.recordKeeper = record.NewKeeper(app.cdc, keys[record.StoreKey])
 
@@ -219,8 +226,9 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		guardian.NewAppModule(app.guardianKeeper),
 		service.NewAppModule(app.serviceKeeper),
-		nft.NewAppModule(app.nftKeeper),
-		record.NewAppModule(app.recordKeeper),
+		token.NewAppModule(app.tokenKeeper, app.accountKeeper),
+		nft.NewAppModule(app.nftKeeper, app.accountKeeper),
+		record.NewAppModule(app.recordKeeper, app.accountKeeper),
 		//wasm.NewAppModule(app.wasmKeeper),
 	)
 
@@ -238,7 +246,8 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		gov.ModuleName,
 		supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName,
-		guardian.ModuleName, service.ModuleName, nft.ModuleName,
+		guardian.ModuleName, service.ModuleName,
+		token.ModuleName, nft.ModuleName,
 		record.ModuleName,
 		//wasm.ModuleName,
 	)
@@ -256,6 +265,9 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.supplyKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
+		token.NewAppModule(app.tokenKeeper, app.accountKeeper),
+		nft.NewAppModule(app.nftKeeper, app.accountKeeper),
+		record.NewAppModule(app.recordKeeper, app.accountKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()

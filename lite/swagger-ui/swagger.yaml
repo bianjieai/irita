@@ -19,6 +19,8 @@ tags:
     description: Governance module APIs
   - name: Supply
     description: Supply module APIs
+  - name: Token
+    description: Token module APIs
   - name: Record
     description: Record module APIs
   - name: Misc
@@ -1439,6 +1441,232 @@ paths:
           description: Invalid coin denomination
         500:
           description: Internal Server Error
+  '/token':
+    post:
+      summary: Issue a token
+      tags:
+        - Token
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: token
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+              name:
+                type: string
+                example: 'Hello Kitty'
+              symbol:
+                type: string
+                example: 'cat'
+              min_unit:
+                type: string
+                example: 'min'
+              initial_supply:
+                type: string
+                example: '1000000000'
+              max_supply:
+                type: string
+                example: '2000000000'
+              scale:
+                type: integer
+                example: 18
+              mintable:
+                type: boolean
+                example: true
+      responses:
+        200:
+          description: Unsigned tx was succesfully generated
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+    get:
+      summary: Query tokens by owner
+      tags:
+        - Token
+      parameters:
+        - in: query
+          name: owner
+          description: the owner address
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Token'
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/token/{symbol}':
+    get:
+      summary: Query a token by symbol
+      tags:
+        - Token
+      parameters:
+        - in: path
+          name: symbol
+          description: symbol of the token
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/Token'
+        400:
+          description: Invalid symbol
+        500:
+          description: Internal Server Error
+    put:
+      summary: Edit an existing token
+      parameters:
+        - in: path
+          name: symbol
+          description: symbol of the token
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: token
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+              max_supply:
+                type: string
+                example: '21000000'
+              mintable:
+                type: string
+                example: ""
+              name:
+                type: string
+                example: 'BTC Token'
+      tags:
+        - Token
+      responses:
+        200:
+          description: Unsigned tx was succesfully generated
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/token/{symbol}/mint':
+    post:
+      summary: Mint tokens to a specified address
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: symbol
+          description: symbol of the token
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: token
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+              to:
+                $ref: '#/definitions/Address'
+              amount:
+                type: string
+                example: '21000000'
+      tags:
+        - Token
+      responses:
+        200:
+          description: Unsigned tx was succesfully generated
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/token/{symbol}/transfer':
+    post:
+      summary: Transfer the ownership of the token to a new owner
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: symbol
+          description: symbol of the token
+          required: true
+          schema:
+            type: string
+        - in: body
+          name: transfer
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              src_owner:
+                $ref: '#/definitions/Address'
+              dst_owner:
+                $ref: '#/definitions/Address'
+      tags:
+        - Token
+      responses:
+        200:
+          description: Unsigned tx was succesfully generated
+        400:
+          description: Invalid parameters
+        500:
+          description: Internal Server Error
+  '/token/{symbol}/fee':
+    get:
+      summary: Query the fees for issuing and minting the token with the given symbol
+      tags:
+        - Token
+      parameters:
+        - in: path
+          name: symbol
+          description: the token symbol
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/TokenFeesOutput'
+        400:
+          description: Invalid symbol
+        500:
+          description: Internal Server Error
   '/record/records':
     post:
       summary: Create a record
@@ -1472,7 +1700,7 @@ paths:
                     meta:
                       type: string
               creator:
-                $ref: '#/definitions/Address'  
+                $ref: '#/definitions/Address'
       responses:
         200:
           description: Unsigned tx was succesfully generated
