@@ -25,6 +25,7 @@ import (
 
 	"github.com/bianjieai/irita/app"
 	iconfig "github.com/bianjieai/irita/config"
+	_ "github.com/bianjieai/irita/lite/statik"
 )
 
 func main() {

@@ -7,10 +7,10 @@ require (
 	github.com/cosmos/cosmos-sdk v0.38.2
 	github.com/emicklei/proto v1.9.0
 	github.com/go-kit/kit v0.9.0
-	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.4
+	github.com/irismod/nft v0.0.0-20200421012412-1b4984af02f6
 	github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af
-	github.com/irisnet/modules/incubator/nft v0.0.0-20200220090632-add1621d4538
+	github.com/irismod/token v0.0.0-20200421012350-50c09692abbe
 	github.com/keybase/go-keychain v0.0.0-20191114153608-ccd67945d59e // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
@@ -20,6 +20,7 @@ require (
 	github.com/prometheus/client_golang v1.2.1
 	github.com/prometheus/client_model v0.0.0-20191202183732-d1d2010b5bee // indirect
 	github.com/prometheus/procfs v0.0.8 // indirect
+	github.com/rakyll/statik v0.1.6
 	github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563 // indirect
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
 	github.com/spf13/afero v1.2.2 // indirect
