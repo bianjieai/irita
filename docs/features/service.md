@@ -1,10 +1,10 @@
 # Service
 
-> **_提示：_** 本文档中显示的命令仅供说明。有关命令的准确语法，请参阅[cli docs](../client/service.md)。
+> **_提示：_** 本文档中显示的命令仅供说明。有关命令的准确语法，请参阅[cli docs](../cli-client/service.md)。
 
 ## 简介
 
-IRIS服务（又称iService）旨在弥合区块链和传统应用之间的鸿沟。它规范化了链外服务的定义和绑定（提供者注册），促进了调用以及与这些服务的交互，并能调解服务治理过程（分析和争议解决）。
+Service旨在弥合区块链和传统应用之间的鸿沟。它规范化了链外服务的定义和绑定（提供者注册），促进了调用以及与这些服务的交互，并能调解服务治理过程（分析和争议解决）。
 
 ## 服务定义
 
@@ -69,10 +69,10 @@ IRIS服务（又称iService）旨在弥合区块链和传统应用之间的鸿�
 
 ```bash
 # 创建服务定义
-iriscli service define <service-name> <schemas-json or path/to/schemas.json> --description=<service-description> --author-description=<author-description> --tags=<tag1,tag2,...>
+iritacli tx service define <service-name> <schemas-json or path/to/schemas.json> --description=<service-description> --author-description=<author-description> --tags=<tag1,tag2,...>
 
 # 查询服务定义
-iriscli service definition <service-name>
+iritacli tx  service definition <service-name>
 ```
 
 ## 服务绑定
@@ -117,48 +117,50 @@ iriscli service definition <service-name>
 
 ```bash
 # 创建服务绑定
-iriscli service bind <service-name> <deposit> <pricing-json or path/to/pricing.json>
+iritacli tx service bind <service-name> <deposit> <pricing-json or path/to/pricing.json>
 
 # 更新服务绑定
-iriscli service update-binding <service-name> --deposit=<added-deposit> --pricing=<pricing-json or path/to/pricing.json>
+iritacli tx service update-binding <service-name> --deposit=<added-deposit> --pricing=<pricing-json or path/to/pricing.json>
 
 # 设置收益提取地址
-iriscli service set-withdraw-addr <withdrawal-address>
+iritacli tx service set-withdraw-addr <withdrawal-address>
 
 # 提取收益到指定的提取地址
-iriscli service withdraw-fees
+iritacli tx service withdraw-fees
 
 # 启用服务绑定
-iriscli service enable <service-name> <added-deposit>
+iritacli tx service enable <service-name> <added-deposit>
 
 # 禁用服务绑定
-iriscli service disable <service-name>
+iritacli tx service disable <service-name>
 
 # 取回服务绑定的押金
-iriscli service refund-deposit <service-name>
+iritacli tx service refund-deposit <service-name>
 
 # 受托人提取服务税到指定地址
-iriscli service withdraw-tax <destination-address> <withdrawal-amount>
+iritacli tx service withdraw-tax <destination-address> <withdrawal-amount>
 
 # 查询服务绑定
-iriscli service binding <service-name> <provider-address>
+iritacli tx service binding <service-name> <provider-address>
 
 # 查询一个服务的绑定列表
-iriscli service bindings <service-name>
+iritacli tx service bindings <service-name>
 
 # 查询服务提供者的收益提取地址
-iriscli service withdraw-addr <provider-address>
+iritacli tx service withdraw-addr <provider-address>
 
 # 查询服务提供者的收益
-iriscli service fees <provider-address>
+iritacli tx service fees <provider-address>
 
 # 查询系统 schemas（有效的 schema 名称: pricing, result）
-iriscli service schema <schema-name>
+iritacli tx service schema <schema-name>
 ```
 
 ## 服务调用
 
-服务消费者如果需要发起服务调用请求，需要支付服务提供方指定的服务费。服务提供方需要在MaxRequestTimeout定义的区块高度内响应该服务请求，如果超时未响应，将从服务提供方的该服务绑定押金中扣除SlashFraction比例的押金，同时该次服务调用的服务费将退还到服务消费者的退费池中。如果服务调用被正常响应，系统从该次服务调用的服务费中将扣除ServiceFeeTax比例的系统税收，同时将剩余的服务费加入到服务提供方的收入池中。服务提供方/消费者可以发起withdraw-fees/refund-fees交易取回自己在收入池/退费池中所有的token。
+服务消费者如果需要发起服务调用请求，需要支付服务提供方指定的服务费。服务提供方需要`MaxRequestTimeout`定义的区块高度内响应该服务请求，如果超时未响应，将从服务提供方的该服务绑定押金中扣除`SlashFraction`比例的押金，同时该次服务调用的服务费将退还到服务消费者的退费池中。如果服务调用被正常响应，系统从该次服务调用的服务费中将扣除`ServiceFeeTax`比例的系统税收，同时将剩余的服务费加入到服务提供方的收入池中。服务提供方/消费者可以发起`withdraw-fees/refund-fees`交易取回自己在收入池/退费池中所有的token。
 
-```bash
-```
+## 操作
+
+`service`模块的相关命令请参考[文档](../cli-client/service.md)
+

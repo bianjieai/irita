@@ -1,25 +1,25 @@
-# iriscli asset
+# iritacli token
 
-Asset模块用于管理你在IRIS Hub上发行的资产。
+`Token`模块用于管理你在`IRITA`上发行的资产。
 
 ## 可用命令
 
-| 名称                                            | 描述                     |
-| ----------------------------------------------- | ------------------------ |
-| [token issue](#iriscli-asset-token-issue)       | 发行通证                 |
-| [token edit-token](#iriscli-asset-token-edit)   | 编辑通证                 |
-| [token transfer](#iriscli-asset-token-transfer) | 转让通证所有权           |
-| [token mint](#iriscli-asset-token-mint)         | 增发通证到指定账户       |
-| [token token](#iriscli-asset-token-token)       | 查询通证                 |
-| [token tokens](#iriscli-asset-token-tokens)     | 查询指定所有者的通证集合 |
-| [token fee](#iriscli-asset-token-fee)           | 查询通证相关费用         |
+| 名称                                          | 描述                     |
+| --------------------------------------------- | ------------------------ |
+| [token issue](#iritacli-tx-token-issue)       | 发行通证                 |
+| [token edit](#iritacli-tx-token-edit)         | 编辑通证                 |
+| [token transfer](#iritacli-tx-token-transfer) | 转让通证所有权           |
+| [token mint](#iritacli-tx-token-mint)         | 增发通证到指定账户       |
+| [token token](#iritacli-q-token-token)        | 查询通证                 |
+| [token tokens](#iritacli-q-token-tokens)      | 查询指定所有者的通证集合 |
+| [token fee](#iritacli-q-token-fee)            | 查询通证相关费用         |
 
-## iriscli asset token issue
+## iritacli tx token issue
 
 发行一个新通证。
 
 ```bash
-iriscli asset token issue [flags]
+iritacli tx token issue [flags]
 ```
 
 **标识：**
@@ -37,7 +37,7 @@ iriscli asset token issue [flags]
 ### 发行通证
 
 ```bash
-iriscli asset token issue --symbol="kitty" --name="Kitty Token" --initial-supply=100000000000 --max-supply=1000000000000 --scale=0 --mintable=true --fee=1iris --chain-id=irishub --from=<key-name> --commit
+iritacli tx token issue --symbol="kitty" --name="Kitty Token" --initial-supply=100000000000 --max-supply=1000000000000 --scale=0 --mintable=true --fees=1iris --chain-id=irishub --from=<key-name> -b=block
 ```
 
 ### 发送通证
@@ -47,15 +47,15 @@ iriscli asset token issue --symbol="kitty" --name="Kitty Token" --initial-supply
 #### 发送通证
 
 ```bash
-iriscli bank send --from=<key-name> --to=<address> --amount=10kitty --fee=0.3iris --chain-id=irishub --commit
+iritacli tx send [from_key_or_address] [to_address] [amount] --from=<key-name> --amount=10kitty --fees=0.3iris --chain-id=irishub -b=block
 ```
 
-## iriscli asset token edit
+## iritacli tx token edit
 
 编辑通证。
 
 ```bash
-iriscli asset token edit [symbol] [flags]
+iritacli tx token edit [symbol] [flags]
 ```
 
 **标识：**
@@ -71,15 +71,15 @@ iriscli asset token edit [symbol] [flags]
 ### 编辑通证
 
 ```bash
-iriscli asset token edit kitty --name="Cat Token" --max-supply=100000000000 --mintable=true --from=<key-name> --chain-id=irishub --fee=0.3iris --commit
+iritacli tx token edit kitty --name="Cat Token" --max-supply=100000000000 --mintable=true --from=<key-name> --chain-id=irishub --fees=0.3iris -b=block
 ```
 
-## iriscli asset token transfer
+## iritacli tx token transfer
 
 转让通证所有权。
 
 ```bash
-iriscli asset token transfer [symbol] [flags]
+iritacli tx token transfer [symbol] [flags]
 ```
 
 **标识：**
@@ -91,15 +91,15 @@ iriscli asset token transfer [symbol] [flags]
 ### 转让通证所有者
 
 ```bash
-iriscli asset token transfer kitty --to=<new-owner-address> --from=<key-name> --chain-id=irishub --fee=0.3iris --commit
+iritacli tx token transfer kitty --to=<new-owner-address> --from=<key-name> --chain-id=irishub --fees=0.3iris -b=block
 ```
 
-## iriscli asset token mint
+## iritacli tx token mint
 
 增发通证到指定地址。
 
 ```bash
-iriscli asset token mint [symbol] [flags]
+iritacli tx token mint [symbol] [flags]
 ```
 
 **标识：**
@@ -107,58 +107,58 @@ iriscli asset token mint [symbol] [flags]
 | 名称，速记 | 类型   | 必须 | 默认 | 描述                                       |
 | ---------- | ------ | ---- | ---- | ------------------------------------------ |
 | --to       | string |      |      | 增发的通证的接收地址，默认为发起该交易地址 |
-| --amount   | uint64 | 是   | 0    | 增发的数量                                 |
+| --amount   | uint64 | 是   | 0    | 增发的数量(主单位)                         |
 
 ### 增发通证
 
 ```bash
-iriscli asset token mint kitty --amount=1000000 --from=<key-name> --chain-id=irishub --fee=0.3iris
+iriscli tx token mint kitty --amount=1000000 --from=<key-name> --chain-id=irishub ----fees=0.3iris -b=block
 ```
 
-## iriscli asset token token
+## iritacli q token token
 
 查询通证。
 
 ```bash
-iriscli asset token token [symbol] [flags]
+iritacli q token token [symbol] [flags]
 ```
 
 ### 查询通证
 
 ```bash
-iriscli asset token token kitty
+iritacli q token token kitty
 ```
 
-## iriscli asset token tokens
+## iritacli q token tokens
 
 查询指定所有者的通证集合。所有者是可选的。
 
 ```bash
-iriscli asset token tokens [owner] [flags]
+iritacli q token tokens [owner] [flags]
 ```
 
 ### 查询所有通证
 
 ```bash
-iriscli asset token tokens
+iritacli q token tokens
 ```
 
 ### 查询指定所有者的通证
 
 ```bash
-iriscli asset token tokens <owner>
+iritacli q token tokens <owner>
 ```
 
-## iriscli asset token fee
+## iritacli q token fee
 
 查询与通证相关的费用，包括通证发行和增发。
 
 ```bash
-iriscli asset token fee [symbol] [flags]
+iritacli q token fee [symbol] [flags]
 ```
 
 ### 查询发行和增发通证的费用
 
 ```bash
-iriscli asset token fee kitty
+iritacli q token fee kitty
 ```
