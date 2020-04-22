@@ -6,18 +6,18 @@ require (
 	github.com/confio/go-cosmwasm v0.6.3
 	github.com/cosmos/cosmos-sdk v0.38.2
 	github.com/emicklei/proto v1.9.0
-	github.com/go-kit/kit v0.9.0
 	github.com/gorilla/mux v1.7.4
 	github.com/irismod/nft v0.0.0-20200421012412-1b4984af02f6
 	github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af
-	github.com/irismod/token v0.0.0-20200421012350-50c09692abbe
+	github.com/irismod/service v0.0.0-20200422024553-d21b3755b3ea
+	github.com/irismod/token v0.0.0-20200422015846-1cf537b8f221
 	github.com/keybase/go-keychain v0.0.0-20191114153608-ccd67945d59e // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/otiai10/copy v1.0.2
 	github.com/otiai10/curr v0.0.0-20190513014714-f5a3d24e5776 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.2.1
+	github.com/prometheus/client_golang v1.2.1 // indirect
 	github.com/prometheus/client_model v0.0.0-20191202183732-d1d2010b5bee // indirect
 	github.com/prometheus/procfs v0.0.8 // indirect
 	github.com/rakyll/statik v0.1.6
@@ -31,7 +31,7 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/tendermint/go-amino v0.15.1
 	github.com/tendermint/tendermint v0.33.2
-	github.com/tendermint/tm-db v0.5.0
+	github.com/tendermint/tm-db v0.5.1
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20191216205247-b31c10ee225f // indirect
