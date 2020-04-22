@@ -6,7 +6,7 @@ order: 1
 
 IRITA API服务器也称为LCD（Light Client Daemon）。LCD实例是IRITA的轻节点。与IRITA全节点不同，它不会存储所有块并执行所有事务，这意味着它仅需要最少的带宽，计算和存储资源。在不信任模式下，它将追踪验证人集更改的过程，并要求全节点返回共识证明和Merkle证明。除非具有超过2/3投票权的验证者采取拜占庭式行为，否则LCD证明验证算法可以检测到所有潜在的恶意数据，这意味着ILCD实例可以提供与全节点相同的安全性。
 
-lcd的默认主文件夹为`$HOME/.iritalcd`。一旦启动LCD，它将创建两个目录`keys`和`trust-base.db`，密钥存储db位于`keys`中。`trust-base.db`存储所有受信任的验证人集合以及其他与验证相关的文件。
+lcd的默认主文件夹为`$HOME/.iritacli`。一旦启动LCD，它将创建两个目录`keys`和`trust-base.db`，密钥存储db位于`keys`中。`trust-base.db`存储所有受信任的验证人集合以及其他与验证相关的文件。
 
 当LCD以非信任模式启动时，它将检查`trust-base.db`是否为空。如果为true，它将获取最新的块作为其信任基础，并将其保存在`trust-base.db`下。IRISLCD实例始终信任该基础。所有查询证明将在此信任的基础上进行验证，有关详细的证明验证算法，请参阅[tendermint lite](https://github.com/tendermint/tendermint/blob/master/docs/tendermint-core/light-client-protocol.md)。
 
@@ -50,8 +50,6 @@ iritacli rest-server --node=tcp://localhost:26657 --chain-id=irishub --laddr=tcp
 
 一旦启动LCD，就可以在浏览器中打开<http://localhost:1317/swagger-ui/>，然后可以浏览可用的restful APIs。swagger-ui页面包含有关APIs功能和所需参数的详细说明。在这里，我们仅列出所有API并简要介绍其功能。
 
-
-
 ### Token模块的APIs
 
 1. `POST /token/tokens`: 发行一个`Token`
@@ -65,15 +63,14 @@ iritacli rest-server --node=tcp://localhost:26657 --chain-id=irishub --laddr=tcp
 ### NFT模块的APIs
 
 1. `POST /nft/nfts/mint`: 发行一个新的`NFT`资产
-
- 	2. `PUT /nft/nfts/{denom}/{id}`: 编辑一个已经存在的`NFT`
- 	3. `PUT /nft/nfts/{denom}/{id}/transfer`: 转让`NFT`
- 	4. `POST /nft/nfts/{denom}/{id}/burn`: 销毁`NFT`
- 	5. `GET /nft/nfts/{denom}/{id}`: 查询单个`NFT`
- 	6. `GET /nft/nfts/supplies/{denom}`: 查询某个分类下`NFT`的数量
- 	7. `GET /nft/nfts/owners/{address}`: 查询某人拥有的`NFT`
- 	8. `GET /nft/nfts/collections/{denom}`: 查询某个分类下所有的`NFT`
- 	9. `GET /nft/nfts/denoms`: 查询所有`NFT`的分类
+2. `PUT /nft/nfts/{denom}/{id}`: 编辑一个已经存在的`NFT`
+3. `PUT /nft/nfts/{denom}/{id}/transfer`: 转让`NFT`
+4. `POST /nft/nfts/{denom}/{id}/burn`: 销毁`NFT`
+5. `GET /nft/nfts/{denom}/{id}`: 查询单个`NFT`
+6. `GET /nft/nfts/supplies/{denom}`: 查询某个分类下`NFT`的数量
+7. `GET /nft/nfts/owners/{address}`: 查询某人拥有的`NFT`
+8. `GET /nft/nfts/collections/{denom}`: 查询某个分类下所有的`NFT`
+9. `GET /nft/nfts/denoms`: 查询所有`NFT`的分类
 
 ### Service模块的APIs
 
@@ -107,4 +104,3 @@ iritacli rest-server --node=tcp://localhost:26657 --chain-id=irishub --laddr=tcp
 
 1. `POST /record/records`: 创建一条记录
 2. `GET /record/records/{record-id}`: 通过`id`查询指定的记录
-

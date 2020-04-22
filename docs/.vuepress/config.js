@@ -52,10 +52,10 @@ module.exports = {
         locales: {
             "/": {
                 sidebar: sidebar("", [
+                    ["安装", "/installation.md"],
                     ["功能模块", "/features"],
                     ["命令行客户端", "/cli-client"],
                     ["API 服务", "/light-client"],
-                    ["工具", "/tools"],
                 ])
             }
         },
