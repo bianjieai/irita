@@ -26,10 +26,10 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/bianjieai/irita/modules/guardian"
-	"github.com/bianjieai/irita/modules/service"
+	"github.com/bianjieai/irita/utils"
 	"github.com/irismod/nft"
 	"github.com/irismod/record"
+	"github.com/irismod/service"
 	"github.com/irismod/token"
 )
 
@@ -54,7 +54,6 @@ var (
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		supply.AppModuleBasic{},
-		guardian.AppModuleBasic{},
 		service.AppModuleBasic{},
 		token.AppModuleBasic{},
 		nft.AppModuleBasic{},
@@ -70,7 +69,6 @@ var (
 		gov.ModuleName:            {supply.Burner},
 		service.DepositAccName:    {supply.Burner},
 		service.RequestAccName:    nil,
-		service.TaxAccName:        nil,
 		token.ModuleName:          {supply.Minter, supply.Burner},
 	}
 )
@@ -101,18 +99,17 @@ type IritaApp struct {
 	tKeys map[string]*sdk.TransientStoreKey
 
 	// keepers
-	accountKeeper  auth.AccountKeeper
-	bankKeeper     bank.Keeper
-	supplyKeeper   supply.Keeper
-	stakingKeeper  staking.Keeper
-	govKeeper      gov.Keeper
-	crisisKeeper   crisis.Keeper
-	paramsKeeper   params.Keeper
-	serviceKeeper  service.Keeper
-	guardianKeeper guardian.Keeper
-	tokenKeeper    token.Keeper
-	nftKeeper      nft.Keeper
-	recordKeeper   record.Keeper
+	accountKeeper auth.AccountKeeper
+	bankKeeper    bank.Keeper
+	supplyKeeper  supply.Keeper
+	stakingKeeper staking.Keeper
+	govKeeper     gov.Keeper
+	crisisKeeper  crisis.Keeper
+	paramsKeeper  params.Keeper
+	serviceKeeper service.Keeper
+	tokenKeeper   token.Keeper
+	nftKeeper     nft.Keeper
+	recordKeeper  record.Keeper
 	//wasmKeeper     wasm.Keeper
 
 	// the module manager
@@ -141,7 +138,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey, supply.StoreKey,
 		gov.StoreKey, params.StoreKey, evidence.StoreKey,
-		guardian.StoreKey, service.StoreKey,
+		service.StoreKey,
 		token.StoreKey, nft.StoreKey, record.StoreKey,
 		//wasm.StoreKey,
 	)
@@ -202,17 +199,15 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.stakingKeeper = *stakingKeeper.SetHooks(nil)
 
-	app.guardianKeeper = guardian.NewKeeper(
-		app.cdc, keys[guardian.StoreKey],
-	)
-
-	app.serviceKeeper = service.NewKeeper(
-		app.cdc, keys[service.StoreKey], app.supplyKeeper, app.guardianKeeper, serviceSubspace,
-	)
-
 	app.tokenKeeper = token.NewKeeper(app.cdc, keys[token.StoreKey], tokenSubspace, app.supplyKeeper, auth.FeeCollectorName)
 	app.nftKeeper = nft.NewKeeper(app.cdc, keys[nft.StoreKey])
 	app.recordKeeper = record.NewKeeper(app.cdc, keys[record.StoreKey])
+
+	tokenAdapter := utils.NewTokenAdapter(app.tokenKeeper)
+	app.serviceKeeper = service.NewKeeper(
+		app.cdc, keys[service.StoreKey], app.supplyKeeper, tokenAdapter,
+		serviceSubspace, auth.FeeCollectorName,
+	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -224,8 +219,7 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.supplyKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-		guardian.NewAppModule(app.guardianKeeper),
-		service.NewAppModule(app.serviceKeeper),
+		service.NewAppModule(app.serviceKeeper, app.accountKeeper),
 		token.NewAppModule(app.tokenKeeper, app.accountKeeper),
 		nft.NewAppModule(app.nftKeeper, app.accountKeeper),
 		record.NewAppModule(app.recordKeeper, app.accountKeeper),
@@ -246,9 +240,8 @@ func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		gov.ModuleName,
 		supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName,
-		guardian.ModuleName, service.ModuleName,
 		token.ModuleName, nft.ModuleName,
-		record.ModuleName,
+		record.ModuleName, service.ModuleName,
 		//wasm.ModuleName,
 	)
 

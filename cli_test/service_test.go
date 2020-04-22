@@ -14,7 +14,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/bianjieai/irita/app"
-	"github.com/bianjieai/irita/modules/service"
+	"github.com/irismod/service"
 )
 
 func TestIritaCLIService(t *testing.T) {
