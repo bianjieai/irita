@@ -8,7 +8,7 @@ require (
 	github.com/gorilla/mux v1.7.4
 	github.com/irismod/nft v0.0.0-20200422071319-fd35c26b8173
 	github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af
-	github.com/irismod/service v0.0.0-20200422072147-1af06a4143ca
+	github.com/irismod/service v0.0.0-20200422085858-e6f55179da8d
 	github.com/irismod/token v0.0.0-20200422015846-1cf537b8f221
 	github.com/keybase/go-keychain v0.0.0-20191114153608-ccd67945d59e // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
