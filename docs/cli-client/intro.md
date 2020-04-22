@@ -47,26 +47,26 @@ irita
 
 所有POST请求都有以下全局标识:
 
-| 名称，速记       | 类型   | 必需  | 默认值                | 描述                                                         |
-| ---------------- | ------ | ----- | --------------------- | ------------------------------------------------------------ |
-| --account-number | int    | false | 0                     | 发起交易的账户的编号                                         |
-| --broadcast-mode | string | false | sync                  | 广播交易的模式，枚举值：sync\|async\|block                   |
-| --chain-id       | string | true  | ""                    | tendermint节点的`Chain ID`                                   |
-| --dry-run        | bool   | false | false                 | 模拟执行交易，并返回消耗的`gas`。`--gas`指定的值会被忽略     |
-| --fees           | string | true  | ""                    | 交易费（指定交易费的上限）                                   |
-| --from           | string | false | ""                    | 发送交易的账户名称                                           |
-| --from-addr      | string | false | ""                    | 签名地址，在`generate-only`为`true`的情况下有效              |
-| --gas            | int    | false | 50000                 | 交易的gas上限；设置为"simulate"将自动计算相应的阈值          |
+| 名称，速记       | 类型   | 必需  | 默认值                | 描述                                                                                                                |
+| ---------------- | ------ | ----- | --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| --account-number | int    | false | 0                     | 发起交易的账户的编号                                                                                                |
+| --broadcast-mode | string | false | sync                  | 广播交易的模式，枚举值：sync\|async\|block                                                                          |
+| --chain-id       | string | true  | ""                    | tendermint节点的`Chain ID`                                                                                          |
+| --dry-run        | bool   | false | false                 | 模拟执行交易，并返回消耗的`gas`。`--gas`指定的值会被忽略                                                            |
+| --fees           | string | true  | ""                    | 交易费（指定交易费的上限）                                                                                          |
+| --from           | string | false | ""                    | 发送交易的账户名称                                                                                                  |
+| --from-addr      | string | false | ""                    | 签名地址，在`generate-only`为`true`的情况下有效                                                                     |
+| --gas            | int    | false | 50000                 | 交易的gas上限；设置为"simulate"将自动计算相应的阈值                                                                 |
 | --gas-adjustment | int    | false | 1.5                   | gas调整因子，这个值降乘以模拟执行消耗的`gas`，计算的结果返回给用户；如果`--gas`的值不是`simulate`，这个标志将被忽略 |
-| --generate-only  | bool   | false | false                 | 是否仅仅构建一个未签名的交易便返回                           |
-| --help, -h       | string | false |                       | 打印帮助信息                                                 |
-| --indent         | bool   | false | false                 | 格式化json字符串                                             |
-| --json           | string | false | false                 | 指定返回结果的格式，`json`或者`text`                         |
-| --ledger         | bool   | false | false                 | 使用ledger设备                                               |
-| --memo           | string | false | ""                    | 指定交易的memo字段                                           |
-| --node           | string | false | tcp://localhost:26657 | tendermint节点的rpc地址                                      |
-| --sequence       | int    | false | 0                     | 发起交易的账户的sequence                                     |
-| --trust-node     | bool   | false | true                  | 是否信任全节点返回的数据，如果不信任，客户端会验证查询结果的正确性 |
+| --generate-only  | bool   | false | false                 | 是否仅仅构建一个未签名的交易便返回                                                                                  |
+| --help, -h       | string | false |                       | 打印帮助信息                                                                                                        |
+| --indent         | bool   | false | false                 | 格式化json字符串                                                                                                    |
+| --json           | string | false | false                 | 指定返回结果的格式，`json`或者`text`                                                                                |
+| --ledger         | bool   | false | false                 | 使用ledger设备                                                                                                      |
+| --memo           | string | false | ""                    | 指定交易的memo字段                                                                                                  |
+| --node           | string | false | tcp://localhost:26657 | tendermint节点的rpc地址                                                                                             |
+| --sequence       | int    | false | 0                     | 发起交易的账户的sequence                                                                                            |
+| --trust-node     | bool   | false | true                  | 是否信任全节点返回的数据，如果不信任，客户端会验证查询结果的正确性                                                  |
 
 ## 模块命令列表
 

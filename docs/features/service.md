@@ -163,4 +163,3 @@ iritacli tx service schema <schema-name>
 ## 操作
 
 `service`模块的相关命令请参考[文档](../cli-client/service.md)
-

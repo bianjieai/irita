@@ -1,4 +1,4 @@
-# Token管理
+# Token
 
 ## 简介
 
@@ -43,4 +43,3 @@
 ## 操作
 
 `Token`模块的相关命令请参考[文档](../cli-client/token.md)
-
