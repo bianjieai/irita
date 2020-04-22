@@ -252,8 +252,8 @@ paths:
         - in: query
           name: message.sender
           type: string
-          description: "transaction tags with sender: 'GET /txs?message.action=send&message.sender=cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv'"
-          x-example: "cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv"
+          description: "transaction tags with sender: 'GET /txs?message.action=send&message.sender=iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf'"
+          x-example: "iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf"
         - in: query
           name: page
           description: Page number
@@ -388,7 +388,7 @@ paths:
           description: Account address in bech32 format
           required: true
           type: string
-          x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+          x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
       responses:
         200:
           description: Account balances
@@ -413,7 +413,7 @@ paths:
           description: Account address in bech32 format
           required: true
           type: string
-          x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+          x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
         - in: body
           name: account
           description: The sender and tx information
@@ -449,7 +449,7 @@ paths:
           description: Account address
           required: true
           type: string
-          x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+          x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
       responses:
         200:
           description: Account information on the blockchain
@@ -482,7 +482,7 @@ paths:
 #        description: Bech32 AccAddress of Delegator
 #        required: true
 #        type: string
-#        x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+#        x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
 #    get:
 #      summary: Get all delegations from a delegator
 #      tags:
@@ -541,13 +541,13 @@ paths:
 #        description: Bech32 AccAddress of Delegator
 #        required: true
 #        type: string
-#        x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+#        x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
 #      - in: path
 #        name: validatorAddr
 #        description: Bech32 OperatorAddress of validator
 #        required: true
 #        type: string
-#        x-example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+#        x-example: iva1zx9jugxl5nzggdgzmut8adnc8rgwztm0dyez3r
 #    get:
 #      summary: Query the current delegation between a delegator and a validator
 #      tags:
@@ -570,7 +570,7 @@ paths:
 #        description: Bech32 AccAddress of Delegator
 #        required: true
 #        type: string
-#        x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+#        x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
 #    get:
 #      summary: Get all unbonding delegations from a delegator
 #      tags:
@@ -630,13 +630,13 @@ paths:
 #        description: Bech32 AccAddress of Delegator
 #        required: true
 #        type: string
-#        x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+#        x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
 #      - in: path
 #        name: validatorAddr
 #        description: Bech32 OperatorAddress of validator
 #        required: true
 #        type: string
-#        x-example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+#        x-example: iva1zx9jugxl5nzggdgzmut8adnc8rgwztm0dyez3r
 #    get:
 #      summary: Query all unbonding delegations between a delegator and a validator
 #      tags:
@@ -691,7 +691,7 @@ paths:
 #        description: Bech32 AccAddress of Delegator
 #        required: true
 #        type: string
-#        x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+#        x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
 #    post:
 #      summary: Submit a redelegation
 #      parameters:
@@ -734,7 +734,7 @@ paths:
 #        description: Bech32 AccAddress of Delegator
 #        required: true
 #        type: string
-#        x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+#        x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
 #    get:
 #      summary: Query all validators that a delegator is bonded to
 #      tags:
@@ -759,13 +759,13 @@ paths:
 #        description: Bech32 AccAddress of Delegator
 #        required: true
 #        type: string
-#        x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+#        x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
 #      - in: path
 #        name: validatorAddr
 #        description: Bech32 ValAddress of Delegator
 #        required: true
 #        type: string
-#        x-example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+#        x-example: iva1zx9jugxl5nzggdgzmut8adnc8rgwztm0dyez3r
 #    get:
 #      summary: Query a validator that a delegator is bonded to
 #      tags:
@@ -820,7 +820,7 @@ paths:
 #        description: Bech32 OperatorAddress of validator
 #        required: true
 #        type: string
-#        x-example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+#        x-example: iva1zx9jugxl5nzggdgzmut8adnc8rgwztm0dyez3r
 #    get:
 #      summary: Query the information from a single validator
 #      tags:
@@ -843,7 +843,7 @@ paths:
 #        description: Bech32 OperatorAddress of validator
 #        required: true
 #        type: string
-#        x-example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+#        x-example: iva1zx9jugxl5nzggdgzmut8adnc8rgwztm0dyez3r
 #    get:
 #      summary: Get all delegations from a validator
 #      tags:
@@ -868,7 +868,7 @@ paths:
 #        description: Bech32 OperatorAddress of validator
 #        required: true
 #        type: string
-#        x-example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+#        x-example: iva1zx9jugxl5nzggdgzmut8adnc8rgwztm0dyez3r
 #    get:
 #      summary: Get all unbonding delegations from a validator
 #      tags:
@@ -1196,7 +1196,7 @@ paths:
 #          name: depositor
 #          required: true
 #          in: path
-#          x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+#          x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
 #      responses:
 #        200:
 #          description: OK
@@ -1295,7 +1295,7 @@ paths:
 #          name: voter
 #          required: true
 #          in: path
-#          x-example: cosmos16xyempempp92x9hyzz9wrgf94r6j9h5f06pxxv
+#          x-example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
 #      responses:
 #        200:
 #          description: OK
@@ -1691,10 +1691,10 @@ paths:
                 $ref: '#/definitions/BaseReq'
               owner:
                 $ref: '#/definitions/Address'
-                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+                example: 'iaa1zx9jugxl5nzggdgzmut8adnc8rgwztm0c4ndvy'
               recipient:
                 $ref: '#/definitions/Address'
-                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+                example: 'iaa1zx9jugxl5nzggdgzmut8adnc8rgwztm0c4ndvy'
               id:
                 type: string
               token_uri:
@@ -1768,7 +1768,7 @@ paths:
                 $ref: '#/definitions/BaseReq'
               owner:
                 $ref: '#/definitions/Address'
-                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+                example: 'iaa1zx9jugxl5nzggdgzmut8adnc8rgwztm0c4ndvy'
               token_uri:
                 type: string
       responses:
@@ -1810,10 +1810,10 @@ paths:
                 $ref: '#/definitions/BaseReq'
               owner:
                 $ref: '#/definitions/Address'
-                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+                example: 'iaa1zx9jugxl5nzggdgzmut8adnc8rgwztm0c4ndvy'
               recipient:
                 $ref: '#/definitions/Address'
-                example: 'cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc'
+                example: 'iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf'
       responses:
         200:
           description: Unsigned tx was succesfully generated
@@ -1853,7 +1853,7 @@ paths:
                 $ref: '#/definitions/BaseReq'
               owner:
                 $ref: '#/definitions/Address'
-                example: 'cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27'
+                example: 'iaa1zx9jugxl5nzggdgzmut8adnc8rgwztm0c4ndvy'
       responses:
         200:
           description: Unsigned tx was succesfully generated
@@ -2081,7 +2081,7 @@ paths:
         '400':
           description: Invalid parameters
         '500':
-          description: Internal Server Error    
+          description: Internal Server Error
   '/service/definitions/{service-name}':
     get:
       summary: Query a service definition
@@ -2437,7 +2437,7 @@ paths:
                 type: string
               providers:
                 type: array
-                items: 
+                items:
                   $ref: '#/definitions/Address'
               consumer:
                 $ref: '#/definitions/Address'
@@ -2976,11 +2976,11 @@ definitions:
   Address:
     type: string
     description: bech32 encoded address
-    example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+    example: iaa1zx9jugxl5nzggdgzmut8adnc8rgwztm0c4ndvy
   ValidatorAddress:
     type: string
     description: bech32 encoded address
-    example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+    example: iva1zx9jugxl5nzggdgzmut8adnc8rgwztm0dyez3r
   Coin:
     type: object
     properties:
@@ -3098,7 +3098,7 @@ definitions:
     properties:
       chain_id:
         type: string
-        example: cosmoshub-2
+        example: irita
       height:
         type: number
         example: 1
@@ -3222,14 +3222,14 @@ definitions:
     properties:
       from:
         type: string
-        example: "cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc"
+        example: "iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf"
         description: Sender address or Keybase name to generate a transaction
       memo:
         type: string
-        example: "Sent via Cosmos Voyager 🚀"
+        example: "Sent via Irita Voyager 🚀"
       chain_id:
         type: string
-        example: "Cosmos-Hub"
+        example: "irita"
       account_number:
         type: string
         example: "0"
@@ -3257,7 +3257,7 @@ definitions:
         $ref: "#/definitions/ValidatorAddress"
       pub_key:
         type: string
-        example: cosmosvalconspub1zcjduepq0vu2zgkgk49efa0nqwzndanq5m4c7pa3u4apz4g2r9gspqg6g9cs3k9cuf
+        example: icp1ulx45dfpqr6dfashqwasg835vvuz25f7v827w0sxcl028ywktr5l0ct938h3cslc5nf
       voting_power:
         type: string
         example: "1000"
@@ -3336,7 +3336,7 @@ definitions:
         $ref: "#/definitions/ValidatorAddress"
       consensus_pubkey:
         type: string
-        example: cosmosvalconspub1zcjduepq0vu2zgkgk49efa0nqwzndanq5m4c7pa3u4apz4g2r9gspqg6g9cs3k9cuf
+        example: icp1ulx45dfpqr6dfashqwasg835vvuz25f7v827w0sxcl028ywktr5l0ct938h3cslc5nf
       jailed:
         type: boolean
       status:
@@ -3643,7 +3643,7 @@ definitions:
         type: string
       providers:
         type: array
-        items: 
+        items:
           $ref: '#/definitions/Address'
       consumer:
         $ref: '#/definitions/Address'
