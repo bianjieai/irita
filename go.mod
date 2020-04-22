@@ -7,7 +7,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.38.2
 	github.com/emicklei/proto v1.9.0
 	github.com/gorilla/mux v1.7.4
-	github.com/irismod/nft v0.0.0-20200421012412-1b4984af02f6
+	github.com/irismod/nft v0.0.0-20200422021317-bed9aabcf144
 	github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af
 	github.com/irismod/service v0.0.0-20200422024553-d21b3755b3ea
 	github.com/irismod/token v0.0.0-20200422015846-1cf537b8f221

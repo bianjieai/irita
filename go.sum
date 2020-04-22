@@ -173,6 +173,7 @@ github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NH
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/irismod/nft v0.0.0-20200421012412-1b4984af02f6 h1:ssjEOnUGnWCIgkhlkaMaOztyqG5uZRwPkAvv1Vy1Ft4=
 github.com/irismod/nft v0.0.0-20200421012412-1b4984af02f6/go.mod h1:pJ8ctgbaDU6xYxAoddnxV/nBsWvRvccsWHPQUMpT4f8=
+github.com/irismod/nft v0.0.0-20200422021317-bed9aabcf144/go.mod h1:pJ8ctgbaDU6xYxAoddnxV/nBsWvRvccsWHPQUMpT4f8=
 github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af h1:lQfNIQItL7/w/D91sSDfa5lM7Hv9drd5fbEANMAXg/E=
 github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af/go.mod h1:bP8sliuLzRouqIcYBFCm34TlkO0nwx3Gq7aUIlRC/1Y=
 github.com/irismod/service v0.0.0-20200422013259-41f1431877ba h1:DJM6MMkJgw5+djzpo09ynnL5FB4dreqsin8+6gTR/Nc=
