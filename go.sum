@@ -268,8 +268,12 @@ github.com/irismod/service v0.0.0-20200422094534-8a35a62983ea h1:DuVsOt5PKmdhXp3
 github.com/irismod/service v0.0.0-20200422094534-8a35a62983ea/go.mod h1:ascl3vjsqV5ao0poVr/QL4NSUcWzHU5/vzOI8a8bOug=
 github.com/irismod/service v0.0.0-20200422105228-0c71c2b616b7 h1:khtmGZ6lLxR8umCTgESxRlJ273Qnj81YRGQ6ntb4BP8=
 github.com/irismod/service v0.0.0-20200422105228-0c71c2b616b7/go.mod h1:ascl3vjsqV5ao0poVr/QL4NSUcWzHU5/vzOI8a8bOug=
+github.com/irismod/service v0.0.0-20200422112540-4049f3df8e9f h1:QaOG/OrsyEXMbuE6Q44ZeByRdj+H+mrr4xn0LPWPhYE=
+github.com/irismod/service v0.0.0-20200422112540-4049f3df8e9f/go.mod h1:ascl3vjsqV5ao0poVr/QL4NSUcWzHU5/vzOI8a8bOug=
 github.com/irismod/token v0.0.0-20200422015846-1cf537b8f221 h1:RjRtwKWRgDTV/98qpyKlP5u3CenKh6MMe0V3skafpJ0=
 github.com/irismod/token v0.0.0-20200422015846-1cf537b8f221/go.mod h1:zpZB/RFZywqpwAXzKNuhsBB1BtR5+gZ6P6/QAthgDA4=
+github.com/irismod/token v0.0.0-20200422111750-fea76b37099c h1:/IDqhIFqPqWN9mDZ/BEo0IGEOzH0/5M4GwqYjYzy6DM=
+github.com/irismod/token v0.0.0-20200422111750-fea76b37099c/go.mod h1:zpZB/RFZywqpwAXzKNuhsBB1BtR5+gZ6P6/QAthgDA4=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/jmhodges/levigo v1.0.0 h1:q5EC36kV79HWeTBWsod3mG11EgStG3qArTKcvlksN1U=
