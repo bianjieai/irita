@@ -30,10 +30,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 
-	"github.com/bianjieai/irita/modules/guardian"
-	"github.com/bianjieai/irita/modules/service"
+	"github.com/bianjieai/irita/utils"
 	"github.com/irismod/nft"
 	"github.com/irismod/record"
+	"github.com/irismod/service"
 	"github.com/irismod/token"
 )
 
@@ -62,7 +62,6 @@ var (
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		evidence.AppModuleBasic{},
-		guardian.AppModuleBasic{},
 		service.AppModuleBasic{},
 		token.AppModuleBasic{},
 		nft.AppModuleBasic{},
@@ -79,7 +78,6 @@ var (
 		gov.ModuleName:            {supply.Burner},
 		service.DepositAccName:    {supply.Burner},
 		service.RequestAccName:    nil,
-		service.TaxAccName:        nil,
 		token.ModuleName:          {supply.Minter, supply.Burner},
 	}
 )
@@ -123,7 +121,6 @@ type SimApp struct {
 	ParamsKeeper   params.Keeper
 	EvidenceKeeper evidence.Keeper
 	ServiceKeeper  service.Keeper
-	GuardianKeeper guardian.Keeper
 	TokenKeeper    token.Keeper
 	NftKeeper      nft.Keeper
 	RecordKeeper   record.Keeper
@@ -150,7 +147,7 @@ func NewSimApp(
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey, supply.StoreKey, mint.StoreKey,
 		distr.StoreKey, slashing.StoreKey, gov.StoreKey, params.StoreKey,
-		evidence.StoreKey, guardian.StoreKey, service.StoreKey,
+		evidence.StoreKey, service.StoreKey,
 		token.StoreKey, nft.StoreKey, record.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(params.TStoreKey)
@@ -231,17 +228,15 @@ func NewSimApp(
 		staking.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
-	app.GuardianKeeper = guardian.NewKeeper(
-		app.cdc, keys[guardian.StoreKey],
-	)
-
-	app.ServiceKeeper = service.NewKeeper(
-		app.cdc, keys[service.StoreKey], app.SupplyKeeper, app.GuardianKeeper, serviceSubspace,
-	)
-
 	app.TokenKeeper = token.NewKeeper(app.cdc, keys[token.StoreKey], tokenSubspace, app.SupplyKeeper, auth.FeeCollectorName)
 	app.NftKeeper = nft.NewKeeper(app.cdc, keys[nft.StoreKey])
 	app.RecordKeeper = record.NewKeeper(app.cdc, keys[record.StoreKey])
+
+	tokenAdapter := utils.NewTokenAdapter(app.TokenKeeper)
+	app.ServiceKeeper = service.NewKeeper(
+		app.cdc, keys[service.StoreKey], app.SupplyKeeper, tokenAdapter,
+		serviceSubspace, auth.FeeCollectorName,
+	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -257,8 +252,7 @@ func NewSimApp(
 		slashing.NewAppModule(app.SlashingKeeper, app.AccountKeeper, app.StakingKeeper),
 		staking.NewAppModule(app.StakingKeeper, app.AccountKeeper, app.SupplyKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
-		guardian.NewAppModule(app.GuardianKeeper),
-		service.NewAppModule(app.ServiceKeeper),
+		service.NewAppModule(app.ServiceKeeper, app.AccountKeeper),
 		token.NewAppModule(app.TokenKeeper, app.AccountKeeper),
 		nft.NewAppModule(app.NftKeeper, app.AccountKeeper),
 		record.NewAppModule(app.RecordKeeper, app.AccountKeeper),
@@ -276,8 +270,8 @@ func NewSimApp(
 		auth.ModuleName, distr.ModuleName, staking.ModuleName, bank.ModuleName,
 		slashing.ModuleName, gov.ModuleName, mint.ModuleName, supply.ModuleName,
 		crisis.ModuleName, genutil.ModuleName, evidence.ModuleName,
-		guardian.ModuleName, service.ModuleName,
-		token.ModuleName, nft.ModuleName, record.ModuleName,
+		token.ModuleName, nft.ModuleName,
+		record.ModuleName, service.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
