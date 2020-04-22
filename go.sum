@@ -254,6 +254,8 @@ github.com/irismod/nft v0.0.0-20200422070210-88340e04a5a2 h1:LkoEXrHn6HCXEAW08A0
 github.com/irismod/nft v0.0.0-20200422070210-88340e04a5a2/go.mod h1:pJ8ctgbaDU6xYxAoddnxV/nBsWvRvccsWHPQUMpT4f8=
 github.com/irismod/nft v0.0.0-20200422071319-fd35c26b8173 h1:kAd6WdD4xE7fEwBT6i+gwU0JXowNPLxP+pI9JtQxcn4=
 github.com/irismod/nft v0.0.0-20200422071319-fd35c26b8173/go.mod h1:pJ8ctgbaDU6xYxAoddnxV/nBsWvRvccsWHPQUMpT4f8=
+github.com/irismod/nft v0.0.0-20200422104606-0ea1dee3df58 h1:zFPM2bdArvunX0ndkYhMmE8oJp/r7nj/AowMvv7hflw=
+github.com/irismod/nft v0.0.0-20200422104606-0ea1dee3df58/go.mod h1:pJ8ctgbaDU6xYxAoddnxV/nBsWvRvccsWHPQUMpT4f8=
 github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af h1:lQfNIQItL7/w/D91sSDfa5lM7Hv9drd5fbEANMAXg/E=
 github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af/go.mod h1:bP8sliuLzRouqIcYBFCm34TlkO0nwx3Gq7aUIlRC/1Y=
 github.com/irismod/service v0.0.0-20200422024553-d21b3755b3ea h1:gR7a0liKqxqiwz4mZrWvKgURlPvGjY7mwvYq4pCrw/g=
@@ -262,7 +264,10 @@ github.com/irismod/service v0.0.0-20200422072147-1af06a4143ca h1:ZxN4vD17aPB3CZ4
 github.com/irismod/service v0.0.0-20200422072147-1af06a4143ca/go.mod h1:ascl3vjsqV5ao0poVr/QL4NSUcWzHU5/vzOI8a8bOug=
 github.com/irismod/service v0.0.0-20200422085858-e6f55179da8d h1:3/qmObiQ2PUsVkyMLPS0KUN7nbxyn9N2mdmXbkD5LmA=
 github.com/irismod/service v0.0.0-20200422085858-e6f55179da8d/go.mod h1:ascl3vjsqV5ao0poVr/QL4NSUcWzHU5/vzOI8a8bOug=
+github.com/irismod/service v0.0.0-20200422094534-8a35a62983ea h1:DuVsOt5PKmdhXp3Btkrmk9cz5ZlWYXsomPZSEkVzOYw=
 github.com/irismod/service v0.0.0-20200422094534-8a35a62983ea/go.mod h1:ascl3vjsqV5ao0poVr/QL4NSUcWzHU5/vzOI8a8bOug=
+github.com/irismod/service v0.0.0-20200422105228-0c71c2b616b7 h1:khtmGZ6lLxR8umCTgESxRlJ273Qnj81YRGQ6ntb4BP8=
+github.com/irismod/service v0.0.0-20200422105228-0c71c2b616b7/go.mod h1:ascl3vjsqV5ao0poVr/QL4NSUcWzHU5/vzOI8a8bOug=
 github.com/irismod/token v0.0.0-20200422015846-1cf537b8f221 h1:RjRtwKWRgDTV/98qpyKlP5u3CenKh6MMe0V3skafpJ0=
 github.com/irismod/token v0.0.0-20200422015846-1cf537b8f221/go.mod h1:zpZB/RFZywqpwAXzKNuhsBB1BtR5+gZ6P6/QAthgDA4=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=

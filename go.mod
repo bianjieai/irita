@@ -5,9 +5,9 @@ require (
 	github.com/confio/go-cosmwasm v0.6.3
 	github.com/cosmos/cosmos-sdk v0.38.2
 	github.com/gorilla/mux v1.7.4
-	github.com/irismod/nft v0.0.0-20200422071319-fd35c26b8173
+	github.com/irismod/nft v0.0.0-20200422104606-0ea1dee3df58
 	github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af
-	github.com/irismod/service v0.0.0-20200422094534-8a35a62983ea
+	github.com/irismod/service v0.0.0-20200422105228-0c71c2b616b7
 	github.com/irismod/token v0.0.0-20200422015846-1cf537b8f221
 	github.com/keybase/go-keychain v0.0.0-20191114153608-ccd67945d59e // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
