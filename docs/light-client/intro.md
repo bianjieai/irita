@@ -64,7 +64,8 @@ iritacli rest-server --node=tcp://localhost:26657 --chain-id=irishub --laddr=tcp
 
 ### NFT模块的APIs
 
-	1. `POST /nft/nfts/mint`: 发行一个新的`NFT`资产
+1. `POST /nft/nfts/mint`: 发行一个新的`NFT`资产
+
  	2. `PUT /nft/nfts/{denom}/{id}`: 编辑一个已经存在的`NFT`
  	3. `PUT /nft/nfts/{denom}/{id}/transfer`: 转让`NFT`
  	4. `POST /nft/nfts/{denom}/{id}/burn`: 销毁`NFT`
