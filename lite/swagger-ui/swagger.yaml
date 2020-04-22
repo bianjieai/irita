@@ -2041,7 +2041,7 @@ paths:
           description: Invalid symbol
         500:
           description: Internal Server Error
-'/service/definitions':
+  '/service/definitions':
     post:
       summary: Define a service
       description: Define a service with JSON schemas
@@ -2054,7 +2054,7 @@ paths:
       parameters:
         - in: body
           name: DefineServiceReq
-          required: true:
+          required: true
           schema:
             type: object
             properties:
@@ -2118,7 +2118,7 @@ paths:
       parameters:
         - in: body
           name: BindServiceReq
-          required: true::
+          required: true
           schema:
             type: object
             properties:
