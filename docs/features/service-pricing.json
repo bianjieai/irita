@@ -1,7 +1,7 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "irita-service-pricing",
-	"description": "Irita Service Pricing Schema",
+	"title": "iris-service-pricing",
+	"description": "IRIS Service Pricing Schema",
 	"type": "object",
 	"definitions": {
 	  "discount": {
