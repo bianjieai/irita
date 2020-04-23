@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	denom        = "stake"
+	denom        = "point"
 	keyFoo       = "foo"
 	keyBar       = "bar"
 	fooDenom     = "footoken"

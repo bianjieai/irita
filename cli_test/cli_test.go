@@ -600,7 +600,7 @@ func TestIritaCLISubmitParamChangeProposal(t *testing.T) {
   ],
   "deposit": [
     {
-      "denom": "stake",
+      "denom": "point",
       "amount": "%s"
     }
   ]

@@ -186,7 +186,7 @@ package clitest
 //	// query fees
 //	fees := f.QueryServiceFees(provider)
 //	require.Nil(t, fees.ReturnedFee)
-//	require.Equal(t, "45stake", fees.IncomingFee.String()) // servicePrices * (1-serviceFeeTax)
+//	require.Equal(t, "45point", fees.IncomingFee.String()) // servicePrices * (1-serviceFeeTax)
 //
 //	fees = f.QueryServiceFees(consumer)
 //	require.Nil(t, fees.IncomingFee)
