@@ -56,10 +56,10 @@ IRIS服务（又称 iService）旨在弥合区块链和传统应用之间的鸿�
 
 ```bash
 # 创建服务定义
-iriscli tx service define <service-name> <schemas-json or path/to/schemas.json> --description=<service-description> --author-description=<author-description> --tags=<tag1,tag2,...>
+iritacli tx service define <service-name> <schemas-json or path/to/schemas.json> --description=<service-description> --author-description=<author-description> --tags=<tag1,tag2,...>
 
 # 查询服务定义
-iriscli q service definition <service-name>
+iritacli q service definition <service-name>
 ```
 
 ## 服务绑定
@@ -112,31 +112,31 @@ iriscli q service definition <service-name>
 
 ```bash
 # 创建服务绑定
-iriscli tx service bind <service-name> <provider-address> <deposit> <min-response-time> <pricing-json or path/to/pricing.json>
+iritacli tx service bind <service-name> <provider-address> <deposit> <min-response-time> <pricing-json or path/to/pricing.json>
 
 # 更新服务绑定
-iriscli tx service update-binding <service-name> <provider-address> --deposit=<added-deposit> --min-resp-time=<min-response-time> --pricing=<pricing-json or path/to/pricing.json>
+iritacli tx service update-binding <service-name> <provider-address> --deposit=<added-deposit> --min-resp-time=<min-response-time> --pricing=<pricing-json or path/to/pricing.json>
 
 # 启用一个不可用的服务绑定
-iriscli tx service enable <service-name> <provider-address> <added-deposit>
+iritacli tx service enable <service-name> <provider-address> <added-deposit>
 
 # 禁用一个可用的服务绑定
-iriscli tx service disable <service-name> <provider-address>>
+iritacli tx service disable <service-name> <provider-address>>
 
 # 取回服务绑定的押金
-iriscli tx service refund-deposit <service-name>
+iritacli tx service refund-deposit <service-name>
 
 # 查询一个服务的所有绑定
-iriscli q service bindings <service-name>
+iritacli q service bindings <service-name>
 
 # 查询一个账户所拥有的所有绑定
-iriscli q service bindings <service-name> --owner <address>
+iritacli q service bindings <service-name> --owner <address>
 
 # 查询指定的服务绑定
-iriscli q service binding <service-name> <provider-address>
+iritacli q service binding <service-name> <provider-address>
 
 # 查询定价 schema
-iriscli q service schema pricing
+iritacli q service schema pricing
 ```
 
 ## 服务调用
@@ -181,31 +181,31 @@ iriscli q service schema pricing
 
 ```bash
 # 创建一个重复性的请求上下文（无回调函数）
-iriscli tx service call --service-name=<service name> --data=<request input> --providers=<provider list> --service-fee-cap=1iris --timeout 50 --repeated --frequency=50 --total=100
+iritacli tx service call --service-name=<service name> --data=<request input> --providers=<provider list> --service-fee-cap=1iris --timeout 50 --repeated --frequency=50 --total=100
 
 # 更新一个存在的请求上下文
-iriscli tx service update <request-context-id> --frequency=20 --total=200
+iritacli tx service update <request-context-id> --frequency=20 --total=200
 
 # 暂停一个正在运行的请求上下文
-iriscli tx service pause <request-context-id>
+iritacli tx service pause <request-context-id>
 
 # 启动一个暂停的请求上下文
-iriscli tx service start <request-context-id>
+iritacli tx service start <request-context-id>
 
 # 永久终止一个请求上下文
-iriscli tx service kill <request-context-id>
+iritacli tx service kill <request-context-id>
 
 # 通过 ID 查询请求上下文
-iriscli q service request-context <request-context-id>
+iritacli q service request-context <request-context-id>
 
 # 查询一个请求批次的所有请求
-iriscli q service requests <request-context-id> <batch-counter>
+iritacli q service requests <request-context-id> <batch-counter>
 
 # 查询一个请求批次的所有响应
-iriscli q service responses <request-context-id> <batch-counter>
+iritacli q service responses <request-context-id> <batch-counter>
 
 # 通过请求 ID 查询对应的响应
-iriscli q service response <request-id>
+iritacli q service response <request-id>
 ```
 
 ## 服务响应
@@ -231,16 +231,16 @@ iriscli q service response <request-id>
 
 ```bash
 # 查询所有特定于指定服务提供者的待处理请求
-iriscli q service requests <service-name> <provider>
+iritacli q service requests <service-name> <provider>
 
 # 通过请求 ID 查询请求
-iriscli q service request <request-id>
+iritacli q service request <request-id>
 
 # 发送指定请求的响应
-iriscli tx service respond --request-id=<request-id> --result='{"code":200,"message":"success"}' --data=<response output>
+iritacli tx service respond --request-id=<request-id> --result='{"code":200,"message":"success"}' --data=<response output>
 
 # 查询服务结果 schema
-iriscli q service schema result
+iritacli q service schema result
 ```
 
 ## 服务费用
@@ -261,19 +261,19 @@ iriscli q service schema result
 
 ```bash
 # 设置提取地址
-iriscli tx service set-withdraw-addr <withdrawal-address>
+iritacli tx service set-withdraw-addr <withdrawal-address>
 
 # 查询提取地址
-iriscli q service withdraw-addr <address>
+iritacli q service withdraw-addr <address>
 
 # 查询指定服务提供者赚取的服务费
-iriscli q service fees <provider-address>
+iritacli q service fees <provider-address>
 
 # 提取所有服务提供者赚取的服务费
-iriscli tx service withdraw-fees
+iritacli tx service withdraw-fees
 
 # 从指定服务提供者提取赚取的服务费
-iriscli tx service withdraw-fees <provider-address>
+iritacli tx service withdraw-fees <provider-address>
 ```
 
 ## 服务治理 (TODO)
