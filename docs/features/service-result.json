@@ -1,7 +1,7 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "irishub-service-result",
-	"description": "IRIS Hub Service Result Schema",
+	"title": "irita-service-result",
+	"description": "Irita Service Result Schema",
 	"type": "object",
 	"properties": {
 	  "code": {
