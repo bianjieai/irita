@@ -1,6 +1,6 @@
 # Service
 
-> **_提示：_** 本文档中显示的命令仅供说明。有关命令的准确语法，请参阅[cli docs](../client/service.md)。
+> **_提示：_** 本文档中显示的命令仅供说明。有关命令的准确语法，请参阅[cli docs](../cli-client/service.md)。
 
 ## 简介
 
@@ -161,7 +161,7 @@ iriscli q service schema pricing
 * _模块_：包含回调函数的模块名称
 * _响应阈值_：为调用回调函数所需接收的最小响应数
 
-> **_提示：_** 这两个参数不能从 CLI 和 API 设置；它们只对使用 iService 的其他模块可用，比如 [oracle](oracle.md) 和 [random](random.md)。
+> **_提示：_** 这两个参数不能从 CLI 和 API 设置；它们只对使用 iService 的其他模块可用。
 
 #### 重复性
 
