@@ -46,6 +46,8 @@ github.com/bianjieai/cosmos-sdk v0.38.1-irita-200302 h1:anEWlBq7ctwiwKd3fDGoeS4m
 github.com/bianjieai/cosmos-sdk v0.38.1-irita-200302/go.mod h1:Brfy+AyHZ49bFTHtLFbA+CjAWQkzeD2H8Fb+B1yR/tI=
 github.com/bianjieai/cosmos-sdk v0.38.2-0.20200422083600-e15718d623f2 h1:iKrtOxQZs/Ox7kx1+Trcik0NGJa5bPXHLyNwqq/sWmo=
 github.com/bianjieai/cosmos-sdk v0.38.2-0.20200422083600-e15718d623f2/go.mod h1:Brfy+AyHZ49bFTHtLFbA+CjAWQkzeD2H8Fb+B1yR/tI=
+github.com/bianjieai/cosmos-sdk v0.38.2-0.20200423021430-4fe0e014c9a6 h1:ZBcJNo+lfyVDVsjL59guE7sO/VWJIE2kj2cZr5zD7UM=
+github.com/bianjieai/cosmos-sdk v0.38.2-0.20200423021430-4fe0e014c9a6/go.mod h1:Brfy+AyHZ49bFTHtLFbA+CjAWQkzeD2H8Fb+B1yR/tI=
 github.com/bianjieai/tendermint v0.33.0-irita-200302 h1:R8/FBBYpEsnp8QMiPZ3CRn6ZiDWEAm/xi+wbiJmKaNA=
 github.com/bianjieai/tendermint v0.33.0-irita-200302/go.mod h1:5M44X+yWTNz5QBvzbbOLEhyMPzQVjZJgPeCfV7uz5aE=
 github.com/bradleyfalzon/ghinstallation v0.1.2/go.mod h1:VQsLlCoNa54/CNXcc2DuCfNZrZxqQcyPeqKUugF/2h8=

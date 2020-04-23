@@ -32,7 +32,7 @@ require (
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.38.2-0.20200422083600-e15718d623f2
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.38.2-0.20200423021430-4fe0e014c9a6
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.33.0-irita-200302
 )
 
