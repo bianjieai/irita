@@ -30,7 +30,6 @@ import (
 
 	"github.com/bianjieai/irita/app"
 	iconfig "github.com/bianjieai/irita/config"
-	"github.com/bianjieai/irita/modules/guardian"
 )
 
 const (
@@ -183,7 +182,6 @@ func InitFixtures(t *testing.T) (f *Fixtures) {
 
 	f.GenTx(keyFoo)
 	f.CollectGenTxs()
-	f.DoPreProcess(AddGuardianAddr)
 	return
 }
 
@@ -798,31 +796,4 @@ func unmarshalStdTx(t *testing.T, s string) (stdTx auth.StdTx) {
 	cdc := app.MakeCodec()
 	require.Nil(t, cdc.UnmarshalJSON([]byte(s), &stdTx))
 	return
-}
-
-// AddGuardianAddr modify default configuration of guardian in genesis
-func AddGuardianAddr(cdc *codec.Codec, genDoc *tmtypes.GenesisDoc) {
-	var appState simapp.GenesisState
-	cdc.MustUnmarshalJSON(genDoc.AppState, &appState)
-
-	authDataBz := appState[auth.ModuleName]
-	var authGenState auth.GenesisState
-	cdc.MustUnmarshalJSON(authDataBz, &authGenState)
-
-	guardianDataBz := appState[guardian.ModuleName]
-	var guardianGenState guardian.GenesisState
-	cdc.MustUnmarshalJSON(guardianDataBz, &guardianGenState)
-
-	var guardianAddr = authGenState.Accounts[0].GetAddress()
-	for i := range guardianGenState.Profilers {
-		guardianGenState.Profilers[i].Address = guardianAddr
-		guardianGenState.Profilers[i].AddedBy = guardianAddr
-	}
-	for i := range guardianGenState.Trustees {
-		guardianGenState.Trustees[i].Address = guardianAddr
-		guardianGenState.Trustees[i].AddedBy = guardianAddr
-	}
-	appState[guardian.ModuleName] = cdc.MustMarshalJSON(guardianGenState)
-
-	genDoc.AppState = cdc.MustMarshalJSON(appState)
 }

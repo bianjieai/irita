@@ -2,24 +2,19 @@ module github.com/bianjieai/irita
 
 require (
 	github.com/btcsuite/btcd v0.20.1-beta // indirect
-	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/confio/go-cosmwasm v0.6.3
 	github.com/cosmos/cosmos-sdk v0.38.2
-	github.com/emicklei/proto v1.9.0
 	github.com/gorilla/mux v1.7.4
-	github.com/irismod/nft v0.0.0-20200422021317-bed9aabcf144
+	github.com/irismod/nft v0.0.0-20200422104606-0ea1dee3df58
 	github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af
-	github.com/irismod/service v0.0.0-20200422024553-d21b3755b3ea
-	github.com/irismod/token v0.0.0-20200422015846-1cf537b8f221
+	github.com/irismod/service v0.0.0-20200422112540-4049f3df8e9f
+	github.com/irismod/token v0.0.0-20200422111750-fea76b37099c
 	github.com/keybase/go-keychain v0.0.0-20191114153608-ccd67945d59e // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/otiai10/copy v1.0.2
 	github.com/otiai10/curr v0.0.0-20190513014714-f5a3d24e5776 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.2.1 // indirect
-	github.com/prometheus/client_model v0.0.0-20191202183732-d1d2010b5bee // indirect
-	github.com/prometheus/procfs v0.0.8 // indirect
 	github.com/rakyll/statik v0.1.6
 	github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563 // indirect
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
@@ -33,12 +28,11 @@ require (
 	github.com/tendermint/tendermint v0.33.2
 	github.com/tendermint/tm-db v0.5.1
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
-	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20191216205247-b31c10ee225f // indirect
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.38.1-irita-200302
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.38.2-0.20200422083600-e15718d623f2
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.33.0-irita-200302
 )
 

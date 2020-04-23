@@ -1695,7 +1695,7 @@ paths:
               recipient:
                 $ref: '#/definitions/Address'
                 example: 'iaa1zx9jugxl5nzggdgzmut8adnc8rgwztm0c4ndvy'
-              id:
+              token_id:
                 type: string
               token_uri:
                 type: string
@@ -1708,7 +1708,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/{denom}/{id}':
+  '/nft/nfts/{denom}/{token-id}':
     get:
       summary: Query an NFT by the denom and ID
       tags:
@@ -1721,7 +1721,7 @@ paths:
           schema:
             type: string
         - in: path
-          name: id
+          name: token-id
           description: ID of the NFT
           required: true
           schema:
@@ -1753,7 +1753,7 @@ paths:
           schema:
             type: string
         - in: path
-          name: id
+          name: token-id
           description: ID of the NFT
           required: true
           schema:
@@ -1778,7 +1778,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/{denom}/{id}/transfer':
+  '/nft/nfts/{denom}/{token-id}/transfer':
     post:
       summary: Transfer the ownership of an NFT of the specified denom and ID
       tags:
@@ -1795,7 +1795,7 @@ paths:
           schema:
             type: string
         - in: path
-          name: id
+          name: token-id
           description: ID of the NFT
           required: true
           schema:
@@ -1821,7 +1821,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/{denom}/{id}/burn':
+  '/nft/nfts/{denom}/{token-id}/burn':
     post:
       summary: Burn an NFT of the specified denom and ID
       tags:
@@ -1838,7 +1838,7 @@ paths:
           schema:
             type: string
         - in: path
-          name: id
+          name: token-id
           description: ID of the NFT
           required: true
           schema:
