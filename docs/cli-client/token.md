@@ -26,7 +26,7 @@ iritacli tx token issue [flags]
 
 | 名称，速记       | 类型    | 必须 | 默认          | 描述                                                               |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------ |
-| --name           | string  | 是   |               | 通证的名称，限制为32个unicode字符，例如"IRIS Network"              |
+| --name           | string  | 是   |               | 通证的名称，限制为32个unicode字符，例如"IRITA Network"              |
 | --symbol         | string  | 是   |               | 通证的符号，长度在3到8之间，字母数字字符，以字符开始，不区分大小写 |
 | --initial-supply | uint64  | 是   |               | 此通证的初始供应。 增发前的数量不应超过1000亿。                    |
 | --max-supply     | uint64  |      | 1000000000000 | 通证上限，总供应不能超过最大供应。 增发前的数量不应超过1万亿       |
@@ -62,7 +62,7 @@ iritacli tx token edit [symbol] [flags]
 
 | 名称，速记   | 类型   | 必须 | 默认  | 描述                          |
 | ------------ | ------ | ---- | ----- | ----------------------------- |
-| --name       | string |      |       | 通证名称，例如：IRIS Network  |
+| --name       | string |      |       | 通证名称，例如：IRITA Network  |
 | --max-supply | uint   |      | 0     | 通证的最大供应量              |
 | --mintable   | bool   |      | false | 通证是否可以增发，默认为false |
 
@@ -112,7 +112,7 @@ iritacli tx token mint [symbol] [flags]
 ### 增发通证
 
 ```bash
-iritacli tx token mint kitty --amount=1000000 --from=<key-name> --chain-id=irita ----fees=0.3point -b=block
+iritacli tx token mint kitty --amount=1000000 --from=<key-name> --chain-id=irita --fees=0.3point -b=block
 ```
 
 ## iritacli q token token

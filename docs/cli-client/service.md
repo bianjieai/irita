@@ -1,6 +1,6 @@
 # iritacli service
 
-Service模块允许在IRIS Hub中定义、绑定、调用服务。[了解更多iService内容](../features/service.md)。
+Service模块允许在irita中定义、绑定、调用服务。[了解更多iService内容](../features/service.md)。
 
 ## 可用命令
 
@@ -164,7 +164,7 @@ iritacli tx service update-binding [service-name] [flags]
 
 ### 更新一个存在的服务绑定
 
-更新服务绑定，追加 10 IRIS 的抵押。
+更新服务绑定，追加 10 point 的抵押。
 
 ```bash
 iritacli tx service update-binding <service-name> --chain-id=irita --from=<key-name> --fees=0.3point --deposit=10point
@@ -228,7 +228,7 @@ iritacli tx service enable [service-name] [flags]
 
 ### 启用一个不可用的服务绑定
 
-启用一个不可用的服务绑定，追加 10 IRIS 的抵押。
+启用一个不可用的服务绑定，追加 10 point 的抵押。
 
 ```bash
 iritacli tx service enable <service name> --chain-id=irita --from=<key-name> --fees=0.3point --deposit=10point
