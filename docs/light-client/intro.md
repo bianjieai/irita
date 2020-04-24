@@ -43,7 +43,7 @@ iritacli rest-server --node=tcp://localhost:26657 --chain-id=irita --trust-node
 要公开访问你的LCD实例，您需要指定`--ladder`：
 
 ```bash
-iritacli rest-server --node=tcp://localhost:26657 --chain-id=irishub --laddr=tcp://0.0.0.0:1317 --trust-node
+iritacli rest-server --node=tcp://localhost:26657 --chain-id=irita --laddr=tcp://0.0.0.0:1317 --trust-node
 ```
 
 ## REST APIs

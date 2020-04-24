@@ -52,7 +52,7 @@ iritacli tx service define [flags]
 ### 定义一个新的服务
 
 ```bash
-iritacli tx service define --chain-id=irishub --from=<key-name> --fees=0.3iris 
+iritacli tx service define --chain-id=irita --from=<key-name> --fees=0.3iris 
 --name=<service name> --description=<service description> --author-description=<author description>
 --tags=tag1,tag2 --schemas=<schemas content or path/to/schemas.json>
 ```
@@ -99,7 +99,7 @@ iritacli tx service bind [flags]
 | -------------- | ---- | ----------------------------------------------------- | ---- |
 | --service-name |      | 服务名称                                              | 是   |
 | --deposit      |      | 服务绑定的押金                                        | 是   |
-| --pricing      |      | 服务定价内容或文件路径，是一个[Irishub Service Pricing JSON Schema](../features/service-pricing.md)实例 |   是   |
+| --pricing      |      | 服务定价内容或文件路径，是一个[irita Service Pricing JSON Schema](../features/service-pricing.md)实例 |   是   |
 | --min-resp-time |     | 最小响应时间 | 是 |
 
 ### 绑定一个存在的服务定义
@@ -107,7 +107,7 @@ iritacli tx service bind [flags]
 抵押`deposit`应该满足最小抵押数量需求，最小抵押数量为`price` * `MinDepositMultiple` 和 `MinDeposit`中的最大值（`MinDepositMultiple`以及`MinDeposit`是可治理参数）。
 
 ```bash
-iritacli tx service bind --chain-id=irishub --from=<key-name> --fees=0.3iris
+iritacli tx service bind --chain-id=irita --from=<key-name> --fees=0.3iris
 --service-name=<service name> --deposit=10000iris --pricing=<pricing content or path/to/pricing.json> --min-resp-time=50
 ```
 
@@ -159,7 +159,7 @@ iritacli tx service update-binding [service-name] [flags]
 | 名称，速记     | 默认 | 描述                                                  | 必须 |
 | -------------- | ---- | ----------------------------------------------------- | ---- |
 | --deposit      |      | 增加的绑定押金，为空则不更新                                      |      |
-| --pricing      |      | 服务定价内容或文件路径，是一个[Irishub Service Pricing JSON Schema](../features/service-pricing.md)实例，为空则不更新 |      |
+| --pricing      |      | 服务定价内容或文件路径，是一个[irita Service Pricing JSON Schema](../features/service-pricing.md)实例，为空则不更新 |      |
 | --min-resp-time |     | 最小响应时间，为0则不更新 | |
 
 ### 更新一个存在的服务绑定
@@ -167,7 +167,7 @@ iritacli tx service update-binding [service-name] [flags]
 更新服务绑定，追加 10 IRIS 的抵押。
 
 ```bash
-iritacli tx service update-binding <service-name> --chain-id=irishub --from=<key-name> --fees=0.3iris --deposit=10iris
+iritacli tx service update-binding <service-name> --chain-id=irita --from=<key-name> --fees=0.3iris --deposit=10iris
 ```
 
 ## iritacli service set-withdraw-addr
@@ -181,7 +181,7 @@ iritacli tx service set-withdraw-addr [withdrawal-address] [flags]
 ### 设置一个提取地址
 
 ```bash
-iritacli tx service set-withdraw-addr <withdrawal address> --chain-id=irishub --from=<key-name> --fees=0.3iris
+iritacli tx service set-withdraw-addr <withdrawal address> --chain-id=irita --from=<key-name> --fees=0.3iris
 ```
 
 ## iritacli service withdraw-addr
@@ -209,7 +209,7 @@ iritacli tx service disable [service-name] [flags]
 ### 禁用一个可用的服务绑定
 
 ```bash
-iritacli tx service disable <service name> --chain-id=irishub --from=<key-name> --fees=0.3iris
+iritacli tx service disable <service name> --chain-id=irita --from=<key-name> --fees=0.3iris
 ```
 
 ## iritacli service enable
@@ -231,7 +231,7 @@ iritacli tx service enable [service-name] [flags]
 启用一个不可用的服务绑定，追加 10 IRIS 的抵押。
 
 ```bash
-iritacli tx service enable <service name> --chain-id=irishub --from=<key-name> --fees=0.3iris --deposit=10iris
+iritacli tx service enable <service name> --chain-id=irita --from=<key-name> --fees=0.3iris --deposit=10iris
 ```
 
 ## iritacli service refund-deposit
@@ -247,7 +247,7 @@ iritacli tx service refund-deposit [service-name] [flags]
 取回抵押之前，必须先[禁用](#iritacli-service-disable)服务绑定。
 
 ```bash
-iritacli tx service refund-deposit <service name> --chain-id=irishub --from=<key-name> --fees=0.3iris
+iritacli tx service refund-deposit <service name> --chain-id=irita --from=<key-name> --fees=0.3iris
 ```
 
 ## iritacli service call
@@ -275,7 +275,7 @@ iritacli tx service call [flags]
 ### 发起一个服务调用请求
 
 ```bash
-iritacli tx service call --chain-id=irishub --from=<key name> --fees=0.3iris --service-name=<service name>
+iritacli tx service call --chain-id=irita --from=<key name> --fees=0.3iris --service-name=<service name>
 --providers=<provider list> --service-fee-cap=1iris --data=<request input or path/to/input.json> --timeout=100 --repeated --frequency=150 --total=100
 ```
 
@@ -340,13 +340,13 @@ iritacli tx service respond [flags]
 | 名称，速记   | 默认 | 描述                                         | 必须 |
 | ------------ | ---- | -------------------------------------------- | ---- |
 | --request-id |      | 欲响应请求的ID                               | 是   |
-| --result     |      | 响应结果的内容或文件路径, 是一个[Irishub Service Result JSON Schema](../features/service-result.md)实例 | 是   |
+| --result     |      | 响应结果的内容或文件路径, 是一个[irita Service Result JSON Schema](../features/service-result.md)实例 | 是   |
 | --data       |      | 响应输出的内容或文件路径, 是一个Output JSON Schema实例 |      |
 
 ### 响应一个服务请求
 
 ```bash
-iritacli tx service respond --chain-id=irishub --from=<key-name> --fees=0.3iris
+iritacli tx service respond --chain-id=irita --from=<key-name> --fees=0.3iris
 --request-id=<request-id> --result=<response result or path/to/result.json> --data=<response output or path/to/output.json>
 ```
 
@@ -442,7 +442,7 @@ iritacli tx service update [request-context-id] [flags]
 ### 更新一个请求上下文
 
 ```bash
-iritacli tx service update <request-context-id> --chain-id=irishub --from=<key name> --fees=0.3iris
+iritacli tx service update <request-context-id> --chain-id=irita --from=<key name> --fees=0.3iris
 --providers=<provider list> --service-fee-cap=1iris --timeout=0 --frequency=150 --total=100
 ```
 
@@ -513,5 +513,5 @@ iritacli q service withdraw-fees [flags]
 ### 提取服务提供者的收益
 
 ```bash
-iritacli q service withdraw-fees --chain-id=irishub --from=<key-name> --fee=0.3iris
+iritacli q service withdraw-fees --chain-id=irita --from=<key-name> --fee=0.3iris
 ```

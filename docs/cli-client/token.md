@@ -37,7 +37,7 @@ iritacli tx token issue [flags]
 ### 发行通证
 
 ```bash
-iritacli tx token issue --symbol="kitty" --name="Kitty Token" --initial-supply=100000000000 --max-supply=1000000000000 --scale=0 --mintable=true --fees=1iris --chain-id=irishub --from=<key-name> -b=block
+iritacli tx token issue --symbol="kitty" --name="Kitty Token" --initial-supply=100000000000 --max-supply=1000000000000 --scale=0 --mintable=true --fees=1iris --chain-id=irita --from=<key-name> -b=block
 ```
 
 ### 发送通证
@@ -47,7 +47,7 @@ iritacli tx token issue --symbol="kitty" --name="Kitty Token" --initial-supply=1
 #### 发送通证
 
 ```bash
-iritacli tx send [from_key_or_address] [to_address] [amount] --from=<key-name> --amount=10kitty --fees=0.3iris --chain-id=irishub -b=block
+iritacli tx send [from_key_or_address] [to_address] [amount] --from=<key-name> --amount=10kitty --fees=0.3iris --chain-id=irita -b=block
 ```
 
 ## iritacli tx token edit
@@ -71,7 +71,7 @@ iritacli tx token edit [symbol] [flags]
 ### 编辑通证
 
 ```bash
-iritacli tx token edit kitty --name="Cat Token" --max-supply=100000000000 --mintable=true --from=<key-name> --chain-id=irishub --fees=0.3iris -b=block
+iritacli tx token edit kitty --name="Cat Token" --max-supply=100000000000 --mintable=true --from=<key-name> --chain-id=irita --fees=0.3iris -b=block
 ```
 
 ## iritacli tx token transfer
@@ -91,7 +91,7 @@ iritacli tx token transfer [symbol] [flags]
 ### 转让通证所有者
 
 ```bash
-iritacli tx token transfer kitty --to=<new-owner-address> --from=<key-name> --chain-id=irishub --fees=0.3iris -b=block
+iritacli tx token transfer kitty --to=<new-owner-address> --from=<key-name> --chain-id=irita --fees=0.3iris -b=block
 ```
 
 ## iritacli tx token mint
@@ -112,7 +112,7 @@ iritacli tx token mint [symbol] [flags]
 ### 增发通证
 
 ```bash
-iriscli tx token mint kitty --amount=1000000 --from=<key-name> --chain-id=irishub ----fees=0.3iris -b=block
+iriscli tx token mint kitty --amount=1000000 --from=<key-name> --chain-id=irita ----fees=0.3iris -b=block
 ```
 
 ## iritacli q token token

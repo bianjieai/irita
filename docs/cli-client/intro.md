@@ -4,11 +4,11 @@ order: 1
 
 # 简介
 
-`iritacli` 是IRIShub网络的命令行客户端。`IRITA`用户可以使用`iritacli`发送交易和查询区块链数据。
+`iritacli` 是irita网络的命令行客户端。`IRITA`用户可以使用`iritacli`发送交易和查询区块链数据。
 
 ## 工作目录
 
-`iritacli` 默认工作目录是 `$HOME/.iritacli`，主要用于保存配置文件和数据。IRIShub “密钥”数据保存在`iritacli`的工作目录中。您还可以通过`--home`指定`iritacli`的工作目录。
+`iritacli` 默认工作目录是 `$HOME/.iritacli`，主要用于保存配置文件和数据。irita “密钥”数据保存在`iritacli`的工作目录中。您还可以通过`--home`指定`iritacli`的工作目录。
 
 ## 连接全节点
 
