@@ -18,7 +18,7 @@ RUN apk add --no-cache $PACKAGES && make test-unit
 # Initialize network type, could be override via docker build argument `--build-arg NetworkType=testnet`
 ARG NetworkType=mainnet
 
-RUN make build
+RUN make statik && make build
 
 # ----------------------------
 
