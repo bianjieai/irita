@@ -14,7 +14,7 @@
 创建一条记录
 
 ```bash
-iritacli tx record create [digest] [digest-algo] --uri=<uri> --meta=<meta-data> --chain-id=<chain-id> --from=<key-name> --fees=0.3iris
+iritacli tx record create [digest] [digest-algo] --uri=<uri> --meta=<meta-data> --chain-id=<chain-id> --from=<key-name> --fees=0.3point
 ```
 
 **标识：**

@@ -19,7 +19,7 @@
 | name              | Type | Default   | Description                     |
 | ----------------- | ---- | --------- | ------------------------------- |
 | TokenTaxRate      | Dec  | 0.4       | 资产税率，即Community Tax的比例 |
-| IssueTokenBaseFee | Coin | 60000iris | 发行Token的基准费用             |
+| IssueTokenBaseFee | Coin | 60000point | 发行Token的基准费用             |
 | MintTokenFeeRatio | Dec  | 0.1       | 增发Token的费率(相对于发行费用) |
 
 注：以上参数均为可治理参数

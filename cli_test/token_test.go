@@ -2,6 +2,7 @@ package clitest
 
 import (
 	"fmt"
+	"github.com/irismod/token/exported"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -88,8 +89,9 @@ func TestIritaCLIIssueToken(t *testing.T) {
 	searchResult = f.QueryTxs(1, 50, "message.action=transfer_token_owner", fmt.Sprintf("message.sender=%s", fooAddr))
 	require.Len(t, searchResult.Txs, 1)
 
-	token = f.QueryToken(symbol)
-	require.EqualValues(t, minter, token.Owner)
+	tokens := f.QueryTokenOfOwner(minter.String())
+	require.NotEmpty(f.T, tokens)
+	require.EqualValues(t, minter, tokens[0].GetOwner())
 
 	// Cleanup testing directories
 	f.Cleanup()
@@ -135,6 +137,14 @@ func (f *Fixtures) QueryToken(symbol string) (t token.Token) {
 	out, _ := tests.ExecuteT(f.T, cmd, "")
 	cdc := app.MakeCodec()
 	cdc.MustUnmarshalJSON([]byte(out), &t)
+	return
+}
+
+func (f *Fixtures) QueryTokenOfOwner(owner string) (ts []exported.TokenI) {
+	cmd := fmt.Sprintf("%s query token tokens %s --output=%s %v", f.IritaCLIBinary, owner, "json", f.Flags())
+	out, _ := tests.ExecuteT(f.T, cmd, "")
+	cdc := app.MakeCodec()
+	cdc.MustUnmarshalJSON([]byte(out), &ts)
 	return
 }
 

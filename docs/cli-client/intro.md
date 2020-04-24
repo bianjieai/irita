@@ -16,11 +16,11 @@ order: 1
 
 ## 设置默认配置
 
-iriscli config 命令可以交互式地配置一些公共参数的默认值，例如chain-id，home，fee 和 node。完成配置后，后续的iriscli命令可以省略对这些flag参数的指定。
+iritacli config 命令可以交互式地配置一些公共参数的默认值，例如chain-id，home，fee 和 node。完成配置后，后续的iritacli命令可以省略对这些flag参数的指定。
 
 ```bash
 $ iritacli config
-> Where is your iritacli home directory? (Default: ~/.iriscli)
+> Where is your iritacli home directory? (Default: ~/.iritacli)
 /root/my_cli_home
 > Where is your validator node running? (Default: tcp://localhost:26657)
 tcp://192.168.0.1:26657
@@ -28,7 +28,7 @@ Do you trust this node? [y/n]:y
 > What is your chainID?
 irita
 > Please specify default fee
-0.3iris
+0.3point
 ```
 
 ## 全局标识

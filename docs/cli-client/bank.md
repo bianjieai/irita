@@ -6,24 +6,24 @@
 
 | 名称                                      | 描述               |
 | ----------------------------------------- | ------------------ |
-| [send](#iriatacli-tx-send)                | 给指定账户转账     |
-| [sign](#iriatacli-tx-sign)                | 为交易进行离线签名 |
+| [send](#iritacli-tx-send)                | 给指定账户转账     |
+| [sign](#iritacli-tx-sign)                | 为交易进行离线签名 |
 | [balances](#iriatacli-q-account-balances) | 查询账户余额       |
 
-## iriatacli tx send
+## iritacli tx send
 
 给指定的地址转账
 
 ```bash
-iritacli tx send [from_key_or_address] [to_address] [amount] --from=node0 --chain-id=test --fees=100stake -b=block
+iritacli tx send [from_key_or_address] [to_address] [amount] --from=node0 --chain-id=test --fees=100point -b=block
 ```
 
-## iriatacli tx sign
+## iritacli tx sign
 
 为了提高账户安全性，`irita`支持交易离线签名保护账户的私钥。在任意交易中，使用参数`--generate-only`可以构建一个未签名的交易。这里以转账交易作为示例：
 
 ```bash
-iritacli tx send iaa1f46tn5v6hm3av9rcwjk8add0xj0kstpdmxrtse iaa1k3j7texqrf3g5zu7ac227mv5sc0vwpju7lm9j6 10000000stake --chain-id=chain-vCna0J --fees=4stake -b block -y --generate-only
+iritacli tx send iaa1f46tn5v6hm3av9rcwjk8add0xj0kstpdmxrtse iaa1k3j7texqrf3g5zu7ac227mv5sc0vwpju7lm9j6 10000000point --chain-id=chain-vCna0J --fees=4point -b block -y --generate-only
 ```
 
 以上命令将构建一条未签名交易：
@@ -40,7 +40,7 @@ iritacli tx send iaa1f46tn5v6hm3av9rcwjk8add0xj0kstpdmxrtse iaa1k3j7texqrf3g5zu7
           "to_address": "iaa1k3j7texqrf3g5zu7ac227mv5sc0vwpju7lm9j6",
           "amount": [
             {
-              "denom": "stake",
+              "denom": "point",
               "amount": "10000000"
             }
           ]
@@ -50,7 +50,7 @@ iritacli tx send iaa1f46tn5v6hm3av9rcwjk8add0xj0kstpdmxrtse iaa1k3j7texqrf3g5zu7
     "fee": {
       "amount": [
         {
-          "denom": "stake",
+          "denom": "point",
           "amount": "4"
         }
       ],
@@ -82,7 +82,7 @@ iritacli tx sign tx.json --from node0 --home ./irita/node0/iritacli/ --chain-id=
           "to_address": "iaa1k3j7texqrf3g5zu7ac227mv5sc0vwpju7lm9j6",
           "amount": [
             {
-              "denom": "stake",
+              "denom": "point",
               "amount": "10000000"
             }
           ]
@@ -92,7 +92,7 @@ iritacli tx sign tx.json --from node0 --home ./irita/node0/iritacli/ --chain-id=
     "fee": {
       "amount": [
         {
-          "denom": "stake",
+          "denom": "point",
           "amount": "4"
         }
       ],

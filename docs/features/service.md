@@ -78,7 +78,7 @@ iritacli q service definition <service-name>
 
 ```json
 {
-  "price": "0.1iris",
+  "price": "0.1point",
   "promotions_by_time": [
     {
       "start_time": "2020-01-01T00:00:00Z",
@@ -94,7 +94,7 @@ iritacli q service definition <service-name>
 }
 ```
 
-服务提供者能选择接受 `iris` 以外的 tokens 作为服务费用，例如 `0.03link`。价格是消费者从多个提供相同服务的提供者中遴选的一个考虑因素。
+服务提供者能选择接受 `point` 以外的 tokens 作为服务费用，例如 `0.03link`。价格是消费者从多个提供相同服务的提供者中遴选的一个考虑因素。
 
 ### 押金
 
@@ -181,7 +181,7 @@ iritacli q service schema pricing
 
 ```bash
 # 创建一个重复性的请求上下文（无回调函数）
-iritacli tx service call --service-name=<service name> --data=<request input> --providers=<provider list> --service-fee-cap=1iris --timeout 50 --repeated --frequency=50 --total=100
+iritacli tx service call --service-name=<service name> --data=<request input> --providers=<provider list> --service-fee-cap=1point --timeout 50 --repeated --frequency=50 --total=100
 
 # 更新一个存在的请求上下文
 iritacli tx service update <request-context-id> --frequency=20 --total=200
