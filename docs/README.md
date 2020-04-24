@@ -1,6 +1,6 @@
 # IRITA 文档
 
-![irisnet](./pics/irita.jpg)
+![irita](./pics/irita.jpg)
 
 ## IRITA简介
 
