@@ -21,7 +21,7 @@
 发行一个新的`nft`资产。
 
 ```bash
-iritacli tx nft edit kitty xiaobai --token-uri=<metadata> --from=node0 --chain-id=test --fees=100stake -b=block
+iritacli tx nft edit kitty xiaobai --token-uri=<metadata> --from=node0 --chain-id=test --fees=100point -b=block
 ```
 
 **标识：**
@@ -36,7 +36,7 @@ iritacli tx nft edit kitty xiaobai --token-uri=<metadata> --from=node0 --chain-i
 编辑`nft`资产的元数据信息(通过修改uri指向)。
 
 ```bash
-iritacli tx nft edit kitty xiaobai --token-uri=<edit uri> --from=node0 --chain-id=test --fees=100stake -b=block
+iritacli tx nft edit kitty xiaobai --token-uri=<edit uri> --from=node0 --chain-id=test --fees=100point -b=block
 ```
 
 **标识：**
@@ -50,7 +50,7 @@ iritacli tx nft edit kitty xiaobai --token-uri=<edit uri> --from=node0 --chain-i
 转让某个`nft`资产。
 
 ```bash
-iritacli tx nft transfer iaa13ttyazvndnyulurwyajjsd77amprzpkklkx650 cat kitty --from=node0 --chain-id=test --fees=100stake -b=block
+iritacli tx nft transfer iaa13ttyazvndnyulurwyajjsd77amprzpkklkx650 cat kitty --from=node0 --chain-id=test --fees=100point -b=block
 ```
 
 **标识：**
@@ -64,7 +64,7 @@ iritacli tx nft transfer iaa13ttyazvndnyulurwyajjsd77amprzpkklkx650 cat kitty --
 销毁指定的`nft`资产。
 
 ```bash
-iritacli tx nft burn kitty xiaobai --from=node0 --chain-id=test --fees=100stake -b=block
+iritacli tx nft burn kitty xiaobai --from=node0 --chain-id=test --fees=100point -b=block
 ```
 
 ## iritacli q nft supply
@@ -116,5 +116,5 @@ iritacli q nft denoms
 查询指定的`nft`资产。
 
 ```bash
-iriscli q nft token kitty xiaobai
+iritacli q nft token kitty xiaobai
 ```

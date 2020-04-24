@@ -139,6 +139,21 @@ func (f Fixtures) GenesisState() simapp.GenesisState {
 	return appState
 }
 
+func (f Fixtures) Override(module string, state json.RawMessage) {
+	cdc := codec.New()
+
+	genDoc, err := tmtypes.GenesisDocFromFile(f.GenesisFile())
+	require.NoError(f.T, err)
+
+	var appState simapp.GenesisState
+	require.NoError(f.T, cdc.UnmarshalJSON(genDoc.AppState, &appState))
+
+	appState[module] = state
+	genDoc.AppState = cdc.MustMarshalJSON(appState)
+	err = genDoc.SaveAs(f.GenesisFile())
+	require.NoError(f.T, err)
+}
+
 // InitFixtures is called at the beginning of a test  and initializes a chain
 // with 1 validator.
 func InitFixtures(t *testing.T) (f *Fixtures) {

@@ -4,11 +4,11 @@ order: 1
 
 # 简介
 
-`iritacli` 是IRIShub网络的命令行客户端。`IRITA`用户可以使用`iritacli`发送交易和查询区块链数据。
+`iritacli` 是irita网络的命令行客户端。`IRITA`用户可以使用`iritacli`发送交易和查询区块链数据。
 
 ## 工作目录
 
-`iritacli` 默认工作目录是 `$HOME/.iritacli`，主要用于保存配置文件和数据。IRIShub “密钥”数据保存在`iritacli`的工作目录中。您还可以通过`--home`指定`iritacli`的工作目录。
+`iritacli` 默认工作目录是 `$HOME/.iritacli`，主要用于保存配置文件和数据。irita “密钥”数据保存在`iritacli`的工作目录中。您还可以通过`--home`指定`iritacli`的工作目录。
 
 ## 连接全节点
 
@@ -16,11 +16,11 @@ order: 1
 
 ## 设置默认配置
 
-iriscli config 命令可以交互式地配置一些公共参数的默认值，例如chain-id，home，fee 和 node。完成配置后，后续的iriscli命令可以省略对这些flag参数的指定。
+iritacli config 命令可以交互式地配置一些公共参数的默认值，例如chain-id，home，fee 和 node。完成配置后，后续的iritacli命令可以省略对这些flag参数的指定。
 
 ```bash
 $ iritacli config
-> Where is your iritacli home directory? (Default: ~/.iriscli)
+> Where is your iritacli home directory? (Default: ~/.iritacli)
 /root/my_cli_home
 > Where is your validator node running? (Default: tcp://localhost:26657)
 tcp://192.168.0.1:26657
@@ -28,7 +28,7 @@ Do you trust this node? [y/n]:y
 > What is your chainID?
 irita
 > Please specify default fee
-0.3iris
+0.3point
 ```
 
 ## 全局标识
