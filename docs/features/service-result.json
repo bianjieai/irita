@@ -1,6 +1,6 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "irita-service-result",
+	"title": "iris-service-result",
 	"description": "IRIS Service Result Schema",
 	"type": "object",
 	"properties": {
