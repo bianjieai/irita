@@ -16,7 +16,7 @@ import (
 	"github.com/bianjieai/irita/app"
 )
 
-func TestIritaCLIIssueToken(t *testing.T) {
+func TestIritaCLIToken(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 	f.ModifyTokenState()
@@ -35,9 +35,7 @@ func TestIritaCLIIssueToken(t *testing.T) {
 	scale := uint8(18)
 	mintable := true
 
-	success, txInfo, stderr := f.TxIssueToken(symbol, minUnit, name, scale, initialSupply, maxSupply, mintable, fooAddr.String(), "-y")
-
-	fmt.Println(txInfo)
+	success, _, stderr := f.TxIssueToken(symbol, minUnit, name, scale, initialSupply, maxSupply, mintable, fooAddr.String(), "-y")
 
 	require.True(f.T, success)
 	require.Empty(f.T, stderr)
