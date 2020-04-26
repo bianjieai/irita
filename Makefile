@@ -183,7 +183,7 @@ testnet-init:
 	@sudo cp build/genesis_temp.json build/nodecluster/node3/irita/config/genesis.json
 	@rm build/genesis_temp.json
 	@if [ ${NetworkType} = "testnet" ]; then echo "Faucet address: faa1ljemm0yznz58qxxs8xyak7fashcfxf5lssn6jm" ; else echo "Faucet address: iaa1ljemm0yznz58qxxs8xyak7fashcfxf5lgl4zjx" ; fi
-	@echo "Faucet coin amount: 1000000000000irita"
+	@echo "Faucet coin amount: 1000000000000point"
 	@echo "Faucet key seed: tube lonely pause spring gym veteran know want grid tired taxi such same mesh charge orient bracket ozone concert once good quick dry boss"
 
 testnet-start:
