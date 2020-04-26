@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
-PACKAGES_UNITTEST=$(shell go list ./... | grep -v '/simulation' | grep -v '/cli_test')
+PACKAGES_UNITTEST=$(shell go list ./... | grep -v '/simulation' | grep -v '/cli_test' | grep -v 'modules/wasm')
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
@@ -173,17 +173,17 @@ benchmark:
 ### Local validator nodes using docker and docker-compose
 
 testnet-init:
-	@if ! [ -f build/irita ]; then $(MAKE) build_linux ; fi
-	@if ! [ -f build/nodecluster/node0/irita/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/home ubuntu:16.04 /home/irita testnet --v 4 --output-dir /home/nodecluster --chain-id irishub-test --starting-ip-address 192.168.10.2 ; fi
+	@if ! [ -f build/irita ]; then $(MAKE) build-linux ; fi
+	@if ! [ -f build/nodecluster/node0/irita/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/home ubuntu:16.04 /home/irita testnet --v 4 --output-dir /home/nodecluster --chain-id irita-test --keyring-backend test --starting-ip-address 192.168.10.2 ; fi
 	@echo "To install jq command, please refer to this page: https://stedolan.github.io/jq/download/"
-	@if [ ${NetworkType} = "testnet" ]; then jq '.app_state.accounts+= [{"address": "faa1ljemm0yznz58qxxs8xyak7fashcfxf5lssn6jm", "coins": [ "1000000irita" ], "sequence_number": "0", "account_number": "0"}]' build/nodecluster/node0/irita/config/genesis.json > build/genesis_temp.json ; else jq '.app_state.accounts+= [{"address": "iaa1ljemm0yznz58qxxs8xyak7fashcfxf5lgl4zjx", "coins": [ "1000000irita" ], "sequence_number": "0", "account_number": "0"}]' build/nodecluster/node0/irita/config/genesis.json > build/genesis_temp.json ; fi
+	@if [ ${NetworkType} = "testnet" ]; then jq '.app_state.auth.accounts+= [{"type":"cosmos-sdk/Account","value":{"address":"faa1ljemm0yznz58qxxs8xyak7fashcfxf5lssn6jm","coins":[{"denom":"point","amount":"1000000000000"}],"public_key":"","account_number":0,"sequence":0}}]' build/nodecluster/node0/irita/config/genesis.json > build/genesis_temp.json ; fi
 	@sudo cp build/genesis_temp.json build/nodecluster/node0/irita/config/genesis.json
 	@sudo cp build/genesis_temp.json build/nodecluster/node1/irita/config/genesis.json
 	@sudo cp build/genesis_temp.json build/nodecluster/node2/irita/config/genesis.json
 	@sudo cp build/genesis_temp.json build/nodecluster/node3/irita/config/genesis.json
 	@rm build/genesis_temp.json
 	@if [ ${NetworkType} = "testnet" ]; then echo "Faucet address: faa1ljemm0yznz58qxxs8xyak7fashcfxf5lssn6jm" ; else echo "Faucet address: iaa1ljemm0yznz58qxxs8xyak7fashcfxf5lgl4zjx" ; fi
-	@echo "Faucet coin amount: 1000000irita"
+	@echo "Faucet coin amount: 1000000000000point"
 	@echo "Faucet key seed: tube lonely pause spring gym veteran know want grid tired taxi such same mesh charge orient bracket ozone concert once good quick dry boss"
 
 testnet-start:
