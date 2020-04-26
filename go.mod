@@ -5,7 +5,7 @@ require (
 	github.com/confio/go-cosmwasm v0.6.3
 	github.com/cosmos/cosmos-sdk v0.38.2
 	github.com/gorilla/mux v1.7.4
-	github.com/irismod/nft v0.0.0-20200422104606-0ea1dee3df58
+	github.com/irismod/nft v0.0.0-20200426031309-970ee1af45d0
 	github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af
 	github.com/irismod/service v0.0.0-20200422112540-4049f3df8e9f
 	github.com/irismod/token v0.0.0-20200422111750-fea76b37099c
