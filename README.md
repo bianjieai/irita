@@ -15,7 +15,3 @@ Inter-Realm Industry Trust Alliance(**IRITA**) is **the 1st enterprise-level per
 5. **Digital asset modeling and trading**: It supports a flexible modeling of the multiple structures of digital asset data, which is very suitable for implementing decentralized exchanges (DEX). IRITA is based on NFT (non-fungible token), and supports asset digitalization in various fields such as supply chain, intellectual property, medical treatment, and evidence storage.
 
 6. **Big data support**: IRITA's built-in storage layer supports cloud storage and distributed storage, and supports efficient on-chain data life-cycle query through the combination of database and chain data.
-
-## IRITA Versions
-
-IRITA is available in **Lite** and **Professional** versions. The open-source version is IRITA Lite, which can be used by developers to learn and get on quickly with the architecture of IRITA, and therefore deploy industry PoC application systems, etc. While the Professional version will include more powerful features, including privacy computing, edge-computing, enterprise-level identity management, and related hardware support.
