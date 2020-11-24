@@ -1,39 +1,41 @@
 module github.com/bianjieai/irita
 
+go 1.14
+
 require (
-	github.com/btcsuite/btcd v0.20.1-beta // indirect
-	github.com/confio/go-cosmwasm v0.6.3
-	github.com/cosmos/cosmos-sdk v0.38.2
-	github.com/gorilla/mux v1.7.4
-	github.com/irismod/nft v0.0.0-20200426031309-970ee1af45d0
-	github.com/irismod/record v0.0.0-20200417015603-6b7b3ac5f2af
-	github.com/irismod/service v0.0.0-20200422112540-4049f3df8e9f
-	github.com/irismod/token v0.0.0-20200422111750-fea76b37099c
-	github.com/keybase/go-keychain v0.0.0-20191114153608-ccd67945d59e // indirect
-	github.com/onsi/ginkgo v1.8.0 // indirect
-	github.com/onsi/gomega v1.5.0 // indirect
-	github.com/otiai10/copy v1.0.2
-	github.com/otiai10/curr v0.0.0-20190513014714-f5a3d24e5776 // indirect
+	github.com/99designs/keyring v1.1.6
+	github.com/CosmWasm/wasmd v0.12.1
+	github.com/bianjieai/iritamod v0.0.0-20201124041309-472ebeefcff1
+	github.com/cosmos/cosmos-sdk v0.40.0-rc3
+	github.com/cosmos/go-bip39 v0.0.0-20200817134856-d632e0d11689
+	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
+	github.com/ghodss/yaml v1.0.0
+	github.com/gogo/protobuf v1.3.1
+	github.com/gorilla/mux v1.8.0
+	github.com/grpc-ecosystem/grpc-gateway v1.15.2
+	github.com/irisnet/irismod v1.1.1-0.20201124071924-a991cc8a1b18
+	github.com/mitchellh/go-homedir v1.1.0
+	github.com/mtibben/percent v0.2.1
+	github.com/olebedev/config v0.0.0-20190528211619-364964f3a8e4
 	github.com/pkg/errors v0.9.1
-	github.com/rakyll/statik v0.1.6
-	github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563 // indirect
+	github.com/rakyll/statik v0.1.7
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
-	github.com/spf13/afero v1.2.2 // indirect
-	github.com/spf13/cast v1.3.1 // indirect
-	github.com/spf13/cobra v0.0.7
+	github.com/spf13/cast v1.3.1
+	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.6.2
-	github.com/stretchr/testify v1.5.1
-	github.com/tendermint/go-amino v0.15.1
-	github.com/tendermint/tendermint v0.33.2
-	github.com/tendermint/tm-db v0.5.1
-	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
-	google.golang.org/genproto v0.0.0-20191216205247-b31c10ee225f // indirect
+	github.com/spf13/viper v1.7.1
+	github.com/stretchr/testify v1.6.1
+	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15
+	github.com/tendermint/tendermint v0.34.0-rc6
+	github.com/tendermint/tm-db v0.6.2
+	github.com/tidwall/gjson v1.6.1 // indirect
+	github.com/tjfoc/gmsm v1.3.2
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.38.2-0.20200423021430-4fe0e014c9a6
-	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.33.0-irita-200302
+	github.com/CosmWasm/wasmd => github.com/zhiqiang-bianjie/wasmd v0.12.0
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20201119101807-301ecfc8aadf
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
+	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
+	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.33.1-dev0.0.20201119021510-5073baf0cbd7
 )
-
-go 1.13
