@@ -60,17 +60,17 @@ func TestGetMaccPerms(t *testing.T) {
 	require.Equal(t, maccPerms, dup, "duplicated module account permissions differed from actual module account permissions")
 }
 
-func setGenesis(capp *IritaApp) error {
+func setGenesis(iapp *IritaApp) error {
 	genesisState := NewDefaultGenesisState()
 
 	// add root cert
-	validatorGenState := validator.GetGenesisStateFromAppState(capp.appCodec, genesisState)
+	validatorGenState := validator.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
 	validatorGenState.RootCert = rootStr
-	validatorGenStateBz := capp.cdc.MustMarshalJSON(validatorGenState)
+	validatorGenStateBz := iapp.cdc.MustMarshalJSON(validatorGenState)
 	genesisState[validator.ModuleName] = validatorGenStateBz
 
 	// add root admin
-	adminGenState := admin.GetGenesisStateFromAppState(capp.appCodec, genesisState)
+	adminGenState := admin.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
 	adminGenState.RoleAccounts = append(
 		adminGenState.RoleAccounts,
 		admin.RoleAccount{
@@ -78,20 +78,20 @@ func setGenesis(capp *IritaApp) error {
 			Roles:   []admin.Role{admin.RoleRootAdmin},
 		},
 	)
-	adminGenStateBz := capp.cdc.MustMarshalJSON(adminGenState)
+	adminGenStateBz := iapp.cdc.MustMarshalJSON(adminGenState)
 	genesisState[admin.ModuleName] = adminGenStateBz
 
-	stateBytes, err := codec.MarshalJSONIndent(capp.cdc, genesisState)
+	stateBytes, err := codec.MarshalJSONIndent(iapp.cdc, genesisState)
 	if err != nil {
 		return err
 	}
 
 	// Initialize the chain
-	capp.InitChain(abci.RequestInitChain{
+	iapp.InitChain(abci.RequestInitChain{
 		Validators:    []abci.ValidatorUpdate{},
 		AppStateBytes: stateBytes,
 	})
 
-	capp.Commit()
+	iapp.Commit()
 	return nil
 }
