@@ -13,7 +13,7 @@ require (
 	github.com/gogo/protobuf v1.3.1
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.15.2
-	github.com/irisnet/irismod v1.1.1-0.20201118103342-fc764ea62ad9
+	github.com/irisnet/irismod v1.1.1-0.20201124071924-a991cc8a1b18
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mtibben/percent v0.2.1
 	github.com/olebedev/config v0.0.0-20190528211619-364964f3a8e4
