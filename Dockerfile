@@ -1,11 +1,10 @@
 #
-# Build mainnet image: docker build -t irita/irita .
-# Build testnet image: docker build -t irita/irita --build-arg NetworkType=testnet .
+# Build image: docker build -t bianjieai/irita .
 #
-FROM golang:1.13-alpine3.10 as builder
+FROM golang:1.14.4-buster as builder
 
 # Set up dependencies
-ENV PACKAGES make gcc git libc-dev bash linux-headers eudev-dev
+ENV PACKAGES make gcc git libc-dev bash openssl
 
 WORKDIR /irita
 
@@ -13,16 +12,27 @@ WORKDIR /irita
 COPY . .
 
 # Install minimum necessary dependencies, run unit tests
-RUN apk add --no-cache $PACKAGES && make test-unit
-
-# Initialize network type, could be override via docker build argument `--build-arg NetworkType=testnet`
-ARG NetworkType=mainnet
+RUN apt-get update && apt-get install $PACKAGES && make test-unit
 
 RUN make statik && make build
 
 # ----------------------------
 
-FROM alpine:3.10
+FROM ubuntu:16.04
+
+# Set up dependencies
+ENV PACKAGES make gcc perl wget
+
+WORKDIR /
+
+# Install openssl 3.0.0
+RUN apt-get update && apt-get install $PACKAGES -y \
+    && wget https://github.com/openssl/openssl/archive/openssl-3.0.0-alpha4.tar.gz \
+    && tar -xzvf openssl-3.0.0-alpha4.tar.gz \
+    && cd openssl-openssl-3.0.0-alpha4 && ./config \
+    && make install \
+    && cd ../ && rm -fr *openssl-3.0.0-alpha4* \
+    && apt-get remove --purge $PACKAGES -y && apt-get autoremove -y
 
 # p2p port
 EXPOSE 26656

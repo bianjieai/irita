@@ -3,114 +3,199 @@ package app
 import (
 	"io"
 	"os"
+	"path/filepath"
 
-	bam "github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	authvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting"
-	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	"github.com/cosmos/cosmos-sdk/x/evidence"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	"github.com/cosmos/cosmos-sdk/x/params"
-	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/bianjieai/irita/utils"
-	"github.com/irismod/nft"
-	"github.com/irismod/record"
-	"github.com/irismod/service"
-	"github.com/irismod/token"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/rpc"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/server/api"
+	"github.com/cosmos/cosmos-sdk/server/config"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/simapp"
+	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
+	store "github.com/cosmos/cosmos-sdk/store/types"
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
+	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	"github.com/cosmos/cosmos-sdk/x/evidence"
+	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/x/params"
+	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+
+	"github.com/CosmWasm/wasmd/x/wasm"
+
+	"github.com/irisnet/irismod/modules/nft"
+	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
+	nfttypes "github.com/irisnet/irismod/modules/nft/types"
+	"github.com/irisnet/irismod/modules/oracle"
+	oraclekeeper "github.com/irisnet/irismod/modules/oracle/keeper"
+	oracletypes "github.com/irisnet/irismod/modules/oracle/types"
+	"github.com/irisnet/irismod/modules/random"
+	randomkeeper "github.com/irisnet/irismod/modules/random/keeper"
+	randomtypes "github.com/irisnet/irismod/modules/random/types"
+	"github.com/irisnet/irismod/modules/record"
+	recordkeeper "github.com/irisnet/irismod/modules/record/keeper"
+	recordtypes "github.com/irisnet/irismod/modules/record/types"
+	"github.com/irisnet/irismod/modules/service"
+	servicekeeper "github.com/irisnet/irismod/modules/service/keeper"
+	servicetypes "github.com/irisnet/irismod/modules/service/types"
+	"github.com/irisnet/irismod/modules/token"
+	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
+
+	"github.com/bianjieai/iritamod/modules/admin"
+	adminkeeper "github.com/bianjieai/iritamod/modules/admin/keeper"
+	admintypes "github.com/bianjieai/iritamod/modules/admin/types"
+	"github.com/bianjieai/iritamod/modules/identity"
+	identitykeeper "github.com/bianjieai/iritamod/modules/identity/keeper"
+	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
+	cparams "github.com/bianjieai/iritamod/modules/params"
+	cslashing "github.com/bianjieai/iritamod/modules/slashing"
+	"github.com/bianjieai/iritamod/modules/upgrade"
+	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
+	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
+	"github.com/bianjieai/iritamod/modules/validator"
+	validatorkeeper "github.com/bianjieai/iritamod/modules/validator/keeper"
+	validatortypes "github.com/bianjieai/iritamod/modules/validator/types"
+
+	"github.com/bianjieai/irita/address"
+	"github.com/bianjieai/irita/lite"
+	"github.com/bianjieai/irita/modules/genutil"
+	genutiltypes "github.com/bianjieai/irita/modules/genutil"
 )
 
 const appName = "IritaApp"
 
 var (
-	// default home directories for iritacli
-	DefaultCLIHome = os.ExpandEnv("$HOME/.iritacli")
+	// DefaultNodeHome default home directories for the application daemon
+	DefaultNodeHome string
 
-	// default home directories for irita
-	DefaultNodeHome = os.ExpandEnv("$HOME/.irita")
-
-	// The module BasicManager is in charge of setting up basic,
+	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
 	// and genesis verification.
 	ModuleBasics = module.NewBasicManager(
-		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
+		genutil.AppModuleBasic{},
 		bank.AppModuleBasic{},
-		staking.AppModuleBasic{},
-		gov.NewAppModuleBasic(paramsclient.ProposalHandler),
 		params.AppModuleBasic{},
+		cparams.AppModuleBasic{},
 		crisis.AppModuleBasic{},
-		supply.AppModuleBasic{},
-		service.AppModuleBasic{},
+		cslashing.AppModuleBasic{},
+		upgrade.AppModuleBasic{},
+		evidence.AppModuleBasic{},
+		record.AppModuleBasic{},
 		token.AppModuleBasic{},
 		nft.AppModuleBasic{},
-		record.AppModuleBasic{},
-		//wasm.AppModuleBasic{},
+		service.AppModuleBasic{},
+		oracle.AppModuleBasic{},
+		random.AppModuleBasic{},
+		validator.AppModuleBasic{},
+		admin.AppModuleBasic{},
+		identity.AppModuleBasic{},
+		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		auth.FeeCollectorName:     nil,
-		staking.BondedPoolName:    {supply.Burner, supply.Staking},
-		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
-		gov.ModuleName:            {supply.Burner},
-		service.DepositAccName:    {supply.Burner},
-		service.RequestAccName:    nil,
-		token.ModuleName:          {supply.Minter, supply.Burner},
+		authtypes.FeeCollectorName:  nil,
+		tokentypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
+		servicetypes.DepositAccName: {authtypes.Burner},
+		servicetypes.RequestAccName: nil,
 	}
+
+	// module accounts that are allowed to receive tokens
+	allowedReceivingModAcc = map[string]bool{}
 )
 
-// MakeCodec creates the application codec. The codec is sealed before it is
-// returned.
-func MakeCodec() *codec.Codec {
-	var cdc = codec.New()
+// Verify app interface at compile time
+var _ simapp.App = (*IritaApp)(nil)
 
-	ModuleBasics.RegisterCodec(cdc)
-	sdk.RegisterCodec(cdc)
-	codec.RegisterCrypto(cdc)
-	codec.RegisterEvidences(cdc)
-	authvesting.RegisterCodec(cdc)
+func init() {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
 
-	return cdc.Seal()
+	DefaultNodeHome = filepath.Join(userHomeDir, ".irita")
+
+	address.ConfigureBech32Prefix()
+	tokentypes.SetNativeToken(
+		"point",
+		"Irita point",
+		"point",
+		0,
+		2000000000,
+		10000000000,
+		true,
+		sdk.AccAddress(crypto.AddressHash([]byte(tokentypes.ModuleName))),
+	)
 }
 
-// IrisApp extended ABCI application
+// IritaApp extends an ABCI application, but with most of its parameters exported.
+// They are exported for convenience in creating helper functions, as object
+// capabilities aren't needed for testing.
 type IritaApp struct {
-	*bam.BaseApp
-	cdc *codec.Codec
+	*baseapp.BaseApp
+	cdc               *codec.LegacyAmino
+	appCodec          codec.Marshaler
+	interfaceRegistry types.InterfaceRegistry
 
 	invCheckPeriod uint
 
 	// keys to access the substores
-	keys  map[string]*sdk.KVStoreKey
-	tKeys map[string]*sdk.TransientStoreKey
+	keys    map[string]*sdk.KVStoreKey
+	tkeys   map[string]*sdk.TransientStoreKey
+	memKeys map[string]*sdk.MemoryStoreKey
 
 	// keepers
-	accountKeeper auth.AccountKeeper
-	bankKeeper    bank.Keeper
-	supplyKeeper  supply.Keeper
-	stakingKeeper staking.Keeper
-	govKeeper     gov.Keeper
-	crisisKeeper  crisis.Keeper
-	paramsKeeper  params.Keeper
-	serviceKeeper service.Keeper
-	tokenKeeper   token.Keeper
-	nftKeeper     nft.Keeper
-	recordKeeper  record.Keeper
-	//wasmKeeper     wasm.Keeper
+	accountKeeper   authkeeper.AccountKeeper
+	bankKeeper      bankkeeper.Keeper
+	slashingKeeper  slashingkeeper.Keeper
+	crisisKeeper    crisiskeeper.Keeper
+	upgradeKeeper   upgradekeeper.Keeper
+	paramsKeeper    paramskeeper.Keeper
+	evidenceKeeper  evidencekeeper.Keeper
+	recordKeeper    recordkeeper.Keeper
+	tokenKeeper     tokenkeeper.Keeper
+	nftKeeper       nftkeeper.Keeper
+	serviceKeeper   servicekeeper.Keeper
+	oracleKeeper    oraclekeeper.Keeper
+	randomKeeper    randomkeeper.Keeper
+	validatorKeeper validatorkeeper.Keeper
+	adminKeeper     adminkeeper.Keeper
+	identityKeeper  identitykeeper.Keeper
+	wasmKeeper      wasm.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -119,215 +204,442 @@ type IritaApp struct {
 	sm *module.SimulationManager
 }
 
-// WasmWrapper allows us to use namespacing in the config file
-// This is only used for parsing in the app, x/wasm expects WasmConfig
-//type WasmWrapper struct {
-//	Wasm wasm.WasmConfig `mapstructure:"wasm"`
-//}
+// NewIritaApp returns a reference to an initialized IritaApp.
+func NewIritaApp(
+	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
+	homePath string, invCheckPeriod uint, encodingConfig simappparams.EncodingConfig, appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
+) *IritaApp {
 
-// NewIrisApp returns a reference to an initialized IrisApp.
-func NewIrisApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
-	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp)) *IritaApp {
+	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
+	appCodec := encodingConfig.Marshaler
+	cdc := encodingConfig.Amino
+	interfaceRegistry := encodingConfig.InterfaceRegistry
 
-	cdc := MakeCodec()
-
-	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
+	bApp := baseapp.NewBaseApp(appName, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
+	bApp.SetInterfaceRegistry(interfaceRegistry)
 
 	keys := sdk.NewKVStoreKeys(
-		bam.MainStoreKey, auth.StoreKey, staking.StoreKey, supply.StoreKey,
-		gov.StoreKey, params.StoreKey, evidence.StoreKey,
-		service.StoreKey,
-		token.StoreKey, nft.StoreKey, record.StoreKey,
-		//wasm.StoreKey,
+		authtypes.StoreKey,
+		banktypes.StoreKey,
+		slashingtypes.StoreKey,
+		paramstypes.StoreKey,
+		upgradetypes.StoreKey,
+		evidencetypes.StoreKey,
+		recordtypes.StoreKey,
+		tokentypes.StoreKey,
+		nfttypes.StoreKey,
+		servicetypes.StoreKey,
+		oracletypes.StoreKey,
+		randomtypes.StoreKey,
+		validatortypes.StoreKey,
+		admintypes.StoreKey,
+		identitytypes.StoreKey,
+		wasm.StoreKey,
 	)
-	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
+	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
 	app := &IritaApp{
-		BaseApp:        bApp,
-		cdc:            cdc,
-		invCheckPeriod: invCheckPeriod,
-		keys:           keys,
-		tKeys:          tKeys,
+		BaseApp:           bApp,
+		cdc:               cdc,
+		appCodec:          appCodec,
+		interfaceRegistry: interfaceRegistry,
+		invCheckPeriod:    invCheckPeriod,
+		keys:              keys,
+		tkeys:             tkeys,
+		memKeys:           memKeys,
 	}
 
-	// init params keeper and subspaces
-	app.paramsKeeper = params.NewKeeper(app.cdc, keys[params.StoreKey], tKeys[params.TStoreKey])
-	authSubspace := app.paramsKeeper.Subspace(auth.DefaultParamspace)
-	bankSubspace := app.paramsKeeper.Subspace(bank.DefaultParamspace)
-	stakingSubspace := app.paramsKeeper.Subspace(staking.DefaultParamspace)
-	govSubspace := app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
-	crisisSubspace := app.paramsKeeper.Subspace(crisis.DefaultParamspace)
-	serviceSubspace := app.paramsKeeper.Subspace(service.DefaultParamspace)
-	tokenSubspace := app.paramsKeeper.Subspace(token.DefaultParamspace)
+	app.paramsKeeper = initParamsKeeper(appCodec, cdc, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
+
+	// set the BaseApp's parameter store
+	bApp.SetParamStore(app.paramsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()))
 
 	// add keepers
-	app.accountKeeper = auth.NewAccountKeeper(app.cdc, keys[auth.StoreKey], authSubspace, auth.ProtoBaseAccount)
-	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper, bankSubspace, app.ModuleAccountAddrs())
-	app.supplyKeeper = supply.NewKeeper(app.cdc, keys[supply.StoreKey], app.accountKeeper, app.bankKeeper, maccPerms)
-	stakingKeeper := staking.NewKeeper(
-		app.cdc, keys[staking.StoreKey], app.supplyKeeper, stakingSubspace,
+	app.accountKeeper = authkeeper.NewAccountKeeper(
+		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
 	)
-	app.crisisKeeper = crisis.NewKeeper(crisisSubspace, invCheckPeriod, app.supplyKeeper, auth.FeeCollectorName)
-
-	// just re-use the full router - do we want to limit this more?
-	//var wasmRouter = bApp.Router()
-	//// better way to get this dir???
-	//homeDir := viper.GetString(cli.HomeFlag)
-	//wasmDir := filepath.Join(homeDir, "wasm")
-	//
-	//wasmWrap := WasmWrapper{Wasm: wasm.DefaultWasmConfig()}
-	//err := viper.Unmarshal(&wasmWrap)
-	//if err != nil {
-	//	panic("error while reading wasm config: " + err.Error())
-	//}
-	//wasmConfig := wasmWrap.Wasm
-	//
-	//app.wasmKeeper = wasm.NewKeeper(app.cdc, keys[wasm.StoreKey], app.accountKeeper, app.bankKeeper, wasmRouter, wasmDir, wasmConfig)
-
-	// register the proposal types
-	govRouter := gov.NewRouter()
-	govRouter.AddRoute(gov.RouterKey, gov.ProposalHandler).
-		AddRoute(params.RouterKey, params.NewParamChangeProposalHandler(app.paramsKeeper))
-	app.govKeeper = gov.NewKeeper(
-		app.cdc, keys[gov.StoreKey], govSubspace,
-		app.supplyKeeper, &stakingKeeper, govRouter,
+	app.bankKeeper = bankkeeper.NewBaseKeeper(
+		appCodec, keys[banktypes.StoreKey], app.accountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
+	)
+	validatorKeeper := validator.NewKeeper(appCodec, keys[validator.StoreKey], app.GetSubspace(validator.ModuleName))
+	app.slashingKeeper = slashingkeeper.NewKeeper(
+		appCodec, keys[slashingtypes.StoreKey], &validatorKeeper, app.GetSubspace(slashingtypes.ModuleName),
+	)
+	app.crisisKeeper = crisiskeeper.NewKeeper(
+		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.bankKeeper, authtypes.FeeCollectorName,
 	)
 
-	// register the staking hooks
-	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
-	app.stakingKeeper = *stakingKeeper.SetHooks(nil)
+	sdkUpgradeKeeper := sdkupgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath)
+	app.upgradeKeeper = upgradekeeper.NewKeeper(sdkUpgradeKeeper)
 
-	app.tokenKeeper = token.NewKeeper(app.cdc, keys[token.StoreKey], tokenSubspace, app.supplyKeeper, auth.FeeCollectorName)
-	app.nftKeeper = nft.NewKeeper(app.cdc, keys[nft.StoreKey])
-	app.recordKeeper = record.NewKeeper(app.cdc, keys[record.StoreKey])
+	// create evidence keeper with router
+	evidenceKeeper := evidencekeeper.NewKeeper(
+		appCodec, keys[evidencetypes.StoreKey], &app.validatorKeeper, app.slashingKeeper,
+	)
+	// If evidence needs to be handled for the app, set routes in router here and seal
+	app.evidenceKeeper = *evidenceKeeper
 
-	tokenAdapter := utils.NewTokenAdapter(app.tokenKeeper)
-	app.serviceKeeper = service.NewKeeper(
-		app.cdc, keys[service.StoreKey], app.supplyKeeper, tokenAdapter,
-		serviceSubspace, auth.FeeCollectorName,
+	app.tokenKeeper = tokenkeeper.NewKeeper(
+		appCodec, keys[tokentypes.StoreKey], app.GetSubspace(tokentypes.ModuleName),
+		app.bankKeeper, authtypes.FeeCollectorName,
 	)
 
+	app.recordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
+	app.nftKeeper = nftkeeper.NewKeeper(appCodec, keys[nfttypes.StoreKey])
+
+	app.serviceKeeper = servicekeeper.NewKeeper(
+		appCodec, keys[servicetypes.StoreKey], app.accountKeeper, app.bankKeeper,
+		app.GetSubspace(servicetypes.ModuleName), authtypes.FeeCollectorName,
+	)
+
+	app.oracleKeeper = oraclekeeper.NewKeeper(
+		appCodec, keys[oracletypes.StoreKey], app.GetSubspace(oracletypes.ModuleName),
+		app.serviceKeeper,
+	)
+
+	app.randomKeeper = randomkeeper.NewKeeper(appCodec, keys[randomtypes.StoreKey], app.bankKeeper, app.serviceKeeper)
+
+	app.validatorKeeper = *validatorKeeper.SetHooks(
+		stakingtypes.NewMultiStakingHooks(app.slashingKeeper.Hooks()),
+	)
+	adminKeeper := adminkeeper.NewKeeper(appCodec, keys[admintypes.StoreKey])
+	app.adminKeeper = RegisterAccessControl(adminKeeper)
+	app.identityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
+
+	wasmDir := filepath.Join(homePath, "wasm")
+
+	app.wasmKeeper = wasm.NewKeeper(
+		appCodec,
+		keys[wasm.StoreKey],
+		app.GetSubspace(wasm.ModuleName),
+		app.accountKeeper,
+		app.bankKeeper,
+		bApp.Router(),
+		wasmDir,
+		wasm.DefaultWasmConfig(),
+		"",
+		nil,
+		nil,
+	)
+
+	/****  Module Options ****/
+
+	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
+	// we prefer to be more strict in what arguments the modules expect.
+	var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
-		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
-		auth.NewAppModule(app.accountKeeper),
-		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
-		crisis.NewAppModule(&app.crisisKeeper),
-		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
-		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.supplyKeeper),
-		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-		service.NewAppModule(app.serviceKeeper, app.accountKeeper),
-		token.NewAppModule(app.tokenKeeper, app.accountKeeper),
-		nft.NewAppModule(app.nftKeeper, app.accountKeeper),
-		record.NewAppModule(app.recordKeeper, app.accountKeeper),
-		//wasm.NewAppModule(app.wasmKeeper),
+		genutil.NewAppModule(app.accountKeeper, app.validatorKeeper, app.BaseApp.DeliverTx, encodingConfig.TxConfig),
+		auth.NewAppModule(appCodec, app.accountKeeper, authsims.RandomGenesisAccounts),
+		bank.NewAppModule(appCodec, app.bankKeeper, app.accountKeeper),
+		crisis.NewAppModule(&app.crisisKeeper, skipGenesisInvariants),
+		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.validatorKeeper), app.accountKeeper, app.bankKeeper, app.validatorKeeper),
+		upgrade.NewAppModule(app.upgradeKeeper),
+		evidence.NewAppModule(app.evidenceKeeper),
+		params.NewAppModule(app.paramsKeeper),
+		cparams.NewAppModule(appCodec, app.paramsKeeper),
+		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
+		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
+		oracle.NewAppModule(appCodec, app.oracleKeeper),
+		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
+		validator.NewAppModule(appCodec, app.validatorKeeper),
+		admin.NewAppModule(appCodec, app.adminKeeper),
+		identity.NewAppModule(app.identityKeeper),
+		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
+		wasm.NewAppModule(&app.wasmKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
-	app.mm.SetOrderBeginBlockers(record.ModuleName)
-
-	app.mm.SetOrderEndBlockers(crisis.ModuleName, gov.ModuleName, service.ModuleName, staking.ModuleName)
+	// NOTE: staking module is required if HistoricalEntries param > 0
+	app.mm.SetOrderBeginBlockers(
+		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
+		validatortypes.ModuleName, recordtypes.ModuleName,
+		tokentypes.ModuleName, nfttypes.ModuleName, servicetypes.ModuleName,
+		randomtypes.ModuleName, wasm.ModuleName,
+	)
+	app.mm.SetOrderEndBlockers(
+		crisistypes.ModuleName,
+		validator.ModuleName,
+		servicetypes.ModuleName,
+		wasm.ModuleName,
+	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
+	// NOTE: Capability module must occur first so that it can initialize any capabilities
+	// so that other modules that want to create or claim capabilities afterwards in InitChain
+	// can do so safely.
 	app.mm.SetOrderInitGenesis(
-		staking.ModuleName, auth.ModuleName, bank.ModuleName,
-		gov.ModuleName,
-		supply.ModuleName,
-		crisis.ModuleName, genutil.ModuleName,
-		token.ModuleName, nft.ModuleName,
-		record.ModuleName, service.ModuleName,
-		//wasm.ModuleName,
+		admintypes.ModuleName,
+		authtypes.ModuleName,
+		validatortypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		genutiltypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		wasm.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
-	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
+	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
+	app.mm.RegisterServices(module.NewConfigurator(app.MsgServiceRouter(), app.GRPCQueryRouter()))
+
+	// add test gRPC service for testing gRPC queries in isolation
+	testdata.RegisterQueryServer(app.GRPCQueryRouter(), testdata.QueryImpl{})
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	//
-	// NOTE: This is not required for apps that don't use the simulator for fuzz testing
-	// transactions.
+	// NOTE: this is not required apps that don't use the simulator for fuzz testing
+	// transactions
 	app.sm = module.NewSimulationManager(
-		auth.NewAppModule(app.accountKeeper),
-		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
-		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
-		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.supplyKeeper),
-		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-		token.NewAppModule(app.tokenKeeper, app.accountKeeper),
-		nft.NewAppModule(app.nftKeeper, app.accountKeeper),
-		record.NewAppModule(app.recordKeeper, app.accountKeeper),
+		auth.NewAppModule(appCodec, app.accountKeeper, authsims.RandomGenesisAccounts),
+		bank.NewAppModule(appCodec, app.bankKeeper, app.accountKeeper),
+		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.validatorKeeper), app.accountKeeper, app.bankKeeper, app.validatorKeeper),
+		params.NewAppModule(app.paramsKeeper),
+		cparams.NewAppModule(appCodec, app.paramsKeeper),
+		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
+		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
+		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
+		oracle.NewAppModule(appCodec, app.oracleKeeper),
+		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
+		validator.NewAppModule(appCodec, app.validatorKeeper),
+		admin.NewAppModule(appCodec, app.adminKeeper),
+		identity.NewAppModule(app.identityKeeper),
+		wasm.NewAppModule(&app.wasmKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
 
 	// initialize stores
 	app.MountKVStores(keys)
-	app.MountTransientStores(tKeys)
+	app.MountTransientStores(tkeys)
+	app.MountMemoryStores(memKeys)
 
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.supplyKeeper, auth.DefaultSigVerificationGasConsumer))
+	app.SetAnteHandler(
+		NewAnteHandler(
+			app.adminKeeper,
+			app.accountKeeper,
+			app.bankKeeper,
+			app.tokenKeeper,
+			ante.DefaultSigVerificationGasConsumer,
+			encodingConfig.TxConfig.SignModeHandler(),
+		),
+	)
 	app.SetEndBlocker(app.EndBlocker)
+	// Set software upgrade execution logic
+	// app.RegisterUpgradePlan("add-record-module",
+	// 	store.StoreUpgrades{
+	// 		Added: []string{recordtypes.StoreKey},
+	// 	},
+	// 	func(ctx sdk.Context, plan sdkupgrade.Plan) {},
+	// )
 
 	if loadLatest {
-		err := app.LoadLatestVersion(app.keys[bam.MainStoreKey])
-		if err != nil {
+		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
 		}
-	}
 
+		// Initialize and seal the capability keeper so all persistent capabilities
+		// are loaded in-memory and prevent any further modules from creating scoped
+		// sub-keepers.
+		// This must be done during creation of baseapp rather than in InitChain so
+		// that in-memory capabilities get regenerated on app restart.
+		// Note that since this reads from the store, we can only perform it when
+		// `loadLatest` is set to true.
+		//ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+		//app.capabilityKeeper.InitializeAndSeal(ctx)
+	}
 	return app
 }
 
-// application updates every begin block
+// Name returns the name of the App
+func (app *IritaApp) Name() string { return app.BaseApp.Name() }
+
+// BeginBlocker application updates every begin block
 func (app *IritaApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
-// application updates every end block
+// EndBlocker application updates every end block
 func (app *IritaApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
-// application update at chain initialization
+// InitChainer application update at chain initialization
 func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	var genesisState simapp.GenesisState
+	var genesisState GenesisState
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
 
-	return app.mm.InitGenesis(ctx, genesisState)
+	// add system service at InitChainer, overwrite if it exists
+	var serviceGenState servicetypes.GenesisState
+	app.appCodec.MustUnmarshalJSON(genesisState[servicetypes.ModuleName], &serviceGenState)
+
+	serviceGenState.Definitions = append(serviceGenState.Definitions, servicetypes.GenOraclePriceSvcDefinition())
+	serviceGenState.Bindings = append(serviceGenState.Bindings, servicetypes.GenOraclePriceSvcBinding(tokentypes.GetNativeToken().MinUnit))
+	serviceGenState.Definitions = append(serviceGenState.Definitions, randomtypes.GetSvcDefinition())
+	genesisState[servicetypes.ModuleName] = app.appCodec.MustMarshalJSON(&serviceGenState)
+
+	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
-// load a particular height
+// LoadHeight loads a particular height
 func (app *IritaApp) LoadHeight(height int64) error {
-	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
+	return app.LoadVersion(height)
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
 func (app *IritaApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
-		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
+		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
 	return modAccAddrs
 }
 
-// Codec returns the application's sealed codec.
-func (app *IritaApp) Codec() *codec.Codec {
+// BlockedAddrs returns all the app's module account addresses that are not
+// allowed to receive external tokens.
+func (app *IritaApp) BlockedAddrs() map[string]bool {
+	blockedAddrs := make(map[string]bool)
+	for acc := range maccPerms {
+		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
+	}
+
+	return blockedAddrs
+}
+
+// LegacyAmino returns IritaApp's amino codec.
+//
+// NOTE: This is solely to be used for testing purposes as it may be desirable
+// for modules to register their own custom testing types.
+func (app *IritaApp) LegacyAmino() *codec.LegacyAmino {
 	return app.cdc
 }
 
-// GetMaccPerms returns a mapping of the application's module account permissions.
-func GetMaccPerms() map[string][]string {
-	modAccPerms := make(map[string][]string)
-	for k, v := range maccPerms {
-		modAccPerms[k] = v
+// AppCodec returns IritaApp's app codec.
+//
+// NOTE: This is solely to be used for testing purposes as it may be desirable
+// for modules to register their own custom testing types.
+func (app *IritaApp) AppCodec() codec.Marshaler {
+	return app.appCodec
+}
+
+// InterfaceRegistry returns IritaApp's InterfaceRegistry
+func (app *IritaApp) InterfaceRegistry() types.InterfaceRegistry {
+	return app.interfaceRegistry
+}
+
+// GetKey returns the KVStoreKey for the provided store key.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *IritaApp) GetKey(storeKey string) *sdk.KVStoreKey {
+	return app.keys[storeKey]
+}
+
+// GetTKey returns the TransientStoreKey for the provided store key.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *IritaApp) GetTKey(storeKey string) *sdk.TransientStoreKey {
+	return app.tkeys[storeKey]
+}
+
+// GetMemKey returns the MemStoreKey for the provided mem key.
+//
+// NOTE: This is solely used for testing purposes.
+func (app *IritaApp) GetMemKey(storeKey string) *sdk.MemoryStoreKey {
+	return app.memKeys[storeKey]
+}
+
+// GetSubspace returns a param subspace for a given module name.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *IritaApp) GetSubspace(moduleName string) paramstypes.Subspace {
+	subspace, _ := app.paramsKeeper.GetSubspace(moduleName)
+	return subspace
+}
+
+// SimulationManager implements the SimulationApp interface
+func (app *IritaApp) SimulationManager() *module.SimulationManager {
+	return app.sm
+}
+
+// RegisterAPIRoutes registers all application module routes with the provided
+// API server.
+func (app *IritaApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
+	clientCtx := apiSvr.ClientCtx
+	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
+	authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
+	ModuleBasics.RegisterRESTRoutes(clientCtx, apiSvr.Router)
+	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCRouter)
+
+	if apiConfig.Swagger {
+		lite.RegisterSwaggerAPI(clientCtx, apiSvr.Router)
 	}
-	return modAccPerms
+}
+
+// RegisterTxService implements the Application.RegisterTxService method.
+func (app *IritaApp) RegisterTxService(clientCtx client.Context) {
+	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
+}
+
+// RegisterUpgradePlan implements the upgrade execution logic of the upgrade module
+func (app *IritaApp) RegisterUpgradePlan(planName string,
+	upgrades store.StoreUpgrades, upgradeHandler sdkupgrade.UpgradeHandler) {
+	upgradeInfo, err := app.upgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		app.Logger().Info("not found upgrade plan", "planName", planName, "err", err.Error())
+		return
+	}
+
+	if upgradeInfo.Name == planName && !app.upgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		// this configures a no-op upgrade handler for the planName upgrade
+		app.upgradeKeeper.SetUpgradeHandler(planName, upgradeHandler)
+		// configure store loader that checks if version+1 == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(sdkupgrade.UpgradeStoreLoader(upgradeInfo.Height, &upgrades))
+	}
+}
+
+// GetMaccPerms returns a copy of the module account permissions
+func GetMaccPerms() map[string][]string {
+	dupMaccPerms := make(map[string][]string)
+	for k, v := range maccPerms {
+		dupMaccPerms[k] = v
+	}
+	return dupMaccPerms
+}
+
+// initParamsKeeper init params keeper and its subspaces
+func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
+	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
+
+	paramsKeeper.Subspace(authtypes.ModuleName)
+	paramsKeeper.Subspace(banktypes.ModuleName)
+	paramsKeeper.Subspace(validatortypes.ModuleName)
+	paramsKeeper.Subspace(slashingtypes.ModuleName)
+	paramsKeeper.Subspace(crisistypes.ModuleName)
+	paramsKeeper.Subspace(tokentypes.ModuleName)
+	paramsKeeper.Subspace(recordtypes.ModuleName)
+	paramsKeeper.Subspace(servicetypes.ModuleName)
+	paramsKeeper.Subspace(wasm.ModuleName)
+
+	return paramsKeeper
 }
