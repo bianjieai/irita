@@ -14,7 +14,11 @@ COPY . .
 # Install minimum necessary dependencies, run unit tests
 RUN apt-get update && apt-get install $PACKAGES && make test-unit
 
-RUN make statik && make build
+# See https://github.com/CosmWasm/wasmvm/releases
+ADD https://github.com/CosmWasm/wasmvm/releases/download/v0.12.0/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
+RUN sha256sum /lib/libwasmvm_muslc.a | grep 00ee24fefe094d919f5f83bf1b32948b1083245479dad8ccd5654c7204827765
+
+RUN BUILD_TAGS=muslc make build
 
 # ----------------------------
 
