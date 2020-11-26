@@ -8,7 +8,7 @@ IRITA API服务器也称为LCD（Light Client Daemon）。LCD实例是IRITA的�
 
 lcd的默认主文件夹为`$HOME/.iritacli`。一旦启动LCD，它将创建两个目录`keys`和`trust-base.db`，密钥存储db位于`keys`中。`trust-base.db`存储所有受信任的验证人集合以及其他与验证相关的文件。
 
-当LCD以非信任模式启动时，它将检查`trust-base.db`是否为空。如果为true，它将获取最新的块作为其信任基础，并将其保存在`trust-base.db`下。IRISLCD实例始终信任该基础。所有查询证明将在此信任的基础上进行验证，有关详细的证明验证算法，请参阅[tendermint lite](https://github.com/tendermint/tendermint/blob/master/docs/tendermint-core/light-client-protocol.md)。
+当LCD以非信任模式启动时，它将检查`trust-base.db`是否为空。如果为true，它将获取最新的块作为其信任基础，并将其保存在`trust-base.db`下。IRITALCD实例始终信任该基础。所有查询证明将在此信任的基础上进行验证，有关详细的证明验证算法，请参阅[tendermint lite](https://github.com/tendermint/tendermint/blob/master/docs/tendermint-core/light-client-protocol.md)。
 
 ## 基本功能
 
@@ -43,7 +43,7 @@ iritacli rest-server --node=tcp://localhost:26657 --chain-id=irita --trust-node
 要公开访问你的LCD实例，您需要指定`--ladder`：
 
 ```bash
-iritacli rest-server --node=tcp://localhost:26657 --chain-id=irishub --laddr=tcp://0.0.0.0:1317 --trust-node
+iritacli rest-server --node=tcp://localhost:26657 --chain-id=irita --laddr=tcp://0.0.0.0:1317 --trust-node
 ```
 
 ## REST APIs

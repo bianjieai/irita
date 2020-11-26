@@ -1,6 +1,6 @@
 # 安装 IRITA
 
-本文档将说明如何安装irita和iritacli到您的系统上。
+本文档将说明如何安装irita到您的系统上。
 
 ## 安装 Go
 
@@ -14,7 +14,7 @@ echo "export PATH=$PATH:$(go env GOPATH)/bin" >> ~/.bash_profile
 source ~/.bash_profile
 ```
 
-> _注意_: irita需要`Go 1.13+`。
+> _注意_: irita需要`Go 1.14+`。
 
 ## 安装软件
 
@@ -25,27 +25,19 @@ git clone -b <latest-release-tag> https://github.com/bianjieai/irita.git
 cd irita && make install
 ```
 
-默认情况下，将编译主网络环境的`irita`二进制文件。 如果要使用测试网络环境，可以使用以下命令：
-
-```bash
-source scripts/setTestEnv.sh
-```
-
-这将安装irita和iritacli二进制文件。 验证安装是否成功：
+这将安装irita二进制文件。 验证安装是否成功：
 
 ```bash
 irita version --long
-iritacli version --long
 ```
 
-例如，`iritacli`应该输出类似于以下的内容：
+例如，`irita` 应该输出类似于以下的内容：
 
 ```text
 name: irita
 server_name: irita
-client_name: iritacli
-version: 0.5.0-3-ge0b3198
-commit: e0b3198dad1b77d0882193eaed21b6c6ff87da56
+version: 0.5.0-40-g404514a
+commit: 404514ad296cbda1fa88402942a5ea4e694609d6
 build_tags: netgo,ledger
-go: go version go1.13.5 darwin/amd64
+go: go version go1.15.3 darwin/amd64
 ```

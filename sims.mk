@@ -4,7 +4,7 @@
 ### Simulations
 
 BINDIR ?= $(GOPATH)/bin
-SIMAPP = gitlab.bianjie.ai/irita/irita/app
+SIMAPP = github.com/bianjieai/irita/app
 
 test-sim-nondeterminism:
 	@echo "Running non-determinism test..."
