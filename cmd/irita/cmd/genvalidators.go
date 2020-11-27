@@ -21,10 +21,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
+	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/validator"
-
-	"github.com/bianjieai/irita/modules/genutil"
-	cautil "github.com/bianjieai/irita/utils/ca"
+	cautil "github.com/bianjieai/iritamod/utils/ca"
 )
 
 // ValidatorMsgBuildingHelpers helpers for message building gen-tx command
@@ -53,6 +52,10 @@ func AddGenesisValidatorCmd(
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadTxCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			depCdc := clientCtx.JSONMarshaler
 			cdc := depCdc.(codec.Marshaler)
 

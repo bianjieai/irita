@@ -36,10 +36,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/bianjieai/iritamod/modules/admin"
+	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/validator"
-
-	"github.com/bianjieai/irita/modules/genutil"
-	"github.com/bianjieai/irita/utils"
+	"github.com/bianjieai/iritamod/utils"
 )
 
 var (

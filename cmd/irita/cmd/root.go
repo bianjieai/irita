@@ -32,10 +32,10 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 
+	genutilcli "github.com/bianjieai/iritamod/modules/genutil/client/cli"
 	"github.com/bianjieai/iritamod/modules/validator"
 
 	"github.com/bianjieai/irita/app"
-	genutilcli "github.com/bianjieai/irita/modules/genutil/client/cli"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
