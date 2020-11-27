@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	bankante "github.com/cosmos/cosmos-sdk/x/bank/ante"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
@@ -16,6 +17,7 @@ import (
 
 	"github.com/bianjieai/iritamod/modules/admin"
 	"github.com/bianjieai/iritamod/modules/identity"
+	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/params"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 	"github.com/bianjieai/iritamod/modules/validator"
@@ -46,6 +48,7 @@ func NewAnteHandler(
 		ante.NewSigVerificationDecorator(ak, signModeHandler),
 		ante.NewIncrementSequenceDecorator(ak),
 		tokenkeeper.NewValidateTokenFeeDecorator(tk, bankKeeper),
+		bankante.NewValidateTokenTransferDecorator(bankKeeper, tk),
 	)
 }
 
@@ -61,6 +64,7 @@ func RegisterAccessControl(adminKeeper admin.Keeper) admin.Keeper {
 	// node auth
 	adminKeeper.RegisterModuleAuth(validator.ModuleName, admin.RoleRootAdmin, admin.RoleNodeAdmin)
 	adminKeeper.RegisterModuleAuth(slashingtypes.ModuleName, admin.RoleRootAdmin, admin.RoleNodeAdmin)
+	adminKeeper.RegisterMsgAuth(&node.MsgRemoveNode{}, admin.RoleRootAdmin, admin.RoleNodeAdmin)
 
 	// param auth
 	adminKeeper.RegisterModuleAuth(params.ModuleName, admin.RoleRootAdmin, admin.RoleParamAdmin)
