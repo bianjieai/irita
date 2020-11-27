@@ -469,6 +469,9 @@ func NewSimApp(
 	)
 	app.SetEndBlocker(app.EndBlocker)
 
+	// set peer filter by node ID
+	app.SetIDPeerFilter(app.NodeKeeper.FilterNodeByID)
+
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
