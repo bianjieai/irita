@@ -85,6 +85,9 @@ import (
 	"github.com/bianjieai/iritamod/modules/identity"
 	identitykeeper "github.com/bianjieai/iritamod/modules/identity/keeper"
 	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
+	"github.com/bianjieai/iritamod/modules/node"
+	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
+	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
 	cparams "github.com/bianjieai/iritamod/modules/params"
 	cslashing "github.com/bianjieai/iritamod/modules/slashing"
 	"github.com/bianjieai/iritamod/modules/upgrade"
@@ -127,6 +130,7 @@ var (
 		admin.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		node.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -199,6 +203,7 @@ type IritaApp struct {
 	adminKeeper     adminkeeper.Keeper
 	identityKeeper  identitykeeper.Keeper
 	wasmKeeper      wasm.Keeper
+	nodeKeeper      nodekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -240,6 +245,7 @@ func NewIritaApp(
 		admintypes.StoreKey,
 		identitytypes.StoreKey,
 		wasm.StoreKey,
+		nodetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -330,6 +336,8 @@ func NewIritaApp(
 		nil,
 	)
 
+	app.nodeKeeper = nodekeeper.NewKeeper(appCodec, keys[nodetypes.StoreKey], &app.validatorKeeper)
+
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -357,6 +365,7 @@ func NewIritaApp(
 		identity.NewAppModule(app.identityKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		wasm.NewAppModule(&app.wasmKeeper),
+		node.NewAppModule(app.nodeKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -398,6 +407,7 @@ func NewIritaApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		wasm.ModuleName,
+		nodetypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -427,6 +437,7 @@ func NewIritaApp(
 		admin.NewAppModule(appCodec, app.adminKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		wasm.NewAppModule(&app.wasmKeeper),
+		node.NewAppModule(app.nodeKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -457,6 +468,9 @@ func NewIritaApp(
 	// 	},
 	// 	func(ctx sdk.Context, plan sdkupgrade.Plan) {},
 	// )
+
+	// set peer filter by node ID
+	app.SetIDPeerFilter(app.nodeKeeper.FilterNodeByID)
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {

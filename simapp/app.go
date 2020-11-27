@@ -82,6 +82,9 @@ import (
 	"github.com/bianjieai/iritamod/modules/identity"
 	identitykeeper "github.com/bianjieai/iritamod/modules/identity/keeper"
 	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
+	"github.com/bianjieai/iritamod/modules/node"
+	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
+	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
 	cparams "github.com/bianjieai/iritamod/modules/params"
 	cslashing "github.com/bianjieai/iritamod/modules/slashing"
 	"github.com/bianjieai/iritamod/modules/upgrade"
@@ -127,6 +130,7 @@ var (
 		admin.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		node.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -179,6 +183,7 @@ type SimApp struct {
 	AdminKeeper     adminkeeper.Keeper
 	IdentityKeeper  identitykeeper.Keeper
 	WasmKeeper      wasm.Keeper
+	NodeKeeper      nodekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -236,6 +241,7 @@ func NewSimApp(
 		admintypes.StoreKey,
 		identitytypes.StoreKey,
 		wasm.StoreKey,
+		nodetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -333,6 +339,9 @@ func NewSimApp(
 		nil,
 		nil,
 	)
+
+	app.NodeKeeper = nodekeeper.NewKeeper(appCodec, keys[nodetypes.StoreKey], &app.ValidatorKeeper)
+
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -361,6 +370,7 @@ func NewSimApp(
 		identity.NewAppModule(app.IdentityKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		wasm.NewAppModule(&app.WasmKeeper),
+		node.NewAppModule(app.NodeKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -405,6 +415,7 @@ func NewSimApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		wasm.ModuleName,
+		nodetypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -435,6 +446,7 @@ func NewSimApp(
 		admin.NewAppModule(appCodec, app.AdminKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		wasm.NewAppModule(&app.WasmKeeper),
+		node.NewAppModule(app.NodeKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -456,6 +468,9 @@ func NewSimApp(
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
+
+	// set peer filter by node ID
+	app.SetIDPeerFilter(app.NodeKeeper.FilterNodeByID)
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {

@@ -5,14 +5,12 @@ go 1.14
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.12.1
-	github.com/bianjieai/iritamod v0.0.0-20201126071613-e66cbb5e65dc
+	github.com/bianjieai/iritamod v0.0.0-20201127034221-a9d488c90966
 	github.com/cosmos/cosmos-sdk v0.40.0-rc3
 	github.com/cosmos/go-bip39 v0.0.0-20200817134856-d632e0d11689
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
 	github.com/ghodss/yaml v1.0.0
-	github.com/gogo/protobuf v1.3.1
 	github.com/gorilla/mux v1.8.0
-	github.com/grpc-ecosystem/grpc-gateway v1.15.2
 	github.com/irisnet/irismod v1.1.1-0.20201126013702-4999558204d6
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mtibben/percent v0.2.1
@@ -29,11 +27,10 @@ require (
 	github.com/tendermint/tendermint v0.34.0-rc6
 	github.com/tendermint/tm-db v0.6.2
 	github.com/tidwall/gjson v1.6.1 // indirect
-	github.com/tjfoc/gmsm v1.3.2
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20201119101807-301ecfc8aadf
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20201127022001-791921d241f8
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.33.1-dev0.0.20201119021510-5073baf0cbd7
