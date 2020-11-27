@@ -14,7 +14,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bianjieai/iritamod/modules/admin"
-	"github.com/bianjieai/iritamod/modules/validator"
+	"github.com/bianjieai/iritamod/modules/node"
 )
 
 var (
@@ -64,10 +64,10 @@ func setGenesis(iapp *IritaApp) error {
 	genesisState := NewDefaultGenesisState()
 
 	// add root cert
-	validatorGenState := validator.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
+	validatorGenState := node.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
 	validatorGenState.RootCert = rootStr
 	validatorGenStateBz := iapp.cdc.MustMarshalJSON(validatorGenState)
-	genesisState[validator.ModuleName] = validatorGenStateBz
+	genesisState[node.ModuleName] = validatorGenStateBz
 
 	// add root admin
 	adminGenState := admin.GetGenesisStateFromAppState(iapp.appCodec, genesisState)

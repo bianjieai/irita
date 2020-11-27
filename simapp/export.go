@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
-	"github.com/bianjieai/iritamod/modules/validator"
+	"github.com/bianjieai/iritamod/modules/node"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
@@ -34,7 +34,7 @@ func (app *SimApp) ExportAppStateAndValidators(
 		return servertypes.ExportedApp{}, err
 	}
 
-	validators := validator.WriteValidators(ctx, app.ValidatorKeeper)
+	validators := node.WriteValidators(ctx, app.NodeKeeper)
 	return servertypes.ExportedApp{
 		AppState:        appState,
 		Validators:      validators,

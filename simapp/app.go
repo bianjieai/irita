@@ -90,9 +90,6 @@ import (
 	"github.com/bianjieai/iritamod/modules/upgrade"
 	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
-	"github.com/bianjieai/iritamod/modules/validator"
-	validatorkeeper "github.com/bianjieai/iritamod/modules/validator/keeper"
-	validatortypes "github.com/bianjieai/iritamod/modules/validator/types"
 
 	"github.com/bianjieai/irita/lite"
 )
@@ -126,7 +123,6 @@ var (
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
-		validator.AppModuleBasic{},
 		admin.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		wasm.AppModuleBasic{},
@@ -169,21 +165,20 @@ type SimApp struct {
 	BankKeeper     bankkeeper.Keeper
 	SlashingKeeper slashingkeeper.Keeper
 	//govKeeper        gov.Keeper
-	CrisisKeeper    crisiskeeper.Keeper
-	UpgradeKeeper   upgradekeeper.Keeper
-	ParamsKeeper    paramskeeper.Keeper
-	EvidenceKeeper  evidencekeeper.Keeper
-	RecordKeeper    recordkeeper.Keeper
-	TokenKeeper     tokenkeeper.Keeper
-	NftKeeper       nftkeeper.Keeper
-	ServiceKeeper   servicekeeper.Keeper
-	OracleKeeper    oraclekeeper.Keeper
-	RandomKeeper    randomkeeper.Keeper
-	ValidatorKeeper validatorkeeper.Keeper
-	AdminKeeper     adminkeeper.Keeper
-	IdentityKeeper  identitykeeper.Keeper
-	WasmKeeper      wasm.Keeper
-	NodeKeeper      nodekeeper.Keeper
+	CrisisKeeper   crisiskeeper.Keeper
+	UpgradeKeeper  upgradekeeper.Keeper
+	ParamsKeeper   paramskeeper.Keeper
+	EvidenceKeeper evidencekeeper.Keeper
+	RecordKeeper   recordkeeper.Keeper
+	TokenKeeper    tokenkeeper.Keeper
+	NftKeeper      nftkeeper.Keeper
+	ServiceKeeper  servicekeeper.Keeper
+	OracleKeeper   oraclekeeper.Keeper
+	RandomKeeper   randomkeeper.Keeper
+	AdminKeeper    adminkeeper.Keeper
+	IdentityKeeper identitykeeper.Keeper
+	WasmKeeper     wasm.Keeper
+	NodeKeeper     nodekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -237,7 +232,6 @@ func NewSimApp(
 		servicetypes.StoreKey,
 		oracletypes.StoreKey,
 		randomtypes.StoreKey,
-		validatortypes.StoreKey,
 		admintypes.StoreKey,
 		identitytypes.StoreKey,
 		wasm.StoreKey,
@@ -269,9 +263,9 @@ func NewSimApp(
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
 		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
 	)
-	ValidatorKeeper := validator.NewKeeper(appCodec, keys[validator.StoreKey], app.GetSubspace(validator.ModuleName))
+	app.NodeKeeper = node.NewKeeper(appCodec, keys[node.StoreKey], app.GetSubspace(node.ModuleName))
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
-		appCodec, keys[slashingtypes.StoreKey], &ValidatorKeeper, app.GetSubspace(slashingtypes.ModuleName),
+		appCodec, keys[slashingtypes.StoreKey], &app.NodeKeeper, app.GetSubspace(slashingtypes.ModuleName),
 	)
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName,
@@ -286,12 +280,12 @@ func NewSimApp(
 	// 	AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 	// app.govKeeper = govkeeper.NewKeeper(
 	// 	appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-	// 	&ValidatorKeeper, govRouter,
+	// 	&app.NodeKeeper, govRouter,
 	// )
 
 	// create evidence keeper with router
 	EvidenceKeeper := evidencekeeper.NewKeeper(
-		appCodec, keys[evidencetypes.StoreKey], &app.ValidatorKeeper, app.SlashingKeeper,
+		appCodec, keys[evidencetypes.StoreKey], &app.NodeKeeper, app.SlashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *EvidenceKeeper
@@ -315,7 +309,7 @@ func NewSimApp(
 
 	app.RandomKeeper = randomkeeper.NewKeeper(appCodec, keys[randomtypes.StoreKey], app.BankKeeper, app.ServiceKeeper)
 
-	app.ValidatorKeeper = *ValidatorKeeper.SetHooks(
+	app.NodeKeeper = *app.NodeKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(app.SlashingKeeper.Hooks()),
 	)
 	AdminKeeper := adminkeeper.NewKeeper(appCodec, keys[admintypes.StoreKey])
@@ -340,8 +334,6 @@ func NewSimApp(
 		nil,
 	)
 
-	app.NodeKeeper = nodekeeper.NewKeeper(appCodec, keys[nodetypes.StoreKey], &app.ValidatorKeeper)
-
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -351,12 +343,12 @@ func NewSimApp(
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
-		genutil.NewAppModule(app.AccountKeeper, app.ValidatorKeeper, app.BaseApp.DeliverTx, encodingConfig.TxConfig),
+		genutil.NewAppModule(app.AccountKeeper, app.NodeKeeper, app.BaseApp.DeliverTx, encodingConfig.TxConfig),
 		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
 		//gov.NewAppModule(appCodec, app.govKeeper, app.AccountKeeper, app.BankKeeper),
-		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.SlashingKeeper, app.ValidatorKeeper), app.AccountKeeper, app.BankKeeper, app.ValidatorKeeper),
+		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.SlashingKeeper, app.NodeKeeper), app.AccountKeeper, app.BankKeeper, app.NodeKeeper),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		params.NewAppModule(app.ParamsKeeper),
@@ -365,12 +357,11 @@ func NewSimApp(
 		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
-		validator.NewAppModule(appCodec, app.ValidatorKeeper),
 		admin.NewAppModule(appCodec, app.AdminKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		wasm.NewAppModule(&app.WasmKeeper),
-		node.NewAppModule(app.NodeKeeper),
+		node.NewAppModule(appCodec, app.NodeKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -379,13 +370,13 @@ func NewSimApp(
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
-		validatortypes.ModuleName, recordtypes.ModuleName,
+		nodetypes.ModuleName, recordtypes.ModuleName,
 		tokentypes.ModuleName, nfttypes.ModuleName, servicetypes.ModuleName,
 		randomtypes.ModuleName, wasm.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
-		validator.ModuleName,
+		node.ModuleName,
 		// govtypes.ModuleName,
 		servicetypes.ModuleName,
 		wasm.ModuleName,
@@ -400,7 +391,7 @@ func NewSimApp(
 		admintypes.ModuleName,
 		// capabilitytypes.ModuleName,
 		authtypes.ModuleName,
-		validatortypes.ModuleName,
+		nodetypes.ModuleName,
 		banktypes.ModuleName,
 		// govtypes.ModuleName,
 		slashingtypes.ModuleName,
@@ -415,7 +406,6 @@ func NewSimApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		wasm.ModuleName,
-		nodetypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -433,7 +423,7 @@ func NewSimApp(
 		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		//gov.NewAppModule(appCodec, app.govKeeper, app.AccountKeeper, app.BankKeeper),
-		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.SlashingKeeper, app.ValidatorKeeper), app.AccountKeeper, app.BankKeeper, app.ValidatorKeeper),
+		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.SlashingKeeper, app.NodeKeeper), app.AccountKeeper, app.BankKeeper, app.NodeKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		cparams.NewAppModule(appCodec, app.ParamsKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
@@ -442,11 +432,10 @@ func NewSimApp(
 		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
-		validator.NewAppModule(appCodec, app.ValidatorKeeper),
 		admin.NewAppModule(appCodec, app.AdminKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		wasm.NewAppModule(&app.WasmKeeper),
-		node.NewAppModule(app.NodeKeeper),
+		node.NewAppModule(appCodec, app.NodeKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -642,7 +631,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 
 	ParamsKeeper.Subspace(authtypes.ModuleName)
 	ParamsKeeper.Subspace(banktypes.ModuleName)
-	ParamsKeeper.Subspace(validatortypes.ModuleName)
+	ParamsKeeper.Subspace(nodetypes.ModuleName)
 	ParamsKeeper.Subspace(slashingtypes.ModuleName)
 	ParamsKeeper.Subspace(crisistypes.ModuleName)
 	ParamsKeeper.Subspace(tokentypes.ModuleName)

@@ -21,7 +21,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bianjieai/iritamod/modules/admin"
-	"github.com/bianjieai/iritamod/modules/validator"
+	"github.com/bianjieai/iritamod/modules/node"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -73,10 +73,10 @@ func Setup(isCheckTx bool) *SimApp {
 		genesisState[admin.ModuleName] = adminGenStateBz
 
 		// add root cert
-		validatorGenState := validator.GetGenesisStateFromAppState(app.appCodec, genesisState)
+		validatorGenState := node.GetGenesisStateFromAppState(app.appCodec, genesisState)
 		validatorGenState.RootCert = rootCert
 		validatorGenStateBz := app.cdc.MustMarshalJSON(validatorGenState)
-		genesisState[validator.ModuleName] = validatorGenStateBz
+		genesisState[node.ModuleName] = validatorGenStateBz
 
 		stateBytes, err := codec.MarshalJSONIndent(app.cdc, genesisState)
 		if err != nil {

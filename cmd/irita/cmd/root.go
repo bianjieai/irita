@@ -33,7 +33,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 
 	genutilcli "github.com/bianjieai/iritamod/modules/genutil/client/cli"
-	"github.com/bianjieai/iritamod/modules/validator"
+	"github.com/bianjieai/iritamod/modules/node"
 
 	"github.com/bianjieai/irita/app"
 )
@@ -100,7 +100,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		//genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome, app.DefaultNodeHome),
-		AddGenesisValidatorCmd(app.ModuleBasics, validator.AppModuleBasic{}, app.DefaultNodeHome, app.DefaultNodeHome),
+		AddGenesisValidatorCmd(app.ModuleBasics, node.AppModuleBasic{}, app.DefaultNodeHome, app.DefaultNodeHome),
 		genutilcli.GenKey(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),

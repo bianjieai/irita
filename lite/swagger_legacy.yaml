@@ -13,8 +13,8 @@ tags:
     description: Authenticate accounts
   - name: Bank
     description: Create and broadcast transactions
-  - name: Validator
-    description: Validator module APIs
+  - name: Node
+    description: Node module APIs
 #  - name: Governance
 #    description: Governance module APIs
   - name: Supply
@@ -484,12 +484,12 @@ paths:
                     type: string
         500:
           description: Server internel error
-  /validator/validators/{name}:
+  /node/validators/{name}:
     get:
       deprecated: true
       summary: Get a validator information by name
       tags:
-        - Validator
+        - Node
       produces:
         - application/json
       parameters:
@@ -508,12 +508,12 @@ paths:
           description: Invalid request
         500:
             description: Server internal error
-  /validator/validators:
+  /node/validators:
     get:
       deprecated: true
       summary: Get validator list
       tags:
-        - Validator
+        - Node
       produces:
         - application/json
       parameters:
@@ -542,12 +542,12 @@ paths:
           description: Invalid request
         500:
           description: Server internal error
-  /validator/parameters:
+  /node/parameters:
     get:
       deprecated: true
-      summary: Get the parameters information in validator module
+      summary: Get the parameters information in node module
       tags:
-        - Validator
+        - Node
       produces:
         - application/json
       responses:
@@ -558,6 +558,58 @@ paths:
               historical_entries:
                 type: integer
                 example: 100
+        400:
+          description: Invalid request
+        500:
+          description: Server internal error
+  /node/nodes/{id}:
+    get:
+      deprecated: true
+      summary: Get a node information by id
+      tags:
+        - Node
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          description: node id
+          required: true
+          type: string
+      responses:
+        200:
+          description: node information
+          schema:
+            $ref: "#/definitions/Node"
+        400:
+          description: Invalid request
+        500:
+            description: Server internal error
+  /node/nodes:
+    get:
+      deprecated: true
+      summary: Get node list
+      tags:
+        - Node
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          description: Page number
+          type: integer
+          x-example: 1
+        - in: query
+          name: limit
+          description: Maximum number of items per page
+          type: integer
+          x-example: 1
+      responses:
+        200:
+          description: node list
+          schema:
+            type: array
+            $ref: "#/definitions/Node"
         400:
           description: Invalid request
         500:
@@ -3367,3 +3419,12 @@ definitions:
         example: 'https://kyc.com/user/10001'
       owner:
         $ref: '#/definitions/Address'
+  Node:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      certificate:
+        type: string

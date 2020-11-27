@@ -10,7 +10,7 @@ import (
 
 	"github.com/irisnet/irismod/modules/service"
 
-	"github.com/bianjieai/iritamod/modules/validator"
+	"github.com/bianjieai/iritamod/modules/node"
 )
 
 // ExportAppStateAndValidators export the state of irita for a genesis file
@@ -30,7 +30,7 @@ func (app *IritaApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowed
 		return servertypes.ExportedApp{}, err
 	}
 
-	validators := validator.WriteValidators(ctx, app.validatorKeeper)
+	validators := node.WriteValidators(ctx, app.nodeKeeper)
 	return servertypes.ExportedApp{
 		AppState:        appState,
 		Validators:      validators,

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cast"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
@@ -93,9 +94,6 @@ import (
 	"github.com/bianjieai/iritamod/modules/upgrade"
 	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
-	"github.com/bianjieai/iritamod/modules/validator"
-	validatorkeeper "github.com/bianjieai/iritamod/modules/validator/keeper"
-	validatortypes "github.com/bianjieai/iritamod/modules/validator/types"
 
 	"github.com/bianjieai/irita/address"
 	"github.com/bianjieai/irita/lite"
@@ -126,7 +124,6 @@ var (
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
-		validator.AppModuleBasic{},
 		admin.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		wasm.AppModuleBasic{},
@@ -186,24 +183,23 @@ type IritaApp struct {
 	memKeys map[string]*sdk.MemoryStoreKey
 
 	// keepers
-	accountKeeper   authkeeper.AccountKeeper
-	bankKeeper      bankkeeper.Keeper
-	slashingKeeper  slashingkeeper.Keeper
-	crisisKeeper    crisiskeeper.Keeper
-	upgradeKeeper   upgradekeeper.Keeper
-	paramsKeeper    paramskeeper.Keeper
-	evidenceKeeper  evidencekeeper.Keeper
-	recordKeeper    recordkeeper.Keeper
-	tokenKeeper     tokenkeeper.Keeper
-	nftKeeper       nftkeeper.Keeper
-	serviceKeeper   servicekeeper.Keeper
-	oracleKeeper    oraclekeeper.Keeper
-	randomKeeper    randomkeeper.Keeper
-	validatorKeeper validatorkeeper.Keeper
-	adminKeeper     adminkeeper.Keeper
-	identityKeeper  identitykeeper.Keeper
-	wasmKeeper      wasm.Keeper
-	nodeKeeper      nodekeeper.Keeper
+	accountKeeper  authkeeper.AccountKeeper
+	bankKeeper     bankkeeper.Keeper
+	slashingKeeper slashingkeeper.Keeper
+	crisisKeeper   crisiskeeper.Keeper
+	upgradeKeeper  upgradekeeper.Keeper
+	paramsKeeper   paramskeeper.Keeper
+	evidenceKeeper evidencekeeper.Keeper
+	recordKeeper   recordkeeper.Keeper
+	tokenKeeper    tokenkeeper.Keeper
+	nftKeeper      nftkeeper.Keeper
+	serviceKeeper  servicekeeper.Keeper
+	oracleKeeper   oraclekeeper.Keeper
+	randomKeeper   randomkeeper.Keeper
+	adminKeeper    adminkeeper.Keeper
+	identityKeeper identitykeeper.Keeper
+	wasmKeeper     wasm.Keeper
+	nodeKeeper     nodekeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -241,7 +237,6 @@ func NewIritaApp(
 		servicetypes.StoreKey,
 		oracletypes.StoreKey,
 		randomtypes.StoreKey,
-		validatortypes.StoreKey,
 		admintypes.StoreKey,
 		identitytypes.StoreKey,
 		wasm.StoreKey,
@@ -273,9 +268,9 @@ func NewIritaApp(
 	app.bankKeeper = bankkeeper.NewBaseKeeper(
 		appCodec, keys[banktypes.StoreKey], app.accountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
 	)
-	validatorKeeper := validator.NewKeeper(appCodec, keys[validator.StoreKey], app.GetSubspace(validator.ModuleName))
+	app.nodeKeeper = node.NewKeeper(appCodec, keys[nodetypes.StoreKey], app.GetSubspace(node.ModuleName))
 	app.slashingKeeper = slashingkeeper.NewKeeper(
-		appCodec, keys[slashingtypes.StoreKey], &validatorKeeper, app.GetSubspace(slashingtypes.ModuleName),
+		appCodec, keys[slashingtypes.StoreKey], &app.nodeKeeper, app.GetSubspace(slashingtypes.ModuleName),
 	)
 	app.crisisKeeper = crisiskeeper.NewKeeper(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.bankKeeper, authtypes.FeeCollectorName,
@@ -286,7 +281,7 @@ func NewIritaApp(
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
-		appCodec, keys[evidencetypes.StoreKey], &app.validatorKeeper, app.slashingKeeper,
+		appCodec, keys[evidencetypes.StoreKey], &app.nodeKeeper, app.slashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.evidenceKeeper = *evidenceKeeper
@@ -311,7 +306,7 @@ func NewIritaApp(
 
 	app.randomKeeper = randomkeeper.NewKeeper(appCodec, keys[randomtypes.StoreKey], app.bankKeeper, app.serviceKeeper)
 
-	app.validatorKeeper = *validatorKeeper.SetHooks(
+	app.nodeKeeper = *app.nodeKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(app.slashingKeeper.Hooks()),
 	)
 	adminKeeper := adminkeeper.NewKeeper(appCodec, keys[admintypes.StoreKey])
@@ -336,8 +331,6 @@ func NewIritaApp(
 		nil,
 	)
 
-	app.nodeKeeper = nodekeeper.NewKeeper(appCodec, keys[nodetypes.StoreKey], &app.validatorKeeper)
-
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -346,11 +339,11 @@ func NewIritaApp(
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
-		genutil.NewAppModule(app.accountKeeper, app.validatorKeeper, app.BaseApp.DeliverTx, encodingConfig.TxConfig),
+		genutil.NewAppModule(app.accountKeeper, app.nodeKeeper, app.BaseApp.DeliverTx, encodingConfig.TxConfig),
 		auth.NewAppModule(appCodec, app.accountKeeper, authsims.RandomGenesisAccounts),
 		bank.NewAppModule(appCodec, app.bankKeeper, app.accountKeeper),
 		crisis.NewAppModule(&app.crisisKeeper, skipGenesisInvariants),
-		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.validatorKeeper), app.accountKeeper, app.bankKeeper, app.validatorKeeper),
+		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.nodeKeeper), app.accountKeeper, app.bankKeeper, app.nodeKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
 		evidence.NewAppModule(app.evidenceKeeper),
 		params.NewAppModule(app.paramsKeeper),
@@ -360,12 +353,11 @@ func NewIritaApp(
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
-		validator.NewAppModule(appCodec, app.validatorKeeper),
 		admin.NewAppModule(appCodec, app.adminKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		wasm.NewAppModule(&app.wasmKeeper),
-		node.NewAppModule(app.nodeKeeper),
+		node.NewAppModule(appCodec, app.nodeKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -374,13 +366,13 @@ func NewIritaApp(
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
-		validatortypes.ModuleName, recordtypes.ModuleName,
+		nodetypes.ModuleName, recordtypes.ModuleName,
 		tokentypes.ModuleName, nfttypes.ModuleName, servicetypes.ModuleName,
 		randomtypes.ModuleName, wasm.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
-		validator.ModuleName,
+		nodetypes.ModuleName,
 		servicetypes.ModuleName,
 		wasm.ModuleName,
 	)
@@ -393,7 +385,7 @@ func NewIritaApp(
 	app.mm.SetOrderInitGenesis(
 		admintypes.ModuleName,
 		authtypes.ModuleName,
-		validatortypes.ModuleName,
+		nodetypes.ModuleName,
 		banktypes.ModuleName,
 		slashingtypes.ModuleName,
 		crisistypes.ModuleName,
@@ -407,7 +399,6 @@ func NewIritaApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		wasm.ModuleName,
-		nodetypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -424,7 +415,7 @@ func NewIritaApp(
 	app.sm = module.NewSimulationManager(
 		auth.NewAppModule(appCodec, app.accountKeeper, authsims.RandomGenesisAccounts),
 		bank.NewAppModule(appCodec, app.bankKeeper, app.accountKeeper),
-		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.validatorKeeper), app.accountKeeper, app.bankKeeper, app.validatorKeeper),
+		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.nodeKeeper), app.accountKeeper, app.bankKeeper, app.nodeKeeper),
 		params.NewAppModule(app.paramsKeeper),
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
@@ -433,11 +424,10 @@ func NewIritaApp(
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
-		validator.NewAppModule(appCodec, app.validatorKeeper),
 		admin.NewAppModule(appCodec, app.adminKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		wasm.NewAppModule(&app.wasmKeeper),
-		node.NewAppModule(app.nodeKeeper),
+		node.NewAppModule(appCodec, app.nodeKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -652,7 +642,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 
 	paramsKeeper.Subspace(authtypes.ModuleName)
 	paramsKeeper.Subspace(banktypes.ModuleName)
-	paramsKeeper.Subspace(validatortypes.ModuleName)
+	paramsKeeper.Subspace(nodetypes.ModuleName)
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(tokentypes.ModuleName)
