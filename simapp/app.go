@@ -77,6 +77,8 @@ import (
 	"github.com/bianjieai/iritamod/modules/admin"
 	adminkeeper "github.com/bianjieai/iritamod/modules/admin/keeper"
 	admintypes "github.com/bianjieai/iritamod/modules/admin/types"
+	"github.com/bianjieai/iritamod/modules/genutil"
+	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/identity"
 	identitykeeper "github.com/bianjieai/iritamod/modules/identity/keeper"
 	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
@@ -90,8 +92,6 @@ import (
 	validatortypes "github.com/bianjieai/iritamod/modules/validator/types"
 
 	"github.com/bianjieai/irita/lite"
-	"github.com/bianjieai/irita/modules/genutil"
-	genutiltypes "github.com/bianjieai/irita/modules/genutil"
 )
 
 const appName = "SimApp"

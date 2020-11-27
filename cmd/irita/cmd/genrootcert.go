@@ -13,13 +13,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 
+	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/validator"
-
-	"github.com/bianjieai/irita/modules/genutil"
 )
 
-// Genkey returns a command that generates the key from priv_validator_key.json.
-// Will used to generate CA request.
+// GenRootCert returns a command that sets the root cert.
 func GenRootCert(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-root-cert [cert]",

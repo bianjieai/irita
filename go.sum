@@ -68,6 +68,8 @@ github.com/bianjieai/cosmos-sdk v0.34.4-0.20201119101807-301ecfc8aadf h1:p6Uklc0
 github.com/bianjieai/cosmos-sdk v0.34.4-0.20201119101807-301ecfc8aadf/go.mod h1:+KeYOP14sGc7VI6bL9flMKkHIVFaIjBj0foqE2d7w54=
 github.com/bianjieai/iritamod v0.0.0-20201124041309-472ebeefcff1 h1:y+oqIgoUQEbpZKpFrYH1dkAFStvUqhDJgf8//+4AQ/o=
 github.com/bianjieai/iritamod v0.0.0-20201124041309-472ebeefcff1/go.mod h1:XqznZ4vThjx6+GKqtSi5Zxfma4xsElGYPoPgdVrsnew=
+github.com/bianjieai/iritamod v0.0.0-20201126071613-e66cbb5e65dc h1:sidfMtNOoo5V/YWy4AYgLIw8aPnAgrMcYnS+oUYaHZo=
+github.com/bianjieai/iritamod v0.0.0-20201126071613-e66cbb5e65dc/go.mod h1:jzSsjGUURIFV2ZRSep/Stx9QkPVT+IJni7lYZdTic9w=
 github.com/bianjieai/tendermint v0.33.1-dev0.0.20201119021510-5073baf0cbd7 h1:pHzbZGhQcqhx3OGMFG3pDPrRxaYcngCkb4Alju+Xpgs=
 github.com/bianjieai/tendermint v0.33.1-dev0.0.20201119021510-5073baf0cbd7/go.mod h1:vBGDVhRS6D0gS/8O9Uvi331rdbOPHkoRw6xFiSeoRYE=
 github.com/bketelsen/crypt v0.0.3-0.20200106085610-5cbc8cc4026c/go.mod h1:MKsuJmJgSg28kpZDP6UIiPt0e0Oz0kqKNGyRaWEPv84=
@@ -322,6 +324,8 @@ github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANyt
 github.com/influxdata/influxdb1-client v0.0.0-20191209144304-8bf82d3c094d/go.mod h1:qj24IKcXYK6Iy9ceXlo3Tc+vtHo9lIhSX5JddghvEPo=
 github.com/irisnet/irismod v1.1.1-0.20201124071924-a991cc8a1b18 h1:Otd8jNTQ9l259jrZbTMgt+KU5NyGef1y/vsPsxR8YKY=
 github.com/irisnet/irismod v1.1.1-0.20201124071924-a991cc8a1b18/go.mod h1:QVtkMLBTJv0MOT2aQcvpquLjHBijrjlupBlALAOkjmU=
+github.com/irisnet/irismod v1.1.1-0.20201126013702-4999558204d6 h1:mfTXoyAggWgH9oC4NyB/BLBo8aRtb5UUo1019NoX5j4=
+github.com/irisnet/irismod v1.1.1-0.20201126013702-4999558204d6/go.mod h1:QVtkMLBTJv0MOT2aQcvpquLjHBijrjlupBlALAOkjmU=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jessevdk/go-flags v1.4.0 h1:4IU2WS7AumrZ/40jfhf4QVDMsQwqA7VEHozFRrGARJA=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
