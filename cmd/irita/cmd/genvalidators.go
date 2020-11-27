@@ -52,6 +52,10 @@ func AddGenesisValidatorCmd(
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadTxCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 			depCdc := clientCtx.JSONMarshaler
 			cdc := depCdc.(codec.Marshaler)
 
