@@ -76,6 +76,9 @@ import (
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
+	"github.com/bianjieai/iritamod/modules/genutil"
+	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
+
 	"github.com/bianjieai/iritamod/modules/admin"
 	adminkeeper "github.com/bianjieai/iritamod/modules/admin/keeper"
 	admintypes "github.com/bianjieai/iritamod/modules/admin/types"
@@ -93,8 +96,6 @@ import (
 
 	"github.com/bianjieai/irita/address"
 	"github.com/bianjieai/irita/lite"
-	"github.com/bianjieai/irita/modules/genutil"
-	genutiltypes "github.com/bianjieai/irita/modules/genutil"
 )
 
 const appName = "IritaApp"
