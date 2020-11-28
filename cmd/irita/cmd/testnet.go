@@ -19,7 +19,6 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/libs/tempfile"
-	"github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/types"
 	tmtime "github.com/tendermint/tendermint/types/time"
 
@@ -164,12 +163,13 @@ func InitTestnet(
 			return err
 		}
 
-		var filePv *privval.FilePV
-		nodeIDs[i], filePv, err = genutil.InitializeNodeValidatorFiles(config)
+		nodeKey, filePv, err := genutil.InitializeNodeValidatorFiles(config)
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err
 		}
+
+		nodeIDs[i] = string(nodeKey.ID())
 
 		key, err := genutil.Genkey(filePv.Key.PrivKey)
 		if err != nil {

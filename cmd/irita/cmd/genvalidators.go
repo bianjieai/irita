@@ -62,10 +62,12 @@ func AddGenesisValidatorCmd(
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
 
-			nodeID, _, err := genutil.InitializeNodeValidatorFiles(config)
+			nodeKey, _, err := genutil.InitializeNodeValidatorFiles(config)
 			if err != nil {
 				return errors.Wrap(err, "failed to initialize node validator files")
 			}
+
+			nodeID := string(nodeKey.ID())
 
 			genDoc, err := tmtypes.GenesisDocFromFile(config.GenesisFile())
 			if err != nil {
