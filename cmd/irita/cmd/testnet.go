@@ -155,7 +155,7 @@ func InitTestnet(
 			return err
 		}
 
-		monikers = append(monikers, nodeDirName)
+		monikers[i] = nodeDirName
 		config.Moniker = nodeDirName
 
 		ip, err := getIP(i, startingIPAddress)
@@ -272,7 +272,7 @@ func InitTestnet(
 	}
 
 	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
-		nodeIDs, rootCertPath); err != nil {
+		monikers, nodeIDs, rootCertPath); err != nil {
 		return err
 	}
 
@@ -290,7 +290,7 @@ func InitTestnet(
 func initGenFiles(
 	clientCtx client.Context, mbm module.BasicManager, chainID string,
 	genAccounts []authtypes.GenesisAccount, genBalances []banktypes.Balance,
-	genFiles []string, numValidators int, nodeIDs []string, rootCertPath string,
+	genFiles []string, numValidators int, monikers []string, nodeIDs []string, rootCertPath string,
 ) error {
 	rootCertBz, err := ioutil.ReadFile(rootCertPath)
 	if err != nil {
@@ -310,6 +310,7 @@ func initGenFiles(
 	nodeGenState.Nodes = make([]node.Node, len(nodeIDs))
 	for i, nodeID := range nodeIDs {
 		nodeGenState.Nodes[i].Id = nodeID
+		nodeGenState.Nodes[i].Name = monikers[i]
 	}
 
 	appGenState[node.ModuleName] = jsonMarshaler.MustMarshalJSON(&nodeGenState)
