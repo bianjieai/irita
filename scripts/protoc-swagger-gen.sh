@@ -2,8 +2,8 @@
 
 set -eo pipefail
 
-IRISMOD_VERSION=v1.1.0
-IRITAMOD_VERSION=v1.1.0
+IRISMOD_VERSION=v1.1.1
+IRITAMOD_VERSION=v0.0.0-20201127132812-d1a45ccdd3c5
 SDK_VERSION=v0.40.0-irita-200930
 
 chmod -R 755 ${GOPATH}/pkg/mod/github.com/irisnet/irismod@${IRISMOD_VERSION}/proto
@@ -56,4 +56,4 @@ rm -rf ./proto/admin
 rm -rf ./proto/identity
 rm -rf ./proto/params
 rm -rf ./proto/slashing
-rm -rf ./proto/validator
+rm -rf ./proto/node

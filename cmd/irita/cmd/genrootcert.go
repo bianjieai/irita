@@ -14,7 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 
 	"github.com/bianjieai/iritamod/modules/genutil"
-	"github.com/bianjieai/iritamod/modules/validator"
+	"github.com/bianjieai/iritamod/modules/node"
 )
 
 // GenRootCert returns a command that sets the root cert.
@@ -41,7 +41,7 @@ func GenRootCert(defaultNodeHome string) *cobra.Command {
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}
 
-			validatorGenState := validator.GetGenesisStateFromAppState(cdc, appState)
+			validatorGenState := node.GetGenesisStateFromAppState(cdc, appState)
 			validatorGenState.RootCert = string(cert)
 
 			validatorGenStateBz, err := cdc.MarshalJSON(&validatorGenState)
@@ -49,7 +49,7 @@ func GenRootCert(defaultNodeHome string) *cobra.Command {
 				return fmt.Errorf("failed to marshal admin genesis state: %w", err)
 			}
 
-			appState[validator.ModuleName] = validatorGenStateBz
+			appState[node.ModuleName] = validatorGenStateBz
 
 			appStateJSON, err := json.MarshalIndent(appState, "", "  ")
 			if err != nil {

@@ -20,7 +20,6 @@ import (
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/params"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
-	"github.com/bianjieai/iritamod/modules/validator"
 )
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -62,9 +61,8 @@ func RegisterAccessControl(adminKeeper admin.Keeper) admin.Keeper {
 	adminKeeper.RegisterMsgAuth(&admin.MsgUnblockAccount{}, admin.RoleRootAdmin, admin.RoleBlacklistAdmin)
 
 	// node auth
-	adminKeeper.RegisterModuleAuth(validator.ModuleName, admin.RoleRootAdmin, admin.RoleNodeAdmin)
+	adminKeeper.RegisterModuleAuth(node.ModuleName, admin.RoleRootAdmin, admin.RoleNodeAdmin)
 	adminKeeper.RegisterModuleAuth(slashingtypes.ModuleName, admin.RoleRootAdmin, admin.RoleNodeAdmin)
-	adminKeeper.RegisterMsgAuth(&node.MsgRemoveNode{}, admin.RoleRootAdmin, admin.RoleNodeAdmin)
 
 	// param auth
 	adminKeeper.RegisterModuleAuth(params.ModuleName, admin.RoleRootAdmin, admin.RoleParamAdmin)

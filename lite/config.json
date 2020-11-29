@@ -77,10 +77,10 @@
             }
         },
         {
-            "url": "./tmp-swagger-gen/validator/query.swagger.json",
+            "url": "./tmp-swagger-gen/node/query.swagger.json",
             "operationIds": {
                 "rename": {
-                    "Params": "ValidatorParams"
+                    "Params": "NodeParams"
                 }
             }
         },

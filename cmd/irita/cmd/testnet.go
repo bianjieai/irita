@@ -19,7 +19,6 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/libs/tempfile"
-	"github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/types"
 	tmtime "github.com/tendermint/tendermint/types/time"
 
@@ -37,7 +36,7 @@ import (
 
 	"github.com/bianjieai/iritamod/modules/admin"
 	"github.com/bianjieai/iritamod/modules/genutil"
-	"github.com/bianjieai/iritamod/modules/validator"
+	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/utils"
 )
 
@@ -155,7 +154,7 @@ func InitTestnet(
 			return err
 		}
 
-		monikers = append(monikers, nodeDirName)
+		monikers[i] = nodeDirName
 		config.Moniker = nodeDirName
 
 		ip, err := getIP(i, startingIPAddress)
@@ -164,12 +163,13 @@ func InitTestnet(
 			return err
 		}
 
-		var filePv *privval.FilePV
-		nodeIDs[i], filePv, err = genutil.InitializeNodeValidatorFiles(config)
+		nodeKey, filePv, err := genutil.InitializeNodeValidatorFiles(config)
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err
 		}
+
+		nodeIDs[i] = string(nodeKey.ID())
 
 		key, err := genutil.Genkey(filePv.Key.PrivKey)
 		if err != nil {
@@ -238,7 +238,7 @@ func InitTestnet(
 		if err != nil {
 			return err
 		}
-		msg := validator.NewMsgCreateValidator(nodeDirName, nodeDirName, string(cert), 100, addr)
+		msg := node.NewMsgCreateValidator(nodeDirName, nodeDirName, string(cert), 100, addr)
 
 		txBuilder := clientCtx.TxConfig.NewTxBuilder()
 		if err := txBuilder.SetMsgs(msg); err != nil {
@@ -272,7 +272,7 @@ func InitTestnet(
 	}
 
 	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
-		rootCertPath); err != nil {
+		monikers, nodeIDs, rootCertPath); err != nil {
 		return err
 	}
 
@@ -290,7 +290,7 @@ func InitTestnet(
 func initGenFiles(
 	clientCtx client.Context, mbm module.BasicManager, chainID string,
 	genAccounts []authtypes.GenesisAccount, genBalances []banktypes.Balance,
-	genFiles []string, numValidators int, rootCertPath string,
+	genFiles []string, numValidators int, monikers []string, nodeIDs []string, rootCertPath string,
 ) error {
 	rootCertBz, err := ioutil.ReadFile(rootCertPath)
 	if err != nil {
@@ -302,11 +302,18 @@ func initGenFiles(
 
 	appGenState := mbm.DefaultGenesis(jsonMarshaler)
 
-	var validatorGenState validator.GenesisState
-	jsonMarshaler.MustUnmarshalJSON(appGenState[validator.ModuleName], &validatorGenState)
+	var nodeGenState node.GenesisState
+	jsonMarshaler.MustUnmarshalJSON(appGenState[node.ModuleName], &nodeGenState)
 
-	validatorGenState.RootCert = rootCert
-	appGenState[validator.ModuleName] = jsonMarshaler.MustMarshalJSON(&validatorGenState)
+	nodeGenState.RootCert = rootCert
+
+	nodeGenState.Nodes = make([]node.Node, len(nodeIDs))
+	for i, nodeID := range nodeIDs {
+		nodeGenState.Nodes[i].Id = nodeID
+		nodeGenState.Nodes[i].Name = monikers[i]
+	}
+
+	appGenState[node.ModuleName] = jsonMarshaler.MustMarshalJSON(&nodeGenState)
 
 	// set the accounts in the genesis state
 	var authGenState authtypes.GenesisState

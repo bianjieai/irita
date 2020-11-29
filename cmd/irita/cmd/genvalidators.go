@@ -22,7 +22,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/bianjieai/iritamod/modules/genutil"
-	"github.com/bianjieai/iritamod/modules/validator"
+	"github.com/bianjieai/iritamod/modules/node"
 	cautil "github.com/bianjieai/iritamod/utils/ca"
 )
 
@@ -62,10 +62,12 @@ func AddGenesisValidatorCmd(
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
 
-			nodeID, _, err := genutil.InitializeNodeValidatorFiles(config)
+			nodeKey, _, err := genutil.InitializeNodeValidatorFiles(config)
 			if err != nil {
 				return errors.Wrap(err, "failed to initialize node validator files")
 			}
+
+			nodeID := string(nodeKey.ID())
 
 			genDoc, err := tmtypes.GenesisDocFromFile(config.GenesisFile())
 			if err != nil {
@@ -105,8 +107,8 @@ func AddGenesisValidatorCmd(
 				return errors.Wrap(err, "failed to build create-validator message")
 			}
 
-			if msg, ok := msg.(*validator.MsgCreateValidator); ok {
-				validatorGenState := validator.GetGenesisStateFromAppState(cdc, genesisState)
+			if msg, ok := msg.(*node.MsgCreateValidator); ok {
+				validatorGenState := node.GetGenesisStateFromAppState(cdc, genesisState)
 
 				cert, err := cautil.ReadCertificateFromMem([]byte(msg.Certificate))
 				if err != nil {
@@ -134,7 +136,7 @@ func AddGenesisValidatorCmd(
 
 				validatorGenState.Validators = append(
 					validatorGenState.Validators,
-					validator.NewValidator(
+					node.NewValidator(
 						tmhash.Sum(msg.GetSignBytes()),
 						msg.Name, msg.Description, pk,
 						msg.Certificate, msg.Power, operator,
@@ -146,7 +148,7 @@ func AddGenesisValidatorCmd(
 					return fmt.Errorf("failed to marshal validator genesis state: %w", err)
 				}
 
-				genesisState[validator.ModuleName] = validatorGenStateBz
+				genesisState[node.ModuleName] = validatorGenStateBz
 			}
 
 			if err = mbm.ValidateGenesis(cdc, clientCtx.TxConfig, genesisState); err != nil {
