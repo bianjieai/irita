@@ -20,6 +20,22 @@ IRITA 使用 `x509协议` 的证书格式，采用两层结构，由上至下依
 openssl req -new -key priv.pem -out req.csr -sm3 -sigopt "distid:1234567812345678"
 ```
 
+::tip
+
+当为验证人创建证书请求时，`key` 的生成方式为：
+
+```bash
+irita genkey --out-file=<output-file> --home=<home>
+```
+
+当为节点创建证书请求时，`key` 的生成方式为：
+
+```bash
+irita genkey --type node --out-file=<output-file> --home=<home>
+```
+
+::
+
 示例：
 
 ```bash

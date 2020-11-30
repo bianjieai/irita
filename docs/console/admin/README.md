@@ -1,7 +1,7 @@
 <!--
 order: false
 parent:
-  order: 1
+  order: 3
 -->
 
 # 管理模块
