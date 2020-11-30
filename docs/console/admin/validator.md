@@ -4,17 +4,17 @@ order: 3
 
 # 验证人
 
-IRITA 管理员可以通过控制台进行链节点的管理操作，主要管理功能有：
+IRITA 管理员可以通过控制台进行验证人的管理操作，主要管理功能有：
 
 - [验证人](#验证人)
   - [create](#create)
   - [update](#update)
   - [remove](#remove)
   - [validator](#validator)
-  - [list](#list)
-    - [params](#params)
+  - [validators](#validators)
+  - [params](#params)
 
-**创建、更新、删除三种操作只有拥有`RoleRootAdmin`或者`RoleNodeAdmin`权限的地址才可以操作。**
+**创建、更新、删除三种操作只有拥有 `RoleRootAdmin` 或者 `RoleNodeAdmin` 权限的地址才可以操作。**
 
 ## create
 
@@ -37,7 +37,7 @@ IRITA 管理员可以通过控制台进行链节点的管理操作，主要管�
 4. 使用`步骤3`生成的证书创建validator交易
 
    ```bash
-   irita tx validator create --name=v1 --cert=<cert.crt> --power=<100> --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+   irita tx node create-validator --name=v1 --cert=<cert.crt> --power=<100> --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
    ```
 
    **参数：**
@@ -78,7 +78,7 @@ IRITA 管理员可以通过控制台进行链节点的管理操作，主要管�
                },
                {
                  "key": "module",
-                 "value": "validator"
+                 "value": "node"
                },
                {
                  "key": "sender",
@@ -113,7 +113,7 @@ irita tx validator update [name] --cert=<cert.crt> --power=<100> --details=<deta
 示例：
 
 ```bash
-irita tx validator update v1 --details="hahhah" --from=node0 --chain-id=test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx node update-validator v1 --details="hahhah" --from=node0 --chain-id=test -b=block -o=json --indent -y --home=testnet/node0/iritacli
 ```
 
 结果：
@@ -137,7 +137,7 @@ irita tx validator update v1 --details="hahhah" --from=node0 --chain-id=test -b=
             },
             {
               "key": "module",
-              "value": "validator"
+              "value": "node"
             },
             {
               "key": "sender",
@@ -167,13 +167,13 @@ irita tx validator update v1 --details="hahhah" --from=node0 --chain-id=test -b=
 删除一个已经存在的验证节点。
 
 ```bash
-irita tx validator remove [name]
+irita tx node remove-validator [name]
 ```
 
 示例：
 
 ```bash
-irita tx validator remove v1 --from=node0 --chain-id=test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx node remove-validator v1 --from=node0 --chain-id=test -b=block -o=json --indent -y --home=testnet/node0/iritacli
 ```
 
 结果：
@@ -197,7 +197,7 @@ irita tx validator remove v1 --from=node0 --chain-id=test -b=block -o=json --ind
             },
             {
               "key": "module",
-              "value": "validator"
+              "value": "node"
             },
             {
               "key": "sender",
@@ -227,13 +227,13 @@ irita tx validator remove v1 --from=node0 --chain-id=test -b=block -o=json --ind
 通过名称查询验证人信息
 
 ```bash
-irita q validator validator <name>
+irita q node validator <name>
 ```
 
 示例：
 
 ```bash
-irita q validator validator node0 --trust-node
+irita q node validator node0 --trust-node
 ```
 
 输出结果：
@@ -259,18 +259,18 @@ jailed: false
 operator: iaa1mjwj7h8cln4m5aw7uuu4d4pkh9xwqjdvs7u94r
 ```
 
-## list
+## validators
 
 查询验证人列表
 
 ```bash
-irita q validator list
+irita q node validators
 ```
 
 示例：
 
 ```bash
-irita q validator list --trust-node
+irita q node validators --trust-node
 ```
 
 输出结果：
@@ -296,18 +296,18 @@ irita q validator list --trust-node
   operator: iaa1mjwj7h8cln4m5aw7uuu4d4pkh9xwqjdvs7u94r
 ```
 
-### params
+## params
 
-查询验证人模块的参数信息
+查询节点模块的参数信息
 
 ```bash
-irita q validator params
+irita q node params
 ```
 
 示例：
 
 ```bash
-irita q validator params --trust-node
+irita q node params --trust-node
 ```
 
 输出结果：

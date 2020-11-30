@@ -1,7 +1,7 @@
-示例：<!--
+<!--
 order: false
 parent:
-  order: 3
+  order: 4
 -->
 
 # 核心模块
@@ -11,3 +11,4 @@ parent:
 3. [存证](./record.md)
 4. [iService](./iservice.md)
 5. [身份](./identity.md)
+6. [智能合约](./wasm.md)

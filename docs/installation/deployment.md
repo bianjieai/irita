@@ -11,7 +11,7 @@ order: 2
 - 多节点远程自动测试网
 
 ::: tip
-**注意**：因为节点使用了`sm2`的加密算法，本文当中涉及的`openssl` 工具需要使用最新版本。从源码安装步骤如下：
+**注意**：由于 IRITA 使用了国密 `sm2` 加密算法，本文档中涉及的 `openssl` 工具需要使用支持 `sm2` 算法的版本。从源码安装步骤如下：
 
 ```bash
 git clone -b openssl-3.0.0-alpha4 https://github.com/openssl/openssl.git
@@ -54,7 +54,7 @@ sudo make install
 4. **导出验证节点 node0（步骤1生成的）私钥为 pem 格式，方便用于申请节点证书**
 
    ```bash
-   irita genkey --home=testnet --out-file priv.pem
+   irita genkey --home=testnet --out-file priv_validator.pem
    ```
 
 5. **使用`步骤4`中的私钥文件生成证书请求并申请[签发证书](../node_identity_management/cert.md)**
@@ -101,7 +101,7 @@ irita testnet --v 1 --output-dir ./testnet --chain-id=test
 
 ```bash
 # 克隆 irita
-git clone https://github.com/irita/irita.git
+git clone https://github.com/bianjieai/irita.git
 
 # 进入 irita 目录
 cd irita
@@ -207,7 +207,7 @@ irita keys list --home ./build/node0/iritacli
 
 ## 多节点远程自动测试网
 
-多节点远程自动测试网将通过 `ssh` 命令部署一个四节点测试网。请确保 各服务器 `ssh` 的权限已配置并且 `docker` 已安装。
+多节点远程自动测试网将通过 `ssh` 命令部署一个四节点测试网。请确保各服务器 `ssh` 的权限已配置并且 `docker` 已安装。
 
 ### 脚本代码
 
@@ -216,22 +216,25 @@ irita keys list --home ./build/node0/iritacli
 ```bash
 ChainID=testnet # chain-id
 ChainCMD=irita
-NodeName=iritahub-node # node name
+NodeName=irita-node # node name
 DockerIP=(tcp://192.168.0.1 tcp://192.168.0.2 tcp://192.168.0.3 tcp://192.168.0.4)
 Names=("node0" "node1" "node2" "node3")
 TotalPoint=1000000000000000point # total point in genesis
 DataPath=/tmp
 
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} run -itd -p26656:26656 -p26657:26657 -v $DataPath/$NodeName-$i:/root --name $NodeName-$i bianjie/bsnhub:v1.1.0; done
+for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} run -itd -p26656:26656 -p26657:26657 -v $DataPath/$NodeName-$i:/root --name $NodeName-$i bianjie/irita:v2.0.0-alpha; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD version; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i rm -rf /root/.${ChainCMD} /root/.${ChainCMD}; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} keys add validator"; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo 12345678 | ${ChainCMD} keys list"; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD init "${Names[$i]}" --chain-id $ChainID; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD genkey --out-file /root/priv.pem; done
+for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD genkey --out-file /root/priv_validator.pem; done
+for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD genkey --type node --out-file /root/priv_node.pem; done
 
 docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i 's/127.0.0.1:26657/0.0.0.0:26657/g' /root/.$ChainCMD/config/config.toml
 docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i 's/timeout_commit = "5s"/timeout_commit = "2s"/' /root/.$ChainCMD/config/config.toml
+docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i 's/
+filter_peers = false/filter_peers = true/' /root/.$ChainCMD/config/config.toml
 docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "$ChainCMD add-genesis-account \$(echo 12345678 | ${ChainCMD} keys show validator -a) ${TotalPoint} --root-admin"
 docker -H ${DockerIP[0]} exec -it $NodeName-0 openssl ecparam -genkey -name SM2 -out /root/root.key
 docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c 'echo -e "CN\nSH\nSH\nIT\nDEV\n'${Names[0]}'\n\n" | openssl req -new -x509 -sm3 -sigopt "distid:1234567812345678" -key /root/root.key -out /root/root.crt -days 3650'
@@ -241,8 +244,10 @@ docker -H ${DockerIP[0]} cp $NodeName-0:/root/root.key .
 docker -H ${DockerIP[0]} cp $NodeName-0:/root/root.crt .
 for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp root.crt $NodeName-$i:/root/; done
 for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp root.key $NodeName-$i:/root/; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c 'echo -e "CN\nSH\nSH\nIT\nDEV\n'"${Names[$i]}"'\n\n\n\n" | openssl req -new -key /root/priv.pem -out /root/req.csr -sm3 -sigopt "distid:1234567812345678"'; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i openssl x509 -req -in /root/req.csr -out /root/node0.crt -sm3 -sigopt "distid:1234567812345678" -vfyopt "distid:1234567812345678" -CA /root/root.crt -CAkey /root/root.key -CAcreateserial; done
+for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c 'echo -e "CN\nSH\nSH\nIT\nDEV\n'"${Names[$i]}"'\n\n\n\n" | openssl req -new -key /root/priv_validator.pem -out /root/validator_req.csr -sm3 -sigopt "distid:1234567812345678"'; done
+for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i openssl x509 -req -in /root/validator_req.csr -out /root/validator.crt -sm3 -sigopt "distid:1234567812345678" -vfyopt "distid:1234567812345678" -CA /root/root.crt -CAkey /root/root.key -CAcreateserial; done
+for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c 'echo -e "CN\nSH\nSH\nIT\nDEV\n'"${Names[$i]}"'\n\n\n\n" | openssl req -new -key /root/priv_node.pem -out /root/node_req.csr -sm3 -sigopt "distid:1234567812345678"'; done
+for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i openssl x509 -req -in /root/node_req.csr -out /root/node.crt -sm3 -sigopt "distid:1234567812345678" -vfyopt "distid:1234567812345678" -CA /root/root.crt -CAkey /root/root.key -CAcreateserial; done
 
 docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "echo 12345678 | $ChainCMD add-genesis-validator --name ${Names[0]} --cert /root/node0.crt --power 10000 --from validator"
 docker -H ${DockerIP[0]} cp $NodeName-0:/root/.$ChainCMD/config/config.toml .
@@ -250,7 +255,11 @@ docker -H ${DockerIP[0]} cp $NodeName-0:/root/.$ChainCMD/config/genesis.json .
 sed -i "" "s/persistent_peers = \"\"/persistent_peers = \"$(docker -H ${DockerIP[0]} exec -it $NodeName-0 $ChainCMD tendermint show-node-id | cat -vet | sed 's/\^M\$//')@`echo ${DockerIP[0]} | awk -F // '{print $2}'`:26656\"/" config.toml
 for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp config.toml $NodeName-$i:/root/.$ChainCMD/config/; done
 for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp genesis.json $NodeName-$i:/root/.$ChainCMD/config/; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c '(nohup irita start --pruning=nothing &); sleep 1'; done
+
+for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp $NodeName-$i:/root/node.crt /root/node$i.crt; done
+docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c '(nohup irita start --pruning=nothing &); sleep 1';
+for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx node grant --name \"${Names[$i]}\" --cert /root/node$i.crt --from validator --chain-id $ChainID --node=${DockerIP[0]}:26657 -b block -y"; done
+for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c '(nohup irita start --pruning=nothing &); sleep 1'; done
 
 sleep 5
 for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do
@@ -263,6 +272,6 @@ docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "echo -e \"12345678\n12345
 sleep 5
 docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "${ChainCMD} q admin roles \$(echo $address | cat -A | sed 's/\\^M\\$//') --chain-id $ChainID";
 
-docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx validator create --name \"${Names[$i]}\" --from validator --cert /root/node0.crt --power 100 --chain-id $ChainID --node=${DockerIP[0]}:26657 -y";
+docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx node create-validator --name \"${Names[$i]}\" --from validator --cert /root/node0.crt --power 100 --chain-id $ChainID --node=${DockerIP[0]}:26657 -y";
 done
 ```
