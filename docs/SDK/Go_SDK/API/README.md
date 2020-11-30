@@ -11,3 +11,4 @@ parent:
 3. [存证](./record.md)
 4. [iService](./iservice.md)
 5. [身份](./identity.md)
+6. [智能合约](./wasm.md)
