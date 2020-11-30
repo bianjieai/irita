@@ -68,8 +68,10 @@ github.com/bianjieai/cosmos-sdk v0.34.4-0.20201127022001-791921d241f8 h1:rLw1NBf
 github.com/bianjieai/cosmos-sdk v0.34.4-0.20201127022001-791921d241f8/go.mod h1:xK24kyFIgYAHjNqhARbA9iEIEgtMESqfQrSkFfsJ61U=
 github.com/bianjieai/iritamod v0.0.0-20201130024245-f56c229d0866 h1:DbNVcRy3qaSFBw9iB/RKZY0QUiDDFoyu90qfyc3+bqI=
 github.com/bianjieai/iritamod v0.0.0-20201130024245-f56c229d0866/go.mod h1:jzSsjGUURIFV2ZRSep/Stx9QkPVT+IJni7lYZdTic9w=
-github.com/bianjieai/tendermint v0.33.1-dev0.0.20201119021510-5073baf0cbd7 h1:pHzbZGhQcqhx3OGMFG3pDPrRxaYcngCkb4Alju+Xpgs=
-github.com/bianjieai/tendermint v0.33.1-dev0.0.20201119021510-5073baf0cbd7/go.mod h1:vBGDVhRS6D0gS/8O9Uvi331rdbOPHkoRw6xFiSeoRYE=
+github.com/bianjieai/iritamod v0.0.0-20201130093636-e5577ed3e331 h1:VClElA6nbcFGSzEhrxiOL+tnWnBQ22dAM2ePRzmmE+4=
+github.com/bianjieai/iritamod v0.0.0-20201130093636-e5577ed3e331/go.mod h1:jzSsjGUURIFV2ZRSep/Stx9QkPVT+IJni7lYZdTic9w=
+github.com/bianjieai/tendermint v0.33.1-dev0.0.20201126055325-2217bc51b6c7 h1:o9b9CvtWH/zMYe+vPh3PEdSsZ8LROhD5MpoGbZPJOL0=
+github.com/bianjieai/tendermint v0.33.1-dev0.0.20201126055325-2217bc51b6c7/go.mod h1:vBGDVhRS6D0gS/8O9Uvi331rdbOPHkoRw6xFiSeoRYE=
 github.com/bketelsen/crypt v0.0.3-0.20200106085610-5cbc8cc4026c/go.mod h1:MKsuJmJgSg28kpZDP6UIiPt0e0Oz0kqKNGyRaWEPv84=
 github.com/btcsuite/btcd v0.0.0-20190115013929-ed77733ec07d/go.mod h1:d3C0AkH6BRcvO8T0UEPu53cnw4IbV63x1bEjildYhO0=
 github.com/btcsuite/btcd v0.20.1-beta/go.mod h1:wVuoA8VJLEcwgqHBwHmzLRazpKxTv13Px/pDuV7OomQ=
