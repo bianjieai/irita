@@ -305,8 +305,17 @@ models:
 pagination: {}
 ```
 
-**_注_：**key的编码为hex编码，例如`0006636F6E666967`对应字符串为`config`，value编码为base64编码，例如`eyJzdGFydCI6MSwiZW5kIjoxMDAsImNhbmRpZGF0ZXMiOlsiaWFhMXF2dHk4eDBjNzhhbThjNDR6djJuN3RnbTZnZnF0NzhqMHZlcnFhIiwiaWFhMXprMnRzZTBwa2s4N3Aydjh0Y3NmczB5dGZ3M3Q4OGtlamVjeWU1Il0sInZvdGVzIjpbeyJ2b3RlciI6ImlhYTFyZ251OGdyenQ2bXduamc3anNzN3cwc2Z5am42N2c0ZXQwaHpmeiIsImNhbmRpZGF0ZSI6ImlhYTFxdnR5OHgwYzc4YW04YzQ0enYybjd0Z202Z2ZxdDc4ajB2ZXJxYSJ9XX0=`对应的字符串为：
-`{"start":1,"end":100,"candidates":["iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa","iaa1zk2tse0pkk87p2v8tcsfs0ytfw3t88kejecye5"],"votes":[{"voter":"iaa1rgnu8grzt6mwnjg7jss7w0sfyjn67g4et0hzfz","candidate":"iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa"}]}`
+**_注_：**key的编码为hex编码，例如`0006636F6E666967`对应字符串为`config`，value编码为base64编码，例如
+
+```text
+eyJzdGFydCI6MSwiZW5kIjoxMDAsImNhbmRpZGF0ZXMiOlsiaWFhMXF2dHk4eDBjNzhhbThjNDR6djJuN3RnbTZnZnF0NzhqMHZlcnFhIiwiaWFhMXprMnRzZTBwa2s4N3Aydjh0Y3NmczB5dGZ3M3Q4OGtlamVjeWU1Il0sInZvdGVzIjpbeyJ2b3RlciI6ImlhYTFyZ251OGdyenQ2bXduamc3anNzN3cwc2Z5am42N2c0ZXQwaHpmeiIsImNhbmRpZGF0ZSI6ImlhYTFxdnR5OHgwYzc4YW04YzQ0enYybjd0Z202Z2ZxdDc4ajB2ZXJxYSJ9XX0=
+```
+
+对应的字符串为：
+
+```json
+{"start":1,"end":100,"candidates":["iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa","iaa1zk2tse0pkk87p2v8tcsfs0ytfw3t88kejecye5"],"votes":[{"voter":"iaa1rgnu8grzt6mwnjg7jss7w0sfyjn67g4et0hzfz","candidate":"iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa"}]}
+```
 
 ## Contract state raw
 
