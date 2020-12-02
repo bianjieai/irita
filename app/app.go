@@ -314,6 +314,10 @@ func NewIritaApp(
 	app.identityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
 
 	wasmDir := filepath.Join(homePath, "wasm")
+	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+	if err != nil {
+		panic("error while reading wasm config: " + err.Error())
+	}
 
 	app.wasmKeeper = wasm.NewKeeper(
 		appCodec,
@@ -325,7 +329,7 @@ func NewIritaApp(
 		distrkeeper.Keeper{},
 		bApp.Router(),
 		wasmDir,
-		wasm.DefaultWasmConfig(),
+		wasmConfig,
 		"",
 		nil,
 		nil,
