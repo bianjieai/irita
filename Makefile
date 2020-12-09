@@ -166,8 +166,10 @@ benchmark:
 
 ########################################
 ### Local validator nodes using docker and docker-compose
+build-docker-iritanode:
+	docker build -t bianjieai/irita .
 
-testnet-init:
+localnet-init:
 	@if ! [ -f build/nodecluster/node0/irita/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/home bianjieai/irita irita testnet --v 4 --output-dir /home/nodecluster --chain-id irita-test --keyring-backend test --starting-ip-address 192.168.10.2 ; fi
 	@echo "To install jq command, please refer to this page: https://stedolan.github.io/jq/download/"
 	@cat build/nodecluster/node0/irita/config/genesis.json | jq '.app_state.auth.accounts+= [{"@type": "/cosmos.auth.v1beta1.BaseAccount","address":"iaa15qgqfqk8uuej8ykjcyf7nse5n2avph0m92cu4e"}]' | jq '.app_state.bank.balances+= [{"address":"iaa15qgqfqk8uuej8ykjcyf7nse5n2avph0m92cu4e","coins":[{"denom":"point","amount":"1000000000000"}]}]' > build/genesis_temp.json
@@ -180,12 +182,8 @@ testnet-init:
 	@echo "Faucet coin amount: 1000000000000point"
 	@echo "Faucet key seed: tube lonely pause spring gym veteran know want grid tired taxi such same mesh charge orient bracket ozone concert once good quick dry boss"
 
-testnet-start:
+localnet-start: localnet-init localnet-stop
 	docker-compose up -d
 
-testnet-stop:
+localnet-stop:
 	docker-compose down
-
-testnet-clean:
-	docker-compose down
-	sudo rm -rf build/*
