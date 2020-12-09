@@ -12,7 +12,7 @@ WORKDIR /irita
 COPY . .
 
 # Install minimum necessary dependencies, run unit tests
-RUN apt-get update && apt-get install $PACKAGES && make test-unit
+RUN apt-get update && apt-get install $PACKAGES -y && make test-unit
 
 # See https://github.com/CosmWasm/wasmvm/releases
 ADD https://github.com/CosmWasm/wasmvm/releases/download/v0.12.0/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
