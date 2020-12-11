@@ -2,18 +2,26 @@
 
 set -eo pipefail
 
-IRISMOD_VERSION=v1.1.1
-IRITAMOD_VERSION=v0.0.0-20201130024245-f56c229d0866
-SDK_VERSION=v0.40.0-irita-200930
+
+IRISMOD_VERSION=v1.1.1-0.20201211020601-9c939d7f8ccc
+IRITAMOD_VERSION=v0.0.0-20201202112849-cdce8a8df2d0
+SDK_VERSION=v0.34.4-0.20201127022001-791921d241f8
+WASMD_VERSION=v0.12.1
+WASMD_PROTO_DIR=x/wasm/internal/types
 
 chmod -R 755 ${GOPATH}/pkg/mod/github.com/irisnet/irismod@${IRISMOD_VERSION}/proto
 chmod -R 755 ${GOPATH}/pkg/mod/github.com/bianjieai/iritamod@${IRITAMOD_VERSION}/proto
 chmod -R 755 ${GOPATH}/pkg/mod/github.com/bianjieai/cosmos-sdk@${SDK_VERSION}/proto/cosmos
+chmod -R 755 ${GOPATH}/pkg/mod/github.com/!cosm!wasm/wasmd@${WASMD_VERSION}/${WASMD_PROTO_DIR}
+
+mkdir -p ./proto/wasm
 
 cp -r ${GOPATH}/pkg/mod/github.com/irisnet/irismod@${IRISMOD_VERSION}/proto ./
 cp -r ${GOPATH}/pkg/mod/github.com/bianjieai/iritamod@${IRITAMOD_VERSION}/proto ./
 cp -r ${GOPATH}/pkg/mod/github.com/bianjieai/cosmos-sdk@${SDK_VERSION}/proto/cosmos ./proto
+cp -r ${GOPATH}/pkg/mod/github.com/!cosm!wasm/wasmd@${WASMD_VERSION}/${WASMD_PROTO_DIR}/*.proto ./proto/wasm
 
+sed -i "" "s@${WASMD_PROTO_DIR}@wasm@g" `grep -rl "${WASMD_PROTO_DIR}" ./proto/wasm`
 mkdir -p ./tmp-swagger-gen
 
 proto_dirs=$(find ./proto -path -prune -o -name 'query.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
@@ -41,19 +49,4 @@ swagger-combine ./lite/config.json -o ./lite/swagger-ui/swagger.yaml -f yaml --c
 rm -rf ./tmp-swagger-gen
 
 # clean proto files
-rm -rf ./proto/cosmos
-
-rm -rf ./proto/coinswap
-rm -rf ./proto/htlc
-rm -rf ./proto/nft
-rm -rf ./proto/oracle
-rm -rf ./proto/random
-rm -rf ./proto/record
-rm -rf ./proto/service
-rm -rf ./proto/token
-
-rm -rf ./proto/admin
-rm -rf ./proto/identity
-rm -rf ./proto/params
-rm -rf ./proto/slashing
-rm -rf ./proto/node
+rm -rf ./proto

@@ -1447,12 +1447,12 @@ paths:
                     type: string
         '500':
           description: Server internel error
-  '/validator/validators/{name}':
+  '/node/validators/{name}':
     get:
       deprecated: true
       summary: Get a validator information by name
       tags:
-        - Validator
+        - Node
       produces:
         - application/json
       parameters:
@@ -1488,12 +1488,12 @@ paths:
           description: Invalid request
         '500':
           description: Server internal error
-  /validator/validators:
+  /node/validators:
     get:
       deprecated: true
       summary: Get validator list
       tags:
-        - Validator
+        - Node
       produces:
         - application/json
       parameters:
@@ -1538,12 +1538,12 @@ paths:
           description: Invalid request
         '500':
           description: Server internal error
-  /validator/parameters:
+  /node/parameters:
     get:
       deprecated: true
-      summary: Get the parameters information in validator module
+      summary: Get the parameters information in node module
       tags:
-        - Validator
+        - Node
       produces:
         - application/json
       responses:
@@ -1554,6 +1554,71 @@ paths:
               historical_entries:
                 type: integer
                 example: 100
+        '400':
+          description: Invalid request
+        '500':
+          description: Server internal error
+  '/node/nodes/{id}':
+    get:
+      deprecated: true
+      summary: Get a node information by id
+      tags:
+        - Node
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          description: node id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: node information
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              certificate:
+                type: string
+        '400':
+          description: Invalid request
+        '500':
+          description: Server internal error
+  /node/nodes:
+    get:
+      deprecated: true
+      summary: Get node list
+      tags:
+        - Node
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          description: Page number
+          type: integer
+          x-example: 1
+        - in: query
+          name: limit
+          description: Maximum number of items per page
+          type: integer
+          x-example: 1
+      responses:
+        '200':
+          description: node list
+          schema:
+            type: array
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              certificate:
+                type: string
         '400':
           description: Invalid request
         '500':
@@ -4937,7 +5002,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
       tags:
         - Query
   /cosmos/auth/v1beta1/params:
@@ -5214,7 +5278,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryAllBalancesResponse is the response type for the
-              Query/AllBalances RPC method.
+              Query/AllBalances RPC
+
+              method.
         default:
           description: An unexpected error response
           schema:
@@ -5243,7 +5309,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
         - name: pagination.key
           description: |-
             key is a value returned in PageResponse.next_key to begin
@@ -5281,13 +5346,16 @@ paths:
             include
 
             a count of the total number of items available for pagination in
-            UIs. count_total
+            UIs.
 
-            is only respected when offset is used. It is ignored when key is
-            set.
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/cosmos/bank/v1beta1/balances/{address}/{denom}':
@@ -5339,7 +5407,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
         - name: denom
           description: denom is the coin denom to query balances for.
           in: path
@@ -5369,11 +5436,18 @@ paths:
                           type: string
                         enabled:
                           type: boolean
+                          format: boolean
                       description: >-
                         SendEnabled maps coin denom to a send_enabled status
-                        (whether a denom is sendable).
+                        (whether a denom is
+
+                        sendable).
                   default_send_enabled:
                     type: boolean
+                    format: boolean
+                  unrestricted_token_transfer:
+                    type: boolean
+                    format: boolean
                 description: Params defines the parameters for the bank module.
             description: >-
               QueryParamsResponse defines the response type for querying x/bank
@@ -5432,7 +5506,9 @@ paths:
                 title: supply is the supply of the coins
             title: >-
               QueryTotalSupplyResponse is the response type for the
-              Query/TotalSupply RPC method
+              Query/TotalSupply RPC
+
+              method
         default:
           description: An unexpected error response
           schema:
@@ -5716,7 +5792,9 @@ paths:
                       was set, its value is undefined otherwise
             description: >-
               QueryAllEvidenceResponse is the response type for the
-              Query/AllEvidence RPC method.
+              Query/AllEvidence RPC
+
+              method.
         default:
           description: An unexpected error response
           schema:
@@ -5944,13 +6022,16 @@ paths:
             include
 
             a count of the total number of items available for pagination in
-            UIs. count_total
+            UIs.
 
-            is only respected when offset is used. It is ignored when key is
-            set.
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/cosmos/evidence/v1beta1/evidence/{evidence_hash}':
@@ -6247,7 +6328,9 @@ paths:
                 description: height is the block height at which the plan was applied.
             description: >-
               QueryAppliedPlanResponse is the response type for the
-              Query/AppliedPlan RPC method.
+              Query/AppliedPlan RPC
+
+              method.
         default:
           description: An unexpected error response
           schema:
@@ -6267,9 +6350,176 @@ paths:
                   properties:
                     type_url:
                       type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
                     value:
                       type: string
                       format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := ptypes.MarshalAny(foo)
+                         ...
+                         foo := &pb.Foo{}
+                         if err := ptypes.UnmarshalAny(any, foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
       parameters:
         - name: name
           description: name is the name of the applied plan to query for.
@@ -6296,18 +6546,24 @@ paths:
                     type: string
                     description: >-
                       Sets the name for the upgrade. This name will be used by
-                      the upgraded version of the software to apply any
+                      the upgraded
 
-                      special "on-upgrade" commands during the first BeginBlock
-                      method after the upgrade is applied. It is also used
+                      version of the software to apply any special "on-upgrade"
+                      commands during
+
+                      the first BeginBlock method after the upgrade is applied.
+                      It is also used
 
                       to detect whether a software version can handle a given
-                      upgrade. If no upgrade handler with this name has been
+                      upgrade. If no
 
-                      set in the software, it will be assumed that the software
-                      is out-of-date when the upgrade Time or Height
+                      upgrade handler with this name has been set in the
+                      software, it will be
 
-                      is reached and the software will exit.
+                      assumed that the software is out-of-date when the upgrade
+                      Time or Height is
+
+                      reached and the software will exit.
                   time:
                     type: string
                     format: date-time
@@ -6330,9 +6586,200 @@ paths:
 
                       such as a git commit that validators could automatically
                       upgrade to
+                  upgraded_client_state:
+                    title: >-
+                      IBC-enabled chains can opt-in to including the upgraded
+                      client state in its upgrade plan
+
+                      This will make the chain commit to the correct upgraded
+                      (self) client state before the upgrade occurs,
+
+                      so that connecting chains can verify that the new upgraded
+                      client is valid by verifying a proof on the
+
+                      previous version of the chain.
+
+                      This will allow IBC connections to persist smoothly across
+                      planned chain upgrades
+                    type: object
+                    properties:
+                      type_url:
+                        type: string
+                        description: >-
+                          A URL/resource name that uniquely identifies the type
+                          of the serialized
+
+                          protocol buffer message. This string must contain at
+                          least
+
+                          one "/" character. The last segment of the URL's path
+                          must represent
+
+                          the fully qualified name of the type (as in
+
+                          `path/google.protobuf.Duration`). The name should be
+                          in a canonical form
+
+                          (e.g., leading "." is not accepted).
+
+
+                          In practice, teams usually precompile into the binary
+                          all types that they
+
+                          expect it to use in the context of Any. However, for
+                          URLs which use the
+
+                          scheme `http`, `https`, or no scheme, one can
+                          optionally set up a type
+
+                          server that maps type URLs to message definitions as
+                          follows:
+
+
+                          * If no scheme is provided, `https` is assumed.
+
+                          * An HTTP GET on the URL must yield a
+                          [google.protobuf.Type][]
+                            value in binary format, or produce an error.
+                          * Applications are allowed to cache lookup results
+                          based on the
+                            URL, or have them precompiled into a binary to avoid any
+                            lookup. Therefore, binary compatibility needs to be preserved
+                            on changes to types. (Use versioned type names to manage
+                            breaking changes.)
+
+                          Note: this functionality is not currently available in
+                          the official
+
+                          protobuf release, and it is not used for type URLs
+                          beginning with
+
+                          type.googleapis.com.
+
+
+                          Schemes other than `http`, `https` (or the empty
+                          scheme) might be
+
+                          used with implementation specific semantics.
+                      value:
+                        type: string
+                        format: byte
+                        description: >-
+                          Must be a valid serialized protocol buffer of the
+                          above specified type.
+                    description: >-
+                      `Any` contains an arbitrary serialized protocol buffer
+                      message along with a
+
+                      URL that describes the type of the serialized message.
+
+
+                      Protobuf library provides support to pack/unpack Any
+                      values in the form
+
+                      of utility functions or additional generated methods of
+                      the Any type.
+
+
+                      Example 1: Pack and unpack a message in C++.
+
+                          Foo foo = ...;
+                          Any any;
+                          any.PackFrom(foo);
+                          ...
+                          if (any.UnpackTo(&foo)) {
+                            ...
+                          }
+
+                      Example 2: Pack and unpack a message in Java.
+
+                          Foo foo = ...;
+                          Any any = Any.pack(foo);
+                          ...
+                          if (any.is(Foo.class)) {
+                            foo = any.unpack(Foo.class);
+                          }
+
+                       Example 3: Pack and unpack a message in Python.
+
+                          foo = Foo(...)
+                          any = Any()
+                          any.Pack(foo)
+                          ...
+                          if any.Is(Foo.DESCRIPTOR):
+                            any.Unpack(foo)
+                            ...
+
+                       Example 4: Pack and unpack a message in Go
+
+                           foo := &pb.Foo{...}
+                           any, err := ptypes.MarshalAny(foo)
+                           ...
+                           foo := &pb.Foo{}
+                           if err := ptypes.UnmarshalAny(any, foo); err != nil {
+                             ...
+                           }
+
+                      The pack methods provided by protobuf library will by
+                      default use
+
+                      'type.googleapis.com/full.type.name' as the type URL and
+                      the unpack
+
+                      methods only use the fully qualified type name after the
+                      last '/'
+
+                      in the type URL, for example "foo.bar.com/x/y.z" will
+                      yield type
+
+                      name "y.z".
+
+
+
+                      JSON
+
+                      ====
+
+                      The JSON representation of an `Any` value uses the regular
+
+                      representation of the deserialized, embedded message, with
+                      an
+
+                      additional field `@type` which contains the type URL.
+                      Example:
+
+                          package google.profile;
+                          message Person {
+                            string first_name = 1;
+                            string last_name = 2;
+                          }
+
+                          {
+                            "@type": "type.googleapis.com/google.profile.Person",
+                            "firstName": <string>,
+                            "lastName": <string>
+                          }
+
+                      If the embedded message type is well-known and has a
+                      custom JSON
+
+                      representation, that representation will be embedded
+                      adding a field
+
+                      `value` which holds the custom JSON in addition to the
+                      `@type`
+
+                      field. Example (for message [google.protobuf.Duration][]):
+
+                          {
+                            "@type": "type.googleapis.com/google.protobuf.Duration",
+                            "value": "1.212s"
+                          }
             description: >-
               QueryCurrentPlanResponse is the response type for the
-              Query/CurrentPlan RPC method.
+              Query/CurrentPlan RPC
+
+              method.
         default:
           description: An unexpected error response
           schema:
@@ -6352,12 +6799,179 @@ paths:
                   properties:
                     type_url:
                       type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
                     value:
                       type: string
                       format: byte
+                      description: >-
+                        Must be a valid serialized protocol buffer of the above
+                        specified type.
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := ptypes.MarshalAny(foo)
+                         ...
+                         foo := &pb.Foo{}
+                         if err := ptypes.UnmarshalAny(any, foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
       tags:
         - Query
-  '/irismod/nft/collections/{denom}':
+  '/irismod/nft/collections/{denom_id}':
     get:
       summary: Collection queries the NFTs of the specified denom
       operationId: Collection
@@ -6381,7 +6995,6 @@ paths:
                         type: string
                       creator:
                         type: string
-                        format: byte
                     description: Denom defines a type of NFT.
                   nfts:
                     type: array
@@ -6398,7 +7011,6 @@ paths:
                           type: string
                         owner:
                           type: string
-                          format: byte
                       description: BaseNFT defines a non fungible token.
             title: >-
               QueryCollectionResponse is the response type for the
@@ -6426,243 +7038,13 @@ paths:
                       type: string
                       format: byte
       parameters:
-        - name: denom
+        - name: denom_id
           in: path
           required: true
           type: string
       tags:
         - Query
-  /irismod/nft/denoms:
-    get:
-      summary: Denoms queries all the denoms
-      operationId: Denoms
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              denoms:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    schema:
-                      type: string
-                    creator:
-                      type: string
-                      format: byte
-                  description: Denom defines a type of NFT.
-            title: >-
-              QueryDenomsResponse is the response type for the Query/Denoms RPC
-              method
-        default:
-          description: An unexpected error response
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      tags:
-        - Query
-  '/irismod/nft/denoms/{denom}':
-    get:
-      summary: Denom queries the definition of a given denom
-      operationId: Denom
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              denom:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  schema:
-                    type: string
-                  creator:
-                    type: string
-                    format: byte
-                description: Denom defines a type of NFT.
-            title: >-
-              QueryDenomResponse is the response type for the Query/Denom RPC
-              method
-        default:
-          description: An unexpected error response
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      parameters:
-        - name: denom
-          in: path
-          required: true
-          type: string
-      tags:
-        - Query
-  '/irismod/nft/nfts/{denom}/{id}':
-    get:
-      summary: NFT queries the NFT for the given denom and token ID
-      operationId: NFT
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              nft:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  uri:
-                    type: string
-                  data:
-                    type: string
-                  owner:
-                    type: string
-                    format: byte
-                description: BaseNFT defines a non fungible token.
-            title: QueryNFTResponse is the response type for the Query/NFT RPC method
-        default:
-          description: An unexpected error response
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      parameters:
-        - name: denom
-          in: path
-          required: true
-          type: string
-        - name: id
-          in: path
-          required: true
-          type: string
-      tags:
-        - Query
-  '/irismod/nft/owners/{owner}':
-    get:
-      summary: Owner queries the NFTs of the specified owner
-      operationId: Owner
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              owner:
-                type: object
-                properties:
-                  address:
-                    type: string
-                    format: byte
-                  id_collections:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        denom:
-                          type: string
-                        ids:
-                          type: array
-                          items:
-                            type: string
-            title: >-
-              QueryOwnerResponse is the response type for the Query/Owner RPC
-              method
-        default:
-          description: An unexpected error response
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      parameters:
-        - name: owner
-          in: path
-          required: true
-          type: string
-          format: byte
-        - name: denom
-          in: query
-          required: false
-          type: string
-      tags:
-        - Query
-  '/irismod/nft/supplies/{denom}':
+  '/irismod/nft/collections/{denom_id}/supply':
     get:
       summary: Supply queries the total supply of a given denom or owner
       operationId: Supply
@@ -6701,7 +7083,7 @@ paths:
                       type: string
                       format: byte
       parameters:
-        - name: denom
+        - name: denom_id
           in: path
           required: true
           type: string
@@ -6709,7 +7091,231 @@ paths:
           in: query
           required: false
           type: string
-          format: byte
+      tags:
+        - Query
+  /irismod/nft/denoms:
+    get:
+      summary: Denoms queries all the denoms
+      operationId: Denoms
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              denoms:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    schema:
+                      type: string
+                    creator:
+                      type: string
+                  description: Denom defines a type of NFT.
+            title: >-
+              QueryDenomsResponse is the response type for the Query/Denoms RPC
+              method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  '/irismod/nft/denoms/{denom_id}':
+    get:
+      summary: Denom queries the definition of a given denom
+      operationId: Denom
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              denom:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  schema:
+                    type: string
+                  creator:
+                    type: string
+                description: Denom defines a type of NFT.
+            title: >-
+              QueryDenomResponse is the response type for the Query/Denom RPC
+              method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: denom_id
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  '/irismod/nft/nfts/{denom_id}/{token_id}':
+    get:
+      summary: NFT queries the NFT for the given denom and token ID
+      operationId: NFT
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              nft:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  uri:
+                    type: string
+                  data:
+                    type: string
+                  owner:
+                    type: string
+                description: BaseNFT defines a non fungible token.
+            title: QueryNFTResponse is the response type for the Query/NFT RPC method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: denom_id
+          in: path
+          required: true
+          type: string
+        - name: token_id
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  '/irismod/nft/owners/{owner}':
+    get:
+      summary: Owner queries the NFTs of the specified owner
+      operationId: Owner
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              owner:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  id_collections:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom_id:
+                          type: string
+                        token_ids:
+                          type: array
+                          items:
+                            type: string
+            title: >-
+              QueryOwnerResponse is the response type for the Query/Owner RPC
+              method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          type: string
+        - name: denom_id
+          in: query
+          required: false
+          type: string
       tags:
         - Query
   '/irismod/record/records/{record_id}':
@@ -6727,7 +7333,6 @@ paths:
                 properties:
                   tx_hash:
                     type: string
-                    format: byte
                   contents:
                     type: array
                     items:
@@ -6744,7 +7349,6 @@ paths:
                       description: Content defines the detailed information for a record.
                   creator:
                     type: string
-                    format: byte
             title: >-
               QueryRecordResponse is the response type for the Query/Record RPC
               method
@@ -6775,7 +7379,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
       tags:
         - Query
   '/irismod/service/bindings/{service_name}':
@@ -6824,12 +7427,12 @@ paths:
                       type: string
                     available:
                       type: boolean
+                      format: boolean
                     disabled_time:
                       type: string
                       format: date-time
                     owner:
                       type: string
-                      format: byte
                   description: ServiceBinding defines a standard for service binding.
             title: >-
               QueryDefinitionsResponse is response type for the Query/Bindings
@@ -6865,7 +7468,6 @@ paths:
           in: query
           required: false
           type: string
-          format: byte
       tags:
         - Query
   '/irismod/service/bindings/{service_name}/{provider}':
@@ -6911,12 +7513,12 @@ paths:
                     type: string
                   available:
                     type: boolean
+                    format: boolean
                   disabled_time:
                     type: string
                     format: date-time
                   owner:
                     type: string
-                    format: byte
                 description: ServiceBinding defines a standard for service binding.
             title: >-
               QueryDefinitionResponse is response type for the Query/Binding RPC
@@ -6952,7 +7554,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
       tags:
         - Query
   '/irismod/service/contexts/{request_context_id}':
@@ -6974,10 +7575,8 @@ paths:
                     type: array
                     items:
                       type: string
-                      format: byte
                   consumer:
                     type: string
-                    format: byte
                   input:
                     type: string
                   service_fee_cap:
@@ -7004,8 +7603,10 @@ paths:
                     format: int64
                   super_mode:
                     type: boolean
+                    format: boolean
                   repeated:
                     type: boolean
+                    format: boolean
                   repeated_frequency:
                     type: string
                     format: uint64
@@ -7086,7 +7687,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
       tags:
         - Query
   '/irismod/service/definitions/{service_name}':
@@ -7112,7 +7712,6 @@ paths:
                       type: string
                   author:
                     type: string
-                    format: byte
                   author_description:
                     type: string
                   schemas:
@@ -7207,7 +7806,50 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
+      tags:
+        - Query
+  '/irismod/service/owners/{owner}/withdraw-address':
+    get:
+      summary: WithdrawAddress returns the withdraw address of the binding owner
+      operationId: WithdrawAddress
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              withdraw_address:
+                type: string
+            title: >-
+              QueryWithdrawAddressResponse is response type for the
+              Query/WithdrawAddress RPC method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          type: string
       tags:
         - Query
   /irismod/service/params:
@@ -7331,15 +7973,12 @@ paths:
                   properties:
                     id:
                       type: string
-                      format: byte
                     service_name:
                       type: string
                     provider:
                       type: string
-                      format: byte
                     consumer:
                       type: string
-                      format: byte
                     input:
                       type: string
                     service_fee:
@@ -7362,6 +8001,7 @@ paths:
                           signatures required by gogoproto.
                     super_mode:
                       type: boolean
+                      format: boolean
                     request_height:
                       type: string
                       format: int64
@@ -7370,7 +8010,6 @@ paths:
                       format: int64
                     request_context_id:
                       type: string
-                      format: byte
                     request_context_batch_counter:
                       type: string
                       format: uint64
@@ -7405,7 +8044,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
         - name: batch_counter
           in: path
           required: true
@@ -7428,15 +8066,12 @@ paths:
                 properties:
                   id:
                     type: string
-                    format: byte
                   service_name:
                     type: string
                   provider:
                     type: string
-                    format: byte
                   consumer:
                     type: string
-                    format: byte
                   input:
                     type: string
                   service_fee:
@@ -7458,6 +8093,7 @@ paths:
                         signatures required by gogoproto.
                   super_mode:
                     type: boolean
+                    format: boolean
                   request_height:
                     type: string
                     format: int64
@@ -7466,7 +8102,6 @@ paths:
                     format: int64
                   request_context_id:
                     type: string
-                    format: byte
                   request_context_batch_counter:
                     type: string
                     format: uint64
@@ -7501,7 +8136,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
       tags:
         - Query
   '/irismod/service/requests/{service_name}/{provider}':
@@ -7521,15 +8155,12 @@ paths:
                   properties:
                     id:
                       type: string
-                      format: byte
                     service_name:
                       type: string
                     provider:
                       type: string
-                      format: byte
                     consumer:
                       type: string
-                      format: byte
                     input:
                       type: string
                     service_fee:
@@ -7552,6 +8183,7 @@ paths:
                           signatures required by gogoproto.
                     super_mode:
                       type: boolean
+                      format: boolean
                     request_height:
                       type: string
                       format: int64
@@ -7560,7 +8192,6 @@ paths:
                       format: int64
                     request_context_id:
                       type: string
-                      format: byte
                     request_context_batch_counter:
                       type: string
                       format: uint64
@@ -7599,7 +8230,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
       tags:
         - Query
   '/irismod/service/responses/{request_context_id}/{batch_counter}':
@@ -7619,17 +8249,14 @@ paths:
                   properties:
                     provider:
                       type: string
-                      format: byte
                     consumer:
                       type: string
-                      format: byte
                     result:
                       type: string
                     output:
                       type: string
                     request_context_id:
                       type: string
-                      format: byte
                     request_context_batch_counter:
                       type: string
                       format: uint64
@@ -7664,7 +8291,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
         - name: batch_counter
           in: path
           required: true
@@ -7687,17 +8313,14 @@ paths:
                 properties:
                   provider:
                     type: string
-                    format: byte
                   consumer:
                     type: string
-                    format: byte
                   result:
                     type: string
                   output:
                     type: string
                   request_context_id:
                     type: string
-                    format: byte
                   request_context_batch_counter:
                     type: string
                     format: uint64
@@ -7732,7 +8355,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
       tags:
         - Query
   '/irismod/service/schemas/{schema_name}':
@@ -7777,52 +8399,6 @@ paths:
           in: path
           required: true
           type: string
-      tags:
-        - Query
-  '/irismod/service/{owner}/withdraw-address':
-    get:
-      summary: WithdrawAddress returns the withdraw address of the binding owner
-      operationId: WithdrawAddress
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              withdraw_address:
-                type: string
-                format: byte
-            title: >-
-              QueryWithdrawAddressResponse is response type for the
-              Query/WithdrawAddress RPC method
-        default:
-          description: An unexpected error response
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      parameters:
-        - name: owner
-          in: path
-          required: true
-          type: string
-          format: byte
       tags:
         - Query
   /irismod/token/params:
@@ -8463,7 +9039,6 @@ paths:
           in: query
           required: false
           type: string
-          format: byte
       tags:
         - Query
   '/irismod/token/tokens/{denom}':
@@ -8844,7 +9419,7 @@ paths:
           type: string
       tags:
         - Query
-  '/irismod/token/{symbol}/fees':
+  '/irismod/token/tokens/{symbol}/fees':
     get:
       summary: Fees returns the fees to issue or mint a token
       operationId: Fees
@@ -8856,6 +9431,7 @@ paths:
             properties:
               exist:
                 type: boolean
+                format: boolean
               issue_fee:
                 type: object
                 properties:
@@ -9083,10 +9659,184 @@ paths:
           type: string
       tags:
         - Query
-  /iritamod/validator/params:
+  /iritamod/node/nodes:
     get:
-      summary: Params queries the parameters of the validator module
-      operationId: ValidatorParams
+      summary: Nodes queries the nodes
+      operationId: Nodes
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              nodes:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    certificate:
+                      type: string
+                  title: Node defines a struct to represent a node identity
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: |-
+                  message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
+            title: >-
+              QueryNodesResponse is the response type for the Query/Nodes RPC
+              method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs. count_total
+
+            is only respected when offset is used. It is ignored when key is
+            set.
+          in: query
+          required: false
+          type: boolean
+          format: boolean
+      tags:
+        - Query
+  '/iritamod/node/nodes/{id}':
+    get:
+      summary: Node queries the node by the given id
+      operationId: Node
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              node:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  certificate:
+                    type: string
+                title: Node defines a struct to represent a node identity
+            title: >-
+              QueryNodeResponse is the response type for the Query/Node RPC
+              method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  /iritamod/node/params:
+    get:
+      summary: Params queries the parameters of the node module
+      operationId: NodeParams
       responses:
         '200':
           description: A successful response.
@@ -9099,7 +9849,7 @@ paths:
                   historical_entries:
                     type: integer
                     format: int64
-                description: Params defines the parameters for the staking module.
+                description: Params defines the parameters for the node module.
             title: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method
@@ -9127,7 +9877,7 @@ paths:
                       format: byte
       tags:
         - Query
-  /iritamod/validator/validators:
+  /iritamod/node/validators:
     get:
       summary: Validators queries the validators
       operationId: Validators
@@ -9144,7 +9894,6 @@ paths:
                   properties:
                     id:
                       type: string
-                      format: byte
                     name:
                       type: string
                     pubkey:
@@ -9158,9 +9907,9 @@ paths:
                       type: string
                     jailed:
                       type: boolean
+                      format: boolean
                     operator:
                       type: string
-                      format: byte
                   description: >-
                     Request defines a standard for validator. The validator will
                     participate the
@@ -9264,9 +10013,10 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
-  '/iritamod/validator/validators/{id}':
+  '/iritamod/node/validators/{id}':
     get:
       summary: Validator queries the validator by the given id
       operationId: Validator
@@ -9281,7 +10031,6 @@ paths:
                 properties:
                   id:
                     type: string
-                    format: byte
                   name:
                     type: string
                   pubkey:
@@ -9295,9 +10044,9 @@ paths:
                     type: string
                   jailed:
                     type: boolean
+                    format: boolean
                   operator:
                     type: string
-                    format: byte
                 description: >-
                   Request defines a standard for validator. The validator will
                   participate the
@@ -9334,7 +10083,6 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
       tags:
         - Query
   '/iritamod/identity/identities/{id}':
@@ -9352,7 +10100,6 @@ paths:
                 properties:
                   id:
                     type: string
-                    format: byte
                   pub_keys:
                     type: array
                     items:
@@ -9360,7 +10107,6 @@ paths:
                       properties:
                         pub_key:
                           type: string
-                          format: byte
                         algorithm:
                           type: string
                           enum:
@@ -9393,7 +10139,6 @@ paths:
                     type: string
                   owner:
                     type: string
-                    format: byte
                 title: Identity defines a struct for an identity
             title: >-
               QueryIdentityResponse is response type for the Query/Identity RPC
@@ -9425,213 +10170,38 @@ paths:
           in: path
           required: true
           type: string
-          format: byte
       tags:
         - Query
+  /wasm/v1beta1/code:
     get:
-      summary: >-
-        ConsensusStates queries all the consensus state associated with a given
-        client.
-      operationId: ConsensusStates
+      summary: Codes gets the metadata for all stored wasm codes
+      operationId: Codes
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              consensus_states:
+              code_infos:
                 type: array
                 items:
                   type: object
                   properties:
-                    height:
+                    code_id:
                       type: string
                       format: uint64
-                      title: consensus state height
-                    consensus_state:
-                      title: consensus state
-                      type: object
-                      properties:
-                        type_url:
-                          type: string
-                          description: >-
-                            A URL/resource name that uniquely identifies the
-                            type of the serialized
-
-                            protocol buffer message. This string must contain at
-                            least
-
-                            one "/" character. The last segment of the URL's
-                            path must represent
-
-                            the fully qualified name of the type (as in
-
-                            `path/google.protobuf.Duration`). The name should be
-                            in a canonical form
-
-                            (e.g., leading "." is not accepted).
-
-
-                            In practice, teams usually precompile into the
-                            binary all types that they
-
-                            expect it to use in the context of Any. However, for
-                            URLs which use the
-
-                            scheme `http`, `https`, or no scheme, one can
-                            optionally set up a type
-
-                            server that maps type URLs to message definitions as
-                            follows:
-
-
-                            * If no scheme is provided, `https` is assumed.
-
-                            * An HTTP GET on the URL must yield a
-                            [google.protobuf.Type][]
-                              value in binary format, or produce an error.
-                            * Applications are allowed to cache lookup results
-                            based on the
-                              URL, or have them precompiled into a binary to avoid any
-                              lookup. Therefore, binary compatibility needs to be preserved
-                              on changes to types. (Use versioned type names to manage
-                              breaking changes.)
-
-                            Note: this functionality is not currently available
-                            in the official
-
-                            protobuf release, and it is not used for type URLs
-                            beginning with
-
-                            type.googleapis.com.
-
-
-                            Schemes other than `http`, `https` (or the empty
-                            scheme) might be
-
-                            used with implementation specific semantics.
-                        value:
-                          type: string
-                          format: byte
-                          description: >-
-                            Must be a valid serialized protocol buffer of the
-                            above specified type.
-                      description: >-
-                        `Any` contains an arbitrary serialized protocol buffer
-                        message along with a
-
-                        URL that describes the type of the serialized message.
-
-
-                        Protobuf library provides support to pack/unpack Any
-                        values in the form
-
-                        of utility functions or additional generated methods of
-                        the Any type.
-
-
-                        Example 1: Pack and unpack a message in C++.
-
-                            Foo foo = ...;
-                            Any any;
-                            any.PackFrom(foo);
-                            ...
-                            if (any.UnpackTo(&foo)) {
-                              ...
-                            }
-
-                        Example 2: Pack and unpack a message in Java.
-
-                            Foo foo = ...;
-                            Any any = Any.pack(foo);
-                            ...
-                            if (any.is(Foo.class)) {
-                              foo = any.unpack(Foo.class);
-                            }
-
-                         Example 3: Pack and unpack a message in Python.
-
-                            foo = Foo(...)
-                            any = Any()
-                            any.Pack(foo)
-                            ...
-                            if any.Is(Foo.DESCRIPTOR):
-                              any.Unpack(foo)
-                              ...
-
-                         Example 4: Pack and unpack a message in Go
-
-                             foo := &pb.Foo{...}
-                             any, err := ptypes.MarshalAny(foo)
-                             ...
-                             foo := &pb.Foo{}
-                             if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                               ...
-                             }
-
-                        The pack methods provided by protobuf library will by
-                        default use
-
-                        'type.googleapis.com/full.type.name' as the type URL and
-                        the unpack
-
-                        methods only use the fully qualified type name after the
-                        last '/'
-
-                        in the type URL, for example "foo.bar.com/x/y.z" will
-                        yield type
-
-                        name "y.z".
-
-
-
-                        JSON
-
-                        ====
-
-                        The JSON representation of an `Any` value uses the
-                        regular
-
-                        representation of the deserialized, embedded message,
-                        with an
-
-                        additional field `@type` which contains the type URL.
-                        Example:
-
-                            package google.profile;
-                            message Person {
-                              string first_name = 1;
-                              string last_name = 2;
-                            }
-
-                            {
-                              "@type": "type.googleapis.com/google.profile.Person",
-                              "firstName": <string>,
-                              "lastName": <string>
-                            }
-
-                        If the embedded message type is well-known and has a
-                        custom JSON
-
-                        representation, that representation will be embedded
-                        adding a field
-
-                        `value` which holds the custom JSON in addition to the
-                        `@type`
-
-                        field. Example (for message
-                        [google.protobuf.Duration][]):
-
-                            {
-                              "@type": "type.googleapis.com/google.protobuf.Duration",
-                              "value": "1.212s"
-                            }
-                  description: >-
-                    ConsensusStateWithHeight defines a consensus state with an
-                    additional height field.
-                title: consensus states associated with the identifier
+                    creator:
+                      type: string
+                    data_hash:
+                      type: string
+                      format: byte
+                    source:
+                      type: string
+                    builder:
+                      type: string
+                  title: CodeInfoResponse contains code meta data from CodeInfo
               pagination:
-                title: pagination response
+                description: pagination defines the pagination in the response.
                 type: object
                 properties:
                   next_key:
@@ -9648,14 +10218,9 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
             title: >-
-              QueryConsensusStatesResponse is the response type for the
-              Query/ConsensusStates RPC method
+              QueryCodesResponse is the response type for the Query/Codes RPC
+              method
         default:
           description: An unexpected error response
           schema:
@@ -9675,179 +10240,473 @@ paths:
                   properties:
                     type_url:
                       type: string
-                      description: >-
-                        A URL/resource name that uniquely identifies the type of
-                        the serialized
-
-                        protocol buffer message. This string must contain at
-                        least
-
-                        one "/" character. The last segment of the URL's path
-                        must represent
-
-                        the fully qualified name of the type (as in
-
-                        `path/google.protobuf.Duration`). The name should be in
-                        a canonical form
-
-                        (e.g., leading "." is not accepted).
-
-
-                        In practice, teams usually precompile into the binary
-                        all types that they
-
-                        expect it to use in the context of Any. However, for
-                        URLs which use the
-
-                        scheme `http`, `https`, or no scheme, one can optionally
-                        set up a type
-
-                        server that maps type URLs to message definitions as
-                        follows:
-
-
-                        * If no scheme is provided, `https` is assumed.
-
-                        * An HTTP GET on the URL must yield a
-                        [google.protobuf.Type][]
-                          value in binary format, or produce an error.
-                        * Applications are allowed to cache lookup results based
-                        on the
-                          URL, or have them precompiled into a binary to avoid any
-                          lookup. Therefore, binary compatibility needs to be preserved
-                          on changes to types. (Use versioned type names to manage
-                          breaking changes.)
-
-                        Note: this functionality is not currently available in
-                        the official
-
-                        protobuf release, and it is not used for type URLs
-                        beginning with
-
-                        type.googleapis.com.
-
-
-                        Schemes other than `http`, `https` (or the empty scheme)
-                        might be
-
-                        used with implementation specific semantics.
                     value:
                       type: string
                       format: byte
-                      description: >-
-                        Must be a valid serialized protocol buffer of the above
-                        specified type.
-                  description: >-
-                    `Any` contains an arbitrary serialized protocol buffer
-                    message along with a
-
-                    URL that describes the type of the serialized message.
-
-
-                    Protobuf library provides support to pack/unpack Any values
-                    in the form
-
-                    of utility functions or additional generated methods of the
-                    Any type.
-
-
-                    Example 1: Pack and unpack a message in C++.
-
-                        Foo foo = ...;
-                        Any any;
-                        any.PackFrom(foo);
-                        ...
-                        if (any.UnpackTo(&foo)) {
-                          ...
-                        }
-
-                    Example 2: Pack and unpack a message in Java.
-
-                        Foo foo = ...;
-                        Any any = Any.pack(foo);
-                        ...
-                        if (any.is(Foo.class)) {
-                          foo = any.unpack(Foo.class);
-                        }
-
-                     Example 3: Pack and unpack a message in Python.
-
-                        foo = Foo(...)
-                        any = Any()
-                        any.Pack(foo)
-                        ...
-                        if any.Is(Foo.DESCRIPTOR):
-                          any.Unpack(foo)
-                          ...
-
-                     Example 4: Pack and unpack a message in Go
-
-                         foo := &pb.Foo{...}
-                         any, err := ptypes.MarshalAny(foo)
-                         ...
-                         foo := &pb.Foo{}
-                         if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                           ...
-                         }
-
-                    The pack methods provided by protobuf library will by
-                    default use
-
-                    'type.googleapis.com/full.type.name' as the type URL and the
-                    unpack
-
-                    methods only use the fully qualified type name after the
-                    last '/'
-
-                    in the type URL, for example "foo.bar.com/x/y.z" will yield
-                    type
-
-                    name "y.z".
-
-
-
-                    JSON
-
-                    ====
-
-                    The JSON representation of an `Any` value uses the regular
-
-                    representation of the deserialized, embedded message, with
-                    an
-
-                    additional field `@type` which contains the type URL.
-                    Example:
-
-                        package google.profile;
-                        message Person {
-                          string first_name = 1;
-                          string last_name = 2;
-                        }
-
-                        {
-                          "@type": "type.googleapis.com/google.profile.Person",
-                          "firstName": <string>,
-                          "lastName": <string>
-                        }
-
-                    If the embedded message type is well-known and has a custom
-                    JSON
-
-                    representation, that representation will be embedded adding
-                    a field
-
-                    `value` which holds the custom JSON in addition to the
-                    `@type`
-
-                    field. Example (for message [google.protobuf.Duration][]):
-
-                        {
-                          "@type": "type.googleapis.com/google.protobuf.Duration",
-                          "value": "1.212s"
-                        }
       parameters:
-        - name: client_id
-          description: client identifier
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+          format: boolean
+      tags:
+        - Query
+  '/wasm/v1beta1/code/{code_id}':
+    get:
+      summary: Code gets the binary code and metadata for a singe wasm code
+      operationId: Code
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              code_info:
+                type: object
+                properties:
+                  code_id:
+                    type: string
+                    format: uint64
+                  creator:
+                    type: string
+                  data_hash:
+                    type: string
+                    format: byte
+                  source:
+                    type: string
+                  builder:
+                    type: string
+                title: CodeInfoResponse contains code meta data from CodeInfo
+              data:
+                type: string
+                format: byte
+            title: >-
+              QueryCodeResponse is the response type for the Query/Code RPC
+              method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: code_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - Query
+  '/wasm/v1beta1/code/{code_id}/contracts':
+    get:
+      summary: ContractsByCode lists all smart contracts for a code id
+      operationId: ContractsByCode
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              contract_infos:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    contract_info:
+                      type: object
+                      properties:
+                        code_id:
+                          type: string
+                          format: uint64
+                          title: CodeID is the reference to the stored Wasm code
+                        creator:
+                          type: string
+                          title: >-
+                            Creator address who initially instantiated the
+                            contract
+                        admin:
+                          type: string
+                          title: >-
+                            Admin is an optional address that can execute
+                            migrations
+                        label:
+                          type: string
+                          description: >-
+                            Label is optional metadata to be stored with a
+                            contract instance.
+                        created:
+                          title: >-
+                            Created Tx position when the contract was
+                            instantiated.
+
+                            This data should kept internal and not be exposed
+                            via query results. Just use for sorting
+                          type: object
+                          properties:
+                            block_height:
+                              type: string
+                              format: uint64
+                              title: >-
+                                BlockHeight is the block the contract was
+                                created at
+                            tx_index:
+                              type: string
+                              format: uint64
+                              title: >-
+                                TxIndex is a monotonic counter within the block
+                                (actual transaction index, or gas consumed)
+                          description: >-
+                            AbsoluteTxPosition is a unique transaction position
+                            that allows for global ordering of transactions.
+                      title: ContractInfo stores a WASM contract instance
+                  title: >-
+                    ContractInfoWithAddress adds the address (key) to the
+                    ContractInfo representation
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            title: >-
+              QueryContractsByCodeResponse is the response type for the
+              Query/ContractsByCode RPC method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: code_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+          format: boolean
+      tags:
+        - Query
+  '/wasm/v1beta1/contract/{address}':
+    get:
+      summary: ContractInfo gets the contract meta data
+      operationId: ContractInfo
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              address:
+                type: string
+                title: address is the address of the contract
+              contract_info:
+                type: object
+                properties:
+                  code_id:
+                    type: string
+                    format: uint64
+                    title: CodeID is the reference to the stored Wasm code
+                  creator:
+                    type: string
+                    title: Creator address who initially instantiated the contract
+                  admin:
+                    type: string
+                    title: Admin is an optional address that can execute migrations
+                  label:
+                    type: string
+                    description: >-
+                      Label is optional metadata to be stored with a contract
+                      instance.
+                  created:
+                    title: >-
+                      Created Tx position when the contract was instantiated.
+
+                      This data should kept internal and not be exposed via
+                      query results. Just use for sorting
+                    type: object
+                    properties:
+                      block_height:
+                        type: string
+                        format: uint64
+                        title: BlockHeight is the block the contract was created at
+                      tx_index:
+                        type: string
+                        format: uint64
+                        title: >-
+                          TxIndex is a monotonic counter within the block
+                          (actual transaction index, or gas consumed)
+                    description: >-
+                      AbsoluteTxPosition is a unique transaction position that
+                      allows for global ordering of transactions.
+                title: ContractInfo stores a WASM contract instance
+            title: >-
+              QueryContractInfoResponse is the response type for the
+              Query/ContractInfo RPC method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          description: address is the address of the contract to query
+          in: path
+          required: true
+          type: string
+      tags:
+        - Query
+  '/wasm/v1beta1/contract/{address}/history':
+    get:
+      summary: ContractHistory gets the contract code history
+      operationId: ContractHistory
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              entries:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    operation:
+                      type: string
+                      enum:
+                        - CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED
+                        - CONTRACT_CODE_HISTORY_OPERATION_TYPE_INIT
+                        - CONTRACT_CODE_HISTORY_OPERATION_TYPE_MIGRATE
+                        - CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS
+                      default: CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED
+                      description: >-
+                        - CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED:
+                        ContractCodeHistoryOperationTypeUnspecified placeholder
+                        for empty value
+                         - CONTRACT_CODE_HISTORY_OPERATION_TYPE_INIT: ContractCodeHistoryOperationTypeInit on chain contract instantiation
+                         - CONTRACT_CODE_HISTORY_OPERATION_TYPE_MIGRATE: ContractCodeHistoryOperationTypeMigrate code migration
+                         - CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS: ContractCodeHistoryOperationTypeGenesis based on genesis data
+                      title: >-
+                        ContractCodeHistoryOperationType actions that caused a
+                        code change
+                    code_id:
+                      type: string
+                      format: uint64
+                      title: CodeID is the reference to the stored WASM code
+                    updated:
+                      description: Updated Tx position when the operation was executed.
+                      type: object
+                      properties:
+                        block_height:
+                          type: string
+                          format: uint64
+                          title: BlockHeight is the block the contract was created at
+                        tx_index:
+                          type: string
+                          format: uint64
+                          title: >-
+                            TxIndex is a monotonic counter within the block
+                            (actual transaction index, or gas consumed)
+                    msg:
+                      type: string
+                      format: byte
+                  description: ContractCodeHistoryEntry metadata to a contract.
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            title: >-
+              QueryContractHistoryResponse is the response type for the
+              Query/ContractHistory RPC method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          description: address is the address of the contract to query
           in: path
           required: true
           type: string
@@ -9888,13 +10747,243 @@ paths:
             include
 
             a count of the total number of items available for pagination in
-            UIs. count_total
+            UIs.
 
-            is only respected when offset is used. It is ignored when key is
-            set.
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
           in: query
           required: false
           type: boolean
+          format: boolean
+      tags:
+        - Query
+  '/wasm/v1beta1/contract/{address}/raw/{query_data}':
+    get:
+      summary: RawContractState gets single key from the raw store data of a contract
+      operationId: RawContractState
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              data:
+                type: string
+                format: byte
+                title: Data contains the raw store data
+            title: >-
+              QueryRawContractStateResponse is the response type for the
+              Query/RawContractState RPC method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          description: address is the address of the contract
+          in: path
+          required: true
+          type: string
+        - name: query_data
+          in: path
+          required: true
+          type: string
+          format: byte
+      tags:
+        - Query
+  '/wasm/v1beta1/contract/{address}/smart/{query_data}':
+    get:
+      summary: SmartContractState get smart query result from the contract
+      operationId: SmartContractState
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              data:
+                type: string
+                format: byte
+                title: Data contains the json data returned from the smart contract
+            title: >-
+              QuerySmartContractStateResponse is the response type for the
+              Query/SmartContractState RPC method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          description: address is the address of the contract
+          in: path
+          required: true
+          type: string
+        - name: query_data
+          description: QueryData contains the query data passed to the contract
+          in: path
+          required: true
+          type: string
+          format: byte
+      tags:
+        - Query
+  '/wasm/v1beta1/contract/{address}/state':
+    get:
+      summary: AllContractState gets all raw store data for a single contract
+      operationId: AllContractState
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              models:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                      format: byte
+                      title: hex-encode key to read it better (this is often ascii)
+                    value:
+                      type: string
+                      format: byte
+                      title: base64-encode raw value
+                  title: Model is a struct that holds a KV pair
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+            title: >-
+              QueryAllContractStateResponse is the response type for the
+              Query/AllContractState RPC method
+        default:
+          description: An unexpected error response
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: address
+          description: address is the address of the contract
+          in: path
+          required: true
+          type: string
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs.
+
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
+          in: query
+          required: false
+          type: boolean
+          format: boolean
       tags:
         - Query
 definitions:
@@ -11297,6 +12386,15 @@ definitions:
         type: string
         description: bech32 encoded address
         example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
+  Node:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      certificate:
+        type: string
   cosmos.auth.v1beta1.Params:
     type: object
     properties:
@@ -11754,11 +12852,18 @@ definitions:
               type: string
             enabled:
               type: boolean
+              format: boolean
           description: >-
             SendEnabled maps coin denom to a send_enabled status (whether a
-            denom is sendable).
+            denom is
+
+            sendable).
       default_send_enabled:
         type: boolean
+        format: boolean
+      unrestricted_token_transfer:
+        type: boolean
+        format: boolean
     description: Params defines the parameters for the bank module.
   cosmos.bank.v1beta1.QueryAllBalancesResponse:
     type: object
@@ -11798,7 +12903,9 @@ definitions:
               was set, its value is undefined otherwise
     description: >-
       QueryAllBalancesResponse is the response type for the Query/AllBalances
-      RPC method.
+      RPC
+
+      method.
   cosmos.bank.v1beta1.QueryBalanceResponse:
     type: object
     properties:
@@ -11828,11 +12935,18 @@ definitions:
                   type: string
                 enabled:
                   type: boolean
+                  format: boolean
               description: >-
                 SendEnabled maps coin denom to a send_enabled status (whether a
-                denom is sendable).
+                denom is
+
+                sendable).
           default_send_enabled:
             type: boolean
+            format: boolean
+          unrestricted_token_transfer:
+            type: boolean
+            format: boolean
         description: Params defines the parameters for the bank module.
     description: >-
       QueryParamsResponse defines the response type for querying x/bank
@@ -11871,7 +12985,9 @@ definitions:
         title: supply is the supply of the coins
     title: >-
       QueryTotalSupplyResponse is the response type for the Query/TotalSupply
-      RPC method
+      RPC
+
+      method
   cosmos.bank.v1beta1.SendEnabled:
     type: object
     properties:
@@ -11879,7 +12995,8 @@ definitions:
         type: string
       enabled:
         type: boolean
-    description: >-
+        format: boolean
+    description: |-
       SendEnabled maps coin denom to a send_enabled status (whether a denom is
       sendable).
   cosmos.base.query.v1beta1.PageRequest:
@@ -11909,14 +13026,17 @@ definitions:
           If left empty it will default to a value to be set by each app.
       count_total:
         type: boolean
+        format: boolean
         description: >-
           count_total is set to true  to indicate that the result set should
           include
 
           a count of the total number of items available for pagination in UIs.
-          count_total
 
-          is only respected when offset is used. It is ignored when key is set.
+          count_total is only respected when offset is used. It is ignored when
+          key
+
+          is set.
     description: |-
       message SomeRequest {
                Foo some_parameter = 1;
@@ -11940,11 +13060,9 @@ definitions:
         title: |-
           total is total number of results available if PageRequest.count_total
           was set, its value is undefined otherwise
-    description: >-
+    description: |-
       PageResponse is to be embedded in gRPC response messages where the
-      corresponding
-
-      request message has used PageRequest.
+      corresponding request message has used PageRequest.
 
        message SomeResponse {
                repeated Bar results = 1;
@@ -12150,7 +13268,9 @@ definitions:
               was set, its value is undefined otherwise
     description: >-
       QueryAllEvidenceResponse is the response type for the Query/AllEvidence
-      RPC method.
+      RPC
+
+      method.
   cosmos.evidence.v1beta1.QueryEvidenceResponse:
     type: object
     properties:
@@ -12226,18 +13346,22 @@ definitions:
         type: string
         description: >-
           Sets the name for the upgrade. This name will be used by the upgraded
-          version of the software to apply any
 
-          special "on-upgrade" commands during the first BeginBlock method after
-          the upgrade is applied. It is also used
+          version of the software to apply any special "on-upgrade" commands
+          during
+
+          the first BeginBlock method after the upgrade is applied. It is also
+          used
 
           to detect whether a software version can handle a given upgrade. If no
-          upgrade handler with this name has been
 
-          set in the software, it will be assumed that the software is
-          out-of-date when the upgrade Time or Height
+          upgrade handler with this name has been set in the software, it will
+          be
 
-          is reached and the software will exit.
+          assumed that the software is out-of-date when the upgrade Time or
+          Height is
+
+          reached and the software will exit.
       time:
         type: string
         format: date-time
@@ -12255,6 +13379,179 @@ definitions:
         title: |-
           Any application specific upgrade info to be included on-chain
           such as a git commit that validators could automatically upgrade to
+      upgraded_client_state:
+        title: >-
+          IBC-enabled chains can opt-in to including the upgraded client state
+          in its upgrade plan
+
+          This will make the chain commit to the correct upgraded (self) client
+          state before the upgrade occurs,
+
+          so that connecting chains can verify that the new upgraded client is
+          valid by verifying a proof on the
+
+          previous version of the chain.
+
+          This will allow IBC connections to persist smoothly across planned
+          chain upgrades
+        type: object
+        properties:
+          type_url:
+            type: string
+            description: >-
+              A URL/resource name that uniquely identifies the type of the
+              serialized
+
+              protocol buffer message. This string must contain at least
+
+              one "/" character. The last segment of the URL's path must
+              represent
+
+              the fully qualified name of the type (as in
+
+              `path/google.protobuf.Duration`). The name should be in a
+              canonical form
+
+              (e.g., leading "." is not accepted).
+
+
+              In practice, teams usually precompile into the binary all types
+              that they
+
+              expect it to use in the context of Any. However, for URLs which
+              use the
+
+              scheme `http`, `https`, or no scheme, one can optionally set up a
+              type
+
+              server that maps type URLs to message definitions as follows:
+
+
+              * If no scheme is provided, `https` is assumed.
+
+              * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+                value in binary format, or produce an error.
+              * Applications are allowed to cache lookup results based on the
+                URL, or have them precompiled into a binary to avoid any
+                lookup. Therefore, binary compatibility needs to be preserved
+                on changes to types. (Use versioned type names to manage
+                breaking changes.)
+
+              Note: this functionality is not currently available in the
+              official
+
+              protobuf release, and it is not used for type URLs beginning with
+
+              type.googleapis.com.
+
+
+              Schemes other than `http`, `https` (or the empty scheme) might be
+
+              used with implementation specific semantics.
+          value:
+            type: string
+            format: byte
+            description: >-
+              Must be a valid serialized protocol buffer of the above specified
+              type.
+        description: >-
+          `Any` contains an arbitrary serialized protocol buffer message along
+          with a
+
+          URL that describes the type of the serialized message.
+
+
+          Protobuf library provides support to pack/unpack Any values in the
+          form
+
+          of utility functions or additional generated methods of the Any type.
+
+
+          Example 1: Pack and unpack a message in C++.
+
+              Foo foo = ...;
+              Any any;
+              any.PackFrom(foo);
+              ...
+              if (any.UnpackTo(&foo)) {
+                ...
+              }
+
+          Example 2: Pack and unpack a message in Java.
+
+              Foo foo = ...;
+              Any any = Any.pack(foo);
+              ...
+              if (any.is(Foo.class)) {
+                foo = any.unpack(Foo.class);
+              }
+
+           Example 3: Pack and unpack a message in Python.
+
+              foo = Foo(...)
+              any = Any()
+              any.Pack(foo)
+              ...
+              if any.Is(Foo.DESCRIPTOR):
+                any.Unpack(foo)
+                ...
+
+           Example 4: Pack and unpack a message in Go
+
+               foo := &pb.Foo{...}
+               any, err := ptypes.MarshalAny(foo)
+               ...
+               foo := &pb.Foo{}
+               if err := ptypes.UnmarshalAny(any, foo); err != nil {
+                 ...
+               }
+
+          The pack methods provided by protobuf library will by default use
+
+          'type.googleapis.com/full.type.name' as the type URL and the unpack
+
+          methods only use the fully qualified type name after the last '/'
+
+          in the type URL, for example "foo.bar.com/x/y.z" will yield type
+
+          name "y.z".
+
+
+
+          JSON
+
+          ====
+
+          The JSON representation of an `Any` value uses the regular
+
+          representation of the deserialized, embedded message, with an
+
+          additional field `@type` which contains the type URL. Example:
+
+              package google.profile;
+              message Person {
+                string first_name = 1;
+                string last_name = 2;
+              }
+
+              {
+                "@type": "type.googleapis.com/google.profile.Person",
+                "firstName": <string>,
+                "lastName": <string>
+              }
+
+          If the embedded message type is well-known and has a custom JSON
+
+          representation, that representation will be embedded adding a field
+
+          `value` which holds the custom JSON in addition to the `@type`
+
+          field. Example (for message [google.protobuf.Duration][]):
+
+              {
+                "@type": "type.googleapis.com/google.protobuf.Duration",
+                "value": "1.212s"
+              }
     description: >-
       Plan specifies information about a planned upgrade and when it should
       occur.
@@ -12267,7 +13564,9 @@ definitions:
         description: height is the block height at which the plan was applied.
     description: >-
       QueryAppliedPlanResponse is the response type for the Query/AppliedPlan
-      RPC method.
+      RPC
+
+      method.
   cosmos.upgrade.v1beta1.QueryCurrentPlanResponse:
     type: object
     properties:
@@ -12279,18 +13578,24 @@ definitions:
             type: string
             description: >-
               Sets the name for the upgrade. This name will be used by the
-              upgraded version of the software to apply any
+              upgraded
 
-              special "on-upgrade" commands during the first BeginBlock method
-              after the upgrade is applied. It is also used
+              version of the software to apply any special "on-upgrade" commands
+              during
+
+              the first BeginBlock method after the upgrade is applied. It is
+              also used
 
               to detect whether a software version can handle a given upgrade.
-              If no upgrade handler with this name has been
+              If no
 
-              set in the software, it will be assumed that the software is
-              out-of-date when the upgrade Time or Height
+              upgrade handler with this name has been set in the software, it
+              will be
 
-              is reached and the software will exit.
+              assumed that the software is out-of-date when the upgrade Time or
+              Height is
+
+              reached and the software will exit.
           time:
             type: string
             format: date-time
@@ -12310,9 +13615,190 @@ definitions:
 
               such as a git commit that validators could automatically upgrade
               to
+          upgraded_client_state:
+            title: >-
+              IBC-enabled chains can opt-in to including the upgraded client
+              state in its upgrade plan
+
+              This will make the chain commit to the correct upgraded (self)
+              client state before the upgrade occurs,
+
+              so that connecting chains can verify that the new upgraded client
+              is valid by verifying a proof on the
+
+              previous version of the chain.
+
+              This will allow IBC connections to persist smoothly across planned
+              chain upgrades
+            type: object
+            properties:
+              type_url:
+                type: string
+                description: >-
+                  A URL/resource name that uniquely identifies the type of the
+                  serialized
+
+                  protocol buffer message. This string must contain at least
+
+                  one "/" character. The last segment of the URL's path must
+                  represent
+
+                  the fully qualified name of the type (as in
+
+                  `path/google.protobuf.Duration`). The name should be in a
+                  canonical form
+
+                  (e.g., leading "." is not accepted).
+
+
+                  In practice, teams usually precompile into the binary all
+                  types that they
+
+                  expect it to use in the context of Any. However, for URLs
+                  which use the
+
+                  scheme `http`, `https`, or no scheme, one can optionally set
+                  up a type
+
+                  server that maps type URLs to message definitions as follows:
+
+
+                  * If no scheme is provided, `https` is assumed.
+
+                  * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+                    value in binary format, or produce an error.
+                  * Applications are allowed to cache lookup results based on
+                  the
+                    URL, or have them precompiled into a binary to avoid any
+                    lookup. Therefore, binary compatibility needs to be preserved
+                    on changes to types. (Use versioned type names to manage
+                    breaking changes.)
+
+                  Note: this functionality is not currently available in the
+                  official
+
+                  protobuf release, and it is not used for type URLs beginning
+                  with
+
+                  type.googleapis.com.
+
+
+                  Schemes other than `http`, `https` (or the empty scheme) might
+                  be
+
+                  used with implementation specific semantics.
+              value:
+                type: string
+                format: byte
+                description: >-
+                  Must be a valid serialized protocol buffer of the above
+                  specified type.
+            description: >-
+              `Any` contains an arbitrary serialized protocol buffer message
+              along with a
+
+              URL that describes the type of the serialized message.
+
+
+              Protobuf library provides support to pack/unpack Any values in the
+              form
+
+              of utility functions or additional generated methods of the Any
+              type.
+
+
+              Example 1: Pack and unpack a message in C++.
+
+                  Foo foo = ...;
+                  Any any;
+                  any.PackFrom(foo);
+                  ...
+                  if (any.UnpackTo(&foo)) {
+                    ...
+                  }
+
+              Example 2: Pack and unpack a message in Java.
+
+                  Foo foo = ...;
+                  Any any = Any.pack(foo);
+                  ...
+                  if (any.is(Foo.class)) {
+                    foo = any.unpack(Foo.class);
+                  }
+
+               Example 3: Pack and unpack a message in Python.
+
+                  foo = Foo(...)
+                  any = Any()
+                  any.Pack(foo)
+                  ...
+                  if any.Is(Foo.DESCRIPTOR):
+                    any.Unpack(foo)
+                    ...
+
+               Example 4: Pack and unpack a message in Go
+
+                   foo := &pb.Foo{...}
+                   any, err := ptypes.MarshalAny(foo)
+                   ...
+                   foo := &pb.Foo{}
+                   if err := ptypes.UnmarshalAny(any, foo); err != nil {
+                     ...
+                   }
+
+              The pack methods provided by protobuf library will by default use
+
+              'type.googleapis.com/full.type.name' as the type URL and the
+              unpack
+
+              methods only use the fully qualified type name after the last '/'
+
+              in the type URL, for example "foo.bar.com/x/y.z" will yield type
+
+              name "y.z".
+
+
+
+              JSON
+
+              ====
+
+              The JSON representation of an `Any` value uses the regular
+
+              representation of the deserialized, embedded message, with an
+
+              additional field `@type` which contains the type URL. Example:
+
+                  package google.profile;
+                  message Person {
+                    string first_name = 1;
+                    string last_name = 2;
+                  }
+
+                  {
+                    "@type": "type.googleapis.com/google.profile.Person",
+                    "firstName": <string>,
+                    "lastName": <string>
+                  }
+
+              If the embedded message type is well-known and has a custom JSON
+
+              representation, that representation will be embedded adding a
+              field
+
+              `value` which holds the custom JSON in addition to the `@type`
+
+              field. Example (for message [google.protobuf.Duration][]):
+
+                  {
+                    "@type": "type.googleapis.com/google.protobuf.Duration",
+                    "value": "1.212s"
+                  }
     description: >-
       QueryCurrentPlanResponse is the response type for the Query/CurrentPlan
-      RPC method.
+      RPC
+
+      method.
   irismod.nft.BaseNFT:
     type: object
     properties:
@@ -12326,7 +13812,6 @@ definitions:
         type: string
       owner:
         type: string
-        format: byte
     description: BaseNFT defines a non fungible token.
   irismod.nft.Collection:
     type: object
@@ -12342,7 +13827,6 @@ definitions:
             type: string
           creator:
             type: string
-            format: byte
         description: Denom defines a type of NFT.
       nfts:
         type: array
@@ -12359,7 +13843,6 @@ definitions:
               type: string
             owner:
               type: string
-              format: byte
           description: BaseNFT defines a non fungible token.
   irismod.nft.Denom:
     type: object
@@ -12372,14 +13855,13 @@ definitions:
         type: string
       creator:
         type: string
-        format: byte
     description: Denom defines a type of NFT.
   irismod.nft.IDCollection:
     type: object
     properties:
-      denom:
+      denom_id:
         type: string
-      ids:
+      token_ids:
         type: array
         items:
           type: string
@@ -12388,15 +13870,14 @@ definitions:
     properties:
       address:
         type: string
-        format: byte
       id_collections:
         type: array
         items:
           type: object
           properties:
-            denom:
+            denom_id:
               type: string
-            ids:
+            token_ids:
               type: array
               items:
                 type: string
@@ -12417,7 +13898,6 @@ definitions:
                 type: string
               creator:
                 type: string
-                format: byte
             description: Denom defines a type of NFT.
           nfts:
             type: array
@@ -12434,7 +13914,6 @@ definitions:
                   type: string
                 owner:
                   type: string
-                  format: byte
               description: BaseNFT defines a non fungible token.
     title: >-
       QueryCollectionResponse is the response type for the Query/Collection RPC
@@ -12453,7 +13932,6 @@ definitions:
             type: string
           creator:
             type: string
-            format: byte
         description: Denom defines a type of NFT.
     title: QueryDenomResponse is the response type for the Query/Denom RPC method
   irismod.nft.QueryDenomsResponse:
@@ -12472,7 +13950,6 @@ definitions:
               type: string
             creator:
               type: string
-              format: byte
           description: Denom defines a type of NFT.
     title: QueryDenomsResponse is the response type for the Query/Denoms RPC method
   irismod.nft.QueryNFTResponse:
@@ -12491,7 +13968,6 @@ definitions:
             type: string
           owner:
             type: string
-            format: byte
         description: BaseNFT defines a non fungible token.
     title: QueryNFTResponse is the response type for the Query/NFT RPC method
   irismod.nft.QueryOwnerResponse:
@@ -12502,15 +13978,14 @@ definitions:
         properties:
           address:
             type: string
-            format: byte
           id_collections:
             type: array
             items:
               type: object
               properties:
-                denom:
+                denom_id:
                   type: string
-                ids:
+                token_ids:
                   type: array
                   items:
                     type: string
@@ -12542,7 +14017,6 @@ definitions:
         properties:
           tx_hash:
             type: string
-            format: byte
           contents:
             type: array
             items:
@@ -12559,14 +14033,12 @@ definitions:
               description: Content defines the detailed information for a record.
           creator:
             type: string
-            format: byte
     title: QueryRecordResponse is the response type for the Query/Record RPC method
   irismod.record.Record:
     type: object
     properties:
       tx_hash:
         type: string
-        format: byte
       contents:
         type: array
         items:
@@ -12583,7 +14055,6 @@ definitions:
           description: Content defines the detailed information for a record.
       creator:
         type: string
-        format: byte
   cosmos.query.PageResponse:
     type: object
     properties:
@@ -12682,12 +14153,12 @@ definitions:
             type: string
           available:
             type: boolean
+            format: boolean
           disabled_time:
             type: string
             format: date-time
           owner:
             type: string
-            format: byte
         description: ServiceBinding defines a standard for service binding.
     title: QueryDefinitionResponse is response type for the Query/Binding RPC method
   irismod.service.QueryBindingsResponse:
@@ -12728,12 +14199,12 @@ definitions:
               type: string
             available:
               type: boolean
+              format: boolean
             disabled_time:
               type: string
               format: date-time
             owner:
               type: string
-              format: byte
           description: ServiceBinding defines a standard for service binding.
     title: >-
       QueryDefinitionsResponse is response type for the Query/Bindings RPC
@@ -12754,7 +14225,6 @@ definitions:
               type: string
           author:
             type: string
-            format: byte
           author_description:
             type: string
           schemas:
@@ -12868,10 +14338,8 @@ definitions:
             type: array
             items:
               type: string
-              format: byte
           consumer:
             type: string
-            format: byte
           input:
             type: string
           service_fee_cap:
@@ -12898,8 +14366,10 @@ definitions:
             format: int64
           super_mode:
             type: boolean
+            format: boolean
           repeated:
             type: boolean
+            format: boolean
           repeated_frequency:
             type: string
             format: uint64
@@ -12959,15 +14429,12 @@ definitions:
         properties:
           id:
             type: string
-            format: byte
           service_name:
             type: string
           provider:
             type: string
-            format: byte
           consumer:
             type: string
-            format: byte
           input:
             type: string
           service_fee:
@@ -12989,6 +14456,7 @@ definitions:
                 signatures required by gogoproto.
           super_mode:
             type: boolean
+            format: boolean
           request_height:
             type: string
             format: int64
@@ -12997,7 +14465,6 @@ definitions:
             format: int64
           request_context_id:
             type: string
-            format: byte
           request_context_batch_counter:
             type: string
             format: uint64
@@ -13013,15 +14480,12 @@ definitions:
           properties:
             id:
               type: string
-              format: byte
             service_name:
               type: string
             provider:
               type: string
-              format: byte
             consumer:
               type: string
-              format: byte
             input:
               type: string
             service_fee:
@@ -13043,6 +14507,7 @@ definitions:
                   signatures required by gogoproto.
             super_mode:
               type: boolean
+              format: boolean
             request_height:
               type: string
               format: int64
@@ -13051,7 +14516,6 @@ definitions:
               format: int64
             request_context_id:
               type: string
-              format: byte
             request_context_batch_counter:
               type: string
               format: uint64
@@ -13069,15 +14533,12 @@ definitions:
           properties:
             id:
               type: string
-              format: byte
             service_name:
               type: string
             provider:
               type: string
-              format: byte
             consumer:
               type: string
-              format: byte
             input:
               type: string
             service_fee:
@@ -13099,6 +14560,7 @@ definitions:
                   signatures required by gogoproto.
             super_mode:
               type: boolean
+              format: boolean
             request_height:
               type: string
               format: int64
@@ -13107,7 +14569,6 @@ definitions:
               format: int64
             request_context_id:
               type: string
-              format: byte
             request_context_batch_counter:
               type: string
               format: uint64
@@ -13121,17 +14582,14 @@ definitions:
         properties:
           provider:
             type: string
-            format: byte
           consumer:
             type: string
-            format: byte
           result:
             type: string
           output:
             type: string
           request_context_id:
             type: string
-            format: byte
           request_context_batch_counter:
             type: string
             format: uint64
@@ -13147,17 +14605,14 @@ definitions:
           properties:
             provider:
               type: string
-              format: byte
             consumer:
               type: string
-              format: byte
             result:
               type: string
             output:
               type: string
             request_context_id:
               type: string
-              format: byte
             request_context_batch_counter:
               type: string
               format: uint64
@@ -13174,7 +14629,6 @@ definitions:
     properties:
       withdraw_address:
         type: string
-        format: byte
     title: >-
       QueryWithdrawAddressResponse is response type for the
       Query/WithdrawAddress RPC method
@@ -13183,15 +14637,12 @@ definitions:
     properties:
       id:
         type: string
-        format: byte
       service_name:
         type: string
       provider:
         type: string
-        format: byte
       consumer:
         type: string
-        format: byte
       input:
         type: string
       service_fee:
@@ -13210,6 +14661,7 @@ definitions:
             signatures required by gogoproto.
       super_mode:
         type: boolean
+        format: boolean
       request_height:
         type: string
         format: int64
@@ -13218,7 +14670,6 @@ definitions:
         format: int64
       request_context_id:
         type: string
-        format: byte
       request_context_batch_counter:
         type: string
         format: uint64
@@ -13232,10 +14683,8 @@ definitions:
         type: array
         items:
           type: string
-          format: byte
       consumer:
         type: string
-        format: byte
       input:
         type: string
       service_fee_cap:
@@ -13259,8 +14708,10 @@ definitions:
         format: int64
       super_mode:
         type: boolean
+        format: boolean
       repeated:
         type: boolean
+        format: boolean
       repeated_frequency:
         type: string
         format: uint64
@@ -13340,17 +14791,14 @@ definitions:
     properties:
       provider:
         type: string
-        format: byte
       consumer:
         type: string
-        format: byte
       result:
         type: string
       output:
         type: string
       request_context_id:
         type: string
-        format: byte
       request_context_batch_counter:
         type: string
         format: uint64
@@ -13385,12 +14833,12 @@ definitions:
         type: string
       available:
         type: boolean
+        format: boolean
       disabled_time:
         type: string
         format: date-time
       owner:
         type: string
-        format: byte
     description: ServiceBinding defines a standard for service binding.
   irismod.service.ServiceDefinition:
     type: object
@@ -13405,7 +14853,6 @@ definitions:
           type: string
       author:
         type: string
-        format: byte
       author_description:
         type: string
       schemas:
@@ -13436,6 +14883,7 @@ definitions:
     properties:
       exist:
         type: boolean
+        format: boolean
       issue_fee:
         type: object
         properties:
@@ -13875,6 +15323,7 @@ definitions:
           If left empty it will default to a value to be set by each app.
       count_total:
         type: boolean
+        format: boolean
         description: >-
           count_total is set to true  to indicate that the result set should
           include
@@ -13891,14 +15340,81 @@ definitions:
     title: |-
       PageRequest is to be embedded in gRPC request messages for efficient
       pagination. Ex:
-  iritamod.validator.Params:
+  iritamod.node.Node:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      certificate:
+        type: string
+    title: Node defines a struct to represent a node identity
+  iritamod.node.Params:
     type: object
     properties:
       historical_entries:
         type: integer
         format: int64
-    description: Params defines the parameters for the staking module.
-  iritamod.validator.QueryParamsResponse:
+    description: Params defines the parameters for the node module.
+  iritamod.node.QueryNodeResponse:
+    type: object
+    properties:
+      node:
+        type: object
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+          certificate:
+            type: string
+        title: Node defines a struct to represent a node identity
+    title: QueryNodeResponse is the response type for the Query/Node RPC method
+  iritamod.node.QueryNodesResponse:
+    type: object
+    properties:
+      nodes:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            certificate:
+              type: string
+          title: Node defines a struct to represent a node identity
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
+    title: QueryNodesResponse is the response type for the Query/Nodes RPC method
+  iritamod.node.QueryParamsResponse:
     type: object
     properties:
       params:
@@ -13907,9 +15423,9 @@ definitions:
           historical_entries:
             type: integer
             format: int64
-        description: Params defines the parameters for the staking module.
+        description: Params defines the parameters for the node module.
     title: QueryParamsResponse is the response type for the Query/Params RPC method
-  iritamod.validator.QueryValidatorResponse:
+  iritamod.node.QueryValidatorResponse:
     type: object
     properties:
       validator:
@@ -13917,7 +15433,6 @@ definitions:
         properties:
           id:
             type: string
-            format: byte
           name:
             type: string
           pubkey:
@@ -13931,9 +15446,9 @@ definitions:
             type: string
           jailed:
             type: boolean
+            format: boolean
           operator:
             type: string
-            format: byte
         description: >-
           Request defines a standard for validator. The validator will
           participate the
@@ -13943,7 +15458,7 @@ definitions:
     title: >-
       QueryValidatorResponse is the response type for the Query/Validator RPC
       method
-  iritamod.validator.QueryValidatorsResponse:
+  iritamod.node.QueryValidatorsResponse:
     type: object
     properties:
       validators:
@@ -13953,7 +15468,6 @@ definitions:
           properties:
             id:
               type: string
-              format: byte
             name:
               type: string
             pubkey:
@@ -13967,9 +15481,9 @@ definitions:
               type: string
             jailed:
               type: boolean
+              format: boolean
             operator:
               type: string
-              format: byte
           description: >-
             Request defines a standard for validator. The validator will
             participate the
@@ -14006,12 +15520,11 @@ definitions:
     title: >-
       QueryValidatorsResponse is the response type for the Query/Validators RPC
       method
-  iritamod.validator.Validator:
+  iritamod.node.Validator:
     type: object
     properties:
       id:
         type: string
-        format: byte
       name:
         type: string
       pubkey:
@@ -14025,9 +15538,9 @@ definitions:
         type: string
       jailed:
         type: boolean
+        format: boolean
       operator:
         type: string
-        format: byte
     description: >-
       Request defines a standard for validator. The validator will participate
       the
@@ -14039,7 +15552,6 @@ definitions:
     properties:
       id:
         type: string
-        format: byte
       pub_keys:
         type: array
         items:
@@ -14047,7 +15559,6 @@ definitions:
           properties:
             pub_key:
               type: string
-              format: byte
             algorithm:
               type: string
               enum:
@@ -14078,7 +15589,6 @@ definitions:
         type: string
       owner:
         type: string
-        format: byte
     title: Identity defines a struct for an identity
   iritamod.identity.PubKeyAlgorithm:
     type: string
@@ -14104,7 +15614,6 @@ definitions:
     properties:
       pub_key:
         type: string
-        format: byte
       algorithm:
         type: string
         enum:
@@ -14133,7 +15642,6 @@ definitions:
         properties:
           id:
             type: string
-            format: byte
           pub_keys:
             type: array
             items:
@@ -14141,7 +15649,6 @@ definitions:
               properties:
                 pub_key:
                   type: string
-                  format: byte
                 algorithm:
                   type: string
                   enum:
@@ -14174,714 +15681,211 @@ definitions:
             type: string
           owner:
             type: string
-            format: byte
         title: Identity defines a struct for an identity
     title: QueryIdentityResponse is response type for the Query/Identity RPC method
-  irita.ibc.ConsensusStateWithHeight:
+  wasmd.x.wasmd.v1beta1.AbsoluteTxPosition:
     type: object
     properties:
-      height:
+      block_height:
         type: string
         format: uint64
-        title: consensus state height
-      consensus_state:
-        title: consensus state
-        type: object
-        properties:
-          type_url:
-            type: string
-            description: >-
-              A URL/resource name that uniquely identifies the type of the
-              serialized
-
-              protocol buffer message. This string must contain at least
-
-              one "/" character. The last segment of the URL's path must
-              represent
-
-              the fully qualified name of the type (as in
-
-              `path/google.protobuf.Duration`). The name should be in a
-              canonical form
-
-              (e.g., leading "." is not accepted).
-
-
-              In practice, teams usually precompile into the binary all types
-              that they
-
-              expect it to use in the context of Any. However, for URLs which
-              use the
-
-              scheme `http`, `https`, or no scheme, one can optionally set up a
-              type
-
-              server that maps type URLs to message definitions as follows:
-
-
-              * If no scheme is provided, `https` is assumed.
-
-              * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-                value in binary format, or produce an error.
-              * Applications are allowed to cache lookup results based on the
-                URL, or have them precompiled into a binary to avoid any
-                lookup. Therefore, binary compatibility needs to be preserved
-                on changes to types. (Use versioned type names to manage
-                breaking changes.)
-
-              Note: this functionality is not currently available in the
-              official
-
-              protobuf release, and it is not used for type URLs beginning with
-
-              type.googleapis.com.
-
-
-              Schemes other than `http`, `https` (or the empty scheme) might be
-
-              used with implementation specific semantics.
-          value:
-            type: string
-            format: byte
-            description: >-
-              Must be a valid serialized protocol buffer of the above specified
-              type.
-        description: >-
-          `Any` contains an arbitrary serialized protocol buffer message along
-          with a
-
-          URL that describes the type of the serialized message.
-
-
-          Protobuf library provides support to pack/unpack Any values in the
-          form
-
-          of utility functions or additional generated methods of the Any type.
-
-
-          Example 1: Pack and unpack a message in C++.
-
-              Foo foo = ...;
-              Any any;
-              any.PackFrom(foo);
-              ...
-              if (any.UnpackTo(&foo)) {
-                ...
-              }
-
-          Example 2: Pack and unpack a message in Java.
-
-              Foo foo = ...;
-              Any any = Any.pack(foo);
-              ...
-              if (any.is(Foo.class)) {
-                foo = any.unpack(Foo.class);
-              }
-
-           Example 3: Pack and unpack a message in Python.
-
-              foo = Foo(...)
-              any = Any()
-              any.Pack(foo)
-              ...
-              if any.Is(Foo.DESCRIPTOR):
-                any.Unpack(foo)
-                ...
-
-           Example 4: Pack and unpack a message in Go
-
-               foo := &pb.Foo{...}
-               any, err := ptypes.MarshalAny(foo)
-               ...
-               foo := &pb.Foo{}
-               if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                 ...
-               }
-
-          The pack methods provided by protobuf library will by default use
-
-          'type.googleapis.com/full.type.name' as the type URL and the unpack
-
-          methods only use the fully qualified type name after the last '/'
-
-          in the type URL, for example "foo.bar.com/x/y.z" will yield type
-
-          name "y.z".
-
-
-
-          JSON
-
-          ====
-
-          The JSON representation of an `Any` value uses the regular
-
-          representation of the deserialized, embedded message, with an
-
-          additional field `@type` which contains the type URL. Example:
-
-              package google.profile;
-              message Person {
-                string first_name = 1;
-                string last_name = 2;
-              }
-
-              {
-                "@type": "type.googleapis.com/google.profile.Person",
-                "firstName": <string>,
-                "lastName": <string>
-              }
-
-          If the embedded message type is well-known and has a custom JSON
-
-          representation, that representation will be embedded adding a field
-
-          `value` which holds the custom JSON in addition to the `@type`
-
-          field. Example (for message [google.protobuf.Duration][]):
-
-              {
-                "@type": "type.googleapis.com/google.protobuf.Duration",
-                "value": "1.212s"
-              }
-    description: >-
-      ConsensusStateWithHeight defines a consensus state with an additional
-      height field.
-  irita.ibc.IdentifiedClientState:
-    type: object
-    properties:
-      client_id:
+        title: BlockHeight is the block the contract was created at
+      tx_index:
         type: string
-        title: client identifier
-      client_state:
-        title: client state
-        type: object
-        properties:
-          type_url:
-            type: string
-            description: >-
-              A URL/resource name that uniquely identifies the type of the
-              serialized
-
-              protocol buffer message. This string must contain at least
-
-              one "/" character. The last segment of the URL's path must
-              represent
-
-              the fully qualified name of the type (as in
-
-              `path/google.protobuf.Duration`). The name should be in a
-              canonical form
-
-              (e.g., leading "." is not accepted).
-
-
-              In practice, teams usually precompile into the binary all types
-              that they
-
-              expect it to use in the context of Any. However, for URLs which
-              use the
-
-              scheme `http`, `https`, or no scheme, one can optionally set up a
-              type
-
-              server that maps type URLs to message definitions as follows:
-
-
-              * If no scheme is provided, `https` is assumed.
-
-              * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-                value in binary format, or produce an error.
-              * Applications are allowed to cache lookup results based on the
-                URL, or have them precompiled into a binary to avoid any
-                lookup. Therefore, binary compatibility needs to be preserved
-                on changes to types. (Use versioned type names to manage
-                breaking changes.)
-
-              Note: this functionality is not currently available in the
-              official
-
-              protobuf release, and it is not used for type URLs beginning with
-
-              type.googleapis.com.
-
-
-              Schemes other than `http`, `https` (or the empty scheme) might be
-
-              used with implementation specific semantics.
-          value:
-            type: string
-            format: byte
-            description: >-
-              Must be a valid serialized protocol buffer of the above specified
-              type.
-        description: >-
-          `Any` contains an arbitrary serialized protocol buffer message along
-          with a
-
-          URL that describes the type of the serialized message.
-
-
-          Protobuf library provides support to pack/unpack Any values in the
-          form
-
-          of utility functions or additional generated methods of the Any type.
-
-
-          Example 1: Pack and unpack a message in C++.
-
-              Foo foo = ...;
-              Any any;
-              any.PackFrom(foo);
-              ...
-              if (any.UnpackTo(&foo)) {
-                ...
-              }
-
-          Example 2: Pack and unpack a message in Java.
-
-              Foo foo = ...;
-              Any any = Any.pack(foo);
-              ...
-              if (any.is(Foo.class)) {
-                foo = any.unpack(Foo.class);
-              }
-
-           Example 3: Pack and unpack a message in Python.
-
-              foo = Foo(...)
-              any = Any()
-              any.Pack(foo)
-              ...
-              if any.Is(Foo.DESCRIPTOR):
-                any.Unpack(foo)
-                ...
-
-           Example 4: Pack and unpack a message in Go
-
-               foo := &pb.Foo{...}
-               any, err := ptypes.MarshalAny(foo)
-               ...
-               foo := &pb.Foo{}
-               if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                 ...
-               }
-
-          The pack methods provided by protobuf library will by default use
-
-          'type.googleapis.com/full.type.name' as the type URL and the unpack
-
-          methods only use the fully qualified type name after the last '/'
-
-          in the type URL, for example "foo.bar.com/x/y.z" will yield type
-
-          name "y.z".
-
-
-
-          JSON
-
-          ====
-
-          The JSON representation of an `Any` value uses the regular
-
-          representation of the deserialized, embedded message, with an
-
-          additional field `@type` which contains the type URL. Example:
-
-              package google.profile;
-              message Person {
-                string first_name = 1;
-                string last_name = 2;
-              }
-
-              {
-                "@type": "type.googleapis.com/google.profile.Person",
-                "firstName": <string>,
-                "lastName": <string>
-              }
-
-          If the embedded message type is well-known and has a custom JSON
-
-          representation, that representation will be embedded adding a field
-
-          `value` which holds the custom JSON in addition to the `@type`
-
-          field. Example (for message [google.protobuf.Duration][]):
-
-              {
-                "@type": "type.googleapis.com/google.protobuf.Duration",
-                "value": "1.212s"
-              }
-    description: |-
-      IdentifiedClientState defines a client state with an additional client
-      identifier field.
-  irita.ibc.QueryClientStateResponse:
+        format: uint64
+        title: >-
+          TxIndex is a monotonic counter within the block (actual transaction
+          index, or gas consumed)
+    description: >-
+      AbsoluteTxPosition is a unique transaction position that allows for global
+      ordering of transactions.
+  wasmd.x.wasmd.v1beta1.CodeInfoResponse:
     type: object
     properties:
-      client_state:
-        title: client state associated with the request identifier
-        type: object
-        properties:
-          type_url:
-            type: string
-            description: >-
-              A URL/resource name that uniquely identifies the type of the
-              serialized
-
-              protocol buffer message. This string must contain at least
-
-              one "/" character. The last segment of the URL's path must
-              represent
-
-              the fully qualified name of the type (as in
-
-              `path/google.protobuf.Duration`). The name should be in a
-              canonical form
-
-              (e.g., leading "." is not accepted).
-
-
-              In practice, teams usually precompile into the binary all types
-              that they
-
-              expect it to use in the context of Any. However, for URLs which
-              use the
-
-              scheme `http`, `https`, or no scheme, one can optionally set up a
-              type
-
-              server that maps type URLs to message definitions as follows:
-
-
-              * If no scheme is provided, `https` is assumed.
-
-              * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-                value in binary format, or produce an error.
-              * Applications are allowed to cache lookup results based on the
-                URL, or have them precompiled into a binary to avoid any
-                lookup. Therefore, binary compatibility needs to be preserved
-                on changes to types. (Use versioned type names to manage
-                breaking changes.)
-
-              Note: this functionality is not currently available in the
-              official
-
-              protobuf release, and it is not used for type URLs beginning with
-
-              type.googleapis.com.
-
-
-              Schemes other than `http`, `https` (or the empty scheme) might be
-
-              used with implementation specific semantics.
-          value:
-            type: string
-            format: byte
-            description: >-
-              Must be a valid serialized protocol buffer of the above specified
-              type.
-        description: >-
-          `Any` contains an arbitrary serialized protocol buffer message along
-          with a
-
-          URL that describes the type of the serialized message.
-
-
-          Protobuf library provides support to pack/unpack Any values in the
-          form
-
-          of utility functions or additional generated methods of the Any type.
-
-
-          Example 1: Pack and unpack a message in C++.
-
-              Foo foo = ...;
-              Any any;
-              any.PackFrom(foo);
-              ...
-              if (any.UnpackTo(&foo)) {
-                ...
-              }
-
-          Example 2: Pack and unpack a message in Java.
-
-              Foo foo = ...;
-              Any any = Any.pack(foo);
-              ...
-              if (any.is(Foo.class)) {
-                foo = any.unpack(Foo.class);
-              }
-
-           Example 3: Pack and unpack a message in Python.
-
-              foo = Foo(...)
-              any = Any()
-              any.Pack(foo)
-              ...
-              if any.Is(Foo.DESCRIPTOR):
-                any.Unpack(foo)
-                ...
-
-           Example 4: Pack and unpack a message in Go
-
-               foo := &pb.Foo{...}
-               any, err := ptypes.MarshalAny(foo)
-               ...
-               foo := &pb.Foo{}
-               if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                 ...
-               }
-
-          The pack methods provided by protobuf library will by default use
-
-          'type.googleapis.com/full.type.name' as the type URL and the unpack
-
-          methods only use the fully qualified type name after the last '/'
-
-          in the type URL, for example "foo.bar.com/x/y.z" will yield type
-
-          name "y.z".
-
-
-
-          JSON
-
-          ====
-
-          The JSON representation of an `Any` value uses the regular
-
-          representation of the deserialized, embedded message, with an
-
-          additional field `@type` which contains the type URL. Example:
-
-              package google.profile;
-              message Person {
-                string first_name = 1;
-                string last_name = 2;
-              }
-
-              {
-                "@type": "type.googleapis.com/google.profile.Person",
-                "firstName": <string>,
-                "lastName": <string>
-              }
-
-          If the embedded message type is well-known and has a custom JSON
-
-          representation, that representation will be embedded adding a field
-
-          `value` which holds the custom JSON in addition to the `@type`
-
-          field. Example (for message [google.protobuf.Duration][]):
-
-              {
-                "@type": "type.googleapis.com/google.protobuf.Duration",
-                "value": "1.212s"
-              }
-      proof:
+      code_id:
+        type: string
+        format: uint64
+      creator:
+        type: string
+      data_hash:
         type: string
         format: byte
-        title: merkle proof of existence
-      proof_path:
+      source:
         type: string
-        title: merkle proof path
-      proof_height:
+      builder:
         type: string
-        format: uint64
-        title: height at which the proof was retrieved
-    title: >-
-      QueryClientStateResponse is response type for the Query/ClientState RPC
-      method
-  irita.ibc.QueryClientStatesResponse:
+    title: CodeInfoResponse contains code meta data from CodeInfo
+  wasmd.x.wasmd.v1beta1.ContractCodeHistoryEntry:
     type: object
     properties:
-      client_states:
+      operation:
+        type: string
+        enum:
+          - CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED
+          - CONTRACT_CODE_HISTORY_OPERATION_TYPE_INIT
+          - CONTRACT_CODE_HISTORY_OPERATION_TYPE_MIGRATE
+          - CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS
+        default: CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED
+        description: >-
+          - CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED:
+          ContractCodeHistoryOperationTypeUnspecified placeholder for empty
+          value
+           - CONTRACT_CODE_HISTORY_OPERATION_TYPE_INIT: ContractCodeHistoryOperationTypeInit on chain contract instantiation
+           - CONTRACT_CODE_HISTORY_OPERATION_TYPE_MIGRATE: ContractCodeHistoryOperationTypeMigrate code migration
+           - CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS: ContractCodeHistoryOperationTypeGenesis based on genesis data
+        title: ContractCodeHistoryOperationType actions that caused a code change
+      code_id:
+        type: string
+        format: uint64
+        title: CodeID is the reference to the stored WASM code
+      updated:
+        description: Updated Tx position when the operation was executed.
+        type: object
+        properties:
+          block_height:
+            type: string
+            format: uint64
+            title: BlockHeight is the block the contract was created at
+          tx_index:
+            type: string
+            format: uint64
+            title: >-
+              TxIndex is a monotonic counter within the block (actual
+              transaction index, or gas consumed)
+      msg:
+        type: string
+        format: byte
+    description: ContractCodeHistoryEntry metadata to a contract.
+  wasmd.x.wasmd.v1beta1.ContractCodeHistoryOperationType:
+    type: string
+    enum:
+      - CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED
+      - CONTRACT_CODE_HISTORY_OPERATION_TYPE_INIT
+      - CONTRACT_CODE_HISTORY_OPERATION_TYPE_MIGRATE
+      - CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS
+    default: CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED
+    description: >-
+      - CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED:
+      ContractCodeHistoryOperationTypeUnspecified placeholder for empty value
+       - CONTRACT_CODE_HISTORY_OPERATION_TYPE_INIT: ContractCodeHistoryOperationTypeInit on chain contract instantiation
+       - CONTRACT_CODE_HISTORY_OPERATION_TYPE_MIGRATE: ContractCodeHistoryOperationTypeMigrate code migration
+       - CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS: ContractCodeHistoryOperationTypeGenesis based on genesis data
+    title: ContractCodeHistoryOperationType actions that caused a code change
+  wasmd.x.wasmd.v1beta1.ContractInfo:
+    type: object
+    properties:
+      code_id:
+        type: string
+        format: uint64
+        title: CodeID is the reference to the stored Wasm code
+      creator:
+        type: string
+        title: Creator address who initially instantiated the contract
+      admin:
+        type: string
+        title: Admin is an optional address that can execute migrations
+      label:
+        type: string
+        description: Label is optional metadata to be stored with a contract instance.
+      created:
+        title: >-
+          Created Tx position when the contract was instantiated.
+
+          This data should kept internal and not be exposed via query results.
+          Just use for sorting
+        type: object
+        properties:
+          block_height:
+            type: string
+            format: uint64
+            title: BlockHeight is the block the contract was created at
+          tx_index:
+            type: string
+            format: uint64
+            title: >-
+              TxIndex is a monotonic counter within the block (actual
+              transaction index, or gas consumed)
+        description: >-
+          AbsoluteTxPosition is a unique transaction position that allows for
+          global ordering of transactions.
+    title: ContractInfo stores a WASM contract instance
+  wasmd.x.wasmd.v1beta1.ContractInfoWithAddress:
+    type: object
+    properties:
+      address:
+        type: string
+      contract_info:
+        type: object
+        properties:
+          code_id:
+            type: string
+            format: uint64
+            title: CodeID is the reference to the stored Wasm code
+          creator:
+            type: string
+            title: Creator address who initially instantiated the contract
+          admin:
+            type: string
+            title: Admin is an optional address that can execute migrations
+          label:
+            type: string
+            description: Label is optional metadata to be stored with a contract instance.
+          created:
+            title: >-
+              Created Tx position when the contract was instantiated.
+
+              This data should kept internal and not be exposed via query
+              results. Just use for sorting
+            type: object
+            properties:
+              block_height:
+                type: string
+                format: uint64
+                title: BlockHeight is the block the contract was created at
+              tx_index:
+                type: string
+                format: uint64
+                title: >-
+                  TxIndex is a monotonic counter within the block (actual
+                  transaction index, or gas consumed)
+            description: >-
+              AbsoluteTxPosition is a unique transaction position that allows
+              for global ordering of transactions.
+        title: ContractInfo stores a WASM contract instance
+    title: >-
+      ContractInfoWithAddress adds the address (key) to the ContractInfo
+      representation
+  wasmd.x.wasmd.v1beta1.Model:
+    type: object
+    properties:
+      key:
+        type: string
+        format: byte
+        title: hex-encode key to read it better (this is often ascii)
+      value:
+        type: string
+        format: byte
+        title: base64-encode raw value
+    title: Model is a struct that holds a KV pair
+  wasmd.x.wasmd.v1beta1.QueryAllContractStateResponse:
+    type: object
+    properties:
+      models:
         type: array
         items:
           type: object
           properties:
-            client_id:
+            key:
               type: string
-              title: client identifier
-            client_state:
-              title: client state
-              type: object
-              properties:
-                type_url:
-                  type: string
-                  description: >-
-                    A URL/resource name that uniquely identifies the type of the
-                    serialized
-
-                    protocol buffer message. This string must contain at least
-
-                    one "/" character. The last segment of the URL's path must
-                    represent
-
-                    the fully qualified name of the type (as in
-
-                    `path/google.protobuf.Duration`). The name should be in a
-                    canonical form
-
-                    (e.g., leading "." is not accepted).
-
-
-                    In practice, teams usually precompile into the binary all
-                    types that they
-
-                    expect it to use in the context of Any. However, for URLs
-                    which use the
-
-                    scheme `http`, `https`, or no scheme, one can optionally set
-                    up a type
-
-                    server that maps type URLs to message definitions as
-                    follows:
-
-
-                    * If no scheme is provided, `https` is assumed.
-
-                    * An HTTP GET on the URL must yield a
-                    [google.protobuf.Type][]
-                      value in binary format, or produce an error.
-                    * Applications are allowed to cache lookup results based on
-                    the
-                      URL, or have them precompiled into a binary to avoid any
-                      lookup. Therefore, binary compatibility needs to be preserved
-                      on changes to types. (Use versioned type names to manage
-                      breaking changes.)
-
-                    Note: this functionality is not currently available in the
-                    official
-
-                    protobuf release, and it is not used for type URLs beginning
-                    with
-
-                    type.googleapis.com.
-
-
-                    Schemes other than `http`, `https` (or the empty scheme)
-                    might be
-
-                    used with implementation specific semantics.
-                value:
-                  type: string
-                  format: byte
-                  description: >-
-                    Must be a valid serialized protocol buffer of the above
-                    specified type.
-              description: >-
-                `Any` contains an arbitrary serialized protocol buffer message
-                along with a
-
-                URL that describes the type of the serialized message.
-
-
-                Protobuf library provides support to pack/unpack Any values in
-                the form
-
-                of utility functions or additional generated methods of the Any
-                type.
-
-
-                Example 1: Pack and unpack a message in C++.
-
-                    Foo foo = ...;
-                    Any any;
-                    any.PackFrom(foo);
-                    ...
-                    if (any.UnpackTo(&foo)) {
-                      ...
-                    }
-
-                Example 2: Pack and unpack a message in Java.
-
-                    Foo foo = ...;
-                    Any any = Any.pack(foo);
-                    ...
-                    if (any.is(Foo.class)) {
-                      foo = any.unpack(Foo.class);
-                    }
-
-                 Example 3: Pack and unpack a message in Python.
-
-                    foo = Foo(...)
-                    any = Any()
-                    any.Pack(foo)
-                    ...
-                    if any.Is(Foo.DESCRIPTOR):
-                      any.Unpack(foo)
-                      ...
-
-                 Example 4: Pack and unpack a message in Go
-
-                     foo := &pb.Foo{...}
-                     any, err := ptypes.MarshalAny(foo)
-                     ...
-                     foo := &pb.Foo{}
-                     if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                       ...
-                     }
-
-                The pack methods provided by protobuf library will by default
-                use
-
-                'type.googleapis.com/full.type.name' as the type URL and the
-                unpack
-
-                methods only use the fully qualified type name after the last
-                '/'
-
-                in the type URL, for example "foo.bar.com/x/y.z" will yield type
-
-                name "y.z".
-
-
-
-                JSON
-
-                ====
-
-                The JSON representation of an `Any` value uses the regular
-
-                representation of the deserialized, embedded message, with an
-
-                additional field `@type` which contains the type URL. Example:
-
-                    package google.profile;
-                    message Person {
-                      string first_name = 1;
-                      string last_name = 2;
-                    }
-
-                    {
-                      "@type": "type.googleapis.com/google.profile.Person",
-                      "firstName": <string>,
-                      "lastName": <string>
-                    }
-
-                If the embedded message type is well-known and has a custom JSON
-
-                representation, that representation will be embedded adding a
-                field
-
-                `value` which holds the custom JSON in addition to the `@type`
-
-                field. Example (for message [google.protobuf.Duration][]):
-
-                    {
-                      "@type": "type.googleapis.com/google.protobuf.Duration",
-                      "value": "1.212s"
-                    }
-          description: >-
-            IdentifiedClientState defines a client state with an additional
-            client
-
-            identifier field.
-        description: list of stored ClientStates of the chain.
+              format: byte
+              title: hex-encode key to read it better (this is often ascii)
+            value:
+              type: string
+              format: byte
+              title: base64-encode raw value
+          title: Model is a struct that holds a KV pair
       pagination:
-        title: pagination response
+        description: pagination defines the pagination in the response.
         type: object
         properties:
           next_key:
@@ -14898,383 +15902,55 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
-    description: >-
-      QueryClientStatesResponse is the response type for the Query/ClientStates
-      RPC
-
-      method.
-  irita.ibc.QueryConsensusStateResponse:
+    title: >-
+      QueryAllContractStateResponse is the response type for the
+      Query/AllContractState RPC method
+  wasmd.x.wasmd.v1beta1.QueryCodeResponse:
     type: object
     properties:
-      consensus_state:
-        title: >-
-          consensus state associated with the client identifier at the given
-          height
+      code_info:
         type: object
         properties:
-          type_url:
+          code_id:
             type: string
-            description: >-
-              A URL/resource name that uniquely identifies the type of the
-              serialized
-
-              protocol buffer message. This string must contain at least
-
-              one "/" character. The last segment of the URL's path must
-              represent
-
-              the fully qualified name of the type (as in
-
-              `path/google.protobuf.Duration`). The name should be in a
-              canonical form
-
-              (e.g., leading "." is not accepted).
-
-
-              In practice, teams usually precompile into the binary all types
-              that they
-
-              expect it to use in the context of Any. However, for URLs which
-              use the
-
-              scheme `http`, `https`, or no scheme, one can optionally set up a
-              type
-
-              server that maps type URLs to message definitions as follows:
-
-
-              * If no scheme is provided, `https` is assumed.
-
-              * An HTTP GET on the URL must yield a [google.protobuf.Type][]
-                value in binary format, or produce an error.
-              * Applications are allowed to cache lookup results based on the
-                URL, or have them precompiled into a binary to avoid any
-                lookup. Therefore, binary compatibility needs to be preserved
-                on changes to types. (Use versioned type names to manage
-                breaking changes.)
-
-              Note: this functionality is not currently available in the
-              official
-
-              protobuf release, and it is not used for type URLs beginning with
-
-              type.googleapis.com.
-
-
-              Schemes other than `http`, `https` (or the empty scheme) might be
-
-              used with implementation specific semantics.
-          value:
+            format: uint64
+          creator:
+            type: string
+          data_hash:
             type: string
             format: byte
-            description: >-
-              Must be a valid serialized protocol buffer of the above specified
-              type.
-        description: >-
-          `Any` contains an arbitrary serialized protocol buffer message along
-          with a
-
-          URL that describes the type of the serialized message.
-
-
-          Protobuf library provides support to pack/unpack Any values in the
-          form
-
-          of utility functions or additional generated methods of the Any type.
-
-
-          Example 1: Pack and unpack a message in C++.
-
-              Foo foo = ...;
-              Any any;
-              any.PackFrom(foo);
-              ...
-              if (any.UnpackTo(&foo)) {
-                ...
-              }
-
-          Example 2: Pack and unpack a message in Java.
-
-              Foo foo = ...;
-              Any any = Any.pack(foo);
-              ...
-              if (any.is(Foo.class)) {
-                foo = any.unpack(Foo.class);
-              }
-
-           Example 3: Pack and unpack a message in Python.
-
-              foo = Foo(...)
-              any = Any()
-              any.Pack(foo)
-              ...
-              if any.Is(Foo.DESCRIPTOR):
-                any.Unpack(foo)
-                ...
-
-           Example 4: Pack and unpack a message in Go
-
-               foo := &pb.Foo{...}
-               any, err := ptypes.MarshalAny(foo)
-               ...
-               foo := &pb.Foo{}
-               if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                 ...
-               }
-
-          The pack methods provided by protobuf library will by default use
-
-          'type.googleapis.com/full.type.name' as the type URL and the unpack
-
-          methods only use the fully qualified type name after the last '/'
-
-          in the type URL, for example "foo.bar.com/x/y.z" will yield type
-
-          name "y.z".
-
-
-
-          JSON
-
-          ====
-
-          The JSON representation of an `Any` value uses the regular
-
-          representation of the deserialized, embedded message, with an
-
-          additional field `@type` which contains the type URL. Example:
-
-              package google.profile;
-              message Person {
-                string first_name = 1;
-                string last_name = 2;
-              }
-
-              {
-                "@type": "type.googleapis.com/google.profile.Person",
-                "firstName": <string>,
-                "lastName": <string>
-              }
-
-          If the embedded message type is well-known and has a custom JSON
-
-          representation, that representation will be embedded adding a field
-
-          `value` which holds the custom JSON in addition to the `@type`
-
-          field. Example (for message [google.protobuf.Duration][]):
-
-              {
-                "@type": "type.googleapis.com/google.protobuf.Duration",
-                "value": "1.212s"
-              }
-      proof:
+          source:
+            type: string
+          builder:
+            type: string
+        title: CodeInfoResponse contains code meta data from CodeInfo
+      data:
         type: string
         format: byte
-        title: merkle proof of existence
-      proof_path:
-        type: string
-        title: merkle proof path
-      proof_height:
-        type: string
-        format: uint64
-        title: height at which the proof was retrieved
-    title: >-
-      QueryConsensusStateResponse is response type for the Query/ConsensusState
-      RPC method
-  irita.ibc.QueryConsensusStatesResponse:
+    title: QueryCodeResponse is the response type for the Query/Code RPC method
+  wasmd.x.wasmd.v1beta1.QueryCodesResponse:
     type: object
     properties:
-      consensus_states:
+      code_infos:
         type: array
         items:
           type: object
           properties:
-            height:
+            code_id:
               type: string
               format: uint64
-              title: consensus state height
-            consensus_state:
-              title: consensus state
-              type: object
-              properties:
-                type_url:
-                  type: string
-                  description: >-
-                    A URL/resource name that uniquely identifies the type of the
-                    serialized
-
-                    protocol buffer message. This string must contain at least
-
-                    one "/" character. The last segment of the URL's path must
-                    represent
-
-                    the fully qualified name of the type (as in
-
-                    `path/google.protobuf.Duration`). The name should be in a
-                    canonical form
-
-                    (e.g., leading "." is not accepted).
-
-
-                    In practice, teams usually precompile into the binary all
-                    types that they
-
-                    expect it to use in the context of Any. However, for URLs
-                    which use the
-
-                    scheme `http`, `https`, or no scheme, one can optionally set
-                    up a type
-
-                    server that maps type URLs to message definitions as
-                    follows:
-
-
-                    * If no scheme is provided, `https` is assumed.
-
-                    * An HTTP GET on the URL must yield a
-                    [google.protobuf.Type][]
-                      value in binary format, or produce an error.
-                    * Applications are allowed to cache lookup results based on
-                    the
-                      URL, or have them precompiled into a binary to avoid any
-                      lookup. Therefore, binary compatibility needs to be preserved
-                      on changes to types. (Use versioned type names to manage
-                      breaking changes.)
-
-                    Note: this functionality is not currently available in the
-                    official
-
-                    protobuf release, and it is not used for type URLs beginning
-                    with
-
-                    type.googleapis.com.
-
-
-                    Schemes other than `http`, `https` (or the empty scheme)
-                    might be
-
-                    used with implementation specific semantics.
-                value:
-                  type: string
-                  format: byte
-                  description: >-
-                    Must be a valid serialized protocol buffer of the above
-                    specified type.
-              description: >-
-                `Any` contains an arbitrary serialized protocol buffer message
-                along with a
-
-                URL that describes the type of the serialized message.
-
-
-                Protobuf library provides support to pack/unpack Any values in
-                the form
-
-                of utility functions or additional generated methods of the Any
-                type.
-
-
-                Example 1: Pack and unpack a message in C++.
-
-                    Foo foo = ...;
-                    Any any;
-                    any.PackFrom(foo);
-                    ...
-                    if (any.UnpackTo(&foo)) {
-                      ...
-                    }
-
-                Example 2: Pack and unpack a message in Java.
-
-                    Foo foo = ...;
-                    Any any = Any.pack(foo);
-                    ...
-                    if (any.is(Foo.class)) {
-                      foo = any.unpack(Foo.class);
-                    }
-
-                 Example 3: Pack and unpack a message in Python.
-
-                    foo = Foo(...)
-                    any = Any()
-                    any.Pack(foo)
-                    ...
-                    if any.Is(Foo.DESCRIPTOR):
-                      any.Unpack(foo)
-                      ...
-
-                 Example 4: Pack and unpack a message in Go
-
-                     foo := &pb.Foo{...}
-                     any, err := ptypes.MarshalAny(foo)
-                     ...
-                     foo := &pb.Foo{}
-                     if err := ptypes.UnmarshalAny(any, foo); err != nil {
-                       ...
-                     }
-
-                The pack methods provided by protobuf library will by default
-                use
-
-                'type.googleapis.com/full.type.name' as the type URL and the
-                unpack
-
-                methods only use the fully qualified type name after the last
-                '/'
-
-                in the type URL, for example "foo.bar.com/x/y.z" will yield type
-
-                name "y.z".
-
-
-
-                JSON
-
-                ====
-
-                The JSON representation of an `Any` value uses the regular
-
-                representation of the deserialized, embedded message, with an
-
-                additional field `@type` which contains the type URL. Example:
-
-                    package google.profile;
-                    message Person {
-                      string first_name = 1;
-                      string last_name = 2;
-                    }
-
-                    {
-                      "@type": "type.googleapis.com/google.profile.Person",
-                      "firstName": <string>,
-                      "lastName": <string>
-                    }
-
-                If the embedded message type is well-known and has a custom JSON
-
-                representation, that representation will be embedded adding a
-                field
-
-                `value` which holds the custom JSON in addition to the `@type`
-
-                field. Example (for message [google.protobuf.Duration][]):
-
-                    {
-                      "@type": "type.googleapis.com/google.protobuf.Duration",
-                      "value": "1.212s"
-                    }
-          description: >-
-            ConsensusStateWithHeight defines a consensus state with an
-            additional height field.
-        title: consensus states associated with the identifier
+            creator:
+              type: string
+            data_hash:
+              type: string
+              format: byte
+            source:
+              type: string
+            builder:
+              type: string
+          title: CodeInfoResponse contains code meta data from CodeInfo
       pagination:
-        title: pagination response
+        description: pagination defines the pagination in the response.
         type: object
         properties:
           next_key:
@@ -15291,11 +15967,214 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+    title: QueryCodesResponse is the response type for the Query/Codes RPC method
+  wasmd.x.wasmd.v1beta1.QueryContractHistoryResponse:
+    type: object
+    properties:
+      entries:
+        type: array
+        items:
+          type: object
+          properties:
+            operation:
+              type: string
+              enum:
+                - CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED
+                - CONTRACT_CODE_HISTORY_OPERATION_TYPE_INIT
+                - CONTRACT_CODE_HISTORY_OPERATION_TYPE_MIGRATE
+                - CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS
+              default: CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED
+              description: >-
+                - CONTRACT_CODE_HISTORY_OPERATION_TYPE_UNSPECIFIED:
+                ContractCodeHistoryOperationTypeUnspecified placeholder for
+                empty value
+                 - CONTRACT_CODE_HISTORY_OPERATION_TYPE_INIT: ContractCodeHistoryOperationTypeInit on chain contract instantiation
+                 - CONTRACT_CODE_HISTORY_OPERATION_TYPE_MIGRATE: ContractCodeHistoryOperationTypeMigrate code migration
+                 - CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS: ContractCodeHistoryOperationTypeGenesis based on genesis data
+              title: >-
+                ContractCodeHistoryOperationType actions that caused a code
+                change
+            code_id:
+              type: string
+              format: uint64
+              title: CodeID is the reference to the stored WASM code
+            updated:
+              description: Updated Tx position when the operation was executed.
+              type: object
+              properties:
+                block_height:
+                  type: string
+                  format: uint64
+                  title: BlockHeight is the block the contract was created at
+                tx_index:
+                  type: string
+                  format: uint64
+                  title: >-
+                    TxIndex is a monotonic counter within the block (actual
+                    transaction index, or gas consumed)
+            msg:
+              type: string
+              format: byte
+          description: ContractCodeHistoryEntry metadata to a contract.
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
     title: >-
-      QueryConsensusStatesResponse is the response type for the
-      Query/ConsensusStates RPC method
+      QueryContractHistoryResponse is the response type for the
+      Query/ContractHistory RPC method
+  wasmd.x.wasmd.v1beta1.QueryContractInfoResponse:
+    type: object
+    properties:
+      address:
+        type: string
+        title: address is the address of the contract
+      contract_info:
+        type: object
+        properties:
+          code_id:
+            type: string
+            format: uint64
+            title: CodeID is the reference to the stored Wasm code
+          creator:
+            type: string
+            title: Creator address who initially instantiated the contract
+          admin:
+            type: string
+            title: Admin is an optional address that can execute migrations
+          label:
+            type: string
+            description: Label is optional metadata to be stored with a contract instance.
+          created:
+            title: >-
+              Created Tx position when the contract was instantiated.
+
+              This data should kept internal and not be exposed via query
+              results. Just use for sorting
+            type: object
+            properties:
+              block_height:
+                type: string
+                format: uint64
+                title: BlockHeight is the block the contract was created at
+              tx_index:
+                type: string
+                format: uint64
+                title: >-
+                  TxIndex is a monotonic counter within the block (actual
+                  transaction index, or gas consumed)
+            description: >-
+              AbsoluteTxPosition is a unique transaction position that allows
+              for global ordering of transactions.
+        title: ContractInfo stores a WASM contract instance
+    title: >-
+      QueryContractInfoResponse is the response type for the Query/ContractInfo
+      RPC method
+  wasmd.x.wasmd.v1beta1.QueryContractsByCodeResponse:
+    type: object
+    properties:
+      contract_infos:
+        type: array
+        items:
+          type: object
+          properties:
+            address:
+              type: string
+            contract_info:
+              type: object
+              properties:
+                code_id:
+                  type: string
+                  format: uint64
+                  title: CodeID is the reference to the stored Wasm code
+                creator:
+                  type: string
+                  title: Creator address who initially instantiated the contract
+                admin:
+                  type: string
+                  title: Admin is an optional address that can execute migrations
+                label:
+                  type: string
+                  description: >-
+                    Label is optional metadata to be stored with a contract
+                    instance.
+                created:
+                  title: >-
+                    Created Tx position when the contract was instantiated.
+
+                    This data should kept internal and not be exposed via query
+                    results. Just use for sorting
+                  type: object
+                  properties:
+                    block_height:
+                      type: string
+                      format: uint64
+                      title: BlockHeight is the block the contract was created at
+                    tx_index:
+                      type: string
+                      format: uint64
+                      title: >-
+                        TxIndex is a monotonic counter within the block (actual
+                        transaction index, or gas consumed)
+                  description: >-
+                    AbsoluteTxPosition is a unique transaction position that
+                    allows for global ordering of transactions.
+              title: ContractInfo stores a WASM contract instance
+          title: >-
+            ContractInfoWithAddress adds the address (key) to the ContractInfo
+            representation
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+    title: >-
+      QueryContractsByCodeResponse is the response type for the
+      Query/ContractsByCode RPC method
+  wasmd.x.wasmd.v1beta1.QueryRawContractStateResponse:
+    type: object
+    properties:
+      data:
+        type: string
+        format: byte
+        title: Data contains the raw store data
+    title: >-
+      QueryRawContractStateResponse is the response type for the
+      Query/RawContractState RPC method
+  wasmd.x.wasmd.v1beta1.QuerySmartContractStateResponse:
+    type: object
+    properties:
+      data:
+        type: string
+        format: byte
+        title: Data contains the json data returned from the smart contract
+    title: >-
+      QuerySmartContractStateResponse is the response type for the
+      Query/SmartContractState RPC method
