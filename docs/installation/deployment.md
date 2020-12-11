@@ -227,7 +227,7 @@ DataPath=/tmp
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} run -itd -e ChainCMD=$ChainCMD -e NodeName=${Names[$i]} -v $DataPath/$NodeName-$i:/root --name $NodeName-$i bianjie/irita:v2.0.0-alpha; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD version; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i rm -rf /root/.${ChainCMD} /root/.${ChainCMD}; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} keys add validator"; done
+for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} keys add validator 2>&1 | tail -1 > /root/.${ChainCMD}/seed.key"; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo 12345678 | ${ChainCMD} keys list"; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD init moniker --chain-id $ChainID; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD genkey --out-file /root/priv_validator.pem; done
