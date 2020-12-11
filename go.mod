@@ -11,7 +11,7 @@ require (
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
 	github.com/ghodss/yaml v1.0.0
 	github.com/gorilla/mux v1.8.0
-	github.com/irisnet/irismod v1.1.1-0.20201126013702-4999558204d6
+	github.com/irisnet/irismod v1.1.1-0.20201211020601-9c939d7f8ccc
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mtibben/percent v0.2.1
 	github.com/olebedev/config v0.0.0-20190528211619-364964f3a8e4
