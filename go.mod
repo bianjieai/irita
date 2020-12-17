@@ -5,13 +5,13 @@ go 1.14
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.12.1
-	github.com/bianjieai/iritamod v0.0.0-20201202112849-cdce8a8df2d0
+	github.com/bianjieai/iritamod v0.0.0-20201211094853-b36d94729b16
 	github.com/cosmos/cosmos-sdk v0.40.0-rc3
 	github.com/cosmos/go-bip39 v0.0.0-20200817134856-d632e0d11689
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
 	github.com/ghodss/yaml v1.0.0
 	github.com/gorilla/mux v1.8.0
-	github.com/irisnet/irismod v1.1.1-0.20201211020601-9c939d7f8ccc
+	github.com/irisnet/irismod v1.1.1-0.20201215020504-ae6a23d4bec2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mtibben/percent v0.2.1
 	github.com/olebedev/config v0.0.0-20190528211619-364964f3a8e4
