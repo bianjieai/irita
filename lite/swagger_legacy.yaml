@@ -614,6 +614,100 @@ paths:
           description: Invalid request
         500:
           description: Server internal error
+  /wasm/code:
+    post:
+      deprecated: true
+      summary: Store the contract code to the chain
+      tags:
+        - WASM
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: StoreCodeReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              wasm_bytes:
+                type: string
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Server internal error
+  /wasm/code/{codeId}:
+    post:
+      deprecated: true
+      summary: Instantiate the contract by the code ID
+      tags:
+        - WASM
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: InstantiateContractReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              deposit:
+                type: array
+                items:
+                  $ref: "#/definitions/Coin"
+              admin:
+                type: string
+              init_msg:
+                type: string
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Server internal error
+  /wasm/contract/{contractAddr}:
+    post:
+      deprecated: true
+      summary: Execute the specified contract
+      tags:
+        - WASM
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: ExecuteContractReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              exec_msg:
+                type: string
+              amount:
+                type: array
+                items:
+                  $ref: "#/definitions/Coin"
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Server internal error
 #  /gov/proposals:
 #    post:
 #      summary: Submit a proposal

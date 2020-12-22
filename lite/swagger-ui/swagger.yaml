@@ -1623,6 +1623,234 @@ paths:
           description: Invalid request
         '500':
           description: Server internal error
+  /wasm/code:
+    post:
+      deprecated: true
+      summary: Store the contract code to the chain
+      tags:
+        - WASM
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: StoreCodeReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                type: object
+                properties:
+                  from:
+                    type: string
+                    example: iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy
+                    description: Sender address or Keybase name to generate a transaction
+                  memo:
+                    type: string
+                    example: Sent via Irita
+                  chain_id:
+                    type: string
+                    example: Irita
+                  account_number:
+                    type: string
+                    example: '0'
+                  sequence:
+                    type: string
+                    example: '1'
+                  gas:
+                    type: string
+                    example: '200000'
+                  gas_adjustment:
+                    type: string
+                    example: '1.2'
+                  fees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                          example: point
+                        amount:
+                          type: string
+                          example: '50'
+                  simulate:
+                    type: boolean
+                    example: false
+                    description: >-
+                      Estimate gas for a transaction (cannot be used in
+                      conjunction with generate_only)
+              wasm_bytes:
+                type: string
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Server internal error
+  '/wasm/code/{codeId}':
+    post:
+      deprecated: true
+      summary: Instantiate the contract by the code ID
+      tags:
+        - WASM
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: InstantiateContractReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                type: object
+                properties:
+                  from:
+                    type: string
+                    example: iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy
+                    description: Sender address or Keybase name to generate a transaction
+                  memo:
+                    type: string
+                    example: Sent via Irita
+                  chain_id:
+                    type: string
+                    example: Irita
+                  account_number:
+                    type: string
+                    example: '0'
+                  sequence:
+                    type: string
+                    example: '1'
+                  gas:
+                    type: string
+                    example: '200000'
+                  gas_adjustment:
+                    type: string
+                    example: '1.2'
+                  fees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                          example: point
+                        amount:
+                          type: string
+                          example: '50'
+                  simulate:
+                    type: boolean
+                    example: false
+                    description: >-
+                      Estimate gas for a transaction (cannot be used in
+                      conjunction with generate_only)
+              deposit:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                      example: point
+                    amount:
+                      type: string
+                      example: '50'
+              admin:
+                type: string
+              init_msg:
+                type: string
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Server internal error
+  '/wasm/contract/{contractAddr}':
+    post:
+      deprecated: true
+      summary: Execute the specified contract
+      tags:
+        - WASM
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: ExecuteContractReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                type: object
+                properties:
+                  from:
+                    type: string
+                    example: iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy
+                    description: Sender address or Keybase name to generate a transaction
+                  memo:
+                    type: string
+                    example: Sent via Irita
+                  chain_id:
+                    type: string
+                    example: Irita
+                  account_number:
+                    type: string
+                    example: '0'
+                  sequence:
+                    type: string
+                    example: '1'
+                  gas:
+                    type: string
+                    example: '200000'
+                  gas_adjustment:
+                    type: string
+                    example: '1.2'
+                  fees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                          example: point
+                        amount:
+                          type: string
+                          example: '50'
+                  simulate:
+                    type: boolean
+                    example: false
+                    description: >-
+                      Estimate gas for a transaction (cannot be used in
+                      conjunction with generate_only)
+              exec_msg:
+                type: string
+              amount:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                      example: point
+                    amount:
+                      type: string
+                      example: '50'
+      responses:
+        '200':
+          description: Unsigned tx was succesfully generated
+        '400':
+          description: Invalid parameters
+        '500':
+          description: Server internal error
   /supply/total:
     get:
       deprecated: true
