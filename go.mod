@@ -27,6 +27,7 @@ require (
 	github.com/tendermint/tendermint v0.34.0-rc6
 	github.com/tendermint/tm-db v0.6.2
 	github.com/tidwall/gjson v1.6.1 // indirect
+	google.golang.org/grpc v1.33.1 // indirect
 )
 
 replace (
