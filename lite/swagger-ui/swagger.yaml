@@ -1702,6 +1702,12 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: path
+          name: codeId
+          description: contract code ID
+          required: true
+          type: string
+          x-example: '1'
         - in: body
           name: InstantiateContractReq
           required: true
@@ -1783,6 +1789,12 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: path
+          name: contractAddr
+          description: contract address
+          required: true
+          type: string
+          x-example: iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy
         - in: body
           name: ExecuteContractReq
           required: true
