@@ -31,7 +31,7 @@ require (
 )
 
 replace (
-	github.com/CosmWasm/wasmd => github.com/secret2830/wasmd v0.12.3
+	github.com/CosmWasm/wasmd => github.com/secret2830/wasmd v0.12.4
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20201127022001-791921d241f8
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
