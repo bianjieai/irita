@@ -1771,6 +1771,9 @@ paths:
                 type: string
               init_msg:
                 type: string
+              label:
+                type: string
+                example: test
       responses:
         '200':
           description: Unsigned tx was succesfully generated
