@@ -39,8 +39,7 @@ var (
 		appendFromArgs("staking", "delegate", 1).
 		appendFromArgs("staking", "redelegate", 2).
 		appendFromArgs("staking", "unbond", 1).
-		appendFromResponse("query", "account", "coins", filedTypeArray).
-		appendFromResponse("token", "params", "issue_token_base_fee", filedTypeMap)
+		appendFromResponse("query", "account", "coins", filedTypeArray)
 
 	rescueStdout = os.Stdout
 	r, w         *os.File
