@@ -1,0 +1,22 @@
+name: BuildAndPublish
+on:
+  create:
+  push:
+    branches:
+      - master
+    tags:
+      - v.*
+
+jobs:
+  build-images:
+    name: Build Images
+    runs-on: ubuntu-16.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v1
+      - name: Build irita image
+        run: source ~/.bashrc; sudo docker build -t bianjie/irita:latest .
+      - name: Login dockerhub
+        run: sudo docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASS}}
+      - name: Publish irita image
+        run: sudo docker push bianjie/irita:latest
