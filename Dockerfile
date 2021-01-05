@@ -1,7 +1,7 @@
 #
 # Build image: docker build -t bianjieai/irita .
 #
-FROM golang:1.14.4-buster as builder
+FROM golang:1.15.6-buster as builder
 
 # Set up dependencies
 ENV PACKAGES make gcc git libc-dev bash openssl
