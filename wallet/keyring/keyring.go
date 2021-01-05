@@ -11,11 +11,10 @@ import (
 
 	"github.com/99designs/keyring"
 
-	tmcrypto "github.com/tendermint/tendermint/crypto"
-
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	cosmoskeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
 )
@@ -321,7 +320,7 @@ func (ks Keystore) addKey(uid, mnemonic, hdPath string, algo cosmoskeyring.Signa
 	return ks.writeLocalKey(uid, hdPath, privKey, algo.Name())
 }
 
-func (ks Keystore) writeLocalKey(name, hdPath string, priv tmcrypto.PrivKey, algo hd.PubKeyType) (cosmoskeyring.Info, error) {
+func (ks Keystore) writeLocalKey(name, hdPath string, priv cryptotypes.PrivKey, algo hd.PubKeyType) (cosmoskeyring.Info, error) {
 	// encrypt private key using keyring
 	pub := priv.PubKey()
 

@@ -14,6 +14,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
 const (
@@ -56,7 +57,7 @@ func VerifyHash(srcHash, srcText string) bool {
 }
 
 // Encrypt and armor the private key.
-func EncryptArmorPrivKey(privKey crypto.PrivKey, passphrase string, header map[string]string) string {
+func EncryptArmorPrivKey(privKey cryptotypes.PrivKey, passphrase string, header map[string]string) string {
 	saltBytes, encBytes := encryptPrivKey(privKey, passphrase)
 	if header == nil {
 		header = map[string]string{}
@@ -69,7 +70,7 @@ func EncryptArmorPrivKey(privKey crypto.PrivKey, passphrase string, header map[s
 // encrypt the given privKey with the passphrase using a randomly
 // generated salt and the xsalsa20 cipher. returns the salt and the
 // encrypted priv key.
-func encryptPrivKey(privKey crypto.PrivKey, passphrase string) (saltBytes []byte, encBytes []byte) {
+func encryptPrivKey(privKey cryptotypes.PrivKey, passphrase string) (saltBytes []byte, encBytes []byte) {
 	saltBytes = crypto.CRandBytes(16)
 	key, err := tmbcrypt.GenerateFromPassword(saltBytes, []byte(passphrase), BcryptSecurityParameter)
 

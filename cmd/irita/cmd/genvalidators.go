@@ -17,6 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -51,8 +52,7 @@ func AddGenesisValidatorCmd(
 			defaultsDesc,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadTxCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -128,6 +128,10 @@ func AddGenesisValidatorCmd(
 				if err != nil {
 					return err
 				}
+				cospk, err := cryptocodec.FromTmPubKeyInterface(pk)
+				if err != nil {
+					return err
+				}
 
 				operator, err := sdk.AccAddressFromBech32(msg.Operator)
 				if err != nil {
@@ -138,7 +142,7 @@ func AddGenesisValidatorCmd(
 					validatorGenState.Validators,
 					node.NewValidator(
 						tmhash.Sum(msg.GetSignBytes()),
-						msg.Name, msg.Description, pk,
+						msg.Name, msg.Description, cospk,
 						msg.Certificate, msg.Power, operator,
 					),
 				)

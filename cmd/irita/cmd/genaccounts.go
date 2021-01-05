@@ -70,7 +70,7 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 				addr = info.GetAddress()
 			}
 
-			coins, err := sdk.ParseCoins(args[1])
+			coins, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return fmt.Errorf("failed to parse coins: %w", err)
 			}
@@ -79,7 +79,7 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 			vestingEnd, _ := cmd.Flags().GetInt64(flagVestingEnd)
 			vestingAmtStr, _ := cmd.Flags().GetString(flagVestingAmt)
 
-			vestingAmt, err := sdk.ParseCoins(vestingAmtStr)
+			vestingAmt, err := sdk.ParseCoinsNormalized(vestingAmtStr)
 			if err != nil {
 				return fmt.Errorf("failed to parse vesting amount: %w", err)
 			}

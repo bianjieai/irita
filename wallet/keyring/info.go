@@ -6,10 +6,9 @@ import (
 
 	"github.com/ghodss/yaml"
 
-	"github.com/tendermint/tendermint/crypto"
-
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	cosmoskeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -21,10 +20,10 @@ type rootInfo struct {
 }
 
 type offlineInfo struct {
-	Name   string        `json:"name"`
-	PubKey crypto.PubKey `json:"pubkey"`
-	Path   string        `json:"path"`
-	Algo   hd.PubKeyType `json:"algo"`
+	Name   string             `json:"name"`
+	PubKey cryptotypes.PubKey `json:"pubkey"`
+	Path   string             `json:"path"`
+	Algo   hd.PubKeyType      `json:"algo"`
 }
 
 func (l offlineInfo) GetType() cosmoskeyring.KeyType {
@@ -35,7 +34,7 @@ func (l offlineInfo) GetName() string {
 	return l.Name
 }
 
-func (l offlineInfo) GetPubKey() crypto.PubKey {
+func (l offlineInfo) GetPubKey() cryptotypes.PubKey {
 	return l.PubKey
 }
 
@@ -51,7 +50,7 @@ func (l offlineInfo) GetAlgo() hd.PubKeyType {
 	return l.Algo
 }
 
-func newOfflineInfo(name, hdPath string, pub crypto.PubKey, algo hd.PubKeyType) cosmoskeyring.Info {
+func newOfflineInfo(name, hdPath string, pub cryptotypes.PubKey, algo hd.PubKeyType) cosmoskeyring.Info {
 	return &offlineInfo{
 		Name:   name,
 		Path:   hdPath,
