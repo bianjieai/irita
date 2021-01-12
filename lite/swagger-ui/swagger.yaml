@@ -1917,7 +1917,7 @@ paths:
           description: Invalid coin denomination
         '500':
           description: Internal Server Error
-  /token:
+  /token/tokens:
     post:
       deprecated: true
       summary: Issue a token
@@ -2010,7 +2010,7 @@ paths:
           description: Internal Server Error
     get:
       deprecated: true
-      summary: Query tokens by owner
+      summary: Query tokens with an optional owner
       tags:
         - Token
       parameters:
@@ -2448,11 +2448,15 @@ paths:
                 example: iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy
                 type: string
                 description: bech32 encoded address
-              token_id:
+              id:
                 type: string
-              token_uri:
+              name:
                 type: string
-              denom:
+              denom_id:
+                type: string
+              uri:
+                type: string
+              data:
                 type: string
       responses:
         '200':
@@ -2461,7 +2465,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/nft/nfts/{denom}/{token-id}':
+  '/nft/nfts/{denom-id}/{token-id}':
     get:
       deprecated: true
       summary: Query an NFT by the denom and ID
@@ -2469,8 +2473,8 @@ paths:
         - NFT
       parameters:
         - in: path
-          name: denom
-          description: denom of the NFT
+          name: denom-id
+          description: denom ID of the NFT
           required: true
           schema:
             type: string
@@ -2511,8 +2515,8 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: denom
-          description: denom of the NFT
+          name: denom-id
+          description: denom ID of the NFT
           required: true
           schema:
             type: string
@@ -2574,7 +2578,11 @@ paths:
                 example: iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy
                 type: string
                 description: bech32 encoded address
-              token_uri:
+              name:
+                type: string
+              uri:
+                type: string
+              data:
                 type: string
       responses:
         '200':
@@ -2583,7 +2591,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/nft/nfts/{denom}/{token-id}/transfer':
+  '/nft/nfts/{denom-id}/{token-id}/transfer':
     post:
       deprecated: true
       summary: Transfer the ownership of an NFT of the specified denom and ID
@@ -2595,8 +2603,8 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: denom
-          description: denom of the NFT
+          name: denom-id
+          description: denom ID of the NFT
           required: true
           schema:
             type: string
@@ -2662,6 +2670,12 @@ paths:
                 example: iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy
                 type: string
                 description: bech32 encoded address
+              name:
+                type: string
+              uri:
+                type: string
+              data:
+                type: string
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2669,7 +2683,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/nft/nfts/{denom}/{token-id}/burn':
+  '/nft/nfts/{denom-id}/{token-id}/burn':
     post:
       deprecated: true
       summary: Burn an NFT of the specified denom and ID
@@ -2681,8 +2695,8 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: denom
-          description: denom of the NFT
+          name: denom-id
+          description: denom ID of the NFT
           required: true
           schema:
             type: string
@@ -2751,7 +2765,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/nft/nfts/collections/{denom}':
+  '/nft/nfts/collections/{denom-id}':
     get:
       deprecated: true
       summary: Query the NFT collection of the specified denom
@@ -2759,8 +2773,8 @@ paths:
         - NFT
       parameters:
         - in: path
-          name: denom
-          description: denom of the collection
+          name: denom-id
+          description: denom ID of the collection
           required: true
           schema:
             type: string
@@ -2777,7 +2791,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/nft/nfts/owners/{address}':
+  '/nft/owners/{owner}':
     get:
       deprecated: true
       summary: Query the collections of NFTs owned by an address
@@ -2785,14 +2799,14 @@ paths:
         - NFT
       parameters:
         - in: path
-          name: address
+          name: owner
           description: owner address
           required: true
           schema:
             type: string
         - in: query
-          name: denom
-          description: optional denom
+          name: denom-id
+          description: optional denom ID
           required: false
           schema:
             type: string
@@ -2825,7 +2839,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  /nft/nfts/denoms:
+  /nft/denoms:
     get:
       deprecated: true
       summary: Query all existing denoms
@@ -2844,7 +2858,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/nft/nfts/supplies/{denom}':
+  '/nft/collections/{denom-id}/supply':
     get:
       deprecated: true
       summary: Query the supply of NFTs of the specified denom
@@ -2852,9 +2866,15 @@ paths:
         - NFT
       parameters:
         - in: path
-          name: denom
-          description: denom of NFTs
+          name: denom-id
+          description: denom ID of NFTs
           required: true
+          schema:
+            type: string
+        - in: query
+          name: owner
+          description: optional owner address
+          required: false
           schema:
             type: string
       responses:
@@ -3196,9 +3216,16 @@ paths:
               pricing:
                 type: string
                 example: '{"price":"1iris"}'
-              min_resp_time:
+              qos:
                 type: integer
                 example: '50'
+              options:
+                type: string
+                example: '{}'
+              owner:
+                type: string
+                description: bech32 encoded address
+                example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -3253,12 +3280,19 @@ paths:
                   pricing:
                     type: string
                     example: '{"price":"1iris"}'
-                  min_resp_time:
+                  qos:
                     type: integer
+                  options:
+                    type: string
+                    example: '{}'
                   available:
                     type: boolean
                   disabled_time:
                     type: string
+                  owner:
+                    type: string
+                    description: bech32 encoded address
+                    example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
         '400':
           description: Invalid parameters
         '500':
@@ -3340,9 +3374,16 @@ paths:
               pricing:
                 type: string
                 example: '{"price":"1iris"}'
-              min_resp_time:
+              qos:
                 type: integer
                 example: '50'
+              options:
+                type: string
+                example: '{}'
+              owner:
+                type: string
+                description: bech32 encoded address
+                example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -3393,12 +3434,19 @@ paths:
                     pricing:
                       type: string
                       example: '{"price":"1iris"}'
-                    min_resp_time:
+                    qos:
                       type: integer
+                    options:
+                      type: string
+                      example: '{}'
                     available:
                       type: boolean
                     disabled_time:
                       type: string
+                    owner:
+                      type: string
+                      description: bech32 encoded address
+                      example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
         '400':
           description: Invalid parameters
         '500':
@@ -3574,6 +3622,10 @@ paths:
                     description: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
+              owner:
+                type: string
+                description: bech32 encoded address
+                example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -3656,6 +3708,10 @@ paths:
               deposit:
                 type: string
                 example: 1iris
+              owner:
+                type: string
+                description: bech32 encoded address
+                example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -3735,6 +3791,10 @@ paths:
                     description: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
+              owner:
+                type: string
+                description: bech32 encoded address
+                example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -4676,6 +4736,10 @@ paths:
                     description: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
+              owner:
+                type: string
+                description: bech32 encoded address
+                example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -5051,7 +5115,7 @@ paths:
               QueryAccountResponse is the response type for the Query/Account
               RPC method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -5283,7 +5347,7 @@ paths:
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -5525,7 +5589,7 @@ paths:
 
               method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -5598,6 +5662,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/cosmos/bank/v1beta1/balances/{address}/{denom}':
@@ -5622,7 +5687,7 @@ paths:
               QueryBalanceResponse is the response type for the Query/Balance
               RPC method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -5678,6 +5743,7 @@ paths:
                           type: string
                         enabled:
                           type: boolean
+                          format: boolean
                       description: >-
                         SendEnabled maps coin denom to a send_enabled status
                         (whether a denom is
@@ -5685,14 +5751,16 @@ paths:
                         sendable).
                   default_send_enabled:
                     type: boolean
+                    format: boolean
                   unrestricted_token_transfer:
                     type: boolean
+                    format: boolean
                 description: Params defines the parameters for the bank module.
             description: >-
               QueryParamsResponse defines the response type for querying x/bank
               parameters.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -5749,7 +5817,7 @@ paths:
 
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -5794,7 +5862,7 @@ paths:
               QuerySupplyOfResponse is the response type for the Query/SupplyOf
               RPC method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -6035,7 +6103,7 @@ paths:
 
               method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -6270,6 +6338,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/cosmos/evidence/v1beta1/evidence/{evidence_hash}':
@@ -6353,7 +6422,7 @@ paths:
               QueryEvidenceResponse is the response type for the Query/Evidence
               RPC method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -6570,7 +6639,7 @@ paths:
 
               method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -7019,7 +7088,7 @@ paths:
 
               method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -7400,7 +7469,7 @@ paths:
 
               RPC method.
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -7671,7 +7740,7 @@ paths:
               QueryCollectionResponse is the response type for the
               Query/Collection RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -7741,6 +7810,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/irismod/nft/collections/{denom_id}/supply':
@@ -7760,7 +7830,7 @@ paths:
               QuerySupplyResponse is the response type for the Query/Supply RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -7847,7 +7917,7 @@ paths:
               QueryDenomsResponse is the response type for the Query/Denoms RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -7913,6 +7983,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/irismod/nft/denoms/{denom_id}':
@@ -7941,7 +8012,7 @@ paths:
               QueryDenomResponse is the response type for the Query/Denom RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8026,7 +8097,7 @@ paths:
               QueryOwnerResponse is the response type for the Query/Owner RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8100,6 +8171,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/irismod/nft/nfts/{denom_id}/{token_id}':
@@ -8128,7 +8200,7 @@ paths:
                 description: BaseNFT defines a non fungible token.
             title: QueryNFTResponse is the response type for the Query/NFT RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8195,7 +8267,7 @@ paths:
               QueryRecordResponse is the response type for the Query/Record RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8269,6 +8341,7 @@ paths:
                       type: string
                     available:
                       type: boolean
+                      format: boolean
                     disabled_time:
                       type: string
                       format: date-time
@@ -8306,7 +8379,7 @@ paths:
               QueryDefinitionsResponse is response type for the Query/Bindings
               RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8380,6 +8453,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/irismod/service/bindings/{service_name}/{provider}':
@@ -8425,6 +8499,7 @@ paths:
                     type: string
                   available:
                     type: boolean
+                    format: boolean
                   disabled_time:
                     type: string
                     format: date-time
@@ -8435,7 +8510,7 @@ paths:
               QueryDefinitionResponse is response type for the Query/Binding RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8514,8 +8589,10 @@ paths:
                     format: int64
                   super_mode:
                     type: boolean
+                    format: boolean
                   repeated:
                     type: boolean
+                    format: boolean
                   repeated_frequency:
                     type: string
                     format: uint64
@@ -8570,7 +8647,7 @@ paths:
               QueryRequestContextResponse is response type for the
               Query/RequestContext RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8630,7 +8707,7 @@ paths:
               QueryDefinitionResponse is response type for the Query/Definition
               RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8689,7 +8766,7 @@ paths:
               QueryEarnedFeesResponse is response type for the Query/EarnedFees
               RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8733,7 +8810,7 @@ paths:
               QueryWithdrawAddressResponse is response type for the
               Query/WithdrawAddress RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8842,7 +8919,7 @@ paths:
               QueryParametersResponse is response type for the Query/Parameters
               RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -8910,6 +8987,7 @@ paths:
                           signatures required by gogoproto.
                     super_mode:
                       type: boolean
+                      format: boolean
                     request_height:
                       type: string
                       format: int64
@@ -8953,7 +9031,7 @@ paths:
               QueryRequestsByReqCtxResponse is response type for the
               Query/RequestsByReqCtx RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -9028,6 +9106,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/irismod/service/requests/{request_id}':
@@ -9072,6 +9151,7 @@ paths:
                         signatures required by gogoproto.
                   super_mode:
                     type: boolean
+                    format: boolean
                   request_height:
                     type: string
                     format: int64
@@ -9088,7 +9168,7 @@ paths:
               QueryRequestResponse is response type for the Query/Request RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -9161,6 +9241,7 @@ paths:
                           signatures required by gogoproto.
                     super_mode:
                       type: boolean
+                      format: boolean
                     request_height:
                       type: string
                       format: int64
@@ -9204,7 +9285,7 @@ paths:
               QueryRequestsResponse is response type for the Query/Requests RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -9278,6 +9359,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/irismod/service/responses/{request_context_id}/{batch_counter}':
@@ -9340,7 +9422,7 @@ paths:
               QueryResponsesResponse is response type for the Query/Responses
               RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -9415,6 +9497,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/irismod/service/responses/{request_id}':
@@ -9448,7 +9531,7 @@ paths:
               QueryResponseResponse is response type for the Query/Response RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -9492,7 +9575,7 @@ paths:
               QuerySchemaResponse is response type for the Query/Schema RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -9584,7 +9667,7 @@ paths:
               QueryParametersResponse is response type for the Query/Parameters
               RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -9992,7 +10075,7 @@ paths:
               QueryTokensResponse is response type for the Query/Tokens RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -10229,6 +10312,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/irismod/token/tokens/{denom}':
@@ -10414,7 +10498,7 @@ paths:
                       }
             title: QueryTokenResponse is response type for the Query/Token RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -10621,6 +10705,7 @@ paths:
             properties:
               exist:
                 type: boolean
+                format: boolean
               issue_fee:
                 type: object
                 properties:
@@ -10653,7 +10738,7 @@ paths:
                   signatures required by gogoproto.
             title: QueryFeesResponse is response type for the Query/Fees RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -10901,7 +10986,7 @@ paths:
               QueryNodesResponse is the response type for the Query/Nodes RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -10967,6 +11052,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/iritamod/node/nodes/{id}':
@@ -10993,7 +11079,7 @@ paths:
               QueryNodeResponse is the response type for the Query/Node RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11042,7 +11128,7 @@ paths:
               QueryParamsResponse is the response type for the Query/Params RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11095,6 +11181,7 @@ paths:
                       type: string
                     jailed:
                       type: boolean
+                      format: boolean
                     operator:
                       type: string
                   description: >-
@@ -11134,7 +11221,7 @@ paths:
               QueryValidatorsResponse is the response type for the
               Query/Validators RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11200,6 +11287,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/iritamod/node/validators/{id}':
@@ -11230,6 +11318,7 @@ paths:
                     type: string
                   jailed:
                     type: boolean
+                    format: boolean
                   operator:
                     type: string
                 description: >-
@@ -11242,7 +11331,7 @@ paths:
               QueryValidatorResponse is the response type for the
               Query/Validator RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11329,7 +11418,7 @@ paths:
               QueryIdentityResponse is response type for the Query/Identity RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11407,7 +11496,7 @@ paths:
               QueryCodesResponse is the response type for the Query/Codes RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11475,6 +11564,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/wasm/v1beta1/code/{code_id}':
@@ -11510,7 +11600,7 @@ paths:
               QueryCodeResponse is the response type for the Query/Code RPC
               method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11628,7 +11718,7 @@ paths:
               QueryContractsByCodeResponse is the response type for the
               Query/ContractsByCode RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11701,6 +11791,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/wasm/v1beta1/contract/{address}':
@@ -11760,7 +11851,7 @@ paths:
               QueryContractInfoResponse is the response type for the
               Query/ContractInfo RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11866,7 +11957,7 @@ paths:
               QueryContractHistoryResponse is the response type for the
               Query/ContractHistory RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -11939,6 +12030,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
   '/wasm/v1beta1/contract/{address}/raw/{query_data}':
@@ -11959,7 +12051,7 @@ paths:
               QueryRawContractStateResponse is the response type for the
               Query/RawContractState RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -12011,7 +12103,7 @@ paths:
               QuerySmartContractStateResponse is the response type for the
               Query/SmartContractState RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -12092,7 +12184,7 @@ paths:
               QueryAllContractStateResponse is the response type for the
               Query/AllContractState RPC method
         default:
-          description: An unexpected error response.
+          description: An unexpected error response
           schema:
             type: object
             properties:
@@ -12165,6 +12257,7 @@ paths:
           in: query
           required: false
           type: boolean
+          format: boolean
       tags:
         - Query
 definitions:
@@ -13401,12 +13494,19 @@ definitions:
       pricing:
         type: string
         example: '{"price":"1iris"}'
-      min_resp_time:
+      qos:
         type: integer
+      options:
+        type: string
+        example: '{}'
       available:
         type: boolean
       disabled_time:
         type: string
+      owner:
+        type: string
+        description: bech32 encoded address
+        example: iaa1g7cl85hm2f9jkp7pp2cd5l7tkzzrmffjah9tsf
   ServiceRequest:
     type: object
     properties:
@@ -14033,6 +14133,7 @@ definitions:
               type: string
             enabled:
               type: boolean
+              format: boolean
           description: >-
             SendEnabled maps coin denom to a send_enabled status (whether a
             denom is
@@ -14040,8 +14141,10 @@ definitions:
             sendable).
       default_send_enabled:
         type: boolean
+        format: boolean
       unrestricted_token_transfer:
         type: boolean
+        format: boolean
     description: Params defines the parameters for the bank module.
   cosmos.bank.v1beta1.QueryAllBalancesResponse:
     type: object
@@ -14113,6 +14216,7 @@ definitions:
                   type: string
                 enabled:
                   type: boolean
+                  format: boolean
               description: >-
                 SendEnabled maps coin denom to a send_enabled status (whether a
                 denom is
@@ -14120,8 +14224,10 @@ definitions:
                 sendable).
           default_send_enabled:
             type: boolean
+            format: boolean
           unrestricted_token_transfer:
             type: boolean
+            format: boolean
         description: Params defines the parameters for the bank module.
     description: >-
       QueryParamsResponse defines the response type for querying x/bank
@@ -14170,6 +14276,7 @@ definitions:
         type: string
       enabled:
         type: boolean
+        format: boolean
     description: |-
       SendEnabled maps coin denom to a send_enabled status (whether a denom is
       sendable).
@@ -14200,6 +14307,7 @@ definitions:
           If left empty it will default to a value to be set by each app.
       count_total:
         type: boolean
+        format: boolean
         description: >-
           count_total is set to true  to indicate that the result set should
           include
@@ -15166,6 +15274,7 @@ definitions:
           If left empty it will default to a value to be set by each app.
       count_total:
         type: boolean
+        format: boolean
         description: >-
           count_total is set to true  to indicate that the result set should
           include
@@ -15617,6 +15726,7 @@ definitions:
             type: string
           available:
             type: boolean
+            format: boolean
           disabled_time:
             type: string
             format: date-time
@@ -15662,6 +15772,7 @@ definitions:
               type: string
             available:
               type: boolean
+              format: boolean
             disabled_time:
               type: string
               format: date-time
@@ -15855,8 +15966,10 @@ definitions:
             format: int64
           super_mode:
             type: boolean
+            format: boolean
           repeated:
             type: boolean
+            format: boolean
           repeated_frequency:
             type: string
             format: uint64
@@ -15943,6 +16056,7 @@ definitions:
                 signatures required by gogoproto.
           super_mode:
             type: boolean
+            format: boolean
           request_height:
             type: string
             format: int64
@@ -15993,6 +16107,7 @@ definitions:
                   signatures required by gogoproto.
             super_mode:
               type: boolean
+              format: boolean
             request_height:
               type: string
               format: int64
@@ -16072,6 +16187,7 @@ definitions:
                   signatures required by gogoproto.
             super_mode:
               type: boolean
+              format: boolean
             request_height:
               type: string
               format: int64
@@ -16226,6 +16342,7 @@ definitions:
             signatures required by gogoproto.
       super_mode:
         type: boolean
+        format: boolean
       request_height:
         type: string
         format: int64
@@ -16272,8 +16389,10 @@ definitions:
         format: int64
       super_mode:
         type: boolean
+        format: boolean
       repeated:
         type: boolean
+        format: boolean
       repeated_frequency:
         type: string
         format: uint64
@@ -16395,6 +16514,7 @@ definitions:
         type: string
       available:
         type: boolean
+        format: boolean
       disabled_time:
         type: string
         format: date-time
@@ -16444,6 +16564,7 @@ definitions:
     properties:
       exist:
         type: boolean
+        format: boolean
       issue_fee:
         type: object
         properties:
@@ -16989,6 +17110,7 @@ definitions:
             type: string
           jailed:
             type: boolean
+            format: boolean
           operator:
             type: string
         description: >-
@@ -17023,6 +17145,7 @@ definitions:
               type: string
             jailed:
               type: boolean
+              format: boolean
             operator:
               type: string
           description: >-
@@ -17079,6 +17202,7 @@ definitions:
         type: string
       jailed:
         type: boolean
+        format: boolean
       operator:
         type: string
     description: >-

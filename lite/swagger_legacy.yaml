@@ -15,6 +15,8 @@ tags:
     description: Create and broadcast transactions
   - name: Node
     description: Node module APIs
+  - name: WASM
+    description: WASM module APIs
 #  - name: Governance
 #    description: Governance module APIs
   - name: Supply
@@ -1228,7 +1230,7 @@ paths:
           description: Invalid coin denomination
         500:
           description: Internal Server Error
-  '/token':
+  '/token/tokens':
     post:
       deprecated: true
       summary: Issue a token
@@ -1279,7 +1281,7 @@ paths:
           description: Internal Server Error
     get:
       deprecated: true
-      summary: Query tokens by owner
+      summary: Query tokens with an optional owner
       tags:
         - Token
       parameters:
@@ -1486,11 +1488,15 @@ paths:
               recipient:
                 $ref: '#/definitions/Address'
                 example: 'iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy'
-              token_id:
+              id:
                 type: string
-              token_uri:
+              name:
                 type: string
-              denom:
+              denom_id:
+                type: string
+              uri:
+                type: string
+              data:
                 type: string
       responses:
         200:
@@ -1499,7 +1505,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/{denom}/{token-id}':
+  '/nft/nfts/{denom-id}/{token-id}':
     get:
       deprecated: true
       summary: Query an NFT by the denom and ID
@@ -1507,8 +1513,8 @@ paths:
         - NFT
       parameters:
         - in: path
-          name: denom
-          description: denom of the NFT
+          name: denom-id
+          description: denom ID of the NFT
           required: true
           schema:
             type: string
@@ -1540,8 +1546,8 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: denom
-          description: denom of the NFT
+          name: denom-id
+          description: denom ID of the NFT
           required: true
           schema:
             type: string
@@ -1562,7 +1568,11 @@ paths:
               owner:
                 $ref: '#/definitions/Address'
                 example: 'iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy'
-              token_uri:
+              name:
+                type: string
+              uri:
+                type: string
+              data:
                 type: string
       responses:
         200:
@@ -1571,7 +1581,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/{denom}/{token-id}/transfer':
+  '/nft/nfts/{denom-id}/{token-id}/transfer':
     post:
       deprecated: true
       summary: Transfer the ownership of an NFT of the specified denom and ID
@@ -1583,8 +1593,8 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: denom
-          description: denom of the NFT
+          name: denom-id
+          description: denom ID of the NFT
           required: true
           schema:
             type: string
@@ -1608,6 +1618,12 @@ paths:
               recipient:
                 $ref: '#/definitions/Address'
                 example: 'iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy'
+              name:
+                type: string
+              uri:
+                type: string
+              data:
+                type: string
       responses:
         200:
           description: Unsigned tx was succesfully generated
@@ -1615,7 +1631,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/{denom}/{token-id}/burn':
+  '/nft/nfts/{denom-id}/{token-id}/burn':
     post:
       deprecated: true
       summary: Burn an NFT of the specified denom and ID
@@ -1627,8 +1643,8 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: denom
-          description: denom of the NFT
+          name: denom-id
+          description: denom ID of the NFT
           required: true
           schema:
             type: string
@@ -1656,7 +1672,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/collections/{denom}':
+  '/nft/nfts/collections/{denom-id}':
     get:
       deprecated: true
       summary: Query the NFT collection of the specified denom
@@ -1664,8 +1680,8 @@ paths:
         - NFT
       parameters:
         - in: path
-          name: denom
-          description: denom of the collection
+          name: denom-id
+          description: denom ID of the collection
           required: true
           schema:
             type: string
@@ -1682,7 +1698,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/owners/{address}':
+  '/nft/owners/{owner}':
     get:
       deprecated: true
       summary: Query the collections of NFTs owned by an address
@@ -1690,14 +1706,14 @@ paths:
         - NFT
       parameters:
         - in: path
-          name: address
+          name: owner
           description: owner address
           required: true
           schema:
             type: string
         - in: query
-          name: denom
-          description: optional denom
+          name: denom-id
+          description: optional denom ID
           required: false
           schema:
             type: string
@@ -1714,7 +1730,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/denoms':
+  '/nft/denoms':
     get:
       deprecated: true
       summary: Query all existing denoms
@@ -1733,7 +1749,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/nft/nfts/supplies/{denom}':
+  '/nft/collections/{denom-id}/supply':
     get:
       deprecated: true
       summary: Query the supply of NFTs of the specified denom
@@ -1741,9 +1757,15 @@ paths:
         - NFT
       parameters:
         - in: path
-          name: denom
-          description: denom of NFTs
+          name: denom-id
+          description: denom ID of NFTs
           required: true
+          schema:
+            type: string
+        - in: query
+          name: owner
+          description: optional owner address
+          required: false
           schema:
             type: string
       responses:
@@ -1938,9 +1960,14 @@ paths:
               pricing:
                 type: string
                 example: '{"price":"1iris"}'
-              min_resp_time:
+              qos:
                 type: integer
                 example: '50'
+              options:
+                type: string
+                example: '{}'
+              owner:
+                $ref: '#/definitions/Address'
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2015,9 +2042,14 @@ paths:
               pricing:
                 type: string
                 example: '{"price":"1iris"}'
-              min_resp_time:
+              qos:
                 type: integer
                 example: '50'
+              options:
+                type: string
+                example: '{}'
+              owner:
+                $ref: '#/definitions/Address'
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2138,6 +2170,8 @@ paths:
             properties:
               base_req:
                 $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2180,6 +2214,8 @@ paths:
               deposit:
                 type: string
                 example: '1iris'
+              owner:
+                $ref: '#/definitions/Address'
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2219,6 +2255,8 @@ paths:
             properties:
               base_req:
                 $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -2668,6 +2706,8 @@ paths:
             properties:
               base_req:
                 $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
       responses:
         '200':
           description: Unsigned tx was succesfully generated
@@ -3400,12 +3440,17 @@ definitions:
       pricing:
         type: string
         example: '{"price":"1iris"}'
-      min_resp_time:
+      qos:
         type: integer
+      options:
+        type: string
+        example: '{}'
       available:
         type: boolean
       disabled_time:
         type: string
+      owner:
+        $ref: '#/definitions/Address'
   ServiceRequest:
     type: object
     properties:
