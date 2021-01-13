@@ -94,7 +94,7 @@ endif
 install: go.sum update-swagger-docs
 	go install $(BUILD_FLAGS) ./cmd/irita
 
-update-swagger-docs: statik
+update-swagger-docs: statik proto-swagger-gen
 	$(BINDIR)/statik -src=lite/swagger-ui -dest=lite -f -m
 	@if [ -n "$(git status --porcelain)" ]; then \
         echo "\033[91mSwagger docs are out of sync!!!\033[0m";\

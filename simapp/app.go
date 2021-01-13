@@ -360,7 +360,7 @@ func NewSimApp(
 		admin.NewAppModule(appCodec, app.AdminKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
-		wasm.NewAppModule(&app.WasmKeeper),
+		wasm.NewAppModule(&app.WasmKeeper, app.NodeKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
 	)
 
@@ -434,7 +434,7 @@ func NewSimApp(
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
 		admin.NewAppModule(appCodec, app.AdminKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
-		wasm.NewAppModule(&app.WasmKeeper),
+		wasm.NewAppModule(&app.WasmKeeper, app.NodeKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
 	)
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+
 	"github.com/bianjieai/irita/app"
 	"github.com/bianjieai/irita/cmd/irita/cmd"
 )
