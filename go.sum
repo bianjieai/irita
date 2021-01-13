@@ -20,8 +20,12 @@ github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d h1:nalkkPQ
 github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d/go.mod h1:URdX5+vg25ts3aCh8H5IFZybJYKWhJHYMTnf+ULtoC4=
 github.com/CosmWasm/wasmd v0.13.1-0.20210105130748-6acc71218bde h1:oGLhJDZtT4qMG8CNu+Xmi2ZkhrgpxvzZ3PsWt3fea74=
 github.com/CosmWasm/wasmd v0.13.1-0.20210105130748-6acc71218bde/go.mod h1:tyz6WoWjyTqUsiWLWpiNKYVL20Qyqwi3gX7HTooZW5I=
+github.com/CosmWasm/wasmd v0.14.1-0.20210111145259-1acda43e5322 h1:mNp61t2ByAgwkEQJvTt41Dhvv2QimOKHWTXZRJsuQaQ=
+github.com/CosmWasm/wasmd v0.14.1-0.20210111145259-1acda43e5322/go.mod h1:ETbfDfznKnEV9URxWQfuWZlu/C1Ivg4V1AyAVqa35gA=
 github.com/CosmWasm/wasmvm v0.12.0 h1:L9ez6fCg2Co1SgCm0YHjbnewZ8myemu2cm/QL0qR1OE=
 github.com/CosmWasm/wasmvm v0.12.0/go.mod h1:tbXGE9Jz6sYpiJroGr71OQ5TFOufq/P5LWsruA2u6JE=
+github.com/CosmWasm/wasmvm v0.13.0 h1:AP8LVcCxI3KLtHY24qLhzVe+ChOXwcR8MNm8Jxkuhwk=
+github.com/CosmWasm/wasmvm v0.13.0/go.mod h1:Id107qllDJyJjVQQsKMOy2YYF98sqPJ2t+jX1QES40A=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/DataDog/zstd v1.4.1/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
 github.com/DataDog/zstd v1.4.5 h1:EndNeuB0l9syBZhut0wns3gV1hL8zX8LIu6ZiVHWLIQ=
@@ -237,6 +241,8 @@ github.com/google/go-cmp v0.5.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf/go.mod h1:HP5RmnzzSNb993RKQDq4+1A4ia9nllfqcQFTQJedwGI=
 github.com/google/gofuzz v1.0.0 h1:A8PeW59pxE9IoFRqBp37U+mSNaQoZ46F1f0f863XSXw=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
+github.com/google/gofuzz v1.2.0 h1:xRy4A+RhZaiKjJ1bPfwQ8sedCA+YS2YcCHW6ec7JMi0=
+github.com/google/gofuzz v1.2.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/google/martian v2.1.0+incompatible/go.mod h1:9I4somxYTbIHy5NJKHRl3wXiIaQGbYVAs8BPL6v8lEs=
 github.com/google/pprof v0.0.0-20181206194817-3ea8567a2e57/go.mod h1:zfwlbNMJ+OItoe0UupaVj+oy1omPYYDuagoSzA8v9mc=
 github.com/google/pprof v0.0.0-20190515194954-54271f7e092f/go.mod h1:zfwlbNMJ+OItoe0UupaVj+oy1omPYYDuagoSzA8v9mc=

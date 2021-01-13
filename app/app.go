@@ -361,7 +361,7 @@ func NewIritaApp(
 		admin.NewAppModule(appCodec, app.adminKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
-		wasm.NewAppModule(&app.wasmKeeper),
+		wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 	)
 
@@ -428,7 +428,7 @@ func NewIritaApp(
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
 		admin.NewAppModule(appCodec, app.adminKeeper),
 		identity.NewAppModule(app.identityKeeper),
-		wasm.NewAppModule(&app.wasmKeeper),
+		wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 	)
 
