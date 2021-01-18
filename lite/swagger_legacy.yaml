@@ -1439,7 +1439,7 @@ paths:
           description: Invalid parameters
         500:
           description: Internal Server Error
-  '/token/tokens/{symbol}/fee':
+  '/token/tokens/{symbol}/fees':
     get:
       deprecated: true
       summary: Query the fees for issuing and minting the token with the given symbol
@@ -1461,6 +1461,41 @@ paths:
                 $ref: '#/definitions/TokenFeesOutput'
         400:
           description: Invalid symbol
+        500:
+          description: Internal Server Error
+  '/nft/nfts/denoms/issue':
+    post:
+      deprecated: true
+      summary: Issue a denom
+      tags:
+        - NFT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: IssueDenomReq
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: '#/definitions/BaseReq'
+              owner:
+                $ref: '#/definitions/Address'
+                example: 'iaa12jyx7smkhpzgjudh73gxmcgt9chxtpeue6y6cy'
+              id:
+                type: string
+              name:
+                type: string
+              schema:
+                type: string
+      responses:
+        200:
+          description: Unsigned tx was succesfully generated
+        400:
+          description: Invalid parameters
         500:
           description: Internal Server Error
   '/nft/nfts/mint':
@@ -2083,16 +2118,16 @@ paths:
           description: Invalid parameters
         '500':
           description: Internal Server Error
-  '/service/providers/{provider}/withdraw-address':
+  '/service/owners/{owner}/withdraw-address':
     get:
       deprecated: true
-      summary: Query the withdrawal address of a provider
+      summary: Query the withdrawal address of an owner
       tags:
         - Service
       parameters:
         - in: path
-          name: provider
-          description: provider address
+          name: owner
+          description: owner address
           required: true
           schema:
             type: string
@@ -2107,7 +2142,7 @@ paths:
           description: Internal Server Error
     post:
       deprecated: true
-      summary: Set a withdrawal address for a provider
+      summary: Set the withdrawal address for an owner
       tags:
         - Service
       consumes:
@@ -2116,8 +2151,8 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: provider
-          description: provider adress
+          name: owner
+          description: owner address
           required: true
           schema:
             type: string
