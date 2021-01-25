@@ -66,7 +66,7 @@ func TestMsgMintGetSignBytes(t *testing.T) {
 	msg := NewMsgMint(testAmount, testAddress, testAddress)
 	res := msg.GetSignBytes()
 
-	expected := `{"type":"iritamod/mint/MsgMint","value":{"amount":"1000","operator":"cosmos1hjppmlx4fgtnpsya0pzqyg7el9qrq5lw58dd9x"}}`
+	expected := `{"type":"irita/opb/MsgMint","value":{"amount":"1000","operator":"cosmos1hjppmlx4fgtnpsya0pzqyg7el9qrq5lw58dd9x","recipient":"cosmos1hjppmlx4fgtnpsya0pzqyg7el9qrq5lw58dd9x"}}`
 	require.Equal(t, expected, string(res))
 }
 
@@ -128,7 +128,7 @@ func TestMsgReclaimGetSignBytes(t *testing.T) {
 	msg := NewMsgReclaim(testDenom, testAddress, testAddress)
 	res := msg.GetSignBytes()
 
-	expected := `{"type":"iritamod/mint/MsgMint","value":{"amount":"1000","operator":"cosmos1hjppmlx4fgtnpsya0pzqyg7el9qrq5lw58dd9x"}}`
+	expected := `{"type":"irita/opb/MsgReclaim","value":{"denom":"stake","operator":"cosmos1hjppmlx4fgtnpsya0pzqyg7el9qrq5lw58dd9x","recipient":"cosmos1hjppmlx4fgtnpsya0pzqyg7el9qrq5lw58dd9x"}}`
 	require.Equal(t, expected, string(res))
 }
 
