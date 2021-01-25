@@ -10,7 +10,10 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
 	github.com/ghodss/yaml v1.0.0
+	github.com/gogo/protobuf v1.3.1
+	github.com/golang/protobuf v1.4.3
 	github.com/gorilla/mux v1.8.0
+	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/irisnet/irismod v1.1.1-0.20210111090024-463e3e11dc14
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mtibben/percent v0.2.1
@@ -27,6 +30,9 @@ require (
 	github.com/tendermint/tendermint v0.34.1
 	github.com/tendermint/tm-db v0.6.3
 	github.com/tidwall/gjson v1.6.1 // indirect
+	google.golang.org/genproto v0.0.0-20201214200347-8c77b98c765d
+	google.golang.org/grpc v1.34.0
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 replace (
