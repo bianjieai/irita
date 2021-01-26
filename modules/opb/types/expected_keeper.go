@@ -26,5 +26,5 @@ type AccountKeeper interface {
 
 // PermKeeper defines the expected perm keeper (noalias)
 type PermKeeper interface {
-	IsBaseM1Admin(address sdk.AccAddress) bool
+	IsBaseM1Admin(ctx sdk.Context, address sdk.AccAddress) bool
 }

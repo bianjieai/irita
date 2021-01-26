@@ -73,7 +73,7 @@ func (k Keeper) Mint(ctx sdk.Context, amount uint64, recipient, operator sdk.Acc
 	// get the base token denom
 	baseTokenDenom := k.BaseTokenDenom(ctx)
 
-	if !k.permKeeper.IsBaseM1Admin(operator) {
+	if !k.permKeeper.IsBaseM1Admin(ctx, operator) {
 		return sdkerrors.Wrapf(types.ErrUnauthorized, "address %s has no permission to mint %s", operator, baseTokenDenom)
 	}
 
@@ -99,7 +99,7 @@ func (k Keeper) Reclaim(ctx sdk.Context, denom string, recipient, operator sdk.A
 
 	switch denom {
 	case baseTokenDenom:
-		if !k.permKeeper.IsBaseM1Admin(operator) {
+		if !k.permKeeper.IsBaseM1Admin(ctx, operator) {
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "address %s has no permission to reclaim %s", operator, denom)
 		}
 
