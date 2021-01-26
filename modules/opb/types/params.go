@@ -133,8 +133,10 @@ func validateBaseTokenManager(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if _, err := sdk.AccAddressFromBech32(v); err != nil {
-		return fmt.Errorf("invalid bech32 address %s: %s", v, err)
+	if len(v) > 0 {
+		if _, err := sdk.AccAddressFromBech32(v); err != nil {
+			return fmt.Errorf("invalid bech32 address %s: %s", v, err)
+		}
 	}
 
 	return nil

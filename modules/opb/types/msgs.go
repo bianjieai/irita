@@ -92,10 +92,6 @@ func (m MsgReclaim) Type() string {
 
 // ValidateBasic implements Msg.
 func (m MsgReclaim) ValidateBasic() error {
-	if len(m.Operator) == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "operator missing")
-	}
-
 	if _, err := sdk.AccAddressFromBech32(m.Operator); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid operator %s: %s", m.Operator, err)
 	}
@@ -106,10 +102,6 @@ func (m MsgReclaim) ValidateBasic() error {
 
 	if err := sdk.ValidateDenom(m.Denom); err != nil {
 		return sdkerrors.Wrapf(ErrInvalidDenom, "invalid denom %s: %s", m.Denom, err)
-	}
-
-	if len(m.Recipient) == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "recipient missing")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(m.Recipient); err != nil {

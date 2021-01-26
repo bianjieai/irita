@@ -38,12 +38,10 @@ func (k Keeper) UnrestrictedTokenTransfer(ctx sdk.Context) (res bool) {
 
 // GetParams gets all parameters
 func (k Keeper) GetParams(ctx sdk.Context) types.Params {
-	return types.NewParams(
-		k.BaseTokenDenom(ctx),
-		k.PointTokenDenom(ctx),
-		k.BaseTokenManager(ctx),
-		k.UnrestrictedTokenTransfer(ctx),
-	)
+	var p types.Params
+	k.paramSpace.GetParamSet(ctx, &p)
+
+	return p
 }
 
 // SetParams sets the params to the store

@@ -68,12 +68,12 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Mint mints the base native token by the specified amount
-// NOTE: the operator must possess the BaseM1Admin permission
+// NOTE: the operator must possess the BaseM1Admin or RootAdmin permission
 func (k Keeper) Mint(ctx sdk.Context, amount uint64, recipient, operator sdk.AccAddress) error {
 	// get the base token denom
 	baseTokenDenom := k.BaseTokenDenom(ctx)
 
-	if !k.permKeeper.IsBaseM1Admin(ctx, operator) {
+	if !k.hasBaseM1Perm(ctx, operator) {
 		return sdkerrors.Wrapf(types.ErrUnauthorized, "address %s has no permission to mint %s", operator, baseTokenDenom)
 	}
 
@@ -95,15 +95,15 @@ func (k Keeper) Reclaim(ctx sdk.Context, denom string, recipient, operator sdk.A
 	baseTokenDenom := k.BaseTokenDenom(ctx)
 	pointTokenDenom := k.PointTokenDenom(ctx)
 
-	var moduleAccAddr sdk.AccAddress
+	var moduleAccName string
 
 	switch denom {
 	case baseTokenDenom:
-		if !k.permKeeper.IsBaseM1Admin(ctx, operator) {
+		if !k.hasBaseM1Perm(ctx, operator) {
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "address %s has no permission to reclaim %s", operator, denom)
 		}
 
-		moduleAccAddr = k.accountKeeper.GetModuleAddress(types.BaseTokenFeeCollectorName)
+		moduleAccName = types.BaseTokenFeeCollectorName
 
 	case pointTokenDenom:
 		owner, err := k.tokenKeeper.GetOwner(ctx, denom)
@@ -115,16 +115,24 @@ func (k Keeper) Reclaim(ctx sdk.Context, denom string, recipient, operator sdk.A
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "only %s is allowed to reclaim %s", owner, denom)
 		}
 
-		moduleAccAddr = k.accountKeeper.GetModuleAddress(types.PointTokenFeeCollectorName)
+		moduleAccName = types.PointTokenFeeCollectorName
 
 	default:
 		return sdkerrors.Wrapf(types.ErrInvalidDenom, "denom must be either %s or %s", baseTokenDenom, pointTokenDenom)
 	}
+
+	moduleAccAddr := k.accountKeeper.GetModuleAddress(moduleAccName)
 
 	balance := k.bankKeeper.GetBalance(ctx, moduleAccAddr, denom)
 	if balance.IsZero() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "no balance for %s in the module account", denom)
 	}
 
-	return k.bankKeeper.SendCoins(ctx, moduleAccAddr, recipient, sdk.NewCoins(balance))
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, moduleAccName, recipient, sdk.NewCoins(balance))
+}
+
+// hasBaseM1Perm returns true if the given address is BaseM1Admin or RootAdmin
+// False otherwise
+func (k Keeper) hasBaseM1Perm(ctx sdk.Context, address sdk.AccAddress) bool {
+	return k.permKeeper.IsRootAdmin(ctx, address) || k.permKeeper.IsBaseM1Admin(ctx, address)
 }
