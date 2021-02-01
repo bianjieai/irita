@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/bianjieai/irita/modules/opb/types"
@@ -37,12 +38,7 @@ func NewKeeper(
 	permKeeper types.PermKeeper,
 	paramSpace paramstypes.Subspace,
 ) Keeper {
-	// ensure OPB module accounts are set
-
-	if addr := accountKeeper.GetModuleAddress(types.BaseTokenFeeCollectorName); addr == nil {
-		panic(fmt.Sprintf("%s module account has not been set", types.BaseTokenFeeCollectorName))
-	}
-
+	// ensure the OPB module account is set
 	if addr := accountKeeper.GetModuleAddress(types.PointTokenFeeCollectorName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.PointTokenFeeCollectorName))
 	}
@@ -103,7 +99,7 @@ func (k Keeper) Reclaim(ctx sdk.Context, denom string, recipient, operator sdk.A
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "address %s has no permission to reclaim %s", operator, denom)
 		}
 
-		moduleAccName = types.BaseTokenFeeCollectorName
+		moduleAccName = authtypes.FeeCollectorName
 
 	case pointTokenDenom:
 		owner, err := k.tokenKeeper.GetOwner(ctx, denom)
