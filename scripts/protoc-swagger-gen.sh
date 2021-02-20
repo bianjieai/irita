@@ -3,9 +3,9 @@
 set -eo pipefail
 
 
-IRISMOD_VERSION=v1.1.1-0.20210111090024-463e3e11dc14
-IRITAMOD_VERSION=v0.0.0-20210113080132-1a1b006c7f97
-SDK_VERSION=v0.34.4-0.20210113022954-c0709d9ba13e
+IRISMOD_VERSION=v1.1.1-0.20210129120628-951dfea557b5
+IRITAMOD_VERSION=v0.0.0-20210125115338-c52e28ce6cf7
+SDK_VERSION=v0.34.4-0.20210127105926-4ac7b5a35238
 WASMD_VERSION=v0.14.1-0.20210111145259-1acda43e5322
 WASMD_PROTO_DIR=x/wasm/internal/types
 
@@ -49,4 +49,22 @@ swagger-combine ./lite/config.json -o ./lite/swagger-ui/swagger.yaml -f yaml --c
 rm -rf ./tmp-swagger-gen
 
 # clean proto files
-rm -rf ./proto
+rm -rf ./proto/cosmos
+
+rm -rf ./proto/coinswap
+rm -rf ./proto/htlc
+rm -rf ./proto/nft
+rm -rf ./proto/oracle
+rm -rf ./proto/random
+rm -rf ./proto/record
+rm -rf ./proto/service
+rm -rf ./proto/token
+
+rm -rf ./proto/perm
+rm -rf ./proto/identity
+rm -rf ./proto/params
+rm -rf ./proto/slashing
+rm -rf ./proto/node
+rm -rf ./proto/genutil
+rm -rf ./proto/wasm
+rm -rf ./proto/upgrade
