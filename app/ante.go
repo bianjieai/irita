@@ -5,7 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	bankante "github.com/cosmos/cosmos-sdk/x/bank/ante"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
@@ -15,26 +14,29 @@ import (
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
-	"github.com/bianjieai/iritamod/modules/admin"
 	"github.com/bianjieai/iritamod/modules/identity"
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/params"
+	"github.com/bianjieai/iritamod/modules/perm"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
+
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 )
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
-// numbers, checks signatures & account numbers, and deducts fees from the first
-// signer.
+// numbers, checks signatures & account numbers, deducts fees from the first
+// signer, and performs other module-specific logic.
 func NewAnteHandler(
-	adminKeeper admin.Keeper,
+	permKeeper perm.Keeper,
 	ak authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
-	tk tokenkeeper.Keeper,
+	tokenKeeper tokenkeeper.Keeper,
+	opbKeeper opbkeeper.Keeper,
 	sigGasConsumer ante.SignatureVerificationGasConsumer,
 	signModeHandler signing.SignModeHandler,
 ) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
-		admin.NewAuthDecorator(adminKeeper),
+		perm.NewAuthDecorator(permKeeper),
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		ante.NewMempoolFeeDecorator(),
 		ante.NewValidateBasicDecorator(),
@@ -47,41 +49,41 @@ func NewAnteHandler(
 		ante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
 		ante.NewSigVerificationDecorator(ak, signModeHandler),
 		ante.NewIncrementSequenceDecorator(ak),
-		tokenkeeper.NewValidateTokenFeeDecorator(tk, bankKeeper),
-		bankante.NewValidateTokenTransferDecorator(bankKeeper, tk),
+		tokenkeeper.NewValidateTokenFeeDecorator(tokenKeeper, bankKeeper),
+		opbkeeper.NewValidateTokenTransferDecorator(opbKeeper, tokenKeeper),
 	)
 }
 
-func RegisterAccessControl(adminKeeper admin.Keeper) admin.Keeper {
+func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	// permission auth
-	adminKeeper.RegisterMsgAuth(&admin.MsgAddRoles{}, admin.RoleRootAdmin, admin.RolePermAdmin)
-	adminKeeper.RegisterMsgAuth(&admin.MsgRemoveRoles{}, admin.RoleRootAdmin, admin.RolePermAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgAssignRoles{}, perm.RoleRootAdmin, perm.RolePermAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgUnassignRoles{}, perm.RoleRootAdmin, perm.RolePermAdmin)
 
 	// blacklist auth
-	adminKeeper.RegisterMsgAuth(&admin.MsgBlockAccount{}, admin.RoleRootAdmin, admin.RoleBlacklistAdmin)
-	adminKeeper.RegisterMsgAuth(&admin.MsgUnblockAccount{}, admin.RoleRootAdmin, admin.RoleBlacklistAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgBlockAccount{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgUnblockAccount{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
 
 	// node auth
-	adminKeeper.RegisterModuleAuth(node.ModuleName, admin.RoleRootAdmin, admin.RoleNodeAdmin)
-	adminKeeper.RegisterModuleAuth(slashingtypes.ModuleName, admin.RoleRootAdmin, admin.RoleNodeAdmin)
+	permKeeper.RegisterModuleAuth(node.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterModuleAuth(slashingtypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 
 	// param auth
-	adminKeeper.RegisterModuleAuth(params.ModuleName, admin.RoleRootAdmin, admin.RoleParamAdmin)
+	permKeeper.RegisterModuleAuth(params.ModuleName, perm.RoleRootAdmin, perm.RoleParamAdmin)
 
 	// identity auth
-	adminKeeper.RegisterMsgAuth(&identity.MsgCreateIdentity{}, admin.RoleRootAdmin, admin.RoleIDAdmin)
+	permKeeper.RegisterMsgAuth(&identity.MsgCreateIdentity{}, perm.RoleRootAdmin, perm.RoleIDAdmin)
 
 	// oracle auth
-	adminKeeper.RegisterModuleAuth(oracletypes.ModuleName, admin.RoleRootAdmin, admin.RolePowerUser)
+	permKeeper.RegisterModuleAuth(oracletypes.ModuleName, perm.RoleRootAdmin, perm.RolePowerUser)
 
 	// power user auth
-	adminKeeper.RegisterMsgAuth(&tokentypes.MsgIssueToken{}, admin.RoleRootAdmin, admin.RolePowerUser)
-	adminKeeper.RegisterMsgAuth(&nfttypes.MsgIssueDenom{}, admin.RoleRootAdmin, admin.RolePowerUser)
-	adminKeeper.RegisterMsgAuth(&servicetypes.MsgDefineService{}, admin.RoleRootAdmin, admin.RolePowerUser)
-	adminKeeper.RegisterMsgAuth(&servicetypes.MsgBindService{}, admin.RoleRootAdmin, admin.RolePowerUser)
+	permKeeper.RegisterMsgAuth(&tokentypes.MsgIssueToken{}, perm.RoleRootAdmin, perm.RolePowerUser)
+	permKeeper.RegisterMsgAuth(&nfttypes.MsgIssueDenom{}, perm.RoleRootAdmin, perm.RolePowerUser)
+	permKeeper.RegisterMsgAuth(&servicetypes.MsgDefineService{}, perm.RoleRootAdmin, perm.RolePowerUser)
+	permKeeper.RegisterMsgAuth(&servicetypes.MsgBindService{}, perm.RoleRootAdmin, perm.RolePowerUser)
 
 	// upgrade auth
-	adminKeeper.RegisterModuleAuth(upgradetypes.ModuleName, admin.RoleRootAdmin, admin.RoleNodeAdmin)
+	permKeeper.RegisterModuleAuth(upgradetypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 
-	return adminKeeper
+	return permKeeper
 }

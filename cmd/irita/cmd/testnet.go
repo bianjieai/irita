@@ -34,9 +34,9 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/bianjieai/iritamod/modules/admin"
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
+	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
 )
 
@@ -335,18 +335,18 @@ func initGenFiles(
 	appGenState[banktypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&bankGenState)
 
 	// add all genesis accounts as root admins
-	var adminGenState admin.GenesisState
-	jsonMarshaler.MustUnmarshalJSON(appGenState[admin.ModuleName], &adminGenState)
+	var permGenState perm.GenesisState
+	jsonMarshaler.MustUnmarshalJSON(appGenState[perm.ModuleName], &permGenState)
 	for _, account := range genAccounts {
-		adminGenState.RoleAccounts = append(
-			adminGenState.RoleAccounts,
-			admin.RoleAccount{
+		permGenState.RoleAccounts = append(
+			permGenState.RoleAccounts,
+			perm.RoleAccount{
 				Address: account.GetAddress().String(),
-				Roles:   []admin.Role{admin.RoleRootAdmin},
+				Roles:   []perm.Role{perm.RoleRootAdmin},
 			},
 		)
 	}
-	appGenState[admin.ModuleName] = jsonMarshaler.MustMarshalJSON(&adminGenState)
+	appGenState[perm.ModuleName] = jsonMarshaler.MustMarshalJSON(&permGenState)
 
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
 	if err != nil {

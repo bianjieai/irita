@@ -13,8 +13,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/bianjieai/iritamod/modules/admin"
 	"github.com/bianjieai/iritamod/modules/node"
+	"github.com/bianjieai/iritamod/modules/perm"
 )
 
 var (
@@ -70,16 +70,16 @@ func setGenesis(iapp *IritaApp) error {
 	genesisState[node.ModuleName] = validatorGenStateBz
 
 	// add root admin
-	adminGenState := admin.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
-	adminGenState.RoleAccounts = append(
-		adminGenState.RoleAccounts,
-		admin.RoleAccount{
+	permGenState := perm.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
+	permGenState.RoleAccounts = append(
+		permGenState.RoleAccounts,
+		perm.RoleAccount{
 			Address: rootAdmin.String(),
-			Roles:   []admin.Role{admin.RoleRootAdmin},
+			Roles:   []perm.Role{perm.RoleRootAdmin},
 		},
 	)
-	adminGenStateBz := iapp.cdc.MustMarshalJSON(adminGenState)
-	genesisState[admin.ModuleName] = adminGenStateBz
+	permGenStateBz := iapp.cdc.MustMarshalJSON(permGenState)
+	genesisState[perm.ModuleName] = permGenStateBz
 
 	stateBytes, err := codec.MarshalJSONIndent(iapp.cdc, genesisState)
 	if err != nil {
