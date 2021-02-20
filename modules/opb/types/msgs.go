@@ -36,20 +36,12 @@ func (m MsgMint) Type() string {
 
 // ValidateBasic implements Msg.
 func (m MsgMint) ValidateBasic() error {
-	if len(m.Operator) == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "operator missing")
-	}
-
 	if _, err := sdk.AccAddressFromBech32(m.Operator); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "invalid operator")
 	}
 
 	if m.Amount == 0 {
 		return sdkerrors.Wrap(ErrInvalidAmount, "amount should be greater than 0")
-	}
-
-	if len(m.Recipient) == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "recipient missing")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(m.Recipient); err != nil {
