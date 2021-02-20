@@ -45,7 +45,7 @@ func NewMintCmd() *cobra.Command {
 			"$ %s tx %s mint <amount> <to> --from mykey",
 			version.AppName, types.ModuleName,
 		),
-		Args: cobra.ExactArgs(2),
+		Args: cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -59,9 +59,15 @@ func NewMintCmd() *cobra.Command {
 				return err
 			}
 
-			recipient, err := sdk.AccAddressFromBech32(args[1])
-			if err != nil {
-				return err
+			var recipient sdk.AccAddress
+
+			if len(args) > 1 {
+				recipient, err = sdk.AccAddressFromBech32(args[1])
+				if err != nil {
+					return err
+				}
+			} else {
+				recipient = operator
 			}
 
 			msg := types.NewMsgMint(amount, recipient, operator)
@@ -90,7 +96,7 @@ func NewReclaimCmd() *cobra.Command {
 			"$ %s tx %s reclaim <denom> <to> --from mykey",
 			version.AppName, types.ModuleName,
 		),
-		Args: cobra.ExactArgs(2),
+		Args: cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -99,9 +105,15 @@ func NewReclaimCmd() *cobra.Command {
 
 			operator := clientCtx.GetFromAddress()
 
-			recipient, err := sdk.AccAddressFromBech32(args[1])
-			if err != nil {
-				return err
+			var recipient sdk.AccAddress
+
+			if len(args) > 1 {
+				recipient, err = sdk.AccAddressFromBech32(args[1])
+				if err != nil {
+					return err
+				}
+			} else {
+				recipient = operator
 			}
 
 			msg := types.NewMsgReclaim(args[0], recipient, operator)
