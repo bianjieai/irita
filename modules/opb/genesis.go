@@ -12,6 +12,20 @@ func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) (res []abci.Valid
 		panic(err.Error())
 	}
 
+	params := data.Params
+
+	if !k.HasToken(ctx, params.BaseTokenDenom) {
+		panic("token %s does not exist")
+	}
+
+	if !k.HasToken(ctx, params.PointTokenDenom) {
+		panic("token %s does not exist")
+	}
+
+	if !params.UnrestrictedTokenTransfer && len(params.BaseTokenManager) == 0 {
+		panic("base token manager must be specified when the token transfer restriction enabled")
+	}
+
 	k.SetParams(ctx, data.Params)
 
 	return nil

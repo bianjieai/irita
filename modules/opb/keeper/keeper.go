@@ -127,6 +127,15 @@ func (k Keeper) Reclaim(ctx sdk.Context, denom string, recipient, operator sdk.A
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, moduleAccName, recipient, sdk.NewCoins(balance))
 }
 
+// HasToken checks if the given token exists
+func (k Keeper) HasToken(ctx sdk.Context, denom string) bool {
+	if _, err := k.tokenKeeper.GetToken(ctx, denom); err != nil {
+		return false
+	}
+
+	return true
+}
+
 // hasBaseM1Perm returns true if the given address is BaseM1Admin or RootAdmin
 // False otherwise
 func (k Keeper) hasBaseM1Perm(ctx sdk.Context, address sdk.AccAddress) bool {
