@@ -2,6 +2,7 @@ package app
 
 import (
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 
@@ -160,8 +161,8 @@ func init() {
 		"Irita base native token",
 		"uirita",
 		6,
-		2000000000,
-		1000000000000,
+		1000000000,
+		math.MaxUint64,
 		true,
 		sdk.AccAddress{},
 	)

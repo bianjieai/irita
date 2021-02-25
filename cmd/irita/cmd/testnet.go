@@ -6,8 +6,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-
 	"io/ioutil"
+	"math"
 	"net"
 	"os"
 	"path/filepath"
@@ -33,6 +33,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
@@ -333,6 +335,24 @@ func initGenFiles(
 
 	bankGenState.Balances = genBalances
 	appGenState[banktypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&bankGenState)
+
+	// set the point token in the genesis state
+	var tokenGenState toketypes.GenesisState
+	jsonMarshaler.MustUnmarshalJSON(appGenState[tokentypes.ModuleName], &tokenGenState)
+
+	pointToken := tokentypes.Token{
+		"point",
+		"Irita point token",
+		6
+		"upoint",
+		1000000000,
+		math.MaxUint64,
+		true,
+		genAccounts[0].GetAddress().String(),
+	}
+
+	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
+	appGenState[tokentypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
 
 	// add all genesis accounts as root admins
 	var permGenState perm.GenesisState
