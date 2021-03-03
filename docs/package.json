@@ -10,7 +10,7 @@
   "author": "IRITA Dev Team",
   "license": "ISC",
   "devDependencies": {
-    "@vuepress/plugin-search": "^1.0.0-rc.1",
+    "@vuepress/plugin-search": "^1.8.2",
     "lodash": "^4.17.19",
     "markdown-it": "^12.0.4",
     "markdown-it-meta": "0.0.1",
