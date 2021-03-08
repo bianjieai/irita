@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cast"
 
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
@@ -202,12 +201,6 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".irita")
-
-	tokentypes.SetNativeToken(
-		"irita", "Irita base native token", "uirita",
-		6, 2000000000, 10000000000,
-		true, sdk.AccAddress(crypto.AddressHash([]byte(tokentypes.ModuleName))),
-	)
 }
 
 // NewSimApp returns a reference to an initialized NewSimApp.

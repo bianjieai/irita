@@ -13,10 +13,10 @@ import (
 
 const (
 	// DefaultBaseTokenDenom is the denom of the base native token by default
-	DefaultBaseTokenDenom = sdk.DefaultBondDenom
+	DefaultBaseTokenDenom = "uirita"
 
 	// DefaultPointTokenDenom is the denom of the native point token by default
-	DefaultPointTokenDenom = sdk.DefaultBondDenom
+	DefaultPointTokenDenom = "upoint"
 
 	// DefaultUnrestrictedTokenTransfer is set to false, which
 	// means that the token transfer is under certain constraint

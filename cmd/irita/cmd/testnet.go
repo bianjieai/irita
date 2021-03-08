@@ -40,6 +40,8 @@ import (
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
+
+	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 )
 
 var (
@@ -337,13 +339,13 @@ func initGenFiles(
 	appGenState[banktypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&bankGenState)
 
 	// set the point token in the genesis state
-	var tokenGenState toketypes.GenesisState
+	var tokenGenState tokentypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[tokentypes.ModuleName], &tokenGenState)
 
 	pointToken := tokentypes.Token{
 		"point",
 		"Irita point token",
-		6
+		6,
 		"upoint",
 		1000000000,
 		math.MaxUint64,
@@ -353,6 +355,14 @@ func initGenFiles(
 
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
 	appGenState[tokentypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
+
+	// modify the native token denoms in the opb genesis
+	var opbGenState opbtypes.GenesisState
+	jsonMarshaler.MustUnmarshalJSON(appGenState[opbtypes.ModuleName], &opbGenState)
+
+	opbGenState.Params.BaseTokenDenom = "uirita"
+	opbGenState.Params.PointTokenDenom = "upoint"
+	appGenState[opbtypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&opbGenState)
 
 	// add all genesis accounts as root admins
 	var permGenState perm.GenesisState

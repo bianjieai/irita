@@ -1,6 +1,8 @@
 package opb
 
 import (
+	"fmt"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,11 +17,11 @@ func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) (res []abci.Valid
 	params := data.Params
 
 	if !k.HasToken(ctx, params.BaseTokenDenom) {
-		panic("token %s does not exist")
+		panic(fmt.Sprintf("token %s does not exist", params.BaseTokenDenom))
 	}
 
 	if !k.HasToken(ctx, params.PointTokenDenom) {
-		panic("token %s does not exist")
+		panic(fmt.Sprintf("token %s does not exist", params.PointTokenDenom))
 	}
 
 	if !params.UnrestrictedTokenTransfer && len(params.BaseTokenManager) == 0 {
