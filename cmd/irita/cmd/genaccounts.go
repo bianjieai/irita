@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -20,8 +21,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-
-	"github.com/bianjieai/iritamod/modules/admin"
 )
 
 const (
@@ -123,7 +122,7 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 			}
 
 			authGenState := authtypes.GetGenesisStateFromAppState(cdc, appState)
-			adminGenState := admin.GetGenesisStateFromAppState(depCdc, appState)
+			permGenState := perm.GetGenesisStateFromAppState(depCdc, appState)
 
 			accs, err := authtypes.UnpackAccounts(authGenState.Accounts)
 			if err != nil {
@@ -147,11 +146,11 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 
 			// Add root admin
 			if viper.GetBool(flagRootAdmin) {
-				adminGenState.RoleAccounts = append(
-					adminGenState.RoleAccounts,
-					admin.RoleAccount{
+				permGenState.RoleAccounts = append(
+					permGenState.RoleAccounts,
+					perm.RoleAccount{
 						Address: addr.String(),
-						Roles:   []admin.Role{admin.RoleRootAdmin},
+						Roles:   []perm.Role{perm.RoleRootAdmin},
 					},
 				)
 			}
@@ -172,13 +171,13 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 				return fmt.Errorf("failed to marshal bank genesis state: %w", err)
 			}
 
-			adminGenStateBz, err := cdc.MarshalJSON(&adminGenState)
+			permGenStateBz, err := cdc.MarshalJSON(&permGenState)
 			if err != nil {
-				return fmt.Errorf("failed to marshal admin genesis state: %w", err)
+				return fmt.Errorf("failed to marshal perm genesis state: %w", err)
 			}
 
 			appState[banktypes.ModuleName] = bankGenStateBz
-			appState[admin.ModuleName] = adminGenStateBz
+			appState[perm.ModuleName] = permGenStateBz
 
 			appStateJSON, err := json.Marshal(appState)
 			if err != nil {

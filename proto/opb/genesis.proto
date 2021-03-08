@@ -1,0 +1,12 @@
+syntax = "proto3";
+package irita.opb;
+
+import "opb/opb.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/bianjieai/irita/modules/opb/types";
+
+// GenesisState defines the OPB module's genesis state.
+message GenesisState {
+    Params params = 1 [(gogoproto.nullable) = false];
+}

@@ -1191,45 +1191,6 @@ paths:
 #          description: Found no voting parameters
 #        500:
 #          description: Internal Server Error
-  /supply/total:
-    get:
-      deprecated: true
-      summary: Total supply of coins in the chain
-      tags:
-        - Supply
-      produces:
-        - application/json
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: "#/definitions/Supply"
-        500:
-          description: Internal Server Error
-  /supply/total/{denomination}:
-    parameters:
-      - in: path
-        name: denomination
-        description: Coin denomination
-        required: true
-        type: string
-        x-example: uatom
-    get:
-      deprecated: true
-      summary: Total supply of a single coin denomination
-      tags:
-        - Supply
-      produces:
-        - application/json
-      responses:
-        200:
-          description: OK
-          schema:
-             type: string
-        400:
-          description: Invalid coin denomination
-        500:
-          description: Internal Server Error
   '/token/tokens':
     post:
       deprecated: true

@@ -21,7 +21,7 @@ import (
 func GenRootCert(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-root-cert [cert]",
-		Short: "Add X.509 root certificate to verify the validator certificate",
+		Short: "Add X.509 root certificate to verify the validator or node certificate",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -41,15 +41,15 @@ func GenRootCert(defaultNodeHome string) *cobra.Command {
 				return fmt.Errorf("failed to unmarshal genesis state: %w", err)
 			}
 
-			validatorGenState := node.GetGenesisStateFromAppState(cdc, appState)
-			validatorGenState.RootCert = string(cert)
+			nodeGenState := node.GetGenesisStateFromAppState(cdc, appState)
+			nodeGenState.RootCert = string(cert)
 
-			validatorGenStateBz, err := cdc.MarshalJSON(&validatorGenState)
+			nodeGenStateBz, err := cdc.MarshalJSON(&nodeGenState)
 			if err != nil {
-				return fmt.Errorf("failed to marshal admin genesis state: %w", err)
+				return fmt.Errorf("failed to marshal node genesis state: %w", err)
 			}
 
-			appState[node.ModuleName] = validatorGenStateBz
+			appState[node.ModuleName] = nodeGenStateBz
 
 			appStateJSON, err := json.MarshalIndent(appState, "", "  ")
 			if err != nil {

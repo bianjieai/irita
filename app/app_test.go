@@ -1,6 +1,10 @@
 package app
 
 import (
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	"github.com/tendermint/tendermint/crypto"
+	"math"
 	"os"
 	"testing"
 
@@ -13,8 +17,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/bianjieai/iritamod/modules/admin"
 	"github.com/bianjieai/iritamod/modules/node"
+	"github.com/bianjieai/iritamod/modules/perm"
 )
 
 var (
@@ -69,17 +73,38 @@ func setGenesis(iapp *IritaApp) error {
 	validatorGenStateBz := iapp.cdc.MustMarshalJSON(validatorGenState)
 	genesisState[node.ModuleName] = validatorGenStateBz
 
+	var authGenState authtypes.GenesisState
+	iapp.appCodec.MustUnmarshalJSON(genesisState[authtypes.ModuleName], &authGenState)
+
+	// set the point token in the genesis state
+	var tokenGenState tokentypes.GenesisState
+	iapp.appCodec.MustUnmarshalJSON(genesisState[tokentypes.ModuleName], &tokenGenState)
+
+	pointToken := tokentypes.Token{
+		"point",
+		"Irita point token",
+		6,
+		"upoint",
+		1000000000,
+		math.MaxUint64,
+		true,
+		sdk.AccAddress(crypto.AddressHash([]byte("point owner"))).String(),
+	}
+
+	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
+	genesisState[tokentypes.ModuleName] = iapp.appCodec.MustMarshalJSON(&tokenGenState)
+
 	// add root admin
-	adminGenState := admin.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
-	adminGenState.RoleAccounts = append(
-		adminGenState.RoleAccounts,
-		admin.RoleAccount{
+	permGenState := perm.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
+	permGenState.RoleAccounts = append(
+		permGenState.RoleAccounts,
+		perm.RoleAccount{
 			Address: rootAdmin.String(),
-			Roles:   []admin.Role{admin.RoleRootAdmin},
+			Roles:   []perm.Role{perm.RoleRootAdmin},
 		},
 	)
-	adminGenStateBz := iapp.cdc.MustMarshalJSON(adminGenState)
-	genesisState[admin.ModuleName] = adminGenStateBz
+	permGenStateBz := iapp.cdc.MustMarshalJSON(permGenState)
+	genesisState[perm.ModuleName] = permGenStateBz
 
 	stateBytes, err := codec.MarshalJSONIndent(iapp.cdc, genesisState)
 	if err != nil {

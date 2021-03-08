@@ -2,11 +2,11 @@ package app
 
 import (
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
@@ -77,10 +77,6 @@ import (
 
 	"github.com/bianjieai/iritamod/modules/genutil"
 	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
-
-	"github.com/bianjieai/iritamod/modules/admin"
-	adminkeeper "github.com/bianjieai/iritamod/modules/admin/keeper"
-	admintypes "github.com/bianjieai/iritamod/modules/admin/types"
 	"github.com/bianjieai/iritamod/modules/identity"
 	identitykeeper "github.com/bianjieai/iritamod/modules/identity/keeper"
 	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
@@ -88,6 +84,9 @@ import (
 	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
 	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
 	cparams "github.com/bianjieai/iritamod/modules/params"
+	"github.com/bianjieai/iritamod/modules/perm"
+	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
+	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
 	cslashing "github.com/bianjieai/iritamod/modules/slashing"
 	"github.com/bianjieai/iritamod/modules/upgrade"
 	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
@@ -95,6 +94,9 @@ import (
 
 	"github.com/bianjieai/irita/address"
 	"github.com/bianjieai/irita/lite"
+	"github.com/bianjieai/irita/modules/opb"
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
+	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 )
 
 const appName = "IritaApp"
@@ -122,18 +124,20 @@ var (
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
-		admin.AppModuleBasic{},
+		perm.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		node.AppModuleBasic{},
+		opb.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:  nil,
-		tokentypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
-		servicetypes.DepositAccName: {authtypes.Burner},
-		servicetypes.RequestAccName: nil,
+		authtypes.FeeCollectorName:          nil,
+		tokentypes.ModuleName:               {authtypes.Minter, authtypes.Burner},
+		servicetypes.DepositAccName:         nil,
+		servicetypes.RequestAccName:         nil,
+		opbtypes.PointTokenFeeCollectorName: nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -153,14 +157,14 @@ func init() {
 
 	address.ConfigureBech32Prefix()
 	tokentypes.SetNativeToken(
-		"point",
-		"Irita point",
-		"point",
-		0,
-		2000000000,
-		10000000000,
+		"irita",
+		"Irita base native token",
+		"uirita",
+		6,
+		1000000000,
+		math.MaxUint64,
 		true,
-		sdk.AccAddress(crypto.AddressHash([]byte(tokentypes.ModuleName))),
+		sdk.AccAddress{},
 	)
 }
 
@@ -194,10 +198,11 @@ type IritaApp struct {
 	serviceKeeper  servicekeeper.Keeper
 	oracleKeeper   oraclekeeper.Keeper
 	randomKeeper   randomkeeper.Keeper
-	adminKeeper    adminkeeper.Keeper
+	permKeeper     permkeeper.Keeper
 	identityKeeper identitykeeper.Keeper
 	wasmKeeper     wasm.Keeper
 	nodeKeeper     nodekeeper.Keeper
+	opbKeeper      opbkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -235,10 +240,11 @@ func NewIritaApp(
 		servicetypes.StoreKey,
 		oracletypes.StoreKey,
 		randomtypes.StoreKey,
-		admintypes.StoreKey,
+		permtypes.StoreKey,
 		identitytypes.StoreKey,
 		wasm.StoreKey,
 		nodetypes.StoreKey,
+		opbtypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -286,7 +292,7 @@ func NewIritaApp(
 
 	app.tokenKeeper = tokenkeeper.NewKeeper(
 		appCodec, keys[tokentypes.StoreKey], app.GetSubspace(tokentypes.ModuleName),
-		app.bankKeeper, authtypes.FeeCollectorName,
+		app.bankKeeper, opbtypes.PointTokenFeeCollectorName,
 	)
 
 	app.recordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
@@ -294,7 +300,7 @@ func NewIritaApp(
 
 	app.serviceKeeper = servicekeeper.NewKeeper(
 		appCodec, keys[servicetypes.StoreKey], app.accountKeeper, app.bankKeeper,
-		app.GetSubspace(servicetypes.ModuleName), authtypes.FeeCollectorName,
+		app.GetSubspace(servicetypes.ModuleName), opbtypes.PointTokenFeeCollectorName,
 	)
 
 	app.oracleKeeper = oraclekeeper.NewKeeper(
@@ -307,9 +313,17 @@ func NewIritaApp(
 	app.nodeKeeper = *app.nodeKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(app.slashingKeeper.Hooks()),
 	)
-	adminKeeper := adminkeeper.NewKeeper(appCodec, keys[admintypes.StoreKey])
-	app.adminKeeper = RegisterAccessControl(adminKeeper)
+
+	permKeeper := permkeeper.NewKeeper(appCodec, keys[permtypes.StoreKey])
+	app.permKeeper = RegisterAccessControl(permKeeper)
+
 	app.identityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
+
+	app.opbKeeper = opbkeeper.NewKeeper(
+		appCodec, keys[opbtypes.StoreKey], app.accountKeeper,
+		app.bankKeeper, app.tokenKeeper, app.permKeeper,
+		app.GetSubspace(opbtypes.ModuleName),
+	)
 
 	wasmDir := filepath.Join(homePath, "wasm")
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
@@ -358,11 +372,12 @@ func NewIritaApp(
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
-		admin.NewAppModule(appCodec, app.adminKeeper),
+		perm.NewAppModule(appCodec, app.permKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
+		opb.NewAppModule(appCodec, app.opbKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -388,13 +403,12 @@ func NewIritaApp(
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
-		admintypes.ModuleName,
+		permtypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
 		banktypes.ModuleName,
 		slashingtypes.ModuleName,
 		crisistypes.ModuleName,
-		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		recordtypes.ModuleName,
 		tokentypes.ModuleName,
@@ -404,6 +418,8 @@ func NewIritaApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		wasm.ModuleName,
+		opb.ModuleName,
+		genutiltypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -426,10 +442,11 @@ func NewIritaApp(
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
-		admin.NewAppModule(appCodec, app.adminKeeper),
+		perm.NewAppModule(appCodec, app.permKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
+		opb.NewAppModule(appCodec, app.opbKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -444,10 +461,11 @@ func NewIritaApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(
 		NewAnteHandler(
-			app.adminKeeper,
+			app.permKeeper,
 			app.accountKeeper,
 			app.bankKeeper,
 			app.tokenKeeper,
+			app.opbKeeper,
 			ante.DefaultSigVerificationGasConsumer,
 			encodingConfig.TxConfig.SignModeHandler(),
 		),
@@ -663,6 +681,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(recordtypes.ModuleName)
 	paramsKeeper.Subspace(servicetypes.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
+	paramsKeeper.Subspace(opbtypes.ModuleName)
 
 	return paramsKeeper
 }

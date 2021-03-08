@@ -5,10 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/spf13/cast"
+
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
@@ -55,6 +54,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
@@ -74,9 +75,6 @@ import (
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
-	"github.com/bianjieai/iritamod/modules/admin"
-	adminkeeper "github.com/bianjieai/iritamod/modules/admin/keeper"
-	admintypes "github.com/bianjieai/iritamod/modules/admin/types"
 	"github.com/bianjieai/iritamod/modules/genutil"
 	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/identity"
@@ -86,12 +84,18 @@ import (
 	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
 	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
 	cparams "github.com/bianjieai/iritamod/modules/params"
+	"github.com/bianjieai/iritamod/modules/perm"
+	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
+	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
 	cslashing "github.com/bianjieai/iritamod/modules/slashing"
 	"github.com/bianjieai/iritamod/modules/upgrade"
 	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 
 	"github.com/bianjieai/irita/lite"
+	"github.com/bianjieai/irita/modules/opb"
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
+	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 )
 
 const appName = "SimApp"
@@ -123,19 +127,21 @@ var (
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
-		admin.AppModuleBasic{},
+		perm.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		node.AppModuleBasic{},
+		opb.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
 		authtypes.FeeCollectorName: nil,
 		//gov.ModuleName:                  {authtypes.Burner},
-		tokentypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
-		servicetypes.DepositAccName: {authtypes.Burner},
-		servicetypes.RequestAccName: nil,
+		tokentypes.ModuleName:               {authtypes.Minter, authtypes.Burner},
+		servicetypes.DepositAccName:         nil,
+		servicetypes.RequestAccName:         nil,
+		opbtypes.PointTokenFeeCollectorName: nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -175,10 +181,11 @@ type SimApp struct {
 	ServiceKeeper  servicekeeper.Keeper
 	OracleKeeper   oraclekeeper.Keeper
 	RandomKeeper   randomkeeper.Keeper
-	AdminKeeper    adminkeeper.Keeper
+	PermKeeper     permkeeper.Keeper
 	IdentityKeeper identitykeeper.Keeper
 	WasmKeeper     wasm.Keeper
 	NodeKeeper     nodekeeper.Keeper
+	OpbKeeper      opbkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -194,12 +201,6 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".irita")
-
-	tokentypes.SetNativeToken(
-		"point", "Irita staking token", "upoint",
-		6, 2000000000, 10000000000,
-		true, sdk.AccAddress(crypto.AddressHash([]byte(tokentypes.ModuleName))),
-	)
 }
 
 // NewSimApp returns a reference to an initialized NewSimApp.
@@ -232,10 +233,11 @@ func NewSimApp(
 		servicetypes.StoreKey,
 		oracletypes.StoreKey,
 		randomtypes.StoreKey,
-		admintypes.StoreKey,
+		permtypes.StoreKey,
 		identitytypes.StoreKey,
 		wasm.StoreKey,
 		nodetypes.StoreKey,
+		opbtypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -292,14 +294,14 @@ func NewSimApp(
 
 	app.TokenKeeper = tokenkeeper.NewKeeper(
 		appCodec, keys[tokentypes.StoreKey], app.GetSubspace(tokentypes.ModuleName),
-		app.BankKeeper, authtypes.FeeCollectorName,
+		app.BankKeeper, opbtypes.PointTokenFeeCollectorName,
 	)
 	app.RecordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
 	app.NftKeeper = nftkeeper.NewKeeper(appCodec, keys[nfttypes.StoreKey])
 
 	app.ServiceKeeper = servicekeeper.NewKeeper(
 		appCodec, keys[servicetypes.StoreKey], app.AccountKeeper, app.BankKeeper,
-		app.GetSubspace(servicetypes.ModuleName), authtypes.FeeCollectorName,
+		app.GetSubspace(servicetypes.ModuleName), opbtypes.PointTokenFeeCollectorName,
 	)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
@@ -312,9 +314,17 @@ func NewSimApp(
 	app.NodeKeeper = *app.NodeKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(app.SlashingKeeper.Hooks()),
 	)
-	AdminKeeper := adminkeeper.NewKeeper(appCodec, keys[admintypes.StoreKey])
-	app.AdminKeeper = AdminKeeper
+
+	PermKeeper := permkeeper.NewKeeper(appCodec, keys[permtypes.StoreKey])
+	app.PermKeeper = PermKeeper
+
 	app.IdentityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
+
+	app.OpbKeeper = opbkeeper.NewKeeper(
+		appCodec, keys[opbtypes.StoreKey], app.AccountKeeper,
+		app.BankKeeper, app.TokenKeeper, app.PermKeeper,
+		app.GetSubspace(opbtypes.ModuleName),
+	)
 
 	wasmDir := filepath.Join(homePath, "wasm")
 
@@ -357,11 +367,12 @@ func NewSimApp(
 		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
-		admin.NewAppModule(appCodec, app.AdminKeeper),
+		perm.NewAppModule(appCodec, app.PermKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		wasm.NewAppModule(&app.WasmKeeper, app.NodeKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
+		opb.NewAppModule(appCodec, app.OpbKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -388,7 +399,7 @@ func NewSimApp(
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
-		admintypes.ModuleName,
+		permtypes.ModuleName,
 		// capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
@@ -396,7 +407,6 @@ func NewSimApp(
 		// govtypes.ModuleName,
 		slashingtypes.ModuleName,
 		crisistypes.ModuleName,
-		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		recordtypes.ModuleName,
 		tokentypes.ModuleName,
@@ -406,6 +416,8 @@ func NewSimApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		wasm.ModuleName,
+		opb.ModuleName,
+		genutiltypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -432,10 +444,11 @@ func NewSimApp(
 		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
-		admin.NewAppModule(appCodec, app.AdminKeeper),
+		perm.NewAppModule(appCodec, app.PermKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		wasm.NewAppModule(&app.WasmKeeper, app.NodeKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
+		opb.NewAppModule(appCodec, app.OpbKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -638,6 +651,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	ParamsKeeper.Subspace(recordtypes.ModuleName)
 	ParamsKeeper.Subspace(servicetypes.ModuleName)
 	ParamsKeeper.Subspace(wasm.ModuleName)
+	ParamsKeeper.Subspace(opbtypes.ModuleName)
 
 	return ParamsKeeper
 }

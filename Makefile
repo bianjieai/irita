@@ -74,7 +74,7 @@ all: tools install lint
 # The below include contains the tools.
 include contrib/devtools/Makefile
 
-build: go.sum update-swagger-docs
+build: go.sum
 ifeq ($(OS),Windows_NT)
 	go build $(BUILD_FLAGS) -o build/irita.exe ./cmd/irita
 else
@@ -91,7 +91,7 @@ else
 	go build -mod=readonly $(BUILD_FLAGS) -o build/contract_tests ./cmd/contract_tests
 endif
 
-install: go.sum update-swagger-docs
+install: go.sum
 	go install $(BUILD_FLAGS) ./cmd/irita
 
 update-swagger-docs: statik proto-swagger-gen
