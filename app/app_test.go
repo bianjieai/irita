@@ -1,6 +1,10 @@
 package app
 
 import (
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	"github.com/tendermint/tendermint/crypto"
+	"math"
 	"os"
 	"testing"
 
@@ -68,6 +72,27 @@ func setGenesis(iapp *IritaApp) error {
 	validatorGenState.RootCert = rootStr
 	validatorGenStateBz := iapp.cdc.MustMarshalJSON(validatorGenState)
 	genesisState[node.ModuleName] = validatorGenStateBz
+
+	var authGenState authtypes.GenesisState
+	iapp.appCodec.MustUnmarshalJSON(genesisState[authtypes.ModuleName], &authGenState)
+
+	// set the point token in the genesis state
+	var tokenGenState tokentypes.GenesisState
+	iapp.appCodec.MustUnmarshalJSON(genesisState[tokentypes.ModuleName], &tokenGenState)
+
+	pointToken := tokentypes.Token{
+		"point",
+		"Irita point token",
+		6,
+		"upoint",
+		1000000000,
+		math.MaxUint64,
+		true,
+		sdk.AccAddress(crypto.AddressHash([]byte("point owner"))).String(),
+	}
+
+	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
+	genesisState[tokentypes.ModuleName] = iapp.appCodec.MustMarshalJSON(&tokenGenState)
 
 	// add root admin
 	permGenState := perm.GetGenesisStateFromAppState(iapp.appCodec, genesisState)

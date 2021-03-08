@@ -20,7 +20,7 @@ const (
 
 	// DefaultUnrestrictedTokenTransfer is set to false, which
 	// means that the token transfer is under certain constraint
-	DefaultUnrestrictedTokenTransfer = false
+	DefaultUnrestrictedTokenTransfer = true
 )
 
 // Parameter store keys
