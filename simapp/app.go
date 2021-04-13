@@ -263,7 +263,7 @@ func NewSimApp(
 		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
 	)
 	app.BankKeeper = bankkeeper.NewBaseKeeper(
-		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
+		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
 	)
 	app.NodeKeeper = node.NewKeeper(appCodec, keys[node.StoreKey], app.GetSubspace(node.ModuleName))
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
@@ -294,14 +294,14 @@ func NewSimApp(
 
 	app.TokenKeeper = tokenkeeper.NewKeeper(
 		appCodec, keys[tokentypes.StoreKey], app.GetSubspace(tokentypes.ModuleName),
-		app.BankKeeper, opbtypes.PointTokenFeeCollectorName,
+		app.BankKeeper, app.ModuleAccountAddrs(), opbtypes.PointTokenFeeCollectorName,
 	)
 	app.RecordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
 	app.NftKeeper = nftkeeper.NewKeeper(appCodec, keys[nfttypes.StoreKey])
 
 	app.ServiceKeeper = servicekeeper.NewKeeper(
 		appCodec, keys[servicetypes.StoreKey], app.AccountKeeper, app.BankKeeper,
-		app.GetSubspace(servicetypes.ModuleName), opbtypes.PointTokenFeeCollectorName,
+		app.GetSubspace(servicetypes.ModuleName), app.ModuleAccountAddrs(), opbtypes.PointTokenFeeCollectorName,
 	)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
@@ -542,17 +542,6 @@ func (app *SimApp) ModuleAccountAddrs() map[string]bool {
 	}
 
 	return modAccAddrs
-}
-
-// BlockedAddrs returns all the app's module account addresses that are not
-// allowed to receive external tokens.
-func (app *SimApp) BlockedAddrs() map[string]bool {
-	blockedAddrs := make(map[string]bool)
-	for acc := range maccPerms {
-		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
-	}
-
-	return blockedAddrs
 }
 
 // LegacyAmino returns SimApp's amino codec.
