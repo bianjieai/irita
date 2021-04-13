@@ -270,7 +270,7 @@ func NewIritaApp(
 		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
 	)
 	app.bankKeeper = bankkeeper.NewBaseKeeper(
-		appCodec, keys[banktypes.StoreKey], app.accountKeeper, app.GetSubspace(banktypes.ModuleName), app.BlockedAddrs(),
+		appCodec, keys[banktypes.StoreKey], app.accountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
 	)
 	app.nodeKeeper = node.NewKeeper(appCodec, keys[nodetypes.StoreKey], app.GetSubspace(node.ModuleName))
 	app.slashingKeeper = slashingkeeper.NewKeeper(
@@ -292,7 +292,7 @@ func NewIritaApp(
 
 	app.tokenKeeper = tokenkeeper.NewKeeper(
 		appCodec, keys[tokentypes.StoreKey], app.GetSubspace(tokentypes.ModuleName),
-		app.bankKeeper, opbtypes.PointTokenFeeCollectorName,
+		app.bankKeeper, app.ModuleAccountAddrs(), opbtypes.PointTokenFeeCollectorName,
 	)
 
 	app.recordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
@@ -300,7 +300,7 @@ func NewIritaApp(
 
 	app.serviceKeeper = servicekeeper.NewKeeper(
 		appCodec, keys[servicetypes.StoreKey], app.accountKeeper, app.bankKeeper,
-		app.GetSubspace(servicetypes.ModuleName), opbtypes.PointTokenFeeCollectorName,
+		app.GetSubspace(servicetypes.ModuleName), app.ModuleAccountAddrs(), opbtypes.PointTokenFeeCollectorName,
 	)
 
 	app.oracleKeeper = oraclekeeper.NewKeeper(
@@ -548,17 +548,6 @@ func (app *IritaApp) ModuleAccountAddrs() map[string]bool {
 	}
 
 	return modAccAddrs
-}
-
-// BlockedAddrs returns all the app's module account addresses that are not
-// allowed to receive external tokens.
-func (app *IritaApp) BlockedAddrs() map[string]bool {
-	blockedAddrs := make(map[string]bool)
-	for acc := range maccPerms {
-		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
-	}
-
-	return blockedAddrs
 }
 
 // LegacyAmino returns IritaApp's amino codec.
