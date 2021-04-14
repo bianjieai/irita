@@ -7,21 +7,21 @@ order: 1
 IRITA 管理员可以通过控制台进行链的管理操作，主要管理功能有：
 
 - [权限管理](#权限管理)
-  - [add-roles](#add-roles)
+  - [assign-roles](#assign-roles)
     - [增加权限示例](#增加权限示例)
-  - [remove-roles](#remove-roles)
+  - [unassign-roles](#unassign-roles)
     - [移除权限示例](#移除权限示例)
   - [block-account](#block-account)
     - [加入黑名单示例](#加入黑名单示例)
   - [unblock-account](#unblock-account)
     - [移出黑名单示例](#移出黑名单示例)
 
-## add-roles
+## assign-roles
 
 IRITA 管理员可以为指定账户增加相应的操作权限。
 
 ```bash
-irita tx admin add-roles [address] [roles] [flags]
+irita tx perm assign-roles [address] [roles]
 ```
 
 **参数：**
@@ -29,12 +29,12 @@ irita tx admin add-roles [address] [roles] [flags]
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
 | address  | string  | 是   |             | 账户地址 |
-| roles  | string  | 是   |             | 权限值，可用值包括：PermAdmin，BlacklistAdmin，NodeAdmin，ParamAdmin，PowerUser |
+| roles  | string  | 是   |             | 权限值，可用值包括：PermAdmin，BlacklistAdmin，NodeAdmin，ParamAdmin，PowerUser, IDAdmin, BaseM1Admin, RelayerUser |
 
 ### 增加权限示例
 
 ```bash
-irita tx admin add-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx perm assign-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
 ```
 
 结果
@@ -50,7 +50,7 @@ irita tx admin add-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --
       "log": "",
       "events": [
         {
-          "type": "add_roles",
+          "type": "assign-roles",
           "attributes": [
             {
               "key": "account",
@@ -63,11 +63,11 @@ irita tx admin add-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --
           "attributes": [
             {
               "key": "action",
-              "value": "add_roles"
+              "value": "assign-roles"
             },
             {
               "key": "module",
-              "value": "admin"
+              "value": "perm"
             },
             {
               "key": "sender",
@@ -88,7 +88,7 @@ irita tx admin add-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --
 IRITA 管理员可以移除指定账户的操作权限。
 
 ```bash
-irita tx admin remove-roles [address] [roles] [flags]
+irita tx perm unassign-roles [address] [roles] [flags]
 ```
 
 **参数：**
@@ -96,12 +96,12 @@ irita tx admin remove-roles [address] [roles] [flags]
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
 | address  | string  | 是   |             | 账户地址 |
-| roles  | string  | 是   |             | 权限值，可用值包括：PermAdmin，BlacklistAdmin，NodeAdmin，ParamAdmin，PowerUser |
+| roles  | string  | 是   |             | 权限值，可用值包括：PermAdmin，BlacklistAdmin，NodeAdmin，ParamAdmin，PowerUser, IDAdmin, BaseM1Admin, RelayerUser |
 
 ### 移除权限示例
 
 ```bash
-irita tx admin add-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx perm unassign-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
 ```
 
 结果
@@ -121,11 +121,11 @@ irita tx admin add-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --
           "attributes": [
             {
               "key": "action",
-              "value": "remove_roles"
+              "value": "unassign-roles"
             },
             {
               "key": "module",
-              "value": "admin"
+              "value": "perm"
             },
             {
               "key": "sender",
@@ -134,7 +134,7 @@ irita tx admin add-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --
           ]
         },
         {
-          "type": "remove_roles",
+          "type": "unassign-roles",
           "attributes": [
             {
               "key": "account",
@@ -155,7 +155,7 @@ irita tx admin add-roles iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q PermAdmin --
 IRITA 管理员可以将指定账户加入黑名单。
 
 ```bash
-irita tx admin block-account [address] [flags]
+irita tx perm block-account [address] [flags]
 ```
 
 **参数：**
@@ -167,7 +167,7 @@ irita tx admin block-account [address] [flags]
 ### 加入黑名单示例
 
 ```bash
-irita tx admin block-account iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx perm block-account iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
 ```
 
 结果
@@ -200,7 +200,7 @@ irita tx admin block-account iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q --from=n
             },
             {
               "key": "module",
-              "value": "admin"
+              "value": "perm"
             },
             {
               "key": "sender",
@@ -221,7 +221,7 @@ irita tx admin block-account iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q --from=n
 IRITA 管理员可以将指定账户从黑名单移出。
 
 ```bash
-irita tx admin unblock-account [address] [flags]
+irita tx perm unblock-account [address] [flags]
 ```
 
 **参数：**
@@ -233,7 +233,7 @@ irita tx admin unblock-account [address] [flags]
 ### 移出黑名单示例
 
 ```bash
-irita tx admin unblock-account iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx perm unblock-account iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
 ```
 
 结果
@@ -257,7 +257,7 @@ irita tx admin unblock-account iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q --from
             },
             {
               "key": "module",
-              "value": "admin"
+              "value": "perm"
             },
             {
               "key": "sender",
