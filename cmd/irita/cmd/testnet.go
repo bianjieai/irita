@@ -33,8 +33,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	servicetypes "github.com/irisnet/irismod/modules/service/types"
 
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
@@ -42,6 +44,12 @@ import (
 	"github.com/bianjieai/iritamod/utils"
 
 	opbtypes "github.com/bianjieai/irita/modules/opb/types"
+)
+
+const(
+	nodeDirPerm = 0755
+	DefaultPointDenom = "upoint"
+	DefaultBaseDenom = "uirita"
 )
 
 var (
@@ -98,7 +106,6 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 	return cmd
 }
 
-const nodeDirPerm = 0755
 
 // Initialize the testnet
 func InitTestnet(
@@ -229,10 +236,12 @@ func InitTestnet(
 		}
 
 		accTokens := sdk.TokensFromConsensusPower(1000)
-		accStakingTokens := sdk.TokensFromConsensusPower(500)
+		accPointTokens := sdk.TokensFromConsensusPower(50000)
+		accIritaTokens := sdk.TokensFromConsensusPower(50000)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(sdk.DefaultBondDenom, accStakingTokens),
+			sdk.NewCoin(DefaultPointDenom, accPointTokens),
+			sdk.NewCoin(DefaultBaseDenom, accIritaTokens),
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
@@ -360,9 +369,24 @@ func initGenFiles(
 	var opbGenState opbtypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[opbtypes.ModuleName], &opbGenState)
 
-	opbGenState.Params.BaseTokenDenom = "uirita"
-	opbGenState.Params.PointTokenDenom = "upoint"
+	opbGenState.Params.BaseTokenDenom = DefaultBaseDenom
+	opbGenState.Params.PointTokenDenom = DefaultPointDenom
 	appGenState[opbtypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&opbGenState)
+
+	// modify the constant fee denoms in the crisis genesis
+	var crisisGenState crisistypes.GenesisState
+	jsonMarshaler.MustUnmarshalJSON(appGenState[crisistypes.ModuleName], &crisisGenState)
+
+	crisisGenState.ConstantFee.Denom = DefaultBaseDenom
+	appGenState[crisistypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&crisisGenState)
+
+	// modify the constant fee denoms in the crisis genesis
+	var serviceGenState servicetypes.GenesisState
+	jsonMarshaler.MustUnmarshalJSON(appGenState[servicetypes.ModuleName], &serviceGenState)
+
+	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(DefaultPointDenom, sdk.NewInt(5000)))
+	serviceGenState.Params.BaseDenom = DefaultPointDenom
+	appGenState[servicetypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&serviceGenState)
 
 	// add all genesis accounts as root admins
 	var permGenState perm.GenesisState
