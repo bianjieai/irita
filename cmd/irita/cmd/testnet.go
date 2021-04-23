@@ -236,8 +236,8 @@ func InitTestnet(
 		}
 
 		accTokens := sdk.TokensFromConsensusPower(1000)
-		accPointTokens := sdk.TokensFromConsensusPower(500000000)
-		accIritaTokens := sdk.TokensFromConsensusPower(5000)
+		accPointTokens := sdk.TokensFromConsensusPower(50000)
+		accIritaTokens := sdk.TokensFromConsensusPower(50000)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
 			sdk.NewCoin(DefaultPointDenom, accPointTokens),
