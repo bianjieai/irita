@@ -374,7 +374,7 @@ func initGenFiles(
 	var crisisGenState crisistypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[crisistypes.ModuleName], &crisisGenState)
 
-	crisisGenState.ConstantFee.Denom = DefaultBondDenom
+	crisisGenState.ConstantFee.Denom = "uirita"
 	appGenState[crisistypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&crisisGenState)
 
 	// modify the constant fee denoms in the crisis genesis
