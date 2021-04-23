@@ -48,7 +48,8 @@ import (
 
 const(
 	nodeDirPerm = 0755
-	DefaultBondDenom = "upoint"
+	DefaultPointDenom = "upoint"
+	DefaultIritaDenom = "uirita"
 )
 
 var (
@@ -99,7 +100,7 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 	cmd.Flags().String(flagNodeCLIHome, "iritacli", "Home directory of the node's cli configuration")
 	cmd.Flags().String(flagStartingIPAddress, "192.168.0.1", "Starting IP address (192.168.0.1 results in persistent peers list ID0@192.168.0.1:46656, ID1@192.168.0.2:46656, ...)")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
-	cmd.Flags().String(server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", DefaultBondDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
+	cmd.Flags().String(server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
 	cmd.Flags().String(flags.FlagKeyAlgorithm, string(hd.Sm2Type), "Key signing algorithm to generate keys for")
 	return cmd
@@ -235,10 +236,12 @@ func InitTestnet(
 		}
 
 		accTokens := sdk.TokensFromConsensusPower(1000)
-		accStakingTokens := sdk.TokensFromConsensusPower(500000000)
+		accPointTokens := sdk.TokensFromConsensusPower(500000000)
+		accIritaTokens := sdk.TokensFromConsensusPower(5000)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(DefaultBondDenom, accStakingTokens),
+			sdk.NewCoin(DefaultPointDenom, accPointTokens),
+			sdk.NewCoin(DefaultIritaDenom, accIritaTokens),
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
@@ -366,23 +369,23 @@ func initGenFiles(
 	var opbGenState opbtypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[opbtypes.ModuleName], &opbGenState)
 
-	opbGenState.Params.BaseTokenDenom = "uirita"
-	opbGenState.Params.PointTokenDenom = "upoint"
+	opbGenState.Params.BaseTokenDenom = DefaultIritaDenom
+	opbGenState.Params.PointTokenDenom = DefaultPointDenom
 	appGenState[opbtypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&opbGenState)
 
 	// modify the constant fee denoms in the crisis genesis
 	var crisisGenState crisistypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[crisistypes.ModuleName], &crisisGenState)
 
-	crisisGenState.ConstantFee.Denom = "uirita"
+	crisisGenState.ConstantFee.Denom = DefaultIritaDenom
 	appGenState[crisistypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&crisisGenState)
 
 	// modify the constant fee denoms in the crisis genesis
 	var serviceGenState servicetypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[servicetypes.ModuleName], &serviceGenState)
 
-	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(DefaultBondDenom, sdk.NewInt(5000)))
-	serviceGenState.Params.BaseDenom = DefaultBondDenom
+	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(DefaultPointDenom, sdk.NewInt(5000)))
+	serviceGenState.Params.BaseDenom = DefaultPointDenom
 	appGenState[servicetypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&serviceGenState)
 
 	// add all genesis accounts as root admins
