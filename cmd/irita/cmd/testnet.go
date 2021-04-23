@@ -49,7 +49,7 @@ import (
 const(
 	nodeDirPerm = 0755
 	DefaultPointDenom = "upoint"
-	DefaultIritaDenom = "uirita"
+	DefaultBaseDenom = "uirita"
 )
 
 var (
@@ -241,7 +241,7 @@ func InitTestnet(
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
 			sdk.NewCoin(DefaultPointDenom, accPointTokens),
-			sdk.NewCoin(DefaultIritaDenom, accIritaTokens),
+			sdk.NewCoin(DefaultBaseDenom, accIritaTokens),
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
@@ -369,7 +369,7 @@ func initGenFiles(
 	var opbGenState opbtypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[opbtypes.ModuleName], &opbGenState)
 
-	opbGenState.Params.BaseTokenDenom = DefaultIritaDenom
+	opbGenState.Params.BaseTokenDenom = DefaultBaseDenom
 	opbGenState.Params.PointTokenDenom = DefaultPointDenom
 	appGenState[opbtypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&opbGenState)
 
@@ -377,7 +377,7 @@ func initGenFiles(
 	var crisisGenState crisistypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[crisistypes.ModuleName], &crisisGenState)
 
-	crisisGenState.ConstantFee.Denom = DefaultIritaDenom
+	crisisGenState.ConstantFee.Denom = DefaultBaseDenom
 	appGenState[crisistypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&crisisGenState)
 
 	// modify the constant fee denoms in the crisis genesis
