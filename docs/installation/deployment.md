@@ -229,7 +229,7 @@ Point=upoint
 PointOwner=PointOwner # replace with actual address
 PointToken=`echo {\"symbol\": \"point\", \"name\": \"Irita point native token\", \"scale\": 6, \"min_unit\": \"upoint\", \"initial_supply\": \"1000000000\", \"max_supply\": \"1000000000000\", \"mintable\": true, \"owner\": \"${PointOwner}\"}`
 
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} run -itd -e ChainCMD=$ChainCMD -e NodeName=${Names[$i]} -e Point=$Point -e PointToken="$PointToken" -v $DataPath/$NodeName-$i:/root --name $NodeName-$i bianjie/irita; done
+for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} run -itd -e ChainCMD=$ChainCMD -e NodeName=${Names[$i]} -e Point=$Point -e PointToken="$PointToken" -e PointOwner="$PointOwner" -v $DataPath/$NodeName-$i:/root --name $NodeName-$i bianjie/irita; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD version; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i apt install jq -y; done
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i rm -rf /root/.${ChainCMD} /root/.${ChainCMD}; done
@@ -260,6 +260,7 @@ docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"amount\": \"5000\"/\"a
 docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c 'sed -i "s/nodes\": \[/nodes\": \[{\"id\": \"$($ChainCMD tendermint show-node-id)\", \"name\": \"$NodeName\"}/" /root/.$ChainCMD/config/genesis.json'
 
 docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "$ChainCMD add-genesis-account \$(echo 12345678 | ${ChainCMD} keys show validator -a) ${TotalStake} --root-admin"
+docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "$ChainCMD add-genesis-account ${PointOwner} 1000000000000000${Point}"
 docker -H ${DockerIP[0]} exec -it $NodeName-0 openssl ecparam -genkey -name SM2 -out /root/root.key
 docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c 'echo -e "CN\nSH\nSH\nIT\nDEV\n'${Names[0]}'\n\n" | openssl req -new -x509 -sm3 -sigopt "distid:1234567812345678" -key /root/root.key -out /root/root.crt -days 3650'
 docker -H ${DockerIP[0]} exec -it $NodeName-0 $ChainCMD set-root-cert /root/root.crt
