@@ -48,8 +48,8 @@ import (
 
 const(
 	nodeDirPerm = 0755
-	DefaultPointDenom = "upoint"
-	DefaultBaseDenom = "uirita"
+	DefaultPointDenom = "point"
+	DefaultPointMinUnit = "upoint"
 )
 
 var (
@@ -237,11 +237,11 @@ func InitTestnet(
 
 		accTokens := sdk.TokensFromConsensusPower(1000)
 		accPointTokens := sdk.TokensFromConsensusPower(50000)
-		accIritaTokens := sdk.TokensFromConsensusPower(50000)
+		accNativeTokens := sdk.TokensFromConsensusPower(50000)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(DefaultPointDenom, accPointTokens),
-			sdk.NewCoin(DefaultBaseDenom, accIritaTokens),
+			sdk.NewCoin(DefaultPointMinUnit, accPointTokens),
+			sdk.NewCoin(tokentypes.GetNativeToken().MinUnit, accNativeTokens),
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
@@ -352,10 +352,10 @@ func initGenFiles(
 	jsonMarshaler.MustUnmarshalJSON(appGenState[tokentypes.ModuleName], &tokenGenState)
 
 	pointToken := tokentypes.Token{
-		"point",
+		DefaultPointDenom,
 		"Irita point token",
 		6,
-		"upoint",
+		DefaultPointMinUnit,
 		1000000000,
 		math.MaxUint64,
 		true,
@@ -363,29 +363,30 @@ func initGenFiles(
 	}
 
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
+	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(DefaultPointDenom, sdk.NewInt(60000))
 	appGenState[tokentypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
 
 	// modify the native token denoms in the opb genesis
 	var opbGenState opbtypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[opbtypes.ModuleName], &opbGenState)
 
-	opbGenState.Params.BaseTokenDenom = DefaultBaseDenom
-	opbGenState.Params.PointTokenDenom = DefaultPointDenom
+	opbGenState.Params.BaseTokenDenom = tokentypes.GetNativeToken().MinUnit
+	opbGenState.Params.PointTokenDenom = DefaultPointMinUnit
 	appGenState[opbtypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&opbGenState)
 
 	// modify the constant fee denoms in the crisis genesis
 	var crisisGenState crisistypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[crisistypes.ModuleName], &crisisGenState)
 
-	crisisGenState.ConstantFee.Denom = DefaultBaseDenom
+	crisisGenState.ConstantFee.Denom = tokentypes.GetNativeToken().MinUnit
 	appGenState[crisistypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&crisisGenState)
 
 	// modify the constant fee denoms in the crisis genesis
 	var serviceGenState servicetypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[servicetypes.ModuleName], &serviceGenState)
 
-	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(DefaultPointDenom, sdk.NewInt(5000)))
-	serviceGenState.Params.BaseDenom = DefaultPointDenom
+	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(DefaultPointMinUnit, sdk.NewInt(5000)))
+	serviceGenState.Params.BaseDenom = DefaultPointMinUnit
 	appGenState[servicetypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&serviceGenState)
 
 	// add all genesis accounts as root admins
