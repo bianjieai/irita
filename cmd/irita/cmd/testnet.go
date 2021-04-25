@@ -363,6 +363,7 @@ func initGenFiles(
 	}
 
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
+	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin("point", sdk.NewInt(60000))
 	appGenState[tokentypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
 
 	// modify the native token denoms in the opb genesis
