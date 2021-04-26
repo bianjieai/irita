@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -21,6 +20,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+
+	"github.com/bianjieai/iritamod/modules/perm"
 )
 
 const (
