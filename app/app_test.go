@@ -1,9 +1,6 @@
 package app
 
 import (
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
-	"github.com/tendermint/tendermint/crypto"
 	"math"
 	"os"
 	"testing"
@@ -11,8 +8,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"

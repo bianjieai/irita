@@ -3,13 +3,28 @@
     "info": {
         "title": "Irita - Legacy REST and gRPC Gateway docs",
         "description": "A REST interface for state queries, legacy transactions",
-        "version": "1.0.0"
+        "version": "2.0.0"
     },
     "apis": [
         {
-            "url": "./lite/swagger_legacy.yaml",
+            "url": "./lite/cosmos_swagger_legacy.yaml",
+            "paths":{
+                "include": [
+                    "/syncing",
+                    "/node_info",
+                    "/txs.post",
+                    "/blocks/*",
+                    "/validatorsets/*"
+                ]
+            },
             "dereference": {
-              "circular": "ignore"
+                "circular": "ignore"
+            }
+        },
+        {
+            "url": "./tmp-swagger-gen/cosmos/tx/v1beta1/service.swagger.json",
+            "dereference": {
+                "circular": "ignore"
             }
         },
         {
@@ -93,7 +108,7 @@
             }
         },
         {
-            "url": "./tmp-swagger-gen/wasm/query.swagger.json",
+            "url": "./tmp-swagger-gen/x/wasm/internal/types/query.swagger.json",
             "operationIds": {
                 "rename": {
                     "Params": "WasmParams"

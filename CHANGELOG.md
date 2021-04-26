@@ -34,7 +34,18 @@ Ref: https://keepachangelog.com/en/1.0.0/
 # Changelog
 
 ## [Unreleased]
-    
+
+## [v2.0.0] - 2021-04-26
+
+### Features
+
+* build irita v2.0 based on
+  * [cosmos-sdk v0.42.3](https://github.com/bianjieai/cosmos-sdk/releases/tag/v0.42.3-irita-210413)
+  * [tendermint v0.34.8](https://github.com/bianjieai/tendermint/releases/tag/v0.34.8-irita-210413)
+  * [iritamod v1.0.0](github.com/bianjieai/iritamod/releases/tag/v1.0.0)
+  * [irismod v1.4.0](github.com/bianjieai/irismod/releases/tag/v1.4.0)
+  * [wasmd v0.15.1](github.com/CosmWasm/wasmd/releases/tag/v0.15.1)
 
 <!-- Release links -->
 
+[v2.0.0]: https://github.com/bianjieai/irita/releases/tag/v2.0.0

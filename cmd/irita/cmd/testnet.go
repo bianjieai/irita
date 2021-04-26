@@ -35,20 +35,19 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	servicetypes "github.com/irisnet/irismod/modules/service/types"
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
+	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
-
-	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 )
 
-const(
-	nodeDirPerm = 0755
-	DefaultPointDenom = "point"
+const (
+	nodeDirPerm         = 0755
+	DefaultPointDenom   = "point"
 	DefaultPointMinUnit = "upoint"
 )
 
@@ -105,7 +104,6 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 	cmd.Flags().String(flags.FlagKeyAlgorithm, string(hd.Sm2Type), "Key signing algorithm to generate keys for")
 	return cmd
 }
-
 
 // Initialize the testnet
 func InitTestnet(
