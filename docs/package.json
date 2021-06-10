@@ -7,20 +7,17 @@
     "serve": "vuepress dev",
     "build": "vuepress build"
   },
-  "author": "IRITA Dev Team",
+  "author": "Bianjie AI",
   "license": "ISC",
   "devDependencies": {
-    "@vuepress/plugin-search": "^1.8.2",
-    "lodash": "^4.17.21",
-    "markdown-it": "^12.0.6",
+    "@vuepress/plugin-search": "1.8.2",
+    "lodash": "^4.17.19",
+    "markdown-it": "^8.4.2",
     "markdown-it-meta": "0.0.1",
-    "vuepress": "^1.8.2"
+    "vuepress": "1.8.2"
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "vuepress-theme-cosmos": "file:.third_party/docs-theme",
-    "postcss": ">=8.2.10",
-    "pug": ">=3.0.1",
-    "is-svg": ">=4.2.2"
+    "vuepress-theme-cosmos": "file:.third_party/docs-theme"
   }
 }
