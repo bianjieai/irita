@@ -26,7 +26,7 @@ module.exports = {
     //   lang: "ru"
     // }
   },
-  base: process.env.VUEPRESS_BASE || "/",
+  base: process.env.VUEPRESS_BASE || "/docs/",
   themeConfig: {
     repo: "irita/irita",
     docsRepo: "docs",
