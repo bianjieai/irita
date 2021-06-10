@@ -19,7 +19,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "vuepress-theme-cosmos": "file:.third_party/docs-theme",
-    "postcss": ">=8.2.10",
+    "postcss": ">=8.3.1",
     "pug": ">=3.0.1",
     "is-svg": ">=4.2.2"
   }
