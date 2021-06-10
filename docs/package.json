@@ -7,7 +7,7 @@
     "serve": "vuepress dev",
     "build": "vuepress build"
   },
-  "author": "Bianjie AI",
+  "author": "Shanghai Bianjie AI Technology Co., Ltd.",
   "license": "ISC",
   "devDependencies": {
     "@vuepress/plugin-search": "1.8.2",
