@@ -414,8 +414,8 @@ export default {
     tree() {
       const autoSidebar =
         this.$themeConfig.autoSidebar == false
-          ? { title: "参考", children: this.directoryTree } //{}
-          : { title: "参考", children: this.directoryTree };
+          ? { title: "目录", children: this.directoryTree } //{}
+          : { title: "目录", children: this.directoryTree };
       return [autoSidebar, ...(this.$themeConfig.sidebar || [])];
     }
   },
