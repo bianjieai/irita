@@ -66,16 +66,29 @@ module.exports = {
         //   }
         // ]
       }
-    ]
-    // footer: {
-    //   logo: "/logo-bw.svg",
-    //   textLink: {
-    //     text: "IRITA 技术文档",
-    //     url: "https://docs.irita.io"
-    //   },
-    //   smallprint:
-    //     "This website is maintained by Bianjie Inc.",
-    // }
+    ],
+    footer: {
+      logo: "/logo.jpg",
+      services:[
+        {
+          img: "/irita_logo.png",
+          url:"https://irita.bianjie.ai",
+          text: "支持下一代分布式商业系统的企业级联盟链产品线"
+        },
+        {
+          img: "/github_logo.png",
+          url:"https://github.com/bianjieai/irita",
+          text: "了解更多，请访问 GitHub 开源地址"
+        }
+      ],
+      textLink: {
+        text: "irita.bianjie.ai",
+        url: "https://irita.bianjie.ai",
+        target: "_blank"
+      },
+      // smallprint:
+      //   "This website is maintained by Bianjie Inc.",
+    }
   },
   plugins: [
     // [

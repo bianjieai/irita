@@ -1,4 +1,13 @@
 <template lang="pug">
+  div
+    .wrapper
+      .container
+        .footer__wrapper
+          .logo
+            .logo__item.logo__link(v-if="$themeConfig.footer && $themeConfig.footer.services" v-for="item in $themeConfig.footer.services")
+              a(:href="item.url" target="_blank" rel="noreferrer noopener").smallprint__item__links__item
+                img(:src="item.img" alt="").smallprint__item__links__item__img
+              span.smallprint__item__links__item__description {{item.text}}
   //- div
   //-   .wrapper
   //-     .container
@@ -31,7 +40,7 @@
 .container
   background-color white
   color #161931
-  padding-top 3.5rem
+  // padding-top 3.5rem
   padding-bottom 3.5rem
 
 .wrapper
@@ -94,12 +103,13 @@
 .logo
   display grid
   grid-template-columns repeat(auto-fit, minmax(200px, 1fr))
+  justify-content center
+  align-content center
 
   &__item
     padding 1.5rem 0
     display flex
     align-items flex-start
-    justify-content flex-start
 
   &__image
     display inline-block
@@ -121,6 +131,7 @@
     font-weight 500
 
     &__links
+      justify-items center
       color var(--color-accent)
       font-size 0.875rem
 
@@ -132,12 +143,34 @@
       font-size 0.8125rem
       line-height 1rem
       font-weight normal
+// 自定义
+.wrapper
+  --height 100px
+.logo
+  --height 100px
+  &__link
+    display flex
+    flex-direction column
+    align-items flex-start
+  .smallprint__item__links__item
+    margin-bottom 20px
+    height 60px
+    &__img
+      height 60px
+    &__description
+      height 24px
+@media screen and (max-width: 1200px)
+  .logo
+    &__link
+      &:first-child
+        margin-bottom 48px
+      margin 0 auto
+      align-items center
 
 @media screen and (max-width: 732px)
   .questions
     display block
     margin-right 0
-
 @media screen and (max-width: 480px)
   .footer__links
     margin-left 1.5rem
