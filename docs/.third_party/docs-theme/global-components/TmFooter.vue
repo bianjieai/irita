@@ -6,7 +6,7 @@
           .logo
             .logo__item.logo__link(v-if="$themeConfig.footer && $themeConfig.footer.services" v-for="item in $themeConfig.footer.services")
               a(:href="item.url" target="_blank" rel="noreferrer noopener").smallprint__item__links__item
-                img(:src="item.img" alt="").smallprint__item__links__item__img
+                img(:src='$withBase(item.img)' alt="").smallprint__item__links__item__img
               span.smallprint__item__links__item__description {{item.text}}
   //- div
   //-   .wrapper
