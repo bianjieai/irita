@@ -1,16 +1,6 @@
 package app
 
 import (
-	"io"
-	"math"
-	"os"
-	"path/filepath"
-
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -36,6 +26,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/x/capability"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
@@ -44,6 +36,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer"
+	ibctransferkeeper "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/keeper"
+	ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+	ibc "github.com/cosmos/cosmos-sdk/x/ibc/core"
+	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
+	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
+	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -53,6 +52,15 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	dbm "github.com/tendermint/tm-db"
+	"io"
+	"math"
+	"os"
+	"path/filepath"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
@@ -129,6 +137,8 @@ var (
 		wasm.AppModuleBasic{},
 		node.AppModuleBasic{},
 		opb.AppModuleBasic{},
+		transfer.AppModuleBasic{},
+		ibc.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -138,6 +148,7 @@ var (
 		servicetypes.DepositAccName:         nil,
 		servicetypes.RequestAccName:         nil,
 		opbtypes.PointTokenFeeCollectorName: nil,
+		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -203,6 +214,14 @@ type IritaApp struct {
 	wasmKeeper     wasm.Keeper
 	nodeKeeper     nodekeeper.Keeper
 	opbKeeper      opbkeeper.Keeper
+	ibcKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	transferKeeper   ibctransferkeeper.Keeper
+	capabilityKeeper *capabilitykeeper.Keeper
+
+	// make scoped keepers public for test purposes
+	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
+	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
+	ScopedIBCMockKeeper  capabilitykeeper.ScopedKeeper
 
 	// the module manager
 	mm *module.Manager
@@ -245,6 +264,9 @@ func NewIritaApp(
 		wasm.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
+		capabilitytypes.StoreKey,
+		ibchost.StoreKey,
+		ibctransfertypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -264,6 +286,11 @@ func NewIritaApp(
 
 	// set the BaseApp's parameter store
 	bApp.SetParamStore(app.paramsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()))
+
+	// add capability keeper and ScopeToModule for ibc module
+	app.capabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
+	scopedIBCKeeper := app.capabilityKeeper.ScopeToModule(ibchost.ModuleName)
+	scopedTransferKeeper := app.capabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 
 	// add keepers
 	app.accountKeeper = authkeeper.NewAccountKeeper(
@@ -325,6 +352,24 @@ func NewIritaApp(
 		app.GetSubspace(opbtypes.ModuleName),
 	)
 
+	// Create IBC Keeper
+	app.ibcKeeper = ibckeeper.NewKeeper(
+		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.nodeKeeper, scopedIBCKeeper,
+	)
+
+	// Create Transfer Keepers
+	app.transferKeeper = ibctransferkeeper.NewKeeper(
+		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
+		app.ibcKeeper.ChannelKeeper, &app.ibcKeeper.PortKeeper,
+		app.accountKeeper, app.bankKeeper, scopedTransferKeeper,
+	)
+	transferModule := transfer.NewAppModule(app.transferKeeper)
+
+	// Create static IBC router, add transfer route, then set and seal it
+	ibcRouter := porttypes.NewRouter()
+	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
+	app.ibcKeeper.SetRouter(ibcRouter)
+
 	wasmDir := filepath.Join(homePath, "wasm")
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
@@ -378,6 +423,9 @@ func NewIritaApp(
 		wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
+		ibc.NewAppModule(app.ibcKeeper),
+		transferModule,
+		capability.NewAppModule(appCodec, *app.capabilityKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -388,7 +436,7 @@ func NewIritaApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName,
 		tokentypes.ModuleName, nfttypes.ModuleName, servicetypes.ModuleName,
-		randomtypes.ModuleName, wasm.ModuleName,
+		ibchost.ModuleName, randomtypes.ModuleName, wasm.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
@@ -420,6 +468,8 @@ func NewIritaApp(
 		wasm.ModuleName,
 		opb.ModuleName,
 		genutiltypes.ModuleName,
+		ibchost.ModuleName,
+		ibctransfertypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -447,6 +497,9 @@ func NewIritaApp(
 		wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
+		ibc.NewAppModule(app.ibcKeeper),
+		transferModule,
+		capability.NewAppModule(appCodec, *app.capabilityKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -494,9 +547,13 @@ func NewIritaApp(
 		// that in-memory capabilities get regenerated on app restart.
 		// Note that since this reads from the store, we can only perform it when
 		// `loadLatest` is set to true.
-		//ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
-		//app.capabilityKeeper.InitializeAndSeal(ctx)
+		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
+		app.capabilityKeeper.InitializeAndSeal(ctx)
 	}
+
+	app.ScopedIBCKeeper = scopedIBCKeeper
+	app.ScopedTransferKeeper = scopedTransferKeeper
+
 	return app
 }
 
@@ -671,6 +728,8 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(servicetypes.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(opbtypes.ModuleName)
+	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
+	paramsKeeper.Subspace(ibchost.ModuleName)
 
 	return paramsKeeper
 }
