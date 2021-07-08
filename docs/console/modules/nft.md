@@ -27,53 +27,13 @@ irita tx nft issue [denom] [flags]
 ### 发行资产示例
 
 ```bash
-irita tx nft issue security --schema='{"type":"object","properties":{"name":{"type":"string"}}}' --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft issue security --name security --schema='{"type":"object","properties":{"name":{"type":"string"}}}' --from=node0 --chain-id=test   -y --home=node0 -b=block
 ```
 
 结果
 
 ```json
-{
-  "height": "87",
-  "txhash": "833DFD23566B67DFE9F81FFFB1C6F58173F3027CA1BC84D3AAFC6C51E9B34AC8",
-  "raw_log": "<raw-log>",
-  "logs": [
-    {
-      "msg_index": 0,
-      "log": "",
-      "events": [
-        {
-          "type": "issue_denom",
-          "attributes": [
-            {
-              "key": "denom",
-              "value": "security"
-            }
-          ]
-        },
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "issue_denom"
-            },
-            {
-              "key": "module",
-              "value": "nft"
-            },
-            {
-              "key": "sender",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "gas_wanted": "200000",
-  "gas_used": "43198"
-}
+{"height":"5","txhash":"4093B022BD7676E4EE52C3C47712162617A795491A1A8D56296D4BDA11FF7F5C","codespace":"","code":0,"data":"0A0D0A0B69737375655F64656E6F6D","raw_log":"[{\"events\":[{\"type\":\"issue_denom\",\"attributes\":[{\"key\":\"denom_id\",\"value\":\"security\"},{\"key\":\"denom_name\",\"value\":\"security\"},{\"key\":\"creator\",\"value\":\"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"issue_denom\"},{\"key\":\"module\",\"value\":\"nft\"},{\"key\":\"sender\",\"value\":\"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"issue_denom","attributes":[{"key":"denom_id","value":"security"},{"key":"denom_name","value":"security"},{"key":"creator","value":"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z"}]},{"type":"message","attributes":[{"key":"action","value":"issue_denom"},{"key":"module","value":"nft"},{"key":"sender","value":"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z"}]}]}],"info":"","gas_wanted":"400000","gas_used":"66022","tx":null,"timestamp":""}
 ```
 
 ## mint
@@ -95,72 +55,20 @@ irita tx nft mint [denom] [tokenID] [flags]
 
 | 名称，速记   | 类型   | 必须 | 默认  | 描述                                                  |
 | ------------ | ------ | ---- | ----- | ----------------------------------------------------- |
-| --token-uri | string | 否   | | 资产元数据的 `URI` |
-| --token-data | string | 否 | | 资产元数据 |
+| --uri | string | 否   | | 资产元数据的 `URI` |
+| --data | string | 否 | | 资产元数据 |
 | --recipient | string | 否   | | 资产接收者地址，默认为交易发起者地址 |
 
 ### 创建资产示例
 
 ```bash
-irita tx nft mint security a4c74c4203af41619d00bb3e2f462c10 --token-uri=http://metadata.io/a4c74c4203af41619d00bb3e2f462c10 --token-data='{"name":"test security"}' --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft mint security test --uri=https://test.com --data='{"name":"test security"}' --from=node0 --chain-id=test -y --home=node0 -b=block
 ```
 
 结果
 
 ```json
-{
-  "height": "105",
-  "txhash": "91713F006A50E66036B82AAEA7109244C8D67D0B9BCB475DB24CE2444B1E1445",
-  "raw_log": "<raw-log>",
-  "logs": [
-    {
-      "msg_index": 0,
-      "log": "",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "mint_nft"
-            },
-            {
-              "key": "module",
-              "value": "nft"
-            },
-            {
-              "key": "sender",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
-            }
-          ]
-        },
-        {
-          "type": "mint_nft",
-          "attributes": [
-            {
-              "key": "recipient",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
-            },
-            {
-              "key": "denom",
-              "value": "security"
-            },
-            {
-              "key": "token-id",
-              "value": "a4c74c4203af41619d00bb3e2f462c10"
-            },
-            {
-              "key": "token-uri",
-              "value": "http://metadata.io/a4c74c4203af41619d00bb3e2f462c10"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "gas_wanted": "200000",
-  "gas_used": "52368"
-}
+{"height":"22","txhash":"EB0E454E13EFBA541525F8538944611CE92F49BBE7C0DA3D05E3953CB9080CD9","codespace":"","code":0,"data":"0A0A0A086D696E745F6E6674","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"mint_nft\"},{\"key\":\"module\",\"value\":\"nft\"},{\"key\":\"sender\",\"value\":\"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z\"}]},{\"type\":\"mint_nft\",\"attributes\":[{\"key\":\"token_id\",\"value\":\"test\"},{\"key\":\"denom_id\",\"value\":\"security\"},{\"key\":\"token_uri\",\"value\":\"https://test.com\"},{\"key\":\"recipient\",\"value\":\"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"mint_nft"},{"key":"module","value":"nft"},{"key":"sender","value":"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z"}]},{"type":"mint_nft","attributes":[{"key":"token_id","value":"test"},{"key":"denom_id","value":"security"},{"key":"token_uri","value":"https://test.com"},{"key":"recipient","value":"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z"}]}]}],"info":"","gas_wanted":"400000","gas_used":"62250","tx":null,"timestamp":""}
 ```
 
 ## edit
@@ -188,61 +96,13 @@ irita tx nft edit [denom] [tokenID] [flags]
 ### 编辑资产示例
 
 ```bash
-irita tx nft edit security a4c74c4203af41619d00bb3e2f462c10 --token-data='{"name":"new test security"}' --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft edit security test --data='{"name":"new test security"}' --from=node0 --chain-id=test  -y --home=node0  -b=block
 ```
 
 结果
 
 ```json
-{
-  "height": "132",
-  "txhash": "84AF2212C4651007F3838096032BA96C44C1CEBA245D3E8425D326417D0AB719",
-  "raw_log": "<raw-log>",
-  "logs": [
-    {
-      "msg_index": 0,
-      "log": "",
-      "events": [
-        {
-          "type": "edit_nft",
-          "attributes": [
-            {
-              "key": "denom",
-              "value": "security"
-            },
-            {
-              "key": "token-id",
-              "value": "a4c74c4203af41619d00bb3e2f462c10"
-            },
-            {
-              "key": "token-uri",
-              "value": "[do-not-modify]"
-            }
-          ]
-        },
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "edit_nft"
-            },
-            {
-              "key": "module",
-              "value": "nft"
-            },
-            {
-              "key": "sender",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "gas_wanted": "200000",
-  "gas_used": "45183"
-}
+{"height":"33","txhash":"715E19828C451E6500B61240E304F4758C9A2844914CDE67C8D7302F02DFECCC","codespace":"","code":0,"data":"0A0A0A08656469745F6E6674","raw_log":"[{\"events\":[{\"type\":\"edit_nft\",\"attributes\":[{\"key\":\"token_id\",\"value\":\"test\"},{\"key\":\"denom_id\",\"value\":\"security\"},{\"key\":\"token_uri\",\"value\":\"[do-not-modify]\"},{\"key\":\"owner\",\"value\":\"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"edit_nft\"},{\"key\":\"module\",\"value\":\"nft\"},{\"key\":\"sender\",\"value\":\"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"edit_nft","attributes":[{"key":"token_id","value":"test"},{"key":"denom_id","value":"security"},{"key":"token_uri","value":"[do-not-modify]"},{"key":"owner","value":"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z"}]},{"type":"message","attributes":[{"key":"action","value":"edit_nft"},{"key":"module","value":"nft"},{"key":"sender","value":"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z"}]}]}],"info":"","gas_wanted":"400000","gas_used":"57162","tx":null,"timestamp":""}
 ```
 
 ## transfer
@@ -264,61 +124,13 @@ irita tx nft transfer [recipient] [denom] [tokenID] [flags]
 ### 转移资产示例
 
 ```bash
-irita tx nft transfer iaa1gjmj3r0h9krjm9sg4hjkkv5wnsy52xck80g2sf security a4c74c4203af41619d00bb3e2f462c10 --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft transfer  iaa177w2evwnx3uje646k78zxlp82mc9eatuwkdwlh<node1>   security test --from=node0 --chain-id=test  -y --home=node0 -b=block
 ```
 
 结果
 
 ```json
-{
-  "height": "174",
-  "txhash": "2881520417D4C9A83837D271F856E6C94086629D6EDE8EB397CD23A579D6AD0E",
-  "raw_log": "<raw-log>",
-  "logs": [
-    {
-      "msg_index": 0,
-      "log": "",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "transfer_nft"
-            },
-            {
-              "key": "module",
-              "value": "nft"
-            },
-            {
-              "key": "sender",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
-            }
-          ]
-        },
-        {
-          "type": "transfer_nft",
-          "attributes": [
-            {
-              "key": "recipient",
-              "value": "iaa1gjmj3r0h9krjm9sg4hjkkv5wnsy52xck80g2sf"
-            },
-            {
-              "key": "denom",
-              "value": "security"
-            },
-            {
-              "key": "token-id",
-              "value": "a4c74c4203af41619d00bb3e2f462c10"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "gas_wanted": "200000",
-  "gas_used": "49197"
-}
+{"height":"105","txhash":"17BDE3AA8A11C473EE286E420CE2ECA811DF1A5D7712D7FE1A416A3C1121DD64","codespace":"","code":0,"data":"0A0E0A0C7472616E736665725F6E6674","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"transfer_nft\"},{\"key\":\"module\",\"value\":\"nft\"},{\"key\":\"sender\",\"value\":\"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z\"}]},{\"type\":\"transfer_nft\",\"attributes\":[{\"key\":\"token_id\",\"value\":\"test\"},{\"key\":\"denom_id\",\"value\":\"security\"},{\"key\":\"sender\",\"value\":\"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z\"},{\"key\":\"recipient\",\"value\":\"iaa177w2evwnx3uje646k78zxlp82mc9eatuwkdwlh\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"transfer_nft"},{"key":"module","value":"nft"},{"key":"sender","value":"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z"}]},{"type":"transfer_nft","attributes":[{"key":"token_id","value":"test"},{"key":"denom_id","value":"security"},{"key":"sender","value":"iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z"},{"key":"recipient","value":"iaa177w2evwnx3uje646k78zxlp82mc9eatuwkdwlh"}]}]}],"info":"","gas_wanted":"400000","gas_used":"60714","tx":null,"timestamp":""}
 ```
 
 ## burn
@@ -339,58 +151,16 @@ irita tx nft burn [denom] [tokenID] [flags]
 ### 销毁资产示例
 
 ```bash
-irita tx nft burn security a4c74c4203af41619d00bb3e2f462c10 --from=iaa1gjmj3r0h9krjm9sg4hjkkv5wnsy52xck80g2sf --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft burn security test --from=iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z<node1>  --chain-id=test -b=block  -y --home=node0 
 ```
 
 结果
 
 ```json
-{
-  "height": "490",
-  "txhash": "84D5CF42DF73A8D72E687FE47C26D22B67084D269B7B825940C45A62B7138CC3",
-  "raw_log": "<raw-log>",
-  "logs": [
-    {
-      "msg_index": 0,
-      "log": "",
-      "events": [
-        {
-          "type": "burn_nft",
-          "attributes": [
-            {
-              "key": "denom",
-              "value": "security"
-            },
-            {
-              "key": "token-id",
-              "value": "a4c74c4203af41619d00bb3e2f462c10"
-            }
-          ]
-        },
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "burn_nft"
-            },
-            {
-              "key": "module",
-              "value": "nft"
-            },
-            {
-              "key": "sender",
-              "value": "iaa1gjmj3r0h9krjm9sg4hjkkv5wnsy52xck80g2sf"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "gas_wanted": "200000",
-  "gas_used": "47453"
-}
+{"height":"119","txhash":"DA7EDB31F795F39D37456BCDA9647193720B4FDC588AF42D99E261423BC3E9E4","codespace":"","code":0,"data":"0A0A0A086275726E5F6E6674","raw_log":"[{\"events\":[{\"type\":\"burn_nft\",\"attributes\":[{\"key\":\"denom_id\",\"value\":\"security\"},{\"key\":\"token_id\",\"value\":\"test\"},{\"key\":\"owner\",\"value\":\"iaa177w2evwnx3uje646k78zxlp82mc9eatuwkdwlh\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"burn_nft\"},{\"key\":\"module\",\"value\":\"nft\"},{\"key\":\"sender\",\"value\":\"iaa177w2evwnx3uje646k78zxlp82mc9eatuwkdwlh\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"burn_nft","attributes":[{"key":"denom_id","value":"security"},{"key":"token_id","value":"test"},{"key":"owner","value":"iaa177w2evwnx3uje646k78zxlp82mc9eatuwkdwlh"}]},{"type":"message","attributes":[{"key":"action","value":"burn_nft"},{"key":"module","value":"nft"},{"key":"sender","value":"iaa177w2evwnx3uje646k78zxlp82mc9eatuwkdwlh"}]}]}],"info":"","gas_wanted":"400000","gas_used":"61862","tx":null,"timestamp":""}
 ```
+
+
 
 ## token
 
@@ -410,21 +180,17 @@ irita query nft token [denom] [tokenID] [flags]
 ### 查询指定资产示例
 
 ```bash
-irita query nft token security a4c74c4203af41619d00bb3e2f462c10 -o=json --indent --chain-id=irita-test
+irita query nft token security test<tokenid>  --chain-id=test
 ```
 
 结果
 
 ```json
-{
-  "type": "irismod/nft/BaseNFT",
-  "value": {
-    "ID": "a4c74c4203af41619d00bb3e2f462c10",
-    "owner": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt",
-    "tokenURI": "http://metadata.io/a4c74c4203af41619d00bb3e2f462c10",
-    "token_data": "{\"name\":\"test security\"}"
-  }
-}
+data: '{"name":"new test security"}'
+id: test
+name: ""
+owner: iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z
+uri: https://test.com
 ```
 
 ## denom
@@ -444,17 +210,16 @@ irita query nft denom [denom] [flags]
 ### 查询指定类别的资产信息示例
 
 ```bash
-irita query nft denom security -o=json --indent --chain-id=irita-test
+irita query nft denom security  --chain-id=test 
 ```
 
 结果
 
 ```json
-{
-  "name": "security",
-  "schema": "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}",
-  "creator": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt"
-}
+creator: iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z
+id: security
+name: security
+schema: '{"type":"object","properties":{"name":{"type":"string"}}}'
 ```
 
 ## denoms
@@ -468,19 +233,16 @@ irita query nft denoms [flags]
 ### 查询所有类别的资产信息示例
 
 ```bash
-irita query nft denoms -o=json --indent --chain-id=irita-test
+irita query nft denoms  --chain-id=irita-test
 ```
 
 结果
 
 ```json
-[
-  {
-    "name": "security",
-    "schema": "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}",
-    "creator": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt"
-  }
-]
+  creator: iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z
+  id: security
+  name: security
+  schema: '{"type":"object","properties":{"name":{"type":"string"}}}'
 ```
 
 ## supply
@@ -506,7 +268,7 @@ irita query nft supply [denom] [flags]
 ### 查询指定类别的资产总量示例
 
 ```bash
-irita query nft supply security --chain-id=irita-test
+irita query nft supply security --chain-id=test
 ```
 
 结果
@@ -550,45 +312,35 @@ irita query nft owner [address] [flags]
 ### 查询账户所有资产示例
 
 ```bash
-irita query nft owner iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt -o=json --indent --chain-id=irita-test
+irita query nft owner iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z  --chain-id=test
 ```
 
 结果
 
 ```json
-{
-  "address": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt",
-  "id_collections": [
-    {
-      "denom": "security",
-      "ids": [
-        "a4c74c4203af41619d00bb3e2f462c10"
-      ]
-    }
-  ]
-}
+owner:
+  address: iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z
+  id_collections:
+  - denom_id: security
+    token_ids:
+    - test
 ```
 
 ### 查询账户指定类别的所有资产示例
 
 ```bash
-irita query nft owner iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt --denom=security -o=json --indent --chain-id=irita-test
+ irita query nft owner iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z --denom-id=security  --chain-id=test
 ```
 
 结果
 
 ```json
-{
-  "address": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt",
-  "id_collections": [
-    {
-      "denom": "security",
-      "ids": [
-        "a4c74c4203af41619d00bb3e2f462c10"
-      ]
-    }
-  ]
-}
+owner:
+  address: iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z
+  id_collections:
+  - denom_id: security
+    token_ids:
+    - test
 ```
 
 ## collection
@@ -608,28 +360,21 @@ irita query nft collection [denom] [flags]
 ### 查询指定类别的所有资产示例
 
 ```bash
-irita query nft collection security -o=json --indent --chain-id=irita-test
+irita query nft collection security  --chain-id=irita-test
 ```
 
 结果
 
 ```json
-{
-  "denom": {
-    "name": "security",
-    "schema": "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}",
-    "creator": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt"
-  },
-  "nfts": [
-    {
-      "type": "irismod/nft/BaseNFT",
-      "value": {
-        "ID": "a4c74c4203af41619d00bb3e2f462c10",
-        "owner": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt",
-        "tokenURI": "http://metadata.io/a4c74c4203af41619d00bb3e2f462c10",
-        "token_data": "{\"name\":\"test security\"}"
-      }
-    }
-  ]
-}
+  denom:
+    creator: iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z
+    id: security
+    name: security
+    schema: '{"type":"object","properties":{"name":{"type":"string"}}}'
+  nfts:
+  - data: '{"name":"new test security"}'
+    id: test
+    name: ""
+    owner: iaa1t07s27vgvgczpsvu5z75703azmmc9wcmje452z
+    uri: https://test.com
 ```
