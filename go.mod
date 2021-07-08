@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.15.1
-	github.com/bianjieai/iritamod v1.0.0
+	github.com/bianjieai/iritamod v0.0.0-20210706092224-aea559d3088b
 	github.com/cosmos/cosmos-sdk v0.42.3
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
@@ -36,7 +36,7 @@ require (
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.42.3-irita-210413
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.42.3-irita-210413.0.20210706232356-8d2c42fe7ca6
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413
 )

@@ -55,9 +55,9 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=irita \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
-		  -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2
+		  -X github.com/tendermint/tendermint/crypto/algo.Algo=ed25519
 
-buildflags = -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2
+buildflags = -X github.com/tendermint/tendermint/crypto/algo.Algo=ed25519
 
 ifeq ($(WITH_CLEVELDB),yes)
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
@@ -81,7 +81,7 @@ else
 	go build $(BUILD_FLAGS) -o build/irita ./cmd/irita
 endif
 
-build-linux: go.sum update-swagger-docs
+build-linux: go.sum
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
 
 build-contract-tests-hooks:
