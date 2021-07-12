@@ -60,7 +60,7 @@ iService 旨在弥合区块链和传统应用之间的鸿沟。它规范化了�
 
 ```bash
 # 创建服务定义
-irita tx service define <service-name> <schemas-json or path/to/schemas.json> --description=<service-description> --author-description=<author-description> --tags=<tag1,tag2,...>
+irita tx service define --name=<service-name> --description=<service-description> --author-description=<author-description> --tags=<tag1,tag2,...> --schemas=<schemas content or path/to/schemas.json> --from mykey
 
 # 查询服务定义
 irita query service definition <service-name>
@@ -118,19 +118,19 @@ irita query service definition <service-name>
 
 ```bash
 # 创建服务绑定
-irita tx service bind --service-name=<service-name> --provider=<provider-address> --deposit=<deposit> --qos=<qos> --pricing=<pricing-json or path/to/pricing.json>
+irita tx service bind --service-name=<service-name> --deposit=1stake --pricing=<pricing content or path/to/pricing.json> --qos=50 --options=<non-functional requirements content or path/to/options.json>--from mykey
 
 # 更新服务绑定
-irita tx service update-binding <service-name> <provider-address> --deposit=<added-deposit> --qos=<qos> --pricing=<pricing-json or path/to/pricing.json>
+irita tx service update-binding <service-name> <provider-address> --deposit=1stake --pricing=<pricing content or path/to/pricing.json> --qos=50 --options=<non-functional requirements content or path/to/options.json>--from mykey
 
 # 启用一个不可用的服务绑定
-irita tx service enable <service-name> <provider-address> <added-deposit>
+irita tx service enable <service-name> <provider-address> --deposit=1stake --from mykey
 
 # 禁用一个可用的服务绑定
-irita tx service disable <service-name> <provider-address>
+irita tx service disable <service-name> <provider-address> --from mykey
 
 # 取回服务绑定的押金
-irita tx service refund-deposit <service-name> <provider-address>
+irita tx service refund-deposit <service-name> <provider-address> --from mykey
 
 # 查询一个服务的所有绑定
 irita query service bindings <service-name>
@@ -189,25 +189,25 @@ irita query service schema pricing
 
 ```bash
 # 创建一个重复性的请求上下文（无回调函数）
-irita tx service call --service-name=<service-name> --data=<request-input> --providers=<provider-list> --service-fee-cap=1point --timeout 50 --repeated --frequency=50 --total=100
+ irita tx service call --service-name=<service-name> --providers=<provider-list> --service-fee-cap=1stake --data=<input content or path/to/input.json> --timeout=100 --repeated --frequency=150 --total=100 --from mykey
 
 # 更新一个存在的请求上下文
-irita tx service update <request-context-id> --frequency=20 --total=200
+irita tx service update <request-context-id> --providers=<new providers> --service-fee-cap=2iris --timeout=0 --frequency=200 --total=200 --from mykey
 
 # 暂停一个正在运行的请求上下文
-irita tx service pause <request-context-id>
+irita tx service pause <request-context-id> --from mykey
 
 # 启动一个暂停的请求上下文
-irita tx service start <request-context-id>
+irita tx service start <request-context-id> --from mykey
 
 # 永久终止一个请求上下文
-irita tx service kill <request-context-id>
+irita tx service kill <request-context-id> --from mykey
 
 # 通过 ID 查询请求上下文
 irita query service request-context <request-context-id>
 
 # 查询一个请求批次的所有请求
-irita query service requests <request-context-id> <batch-counter>
+irita query service requests <service-name> <provider> | <request-context-id> <batch-counter>
 
 # 查询一个请求批次的所有响应
 irita query service responses <request-context-id> <batch-counter>
@@ -241,13 +241,13 @@ irita query service response <request-id>
 
 ```bash
 # 查询指定服务提供者的待处理请求
-irita query service requests <service-name> <provider-address>
+irita query service requests <service-name> <provider> | <request-context-id> <batch-counter>
 
 # 通过请求 ID 查询请求
 irita query service request <request-id>
 
 # 发送指定请求的响应
-irita tx service respond --request-id=<request-id> --result='{"code":200,"message":"success"}' --data=<response output>
+irita tx service respond --request-id=<request-id> --result=<result content or path/to/result.json> --data=<output content or path/to/output.json> --from mykey
 
 # 查询服务结果 schema
 irita query service schema result
@@ -273,7 +273,7 @@ irita query service schema result
 
 ```bash
 # 设置提取地址
-irita tx service set-withdraw-addr <withdrawal-address>
+irita tx service set-withdraw-addr <withdrawal-address> --from mykey
 
 # 查询提取地址
 irita query service withdraw-addr <address>
@@ -285,5 +285,6 @@ irita query service fees <provider-address>
 irita tx service withdraw-fees
 
 # 从指定服务提供者提取赚取的服务费
-irita tx service withdraw-fees <provider-address>
+irita tx service withdraw-fees <provider-address> --from mykey
 ```
+
