@@ -45,7 +45,7 @@ order: 5
 `CLI`
 
 ```bash
-irita tx identity create --id=<identity-id> --pubkey=<public-key> --pubkey-algo=<public-key-algorithm> --cert-file=<certificate-file-path> --credentials=<credentials-uri>
+irita tx identity create --id=<id> --pubkey=<public-key> --pubkey-algo=<pubkey-algorithm> --cert-file=<certificate-file> --credentials=<credentials-uri> --from=<key>
 ```
 
 ### 更新
@@ -55,7 +55,7 @@ irita tx identity create --id=<identity-id> --pubkey=<public-key> --pubkey-algo=
 `CLI`
 
 ```bash
-irita tx identity update <identity-id> --pubkey=<public-key> --pubkey-algo=<public-key-algorithm> --cert-file=<certificate-file-path> --credentials=<new-credentials-uri>
+irita tx identity update <identity-id> --pubkey=<public-key> --pubkey-algo=<pubkey-algorithm> --cert-file=<certificate-file> --credentials=<new-credentials-uri> --from mykey
 ```
 
 ### 查询
