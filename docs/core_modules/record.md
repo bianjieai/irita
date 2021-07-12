@@ -33,27 +33,7 @@ order: 3
 `CLI`
 
 ```bash
-irita tx record create [digest] [digest-algo] [flags]
-```
-
-**参数：**
-
-| 名称        | 类型   | 必须 | 默认 | 描述                                                       |
-| :---------- | :----- | :--- | :--- | :--------------------------------------------------------- |
-| digest      | string | 是   |      | 存证元数据的摘要                                           |
-| digest-algo | string | 是   |      | 存证元数据摘要的生成算法，如 `sha256`，`sha512`，`sha3` 等 |
-
-**标志：**
-
-| 名称，速记 | 类型   | 必须 | 默认 | 描述                           |
-| :--------- | :----- | :--- | :--- | :----------------------------- |
-| --uri      | string | 否   |      | 存证元数据的 URI，如 IPFS 链接 |
-| --meta     | string | 否   |      | 存证的元数据                   |
-
-**使用示例 ：**
-
-```bash
-irita tx record create c7a147baa5fb8da269da8dc565bb8522e23a7664f523370f8b8957efbdf8052b sha256 --uri= http://metadata.io/c7a147baa5fb8da269da8dc565bb8522e23a7664f523370f8b8957efbdf8052b  --meta="test record" --from=node0 --chain-id=test -b=block  -y --home=node0
+irita tx record create [digest] [digest-algo] --uri=<metadata-uri> --meta=<metadata>
 ```
 
 
@@ -65,18 +45,6 @@ irita tx record create c7a147baa5fb8da269da8dc565bb8522e23a7664f523370f8b8957efb
 `CLI`
 
 ```bash
-irita query record record [record-id] [flags]
-```
-
-**参数：**
-
-| 名称      | 类型   | 必须 | 默认 | 描述          |
-| :-------- | :----- | :--- | :--- | :------------ |
-| record-id | string | 是   |      | 存证的唯一 ID |
-
-**使用示例 ：**
-
-```bash
-irita query record record 79ed650d17a9ed84f8e2fa65faf727330f42981c00284da793752830e86b2318  --chain-id=test 
+irita query record record [record-id]
 ```
 
