@@ -2,13 +2,13 @@
 order: 2
 -->
 
-# 数字资产建模
+# 资产数字化建模
 
-Go SDK 封装了 IRITA [数字资产建模](../../../core_modules/nft.md) 的核心功能。
+Go SDK 封装了 IRITA [资产数字化建模](../../../core_modules/nft.md) 的核心功能。
 
 ## 导入
 
-导入 Go SDK 数字资产建模模块：
+导入 Go SDK 资产数字化建模模块：
 
 ```go
 import (
@@ -203,7 +203,7 @@ client.NFT.QueryOwner(owner string, denom string) (QueryOwnerResponse, sdk.Error
     Address string
     IDCs    []IDC
   }
-
+  
   type IDC struct {
     Denom    string
     TokenIDs []string

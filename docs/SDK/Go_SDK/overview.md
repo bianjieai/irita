@@ -241,9 +241,9 @@ type Error interface {
 
 ## 核心模块
 
-Go SDK 实现的核心模块包括：积分、数字资产建模、存证以及 iService。
+Go SDK 实现的核心模块包括：工分、资产数字化建模、存证以及 iService。
 
-- [积分](./API/token.md)
-- [数字资产建模](./API/nft.md)
+- [工分](./API/token.md)
+- [资产数字化建模](./API/nft.md)
 - [存证](./API/record.md)
 - [iService](./API/iservice.md)
