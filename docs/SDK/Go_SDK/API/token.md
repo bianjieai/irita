@@ -2,13 +2,13 @@
 order: 1
 -->
 
-# 积分
+# 工分
 
-Go SDK 实现了 IRITA [积分模块](../../../core_modules/token.md) 的主要操作。
+Go SDK 实现了 IRITA [工分模块](../../../core_modules/token.md) 的主要操作。
 
 ## 导入
 
-导入 Go SDK 积分模块：
+导入 Go SDK 工分模块：
 
 ```go
 import (
@@ -18,7 +18,7 @@ import (
 
 ## 接口
 
-### 发行积分
+### 发行工分
 
 **接口：**
 
@@ -28,7 +28,7 @@ client.Token.IssueToken(request IssueTokenRequest, sdk.BaseTx) (sdk.ResultTx, sd
 
 **参数：**
 
-- request: 发行积分请求对象
+- request: 发行工分请求对象
 
   ```go
   type IssueTokenRequest struct {
@@ -42,7 +42,7 @@ client.Token.IssueToken(request IssueTokenRequest, sdk.BaseTx) (sdk.ResultTx, sd
   }
   ```
 
-### 编辑积分
+### 编辑工分
 
 **接口：**
 
@@ -52,7 +52,7 @@ client.Token.EditToken(request EditTokenRequest, baseTx sdk.BaseTx) (sdk.ResultT
 
 **参数：**
 
-- request: 编辑积分请求对象
+- request: 编辑工分请求对象
 
   ```go
   type EditTokenRequest struct {
@@ -63,7 +63,7 @@ client.Token.EditToken(request EditTokenRequest, baseTx sdk.BaseTx) (sdk.ResultT
   }
   ```
 
-### 增发积分
+### 增发工分
 
 **接口：**
 
@@ -73,7 +73,7 @@ client.Token.MintToken(request MintTokenRequest, baseTx sdk.BaseTx) (sdk.ResultT
 
 **参数：**
 
-- request：增发积分请求对象
+- request：增发工分请求对象
 
   ```go
   type MintTokenRequest struct {
@@ -83,7 +83,7 @@ client.Token.MintToken(request MintTokenRequest, baseTx sdk.BaseTx) (sdk.ResultT
   }
   ```
 
-### 转让积分
+### 转让工分
 
 **接口：**
 
@@ -93,7 +93,7 @@ client.Token.TransferToken(request TransferTokenRequest, baseTx sdk.BaseTx) (sdk
 
 **参数：**
 
-- request：转让积分请求对象
+- request：转让工分请求对象
 
   ```go
   type TransferTokenRequest struct {
@@ -102,7 +102,7 @@ client.Token.TransferToken(request TransferTokenRequest, baseTx sdk.BaseTx) (sdk
   }
   ```
 
-### 查询指定积分
+### 查询指定工分
 
 **接口：**
 
@@ -112,11 +112,11 @@ client.Token.QueryToken(denom string, baseTx sdk.BaseTx) (sdk.Token, sdk.Error)
 
 **参数：**
 
-- denom: 积分的唯一标识符
+- denom: 工分的唯一标识符
 
 **返回值：**
 
-- 积分对象
+- 工分对象
 
   ```go
   type Token struct {
@@ -131,7 +131,7 @@ client.Token.QueryToken(denom string, baseTx sdk.BaseTx) (sdk.Token, sdk.Error)
   }
   ```
 
-### 查询账户积分
+### 查询账户工分
 
 **接口：**
 
@@ -145,7 +145,7 @@ client.Token.QueryTokens(owner string) (sdk.Tokens, sdk.Error)
 
 **返回值：**
 
-- 积分对象数组
+- 工分对象数组
   
   ```go
   type Tokens []Token
