@@ -2,11 +2,11 @@
 order: 2
 -->
 
-# 数字资产建模
+# 资产数字化建模
 
 ## 简介
 
-数字资产建模为联盟链成员提供了将资产进行数字化的能力。通过该模块，每个链外资产将被建模为唯一的 IRITA 链上资产。
+资产数字化建模为联盟链成员提供了将资产进行数字化的能力。通过该模块，每个链外资产将被建模为唯一的 IRITA 链上资产。
 
 链上资产用 `ID` 进行标识，借助 IRITA 安全、不可篡改的特性，资产的所有权将得到明确。资产在成员间的交易过程也将被公开地记录，以便于追溯以及争议处理。
 
@@ -37,8 +37,10 @@ order: 2
 `CLI`
 
 ```bash
-irita tx nft issue <denom> --schema=<schema-content or path/to/schema.json>
+irita tx nft issue <denom> --from=<key-name> --name=<denom-name> --schema=<schema-content or path to schema.json> --chain-id=<chain-id> --fees=<fee>
 ```
+
+​	
 
 ### 增发
 
@@ -47,8 +49,10 @@ irita tx nft issue <denom> --schema=<schema-content or path/to/schema.json>
 `CLI`
 
 ```bash
-irita tx nft mint <denom> ---recipient=<recipient-address> --token-id=<token-id> --token-uri=<token-uri> --token-data=<token-data>
+irita tx nft mint <denom> <token-id> --uri=<uri> --recipient=<recipient> --from=<key-name> --chain-id=<chain-id> --fees=<fee>
 ```
+
+
 
 ### 编辑
 
@@ -57,8 +61,12 @@ irita tx nft mint <denom> ---recipient=<recipient-address> --token-id=<token-id>
 `CLI`
 
 ```bash
-irita tx nft edit <denom> <token-id> --token-uri=<token-uri> --token-data=<token-data>
+irita tx nft edit <denom> <token-id> --uri=<uri> --from=<key-name> --chain-id=<chain-id> --fees=<fee>
 ```
+
+​	
+
+
 
 ### 转移
 
@@ -67,8 +75,10 @@ irita tx nft edit <denom> <token-id> --token-uri=<token-uri> --token-data=<token
 `CLI`
 
 ```bash
-irita tx nft transfer <denom> <token-id> --recipient=<recipient-address>
+irita tx nft transfer <recipient> <denom> <token-id> --uri=<uri> --from=<key-name> --chain-id=<chain-id> --fees=<fee>
 ```
+
+
 
 ### 销毁
 
@@ -77,8 +87,10 @@ irita tx nft transfer <denom> <token-id> --recipient=<recipient-address>
 `CLI`
 
 ```bash
-irita tx nft burn <denom> <token-id>
+irita tx nft burn <denom> <token-id> --from=<key-name> --chain-id=<chain-id> --fees=<fee>
 ```
+
+
 
 ### 查询指定的资产类别
 
@@ -87,8 +99,10 @@ irita tx nft burn <denom> <token-id>
 `CLI`
 
 ```bash
-irita query nft denom <denom>
+irita query nft denom <denom-id>
 ```
+
+​	
 
 ### 查询所有资产类别信息
 
@@ -107,8 +121,10 @@ irita query nft denoms
 `CLI`
 
 ```bash
-irita query nft supply <denom> --owner=<owner>
+irita query nft supply <denom>
 ```
+
+
 
 ### 查询指定账户的所有资产
 
@@ -117,7 +133,7 @@ irita query nft supply <denom> --owner=<owner>
 `CLI`
 
 ```bash
-irita query nft owner --denom=<denom>
+irita query nft owner <address> --denom-id=<denom>
 ```
 
 ### 查询指定类别的所有资产
@@ -130,6 +146,8 @@ irita query nft owner --denom=<denom>
 irita query nft collection <denom>
 ```
 
+
+
 ### 查询指定资产
 
 根据 Denom 以及 ID 查询具体资产。
@@ -139,3 +157,4 @@ irita query nft collection <denom>
 ```bash
 irita query nft token <denom> <token-id>
 ```
+

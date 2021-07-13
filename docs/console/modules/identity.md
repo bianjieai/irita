@@ -25,57 +25,13 @@ irita tx identity create [flags]
 ### 创建身份示例
 
 ```bash
-irita tx identity create --pubkey=03281ce4ba0b8c97e5b1434f8f298b064f03d4c1d21aae9276065e170fc90a5d51 --pubkey-algo=sm2 --credentials=https://security.com/kyc/10001/ --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx identity create --pubkey=03281ce4ba0b8c97e5b1434f8f298b064f03d4c1d21aae9276065e170fc90a5d51 --pubkey-algo=sm2 --credentials=https://security.com/kyc/10001/ --from=node0 --chain-id=irita-test -y --home=testnet/node0/iritacli
 ```
 
 结果
 
 ```json
-{
-  "height": "4145",
-  "txhash": "9C0FF80B52318245B4EC5DDA14414E88DE1BCEC2E8C0578243E1F1127267C0FA",
-  "raw_log": "<raw-log>",
-  "logs": [
-    {
-      "msg_index": 0,
-      "log": "",
-      "events": [
-        {
-          "type": "create_identity",
-          "attributes": [
-            {
-              "key": "id",
-              "value": "f0933a5745ba489495b9da982c5c60c1"
-            },
-            {
-              "key": "owner",
-              "value": "iaa12v3r0unp6nprp9zur0fn446n832dfag5l3w38e"
-            }
-          ]
-        },
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "create_identity"
-            },
-            {
-              "key": "module",
-              "value": "identity"
-            },
-            {
-              "key": "sender",
-              "value": "iaa12v3r0unp6nprp9zur0fn446n832dfag5l3w38e"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "gas_wanted": "200000",
-  "gas_used": "49688"
-}
+{"height":"3731","txhash":"B95A2E5AC48A4776FBBC2F258F240E1DC2D34C8D3344CA32EB875FB8C2B330CE","codespace":"","code":0,"data":"0A110A0F6372656174655F6964656E74697479","raw_log":"[{\"events\":[{\"type\":\"create_identity\",\"attributes\":[{\"key\":\"id\",\"value\":\"61F3270E79044629896832B7925F89CB\"},{\"key\":\"owner\",\"value\":\"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"create_identity\"},{\"key\":\"module\",\"value\":\"identity\"},{\"key\":\"sender\",\"value\":\"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"create_identity","attributes":[{"key":"id","value":"61F3270E79044629896832B7925F89CB"},{"key":"owner","value":"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0"}]},{"type":"message","attributes":[{"key":"action","value":"create_identity"},{"key":"module","value":"identity"},{"key":"sender","value":"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0"}]}]}],"info":"","gas_wanted":"400000","gas_used":"62680","tx":null,"timestamp":""}
 ```
 
 **_注_：**`id` 即为所创建身份的唯一 ID
@@ -101,57 +57,13 @@ irita tx identity update [id] [flags]
 ### 更新身份示例
 
 ```bash
-irita tx identity update f0933a5745ba489495b9da982c5c60c1 --pubkey=03576aac14e47fc165789df8f86268faaa8f012a9bfbdef3ae18c22a63cfe5eac0 --pubkey-algo=ecdsa --credentials=https://security.com/aml/10001/ --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx identity update 61F3270E79044629896832B7925F89CB --pubkey=03576aac14e47fc165789df8f86268faaa8f012a9bfbdef3ae18c22a63cfe5eac0 --pubkey-algo=ecdsa --credentials=https://security.com/aml/10001/ --from=node0 --chain-id=irita-test   -y --home=testnet/node0/iritacli
 ```
 
 结果
 
 ```json
-{
-  "height": "4353",
-  "txhash": "537271A9C2F4C147F3E784FB1AE77693D716CBC8009D752292A48BA88A9E1AA5",
-  "raw_log": "<raw-log>",
-  "logs": [
-    {
-      "msg_index": 0,
-      "log": "",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "update_identity"
-            },
-            {
-              "key": "module",
-              "value": "identity"
-            },
-            {
-              "key": "sender",
-              "value": "iaa12v3r0unp6nprp9zur0fn446n832dfag5l3w38e"
-            }
-          ]
-        },
-        {
-          "type": "update_identity",
-          "attributes": [
-            {
-              "key": "id",
-              "value": "f0933a5745ba489495b9da982c5c60c1"
-            },
-            {
-              "key": "owner",
-              "value": "iaa12v3r0unp6nprp9zur0fn446n832dfag5l3w38e"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "gas_wanted": "200000",
-  "gas_used": "47148"
-}
+{"height":"3763","txhash":"D32B58D0524E6BF0C8AA80CF69160D55BD43BA8585B5FAEBB45A97ABE98872C9","codespace":"","code":0,"data":"0A110A0F7570646174655F6964656E74697479","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"update_identity\"},{\"key\":\"module\",\"value\":\"identity\"},{\"key\":\"sender\",\"value\":\"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0\"}]},{\"type\":\"update_identity\",\"attributes\":[{\"key\":\"id\",\"value\":\"61F3270E79044629896832B7925F89CB\"},{\"key\":\"owner\",\"value\":\"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"update_identity"},{"key":"module","value":"identity"},{"key":"sender","value":"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0"}]},{"type":"update_identity","attributes":[{"key":"id","value":"61F3270E79044629896832B7925F89CB"},{"key":"owner","value":"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0"}]}]}],"info":"","gas_wanted":"400000","gas_used":"60140","tx":null,"timestamp":""}
 ```
 
 ## identity
@@ -171,25 +83,19 @@ irita query identity identity [id] [flags]
 ### 查询身份示例
 
 ```bash
-irita query identity identity f0933a5745ba489495b9da982c5c60c1 -o=json --indent --chain-id=irita-test
+irita query identity identity 61F3270E79044629896832B7925F89CB  --chain-id=irita-test
 ```
 
 结果
 
 ```json
-{
-  "id": "F0933A5745BA489495B9DA982C5C60C1",
-  "pubkeys": [
-    {
-      "pubkey": "03576AAC14E47FC165789DF8F86268FAAA8F012A9BFBDEF3AE18C22A63CFE5EAC0",
-      "algorithm": "ECDSA"
-    },
-    {
-      "pubkey": "03281CE4BA0B8C97E5B1434F8F298B064F03D4C1D21AAE9276065E170FC90A5D51",
-      "algorithm": "SM2"
-    }
-  ],
-  "credentials": "https://security.com/aml/10001/",
-  "owner": "iaa12v3r0unp6nprp9zur0fn446n832dfag5l3w38e"
-}
+certificates: []
+credentials: https://security.com/aml/10001/
+id: 61F3270E79044629896832B7925F89CB
+owner: iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0
+pub_keys:
+- algorithm: ECDSA
+  pub_key: 03576AAC14E47FC165789DF8F86268FAAA8F012A9BFBDEF3AE18C22A63CFE5EAC0
+- algorithm: SM2
+  pub_key: 03281CE4BA0B8C97E5B1434F8F298B064F03D4C1D21AAE9276065E170FC90A5D51
 ```

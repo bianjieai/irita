@@ -8,7 +8,7 @@ order: 2
 
 - 单节点本地手动测试网
 - 多节点本地自动测试网
-- 多节点远程自动测试网
+- 多节点远程手动测试网
 
 ::: tip
 **注意**：由于 IRITA 使用了国密 `sm2` 加密算法，本文档中涉及的 `openssl` 工具需要使用支持 `sm2` 算法的版本。从源码安装步骤如下：
@@ -29,7 +29,7 @@ sudo make install
 
 - [安装 IRITA](./installation.md)
 - [安装 `jq`](https://stedolan.github.io/jq/download/) (可选)
-- openssl
+- 安装openssl
 
 ### 创建 Genesis 文件并启动网络
 
@@ -42,13 +42,13 @@ sudo make install
 2. **创建一个初始化账户 v1**
 
    ```bash
-   irita keys add v1
+   irita keys add v1 --home=testnet
    ```
 
 3. **将 v1 添加到 genesis.json 文件，并为该账户添加'RootAdmin'权限**
 
    ```bash
-   irita add-genesis-account $(irita keys show v1 -a) 1000000000point --home=testnet --root-admin
+   irita add-genesis-account $(irita keys show v1 -a --home=testnet) 1000000000000upoint,1000000000000upointuirita --home=testnet --root-admin
    ```
 
 4. **导出验证节点 node0（步骤1生成的）私钥为 pem 格式，方便用于申请节点证书**
@@ -62,16 +62,42 @@ sudo make install
 6. **导入 IRITA 网络的企业根证书**(需要先获取根证书)
 
    ```bash
-   irita set-root-cert ca.crt --home=testnet
+   irita set-root-cert root.crt --home=testnet
    ```
 
 7. **添加 node0 到 genesis.json 文件**
 
    ```bash
-   irita add-genesis-validator --name node0 --cert node0.crt --power 100 --home=testnet --from node0
+   irita add-genesis-validator --name node0 --cert node0.crt --power 100 --home=testnet --from v1
    ```
 
-8. **启动节点**
+8. **在genesis.json文件中加入upoint并重置irita**
+
+   添加位置位于Token	
+   
+   owner即为密钥 address 
+   
+   ```bash
+   ,	
+    		{
+   		  "symbol": "point",
+             "name": "Irita point token",
+             "scale": 6,
+             "min_unit": "upoint",
+             "initial_supply": "1000000000",
+             "max_supply": "18446744073709551615",
+             "mintable": true,
+             "owner": ""
+           }	
+   ```
+   
+   重置irita
+   
+   ```bash
+   irita unsafe-reset-all --home testnet
+   ```
+   
+9. **启动节点**
 
    ```bash
    irita start --home=testnet --pruning=nothing
@@ -92,103 +118,139 @@ irita testnet --v 1 --output-dir ./testnet --chain-id=test
 ### 需求
 
 - [安装 irita](./installation.md)
-- [安装 docker](https://docs.docker.com/engine/installation/)
-- [安装 docker-compose](https://docs.docker.com/compose/install/)
 
 ### 构建
 
-为运行 `localnet` 命令，需构建 `irita` 二进制 (linux) 以及 `irita/iritanode` docker 镜像。二进制将被挂载到容器，能通过重新构建镜像来更新，因此你只需构建镜像一次。
+执行命令获取多节点，以下命令生成三个节点并创建对应的验证人身份
 
 ```bash
-# 克隆 irita
-git clone https://github.com/bianjieai/irita.git
-
-# 进入 irita 目录
-cd irita
-
-# 构建 linux 二进制
-make build-linux
-
-# 构建 irita/iritanode 镜像
-make build-docker-iritanode
+irita testnet -o ./testnet --chain-id test --v 3
 ```
 
-### 运行测试网
-
-启动一个四节点测试网：
+上述命令将在 `./testnet` 目录为一个三节点测试网创建文件。这将在 `./testnet` ` 目录产生如下的文件结构：
 
 ```bash
-make localnet-start
-```
-
-这个命令使用 iritanode 镜像创建一个四节点网络。
-每个节点的端口如下表所示：
-
-| 节点 ID     | P2P 端口 | RPC 端口 |
-| ----------- | -------- | -------- |
-| `iritanode0` | `26656`  | `26657`  |
-| `iritanode1` | `26659`  | `26660`  |
-| `iritanode2` | `26661`  | `26662`  |
-| `iritanode3` | `26663`  | `26664`  |
-
-为更新二进制文件，只需重新构建镜像并且启动这些节点：
-
-```bash
-make build-linux localnet-start
-```
-
-### 配置
-
-`make localnet-start` 将调用 `irita testnet` 命令在 `./build` 目录为一个四节点测试网创建文件。这将在 `./build` 目录产生如下的文件结构：
-
-```bash
-$ tree -L 2 build/
-build/
-├── irita
+testnet/
 ├── gentxs
 │   ├── node0.json
 │   ├── node1.json
-│   ├── node2.json
-│   └── node3.json
+│   └── node2.json
 ├── node0
 │   ├── iritacli
 │   │   ├── key_seed.json
 │   │   └── keys
 │   └── irita
-│       ├── ${LOG:-irita.log}
 │       ├── config
 │       └── data
 ├── node1
 │   ├── iritacli
 │   │   └── key_seed.json
 │   └── irita
-│       ├── ${LOG:-irita.log}
 │       ├── config
 │       └── data
 ├── node2
 │   ├── iritacli
 │   │   └── key_seed.json
 │   └── irita
-│       ├── ${LOG:-irita.log}
 │       ├── config
 │       └── data
-└── node3
-    ├── iritacli
-    │   └── key_seed.json
-    └── irita
-        ├── ${LOG:-irita.log}
-        ├── config
-        └── data
+│
+└── root_cert.pem 
+│
+└──root_cert.srl
+│       
+└──root_key.pem
 ```
 
-每个 `./build/nodeN` 目录被挂载到对应容器的 `/irita` 目录。
+### 修改配置
 
-### 日志
+testnet生成的多节点是以不同服务器为目标生成其ip地址为默认状态的192.168.0.2为起始地址，仅本地使用且使用同一个ip则需要进行以下配置。
 
-日志被保存在每个节点的 `./build/nodeN/irita/irita.log` 文件。可以直接通过 Docker 监视日志，例如：
+##### 	对node0修改config
+
+```shell
+vim testnet/node1/irita/config/config.toml
+```
+
+修改与其他节点连接的端口，多个节点由逗号分隔开
 
 ```bash
-docker logs -f node0
+#peer规则：`{node_id}@ip:port`
+```
+
+```shell
+persistent_peers = "<node2的id>@localhost:<node2的端口号>,<node1的id>@localhost:<node1的端口号>"
+```
+
+​	关闭多节点IP保护设为true
+
+```shell
+allow_duplicate_ip = true
+```
+
+##### 	对node1修改config
+
+修改ABCI应用程序的TCP或UNIX套接字地址端口号
+
+```shell
+原:proxy_app = "tcp://127.0.0.1:26658"
+改:proxy_app = "tcp://127.0.0.1:36658"
+//原端口号与node0节点冲突
+```
+
+修改RPC服务器侦听的TCP或UNIX套接字地址端口号
+
+```shell
+原:laddr = "tcp://0.0.0.0:26657"
+改:laddr = "tcp://0.0.0.0:36657"
+//原端口号与node0节点冲突
+```
+
+修改用于侦听传入连接的地址端口号
+
+```shell
+原: laddr = "tcp://0.0.0.0:26656"
+改: laddr = "tcp://0.0.0.0:36656"
+//原端口号与node0节点冲突
+```
+
+与其他节点连接端口修改，多个节点由逗号分隔开
+
+```shell
+persistent_peers = "<node0的id>@localhost:<node0的端口号>,<node2的id>@localhost:<node2的端口号>"
+```
+
+关闭多节点IP保护设为true
+
+```shell
+allow_duplicate_ip = true
+```
+
+#####   **对node1修改app.toml文件**
+
+​	修改Address定义要绑定的gRPC服务器地址端口号
+
+```shell
+原:	address = "0.0.0.0:9090"
+改: 	address = "0.0.0.0:9091"
+//原端口号与node0节点冲突
+```
+
+​	***请对node2进行和node1相同地方进行修改，并保证端口号不冲突***
+
+​	修改连接端口时需要保证连接到除自己以外的其他端口信息正确
+
+```shell
+persistent_peers = "<node0的id>@localhost:<node0的端口号>,<node2的id>@localhost:<node2的端口号>"
+```
+
+请分别启动三个节点
+
+```bash
+irita start --home testnet/node0/irita
+irita start --home testnet/node1/irita
+irita start --home testnet/node2/irita
+每个节点的端口推荐如下表所示：
 ```
 
 ### 密钥和账户
@@ -196,110 +258,119 @@ docker logs -f node0
 为使用 `irita` 查询状态或者创建交易，需使用给定节点的 `iritacli` 目录作为 `home`，例如：
 
 ```bash
-irita keys list --home ./build/node0/iritacli
+irita keys list --home testnet/node0/iritacli
 ```
 
 现在账户已经存在，可以创建新的账户并且发送资金到新账户。
 
-::: tip
-**注意**：每个节点的 seed 存放在 `./build/nodeN/iritacli/key_seed.json`，可以使用 `irita keys add --restore` 命令将其恢复到 CLI 。 
-:::
 
-## 多节点远程自动测试网
 
-多节点远程自动测试网将通过 `ssh` 命令部署一个四节点测试网。请确保各服务器 `ssh` 的权限已配置并且 `docker` 已安装。
+### 可能出现的错误
 
-### 脚本代码
+1. 9090端口占用
 
-> 执行脚本前需修改相应参数
+​	 请修改相应节点下app.toml文件中Address定义要绑定的gRPC服务器地址端口号。
+
+2.  未找到 GenesisDoc
+
+ ​	启动节点--home未设置或目录错误
+
+3.  pprof服务端口被占用
+
+ ​	修改相应节点下config.toml文件中proxy_app设置的地址端口号。
+
+4.  26657端口被占用
+
+ ​	修改相应节点下config.toml文件中RPC服务器侦听的TCP或UNIX套接字地址laddr指向地址的端口号
+
+5.  26656端口被占用
+
+ ​	修改相应节点下侦听传入连接的地址laddr指向地址的端口号
+
+6.  连接节点出错
+
+ ​	检查所连节点的address与端口是否对应正确
+
+ ​	检查config.toml文件下allow_duplicate_ip 是否设置为true
+
+ 7. 节点访问被拒绝
+
+    ​	删除所有节点下irita/config/addrbook.json文件并重新启动所有节点
+
+
+
+## 多节点远程手动测试网
+
+测试使用环境为虚拟机搭建 Ubuntu 
+
+**1. 虚拟机环境搭建**
+
+完成对虚拟机环境的搭建，以保证irita单节点手动部署成功
+
+**2. 节点部署**
+
+在虚拟机0中部署单节点，设置节点名为node0并运行
 
 ```bash
-ChainID=testnet # chain-id
-ChainCMD=irita
-NodeName=irita-node # node name
-DockerIP=(tcp://192.168.0.1 tcp://192.168.0.2 tcp://192.168.0.3 tcp://192.168.0.4)
-Names=("node0" "node1" "node2" "node3")
-Mnemonics=()
-Stake=uirita
-TotalStake=10000000000000000${Stake} # total stake in genesis
-SendStake=10000000000000${Stake}
-DataPath=/tmp
-
-Point=upoint
-PointOwner=PointOwner # replace with actual address
-PointToken=`echo {\"symbol\": \"point\", \"name\": \"Irita point native token\", \"scale\": 6, \"min_unit\": \"upoint\", \"initial_supply\": \"1000000000\", \"max_supply\": \"1000000000000\", \"mintable\": true, \"owner\": \"${PointOwner}\"}`
-
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} run -itd -e ChainCMD=$ChainCMD -e NodeName=${Names[$i]} -e Point=$Point -e PointToken="$PointToken" -e PointOwner="$PointOwner" -v $DataPath/$NodeName-$i:/root --name $NodeName-$i bianjie/irita; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD version; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i apt install jq -y; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i rm -rf /root/.${ChainCMD} /root/.${ChainCMD}; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "if [ $i -lt ${#Mnemonics[@]} ]; then echo -e \"${Mnemonics[$i]}\n12345678\n12345678\" | ${ChainCMD} keys add validator --recover; else echo -e \"12345678\n12345678\" | ${ChainCMD} keys add validator 2>&1 | tee /root/seed.key; fi"; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo 12345678 | ${ChainCMD} keys list"; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD init moniker --chain-id $ChainID; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD genkey --out-file /root/priv_validator.pem; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i $ChainCMD genkey --type node --out-file /root/priv_node.pem; done
-
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i 's/127.0.0.1:26657/0.0.0.0:26657/g' /root/.$ChainCMD/config/config.toml
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i 's/timeout_commit = "5s"/timeout_commit = "2s"/' /root/.$ChainCMD/config/config.toml
-
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/stake/$Stake/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"point_token_denom\": \"$Stake\"/\"point_token_denom\": \"$Point\"/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/node0token/$Point/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"base_denom\": \"$Stake\"/\"base_denom\": \"$Point\"/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"restricted_service_fee_denom\": false/\"restricted_service_fee_denom\": true/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c 'cat /root/.$ChainCMD/config/genesis.json | jq ".app_state.service.params.min_deposit[0].denom = \"$Point\"" > /root/temp; cat /root/temp; cp -f /root/temp /root/.$ChainCMD/config/genesis.json'
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c 'cat /root/.$ChainCMD/config/genesis.json | jq ".app_state.token.tokens |= . + [$PointToken]" > /root/temp; cat /root/temp; cp -f /root/temp /root/.$ChainCMD/config/genesis.json'
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c 'sed -i "s/\"base_token_manager\": \"\"/\"base_token_manager\": \"$(echo 12345678 | $ChainCMD keys show validator | grep address | cut -b 12-)\"/" /root/.$ChainCMD/config/genesis.json'
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"token_tax_rate\": \"0.400000000000000000\"/\"token_tax_rate\": \"1\"/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"denom\": \"irita\"/\"denom\": \"point\"/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"amount\": \"60000000000\"/\"amount\": \"60000\"/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"amount\": \"1000000000\"/\"amount\": \"1000000000000000\"/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"amount\": \"500000000\"/\"amount\": \"1000000000000000\"/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"amount\": \"1000\"/\"amount\": \"1000000000\"/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 sed -i "s/\"amount\": \"5000\"/\"amount\": \"5000000000\"/g" /root/.$ChainCMD/config/genesis.json
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c 'sed -i "s/nodes\": \[/nodes\": \[{\"id\": \"$($ChainCMD tendermint show-node-id)\", \"name\": \"$NodeName\"}/" /root/.$ChainCMD/config/genesis.json'
-
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "$ChainCMD add-genesis-account \$(echo 12345678 | ${ChainCMD} keys show validator -a) ${TotalStake} --root-admin"
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "$ChainCMD add-genesis-account ${PointOwner} 1000000000000000${Point}"
-docker -H ${DockerIP[0]} exec -it $NodeName-0 openssl ecparam -genkey -name SM2 -out /root/root.key
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c 'echo -e "CN\nSH\nSH\nIT\nDEV\n'${Names[0]}'\n\n" | openssl req -new -x509 -sm3 -sigopt "distid:1234567812345678" -key /root/root.key -out /root/root.crt -days 3650'
-docker -H ${DockerIP[0]} exec -it $NodeName-0 $ChainCMD set-root-cert /root/root.crt
-
-docker -H ${DockerIP[0]} cp $NodeName-0:/root/root.key .
-docker -H ${DockerIP[0]} cp $NodeName-0:/root/root.crt .
-for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp root.crt $NodeName-$i:/root/; done
-for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp root.key $NodeName-$i:/root/; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c 'echo -e "CN\nSH\nSH\nIT\nDEV\n'"${Names[$i]}"'\n\n\n\n" | openssl req -new -key /root/priv_validator.pem -out /root/validator_req.csr -sm3 -sigopt "distid:1234567812345678"'; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i openssl x509 -req -in /root/validator_req.csr -out /root/validator.crt -sm3 -sigopt "distid:1234567812345678" -vfyopt "distid:1234567812345678" -CA /root/root.crt -CAkey /root/root.key -CAcreateserial; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c 'echo -e "CN\nSH\nSH\nIT\nDEV\n'"${Names[$i]}"'\n\n\n\n" | openssl req -new -key /root/priv_node.pem -out /root/node_req.csr -sm3 -sigopt "distid:1234567812345678"'; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i openssl x509 -req -in /root/node_req.csr -out /root/node.crt -sm3 -sigopt "distid:1234567812345678" -vfyopt "distid:1234567812345678" -CA /root/root.crt -CAkey /root/root.key -CAcreateserial; done
-
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "echo 12345678 | $ChainCMD add-genesis-validator --name ${Names[0]} --cert /root/validator.crt --power 10000 --from validator"
-docker -H ${DockerIP[0]} cp $NodeName-0:/root/.$ChainCMD/config/config.toml .
-docker -H ${DockerIP[0]} cp $NodeName-0:/root/.$ChainCMD/config/genesis.json .
-sed -i "s/persistent_peers = \"\"/persistent_peers = \"$(docker -H ${DockerIP[0]} exec -it $NodeName-0 $ChainCMD tendermint show-node-id | cat -vet | sed 's/\^M\$//')@`echo ${DockerIP[0]} | awk -F // '{print $2}'`:26656\"/" config.toml
-for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp config.toml $NodeName-$i:/root/.$ChainCMD/config/; done
-for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp genesis.json $NodeName-$i:/root/.$ChainCMD/config/; done
-for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} cp $NodeName-$i:/root/node.crt node$i.crt; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} stop $NodeName-$i; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} rm $NodeName-$i; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} run -itd -p26656:26656 -p26657:26657 -p9090:9090 -v $DataPath/$NodeName-$i:/root --name $NodeName-$i bianjie/irita $ChainCMD start --pruning=nothing; done
-
-sleep 5
-for i in `seq 1 $[ ${#DockerIP[*]} -1 ]`; do
-address=$(docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo 12345678 | ${ChainCMD} keys show validator | grep address" | awk '{print $2}');
-echo $address
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx bank send validator \$(echo $address | cat -A | sed 's/\\^M\\$//') ${SendStake} --chain-id $ChainID -y";
-sleep 5
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "${ChainCMD} q bank balances \$(echo $address | cat -A | sed 's/\\^M\\$//') --chain-id $ChainID";
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx perm assign-roles --from validator \$(echo $address | cat -A | sed 's/\\^M\\$//') NODE_ADMIN --chain-id $ChainID -y";
-sleep 5
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "${ChainCMD} q perm roles \$(echo $address | cat -A | sed 's/\\^M\\$//') --chain-id $ChainID";
-docker -H ${DockerIP[0]} cp node$i.crt $NodeName-0:/root/;
-docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx node grant --name \"${Names[$i]}\" --cert /root/node$i.crt --from validator --chain-id $ChainID -b block -y";
-docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx node create-validator --name \"${Names[$i]}\" --from validator --cert /root/node.crt --power 100 --chain-id $ChainID --node=${DockerIP[0]}:26657 -y";
-done
-sleep 5
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "1uirita"/' /root/.$ChainCMD/config/app.toml; done
-for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i sed -i 's/filter_peers = false/filter_peers = true/' /root/.$ChainCMD/config/config.toml; docker -H ${DockerIP[$i]} restart $NodeName-$i; done
+irita start --home node0
 ```
+
+**3. 节点连接**
+
+在虚拟机1中初始化节点
+
+```shell
+irita init <moniker> --chain-id=<chain-id>
+```
+
+拷贝虚拟机0中node0节点genesis.json文件到虚拟机1的irita运行目录中
+
+添加node0网络节点到该节点配置文件`<home>/config/config.toml`的`persistent_peers`中。
+
+```shell
+#peer规则：`{node_id}@ip:port`
+
+# 获取节点id
+irita tendermint show-node-id --home <home-dir>
+```
+
+ 运行node1节点，节点加入到链上
+
+```bash
+irita start --home node1
+```
+
+**4. 升级为验证人节点**
+
+ 在虚拟机1中导出验证节点私钥为pem格式，用于申请节点证书
+
+```bash
+irita genkey --out-file priv.pem
+```
+
+使用上一步骤中的私钥文件生成证书请求
+
+```bash
+openssl req -new -key priv.pem -out req1.csr -sm3 -sigopt "distid:1234567812345678"
+```
+
+使用上一步骤中的证书请求在根节点进行签发证书
+
+```bash
+openssl x509 -req -in req1.csr -out node1.crt -sm3 -sigopt "distid:1234567812345678" -vfyopt "distid:1234567812345678" -CA root.crt -CAkey root.key -CAcreateserial
+```
+
+在根节点使用签发的证书 req1.csr 授权升级为验证人节点
+
+```bash
+irita tx node create-validator --name node1 --cert node1.crt --power 100 --description "test" --from node1  --chain-id test --home node1
+```
+
+查看验证人节点
+
+```bash
+irita query node  validators -o json
+```
+
+再加入更多节点同以上步骤进行
+

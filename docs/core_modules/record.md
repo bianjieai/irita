@@ -36,6 +36,8 @@ order: 3
 irita tx record create [digest] [digest-algo] --uri=<metadata-uri> --meta=<metadata>
 ```
 
+
+
 ### 查询
 
 根据存证 ID 可查询相应的存证记录。
@@ -45,3 +47,4 @@ irita tx record create [digest] [digest-algo] --uri=<metadata-uri> --meta=<metad
 ```bash
 irita query record record [record-id]
 ```
+
