@@ -83,9 +83,9 @@ irita tx token transfer <symbol> --to=<new-owner>
 
 | 名称              | 类型 | 默认值   | 描述                     |
 | ----------------- | ---- | --------- | ------------------------------- |
-| TokenTaxRate      | Dec  | 0.4       | 积分税率，即进行积分发行与增发时的 `Community Tax` 比例 |
-| IssueTokenBaseFee | Coin | 60000point | 发行积分的基准费用，即 `symbol`（积分唯一标识）长度为最小（3）时的费用 |
-| MintTokenFeeRatio | Dec  | 0.1       | 增发积分的费率（相对于发行费用）|
+| TokenTaxRate      | Dec  | 0.4       | 工分税率，即进行工分发行与增发时的 `Community Tax` 比例 |
+| IssueTokenBaseFee | Coin | 60000point | 发行工分的基准费用，即 `symbol`（工分唯一标识）长度为最小（3）时的费用 |
+| MintTokenFeeRatio | Dec  | 0.1       | 增发工分的费率（相对于发行费用）|
 
 > **_提示：_** 以上参数是可以更改的系统参数。
 
