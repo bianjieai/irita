@@ -184,55 +184,7 @@ irita tx service refund-deposit test --from=node0 --chain-id=irita-test    -y --
 结果
 
 ```json
-{
-  "height": "523",
-  "txhash": "3D0F9CBFEE8127981967AED670EC818236406C0A6C7A9C9E002D803ADF0FBABA",
-  "raw_log": "<raw-log>",
-  "logs": [
-    {
-      "msg_index": 0,
-      "log": "",
-      "events": [
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "refund_service_deposit"
-            },
-            {
-              "key": "sender",
-              "value": "iaa1gjhme86fhwnv32974cnn70zayvgy8zxqk6huj3"
-            },
-            {
-              "key": "module",
-              "value": "service"
-            },
-            {
-              "key": "sender",
-              "value": "iaa1xnzrqm8kfvyyw8tpr2lcjenemd2u00pl3pwenv"
-            }
-          ]
-        },
-        {
-          "type": "transfer",
-          "attributes": [
-            {
-              "key": "recipient",
-              "value": "iaa1xnzrqm8kfvyyw8tpr2lcjenemd2u00pl3pwenv"
-            },
-            {
-              "key": "amount",
-              "value": "10100point"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "gas_wanted": "200000",
-  "gas_used": "54366"
-}
+{"height":"213","txhash":"EF4A17A8C717EF638814F34BB2FA9589ECCE800C457922E4A2D3190E713CA8FD","codespace":"","code":0,"data":"0A180A16726566756E645F736572766963655F6465706F736974","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"refund_service_deposit\"},{\"key\":\"sender\",\"value\":\"iaa1c8t8npfed4xc29755wwwvw2x834q36828duh55\"},{\"key\":\"module\",\"value\":\"service\"},{\"key\":\"sender\",\"value\":\"iaa122k5gsf39s6p6jyw3zaeypszx5w7leaqdx94cz\"}]},{\"type\":\"refund_deposit\",\"attributes\":[{\"key\":\"service_name\",\"value\":\"test\"},{\"key\":\"provider\",\"value\":\"iaa122k5gsf39s6p6jyw3zaeypszx5w7leaqdx94cz\"},{\"key\":\"owner\",\"value\":\"iaa122k5gsf39s6p6jyw3zaeypszx5w7leaqdx94cz\"}]},{\"type\":\"transfer\",\"attributes\":[{\"key\":\"recipient\",\"value\":\"iaa122k5gsf39s6p6jyw3zaeypszx5w7leaqdx94cz\"},{\"key\":\"sender\",\"value\":\"iaa1c8t8npfed4xc29755wwwvw2x834q36828duh55\"},{\"key\":\"amount\",\"value\":\"10100upoint\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"refund_service_deposit"},{"key":"sender","value":"iaa1c8t8npfed4xc29755wwwvw2x834q36828duh55"},{"key":"module","value":"service"},{"key":"sender","value":"iaa122k5gsf39s6p6jyw3zaeypszx5w7leaqdx94cz"}]},{"type":"refund_deposit","attributes":[{"key":"service_name","value":"test"},{"key":"provider","value":"iaa122k5gsf39s6p6jyw3zaeypszx5w7leaqdx94cz"},{"key":"owner","value":"iaa122k5gsf39s6p6jyw3zaeypszx5w7leaqdx94cz"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"iaa122k5gsf39s6p6jyw3zaeypszx5w7leaqdx94cz"},{"key":"sender","value":"iaa1c8t8npfed4xc29755wwwvw2x834q36828duh55"},{"key":"amount","value":"10100upoint"}]}]}],"info":"","gas_wanted":"400000","gas_used":"69566","tx":null,"timestamp":""}
 ```
 
 ## call
