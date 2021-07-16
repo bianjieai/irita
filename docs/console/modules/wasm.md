@@ -30,7 +30,7 @@ irita tx wasm store [wasm-file] --source [source] --builder [builder]
 ### 上传合约示例
 
 ```bash
-irita tx wasm store election.wasm --from node0 --chain-id=test --keyring-backend=file --home ./irita/node0/iritacli --fees 6point -b block --gas="auto"
+irita tx wasm store election.wasm --from node0 --chain-id=irita-test  --home testnet/node0/iritacli/ --fees 6upoint -b block --gas="auto" -y
 ```
 
 **_注_：**合约代码上传完成后，系统会分配一个`code_id`给用户，用于下次初始化该合约。
@@ -62,8 +62,8 @@ irita tx wasm instantiate [code_id] [json_encoded_init_args] --label [text] --ad
 
 ```bash
 CODE_ID=1
-INIT='{"start":1,"end":100,"candidates":["iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa","iaa1zk2tse0pkk87p2v8tcsfs0ytfw3t88kejecye5"]}'
-irita tx wasm instantiate "$CODE_ID" "$INIT" --from node0 --label "mint iris" --chain-id=test --keyring-backend=file --home ./irita/node0/iritacli --fees 6point --gas="auto" -b block
+INIT='{"start":1,"end":100,"candidates":["iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0","iaa1wlf6fhjr5n73pyps4wyr3xx2kkywcs22afqc9l"]}'
+irita tx wasm instantiate "$CODE_ID" "$INIT" --from node0 --label "mint irita" --chain-id=irita-test  --home testnet/node0/iritacli --fees 6point --gas="auto" -b block --admin iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0
 ```
 
 **_注_：**合约代码初始化完成后，系统会返回智能合约地址，用于智能合约的调用以及状态的查询等。
@@ -88,8 +88,8 @@ irita tx wasm execute [contract_addr_bech32] [json_encoded_send_args] [flags]
 下面是执行了合约中的`vote`方法，参数为`candidate:iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa`
 
 ```bash
-Vote='{"vote":{"candidate":"iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa"}}'
-irita tx wasm execute iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9 "$Vote" --from node0 --chain-id=test --keyring-backend=file --home ./irita/node0/iritacli --fees 6point --gas="auto" -b block
+Vote='{"vote":{"candidate":"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0"}}'
+irita tx wasm execute iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9 "$Vote" --from node0 --chain-id=irita-test  --home testnet/node0/iritacli --fees 6point --gas="auto" -b block
 ```
 
 ## Migrate
@@ -128,7 +128,7 @@ irita tx wasm set-contract-admin [contract_addr_bech32] [new_admin_addr_bech32] 
 ### 变更管理员示例
 
 ```bash
-irita tx wasm set-contract-admin iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9 iaa18lwh8r66wf2hc278ncu4mlgqcxh5slhudkuler --from node0  --chain-id=test --keyring-backend=file --home ./irita/node0/iritacli --fees 6point --gas="auto" -b block
+irita tx wasm set-contract-admin iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9 iaa1wlf6fhjr5n73pyps4wyr3xx2kkywcs22afqc9l --from node0  --chain-id=irita-test --home testnet/node0/iritacli --fees 6point --gas="auto" -b block 
 ```
 
 ## Clear contract admin
@@ -148,7 +148,7 @@ irita tx wasm clear-contract-admin [contract_addr_bech32] [flags]
 ### 清空合约管理人权限示例
 
 ```bash
-irita tx wasm clear-contract-admin iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9 --from node0  --chain-id=test --keyring-backend=file --home ./irita/node0/iritacli --fees 6point --gas="auto" -b block
+irita tx wasm clear-contract-admin iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9 --from node0  --chain-id=irita-test  --home testnet/node0/iritacli --fees 6point --gas="auto" -b block -y
 ```
 
 ## Download contract code
@@ -196,9 +196,10 @@ irita query wasm contract iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9
 
 ```text
 address: iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9
+admin: iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0
 code_id: 1
-creator: iaa1rgnu8grzt6mwnjg7jss7w0sfyjn67g4et0hzfz
-label: test wasm
+creator: iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0
+label: mint irita
 ```
 
 ## Contract History
@@ -239,7 +240,7 @@ irita query wasm list-code
 
 ```text
 code_infos:
-- creator: iaa1rgnu8grzt6mwnjg7jss7w0sfyjn67g4et0hzfz
+- creator: iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0
   data_hash: E5F29AA07C14DCA498680AFC5376284937FC158677475FD72DBD934B4E023174
   id: 1
 pagination: {}
@@ -270,9 +271,10 @@ irita query wasm list-contract-by-code 1
 ```text
 contract_infos:
 - address: iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9
+  admin: iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0
   code_id: 1
-  creator: iaa1rgnu8grzt6mwnjg7jss7w0sfyjn67g4et0hzfz
-  label: test wasm
+  creator: iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0
+  label: mint irita
 pagination: {}
 ```
 
@@ -301,20 +303,20 @@ irita query wasm contract-state all iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9
 ```text
 models:
 - key: 0006636F6E666967
-  value: eyJzdGFydCI6MSwiZW5kIjoxMDAsImNhbmRpZGF0ZXMiOlsiaWFhMXF2dHk4eDBjNzhhbThjNDR6djJuN3RnbTZnZnF0NzhqMHZlcnFhIiwiaWFhMXprMnRzZTBwa2s4N3Aydjh0Y3NmczB5dGZ3M3Q4OGtlamVjeWU1Il0sInZvdGVzIjpbeyJ2b3RlciI6ImlhYTFyZ251OGdyenQ2bXduamc3anNzN3cwc2Z5am42N2c0ZXQwaHpmeiIsImNhbmRpZGF0ZSI6ImlhYTFxdnR5OHgwYzc4YW04YzQ0enYybjd0Z202Z2ZxdDc4ajB2ZXJxYSJ9XX0=
+  value: eyJzdGFydCI6MSwiZW5kIjoxMDAsImNhbmRpZGF0ZXMiOlsiaWFhMTdyYzAyejl0ZmVjNzRwcThhdmpnNXVqNmtqOGQ1Nzk5MnE3eXMwIiwiaWFhMXdsZjZmaGpyNW43M3B5cHM0d3lyM3h4MmtreXdjczIyYWZxYzlsIl0sInZvdGVzIjpbeyJ2b3RlciI6ImlhYTE3cmMwMno5dGZlYzc0cHE4YXZqZzV1ajZrajhkNTc5OTJxN3lzMCIsImNhbmRpZGF0ZSI6ImlhYTE3cmMwMno5dGZlYzc0cHE4YXZqZzV1ajZrajhkNTc5OTJxN3lzMCJ9XX0=
 pagination: {}
 ```
 
 **_注_：**key的编码为hex编码，例如`0006636F6E666967`对应字符串为`config`，value编码为base64编码，例如
 
 ```text
-eyJzdGFydCI6MSwiZW5kIjoxMDAsImNhbmRpZGF0ZXMiOlsiaWFhMXF2dHk4eDBjNzhhbThjNDR6djJuN3RnbTZnZnF0NzhqMHZlcnFhIiwiaWFhMXprMnRzZTBwa2s4N3Aydjh0Y3NmczB5dGZ3M3Q4OGtlamVjeWU1Il0sInZvdGVzIjpbeyJ2b3RlciI6ImlhYTFyZ251OGdyenQ2bXduamc3anNzN3cwc2Z5am42N2c0ZXQwaHpmeiIsImNhbmRpZGF0ZSI6ImlhYTFxdnR5OHgwYzc4YW04YzQ0enYybjd0Z202Z2ZxdDc4ajB2ZXJxYSJ9XX0=
+eyJzdGFydCI6MSwiZW5kIjoxMDAsImNhbmRpZGF0ZXMiOlsiaWFhMTdyYzAyejl0ZmVjNzRwcThhdmpnNXVqNmtqOGQ1Nzk5MnE3eXMwIiwiaWFhMXdsZjZmaGpyNW43M3B5cHM0d3lyM3h4MmtreXdjczIyYWZxYzlsIl0sInZvdGVzIjpbeyJ2b3RlciI6ImlhYTE3cmMwMno5dGZlYzc0cHE4YXZqZzV1ajZrajhkNTc5OTJxN3lzMCIsImNhbmRpZGF0ZSI6ImlhYTE3cmMwMno5dGZlYzc0cHE4YXZqZzV1ajZrajhkNTc5OTJxN3lzMCJ9XX0=
 ```
 
 对应的字符串为：
 
 ```json
-{"start":1,"end":100,"candidates":["iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa","iaa1zk2tse0pkk87p2v8tcsfs0ytfw3t88kejecye5"],"votes":[{"voter":"iaa1rgnu8grzt6mwnjg7jss7w0sfyjn67g4et0hzfz","candidate":"iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa"}]}
+{"start":1,"end":100,"candidates":["iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0","iaa1wlf6fhjr5n73pyps4wyr3xx2kkywcs22afqc9l"],"votes":[{"voter":"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0","candidate":"iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0"}]}
 ```
 
 ## Contract state raw
@@ -341,7 +343,7 @@ irita query wasm contract-state raw iaa18vd8fpwxzck93qlwghaj6arh4p7c5n89fqcgm9 0
 输出信息：
 
 ```text
-data: eyJzdGFydCI6MSwiZW5kIjoxMDAsImNhbmRpZGF0ZXMiOlsiaWFhMXF2dHk4eDBjNzhhbThjNDR6djJuN3RnbTZnZnF0NzhqMHZlcnFhIiwiaWFhMXprMnRzZTBwa2s4N3Aydjh0Y3NmczB5dGZ3M3Q4OGtlamVjeWU1Il0sInZvdGVzIjpbeyJ2b3RlciI6ImlhYTFyZ251OGdyenQ2bXduamc3anNzN3cwc2Z5am42N2c0ZXQwaHpmeiIsImNhbmRpZGF0ZSI6ImlhYTFxdnR5OHgwYzc4YW04YzQ0enYybjd0Z202Z2ZxdDc4ajB2ZXJxYSJ9XX0=
+data: eyJzdGFydCI6MSwiZW5kIjoxMDAsImNhbmRpZGF0ZXMiOlsiaWFhMTdyYzAyejl0ZmVjNzRwcThhdmpnNXVqNmtqOGQ1Nzk5MnE3eXMwIiwiaWFhMXdsZjZmaGpyNW43M3B5cHM0d3lyM3h4MmtreXdjczIyYWZxYzlsIl0sInZvdGVzIjpbeyJ2b3RlciI6ImlhYTE3cmMwMno5dGZlYzc0cHE4YXZqZzV1ajZrajhkNTc5OTJxN3lzMCIsImNhbmRpZGF0ZSI6ImlhYTE3cmMwMno5dGZlYzc0cHE4YXZqZzV1ajZrajhkNTc5OTJxN3lzMCJ9XX0=
 ````
 
 **_注_：data解码格式为base64。
@@ -375,6 +377,6 @@ data:
   end: 100
   start: 1
   votes:
-  - candidate: iaa1qvty8x0c78am8c44zv2n7tgm6gfqt78j0verqa
+  - candidate: iaa17rc02z9tfec74pq8avjg5uj6kj8d57992q7ys0
     count: 1
 ```
