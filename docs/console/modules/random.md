@@ -10,9 +10,9 @@ order: 3
 
 |                             名称                             |                描述                |
 | :----------------------------------------------------------: | :--------------------------------: |
-| [request](https://www.irisnet.org/docs/zh/cli-client/random.html#iris-tx-random-request) |     请求具有可选块间隔的随机数     |
-| [random](https://www.irisnet.org/docs/zh/cli-client/random.html#iris-query-random-random) |     使用ID查询链上生成的随机数     |
-| [queue](https://www.irisnet.org/docs/zh/cli-client/random.html#iris-query-random-queue) | 查询随机数请求队列，支持可选的高度 |
+| [<font color='#5064fb'>request</font>](/console/modules/random.html#irita-tx-random-request) |     请求具有可选块间隔的随机数     |
+| [<font color='#5064fb'>random</font>](/console/modules/random.html#irita-query-random-random) |     使用ID查询链上生成的随机数     |
+| [<font color='#5064fb'>queue</font>](/console/modules/random.html#irita-query-random-queue) | 查询随机数请求队列，支持可选的高度 |
 
 ## irita tx random request
 
