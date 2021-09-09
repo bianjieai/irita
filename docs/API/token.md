@@ -2,11 +2,11 @@
 order: 3
 -->
 
-# 积分
+# 工分
 
-## 查询积分
+## 查询工分
 
-查询指定的积分。
+查询指定的工分。
 
 **API：**
 
@@ -16,11 +16,11 @@ GET /token/tokens/{symbol}
 
 **参数：**
 
-- symbol：string，积分标识符
+- symbol：string，工分标识符
 
 **返回值：**
 
-- 积分查询结果：object
+- 工分查询结果：object
 
 **请求示例：**
 
@@ -46,9 +46,9 @@ curl -X GET "http://localhost:1317/token/tokens/mycredit" -H "accept: applicatio
 }
 ```
 
-## 查询所有积分
+## 查询所有工分
 
-查询已发行的所有积分，或者查询指定所有者发行的积分。
+查询已发行的所有工分，或者查询指定所有者发行的工分。
 
 **API：**
 
@@ -62,7 +62,7 @@ GET /token/tokens?owner=<owner>
 
 **返回值：**
 
-- 积分查询结果：object
+- 工分查询结果：object
 
 **请求示例：**
 
@@ -92,7 +92,7 @@ curl -X GET "http://localhost:1317/token/tokens?owner=iaa12v3r0unp6nprp9zur0fn44
 
 ## 查询费用
 
-查询积分发行和增发的费用。
+查询工分发行和增发的费用。
 
 **API：**
 
@@ -102,7 +102,7 @@ GET /token/tokens/{symbol}/fee
 
 **参数：**
 
-- symbol：string，积分标识符
+- symbol：string，工分标识符
 
 **返回值：**
 

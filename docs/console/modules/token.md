@@ -2,11 +2,11 @@
 order: 1
 -->
 
-# 积分
+# 工分
 
 ## issue
 
-发行积分。
+发行工分。
 
 ```bash
 irita tx token issue [flags]
@@ -14,17 +14,17 @@ irita tx token issue [flags]
 
 **标志：**
 
-| 名称，速记       | 类型    | 必须 | 默认          | 描述                                                                     |
-| ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| --name           | string  | 是   |               | 积分的名称；unicode字符，最大长度为32字节，例如 "IRITA Credit"             |
-| --symbol         | string  | 是   |               | 积分的唯一标识符；长度在3到8之间，字母数字字符，以字符开始，不区分大小写 |
-| --initial-supply | uint64  | 是   |               | 积分的初始供应；增发前的数量不应超过1000亿                               |
-| --max-supply     | uint64  |      | 1000000000000 | 积分的最大供应，总供应不能超过最大供应；增发前的数量不应超过1万亿        |
-| --scale          | uint8   | 是   |               | 积分的精度，最多可以有18位小数；为0将默认到18位小数                      |
-| --min-unit       | string  | 是   |               | 最小单位；长度在3到10之间，字母数字字符，以字符开始，不区分大小写        |
-| --mintable       | boolean |      | false         | 发行后是否可以增发                                                       |
+| 名称，速记       | 类型    | 必须 | 默认          | 描述                                                         |
+| ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------ |
+| --name           | string  | 是   |               | 工分的名称；unicode字符，最大长度为32字节，例如 "IRITA Credit" |
+| --symbol         | string  | 是   |               | 工分的唯一标识符；长度在3到8之间，字母数字字符，以字符开始，不区分大小写 |
+| --initial-supply | uint64  | 是   |               | 工分的初始供应；增发前的数量不应超过1000亿                   |
+| --max-supply     | uint64  |      | 1000000000000 | 工分的最大供应，总供应不能超过最大供应；增发前的数量不应超过1万亿 |
+| --scale          | uint8   | 是   |               | 工分的精度，最多可以有18位小数；为0将默认到18位小数          |
+| --min-unit       | string  | 是   |               | 最小单位；长度在3到10之间，字母数字字符，以字符开始，不区分大小写 |
+| --mintable       | boolean |      | false         | 发行后是否可以增发                                           |
 
-### 发行积分示例
+### 发行工分示例
 
 ```bash
 irita tx token issue --symbol=mycredit --name="my credit" --initial-supply=10000 --max-supply=100000 --scale=0 --min-unit=mycretdit --mintable=true --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
@@ -119,7 +119,7 @@ irita tx token issue --symbol=mycredit --name="my credit" --initial-supply=10000
 
 ## edit
 
-编辑存在的积分。可编辑的属性包括：名称、最大供应以及可增发性
+编辑存在的工分。可编辑的属性包括：名称、最大供应以及可增发性
 
 ```bash
 irita tx token edit [symbol] [flags]
@@ -129,11 +129,11 @@ irita tx token edit [symbol] [flags]
 
 | 名称，速记   | 类型   | 必须 | 默认  | 描述                                                  |
 | ------------ | ------ | ---- | ----- | ----------------------------------------------------- |
-| --name       | string |      |       | 积分名称，为空将不更新                                |
-| --max-supply | uint   |      | 0     | 积分的最大供应量，应不小于当前的总供应量，为0将不更新 |
-| --mintable   | bool   |      | false | 积分是否可以增发，默认为false                         |
+| --name       | string |      |       | 工分名称，为空将不更新                                |
+| --max-supply | uint   |      | 0     | 工分的最大供应量，应不小于当前的总供应量，为0将不更新 |
+| --mintable   | bool   |      | false | 工分是否可以增发，默认为false                         |
 
-### 编辑积分示例
+### 编辑工分示例
 
 ```bash
 irita tx token edit mycredit --max-supply=1000000 --mintable=true --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
@@ -187,7 +187,7 @@ irita tx token edit mycredit --max-supply=1000000 --mintable=true --from=node0 -
 
 ## mint
 
-增发积分到指定地址。
+增发工分到指定地址。
 
 ```bash
 irita tx token mint [symbol] [flags]
@@ -197,10 +197,10 @@ irita tx token mint [symbol] [flags]
 
 | 名称，速记 | 类型   | 必须 | 默认 | 描述                                       |
 | ---------- | ------ | ---- | ---- | ------------------------------------------ |
-| --to       | string |      |      | 积分的接收地址，默认为交易发起者的账户地址 |
+| --to       | string |      |      | 工分的接收地址，默认为交易发起者的账户地址 |
 | --amount   | uint64 | 是   | 0    | 增发的数量                                 |
 
-### 增发积分示例
+### 增发工分示例
 
 ```bash
 irita tx token mint mycredit --to=iaa1lq8ye9aksqtyg2mn46esz9825zuxt5zatm5uxm --amount=1000 --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
@@ -299,7 +299,7 @@ irita tx token mint mycredit --to=iaa1lq8ye9aksqtyg2mn46esz9825zuxt5zatm5uxm --a
 
 ## transfer
 
-转让积分所有权。
+转让工分所有权。
 
 ```bash
 irita tx token transfer [symbol] [flags]
@@ -311,7 +311,7 @@ irita tx token transfer [symbol] [flags]
 | ---------- | ------ | ---- | ---- | -------------- |
 | --to       | string | 是   |      | 新的所有者地址 |
 
-### 转让积分所有权示例
+### 转让工分所有权示例
 
 ```bash
 irita tx token transfer mycredit --to=iaa1lq8ye9aksqtyg2mn46esz9825zuxt5zatm5uxm --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
@@ -365,13 +365,13 @@ irita tx token transfer mycredit --to=iaa1lq8ye9aksqtyg2mn46esz9825zuxt5zatm5uxm
 
 ## token
 
-查询指定的积分。
+查询指定的工分。
 
 ```bash
 irita query token token [symbol] [flags]
 ```
 
-### 查询积分示例
+### 查询工分示例
 
 ```bash
 irita query token token mycredit -o=json --indent --chain-id=irita-test
@@ -396,13 +396,13 @@ irita query token token mycredit -o=json --indent --chain-id=irita-test
 
 ## tokens
 
-查询已发行的所有积分，包括系统原生积分。如指定 `owner` 参数，则查询该 `owner` 发行的积分列表
+查询已发行的所有工分，包括系统原生工分。如指定 `owner` 参数，则查询该 `owner` 发行的工分列表
 
 ```bash
 irita query token tokens [owner] [flags]
 ```
 
-### 查询所有积分示例
+### 查询所有工分示例
 
 ```bash
 irita query token tokens -o=json --indent --chain-id=irita-test
@@ -439,7 +439,7 @@ irita query token tokens -o=json --indent --chain-id=irita-test
 ]
 ```
 
-### 查询指定所有者的积分列表示例
+### 查询指定所有者的工分列表示例
 
 ```bash
 irita query token tokens iaa1lq8ye9aksqtyg2mn46esz9825zuxt5zatm5uxm -o=json --indent --chain-id=irita-test
@@ -466,13 +466,13 @@ irita query token tokens iaa1lq8ye9aksqtyg2mn46esz9825zuxt5zatm5uxm -o=json --in
 
 ## fee
 
-查询积分相关的费用，包括发行和增发。
+查询工分相关的费用，包括发行和增发。
 
 ```bash
 irita query token fee [symbol] [flags]
 ```
 
-### 查询发行和增发积分费用示例
+### 查询发行和增发工分费用示例
 
 ```bash
 irita query token fee credit -o=json --indent --chain-id=irita-test
