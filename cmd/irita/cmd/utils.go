@@ -170,7 +170,7 @@ func handleResponsePreRun(cmd *cobra.Command) {
 	os.Stdout = w
 }
 
-func handleResponsePostRun(cdc codec.JSONMarshaler, cmd *cobra.Command) {
+func handleResponsePostRun(cdc codec.JSONCodec, cmd *cobra.Command) {
 	if !isOutputYAML(cmd) {
 		return
 	}

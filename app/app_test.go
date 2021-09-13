@@ -5,20 +5,22 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	"github.com/stretchr/testify/require"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/simapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/perm"
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
 )
 
 var (
@@ -81,14 +83,14 @@ func setGenesis(iapp *IritaApp) error {
 	iapp.appCodec.MustUnmarshalJSON(genesisState[tokentypes.ModuleName], &tokenGenState)
 
 	pointToken := tokentypes.Token{
-		"point",
-		"Irita point token",
-		6,
-		"upoint",
-		1000000000,
-		math.MaxUint64,
-		true,
-		sdk.AccAddress(crypto.AddressHash([]byte("point owner"))).String(),
+		Symbol:        "point",
+		Name:          "Irita point token",
+		Scale:         6,
+		MinUnit:       "upoint",
+		InitialSupply: 1000000000,
+		MaxSupply:     math.MaxUint64,
+		Mintable:      true,
+		Owner:         sdk.AccAddress(crypto.AddressHash([]byte("point owner"))).String(),
 	}
 
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)

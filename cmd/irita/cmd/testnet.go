@@ -233,9 +233,9 @@ func InitTestnet(
 			return err
 		}
 
-		accTokens := sdk.TokensFromConsensusPower(1000)
-		accPointTokens := sdk.TokensFromConsensusPower(50000)
-		accNativeTokens := sdk.TokensFromConsensusPower(50000)
+		accTokens := sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)
+		accPointTokens := sdk.TokensFromConsensusPower(50000, sdk.DefaultPowerReduction)
+		accNativeTokens := sdk.TokensFromConsensusPower(50000, sdk.DefaultPowerReduction)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
 			sdk.NewCoin(DefaultPointMinUnit, accPointTokens),
@@ -301,7 +301,8 @@ func InitTestnet(
 func initGenFiles(
 	clientCtx client.Context, mbm module.BasicManager, chainID string,
 	genAccounts []authtypes.GenesisAccount, genBalances []banktypes.Balance,
-	genFiles []string, numValidators int, monikers []string, nodeIDs []string, rootCertPath string,
+	genFiles []string, numValidators int, monikers []string, nodeIDs []string,
+	rootCertPath string,
 ) error {
 	rootCertBz, err := ioutil.ReadFile(rootCertPath)
 	if err != nil {
@@ -309,7 +310,7 @@ func initGenFiles(
 	}
 	rootCert := string(rootCertBz)
 
-	jsonMarshaler := clientCtx.JSONMarshaler
+	jsonMarshaler := clientCtx.Codec
 
 	appGenState := mbm.DefaultGenesis(jsonMarshaler)
 
@@ -350,14 +351,14 @@ func initGenFiles(
 	jsonMarshaler.MustUnmarshalJSON(appGenState[tokentypes.ModuleName], &tokenGenState)
 
 	pointToken := tokentypes.Token{
-		DefaultPointDenom,
-		"Irita point token",
-		6,
-		DefaultPointMinUnit,
-		1000000000,
-		math.MaxUint64,
-		true,
-		genAccounts[0].GetAddress().String(),
+		Symbol:        DefaultPointDenom,
+		Name:          "Irita point token",
+		Scale:         6,
+		MinUnit:       DefaultPointMinUnit,
+		InitialSupply: 1000000000,
+		MaxSupply:     math.MaxUint64,
+		Mintable:      true,
+		Owner:         genAccounts[0].GetAddress().String(),
 	}
 
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
@@ -445,7 +446,7 @@ func collectGenFiles(
 			return err
 		}
 
-		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.JSONMarshaler, clientCtx.TxConfig, config, initCfg, *genDoc)
+		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.Codec, clientCtx.TxConfig, config, initCfg, *genDoc)
 		if err != nil {
 			return err
 		}

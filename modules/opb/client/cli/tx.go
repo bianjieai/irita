@@ -38,9 +38,7 @@ func NewMintCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "mint [amount] [to]",
 		Short: "Mint the base native token",
-		Long: strings.TrimSpace(fmt.Sprintf(
-			"Mint the base native token by the given amount in main unit",
-		)),
+		Long:  strings.TrimSpace("Mint the base native token by the given amount in main unit"),
 		Example: fmt.Sprintf(
 			"$ %s tx %s mint <amount> <to> --from mykey",
 			version.AppName, types.ModuleName,
@@ -89,9 +87,7 @@ func NewReclaimCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "reclaim [denom] [to]",
 		Short: "Reclaim the native token of the specified denom",
-		Long: strings.TrimSpace(fmt.Sprintf(
-			"Reclaim the native token of the specified denom from the corresponding escrow account",
-		)),
+		Long:  strings.TrimSpace("Reclaim the native token of the specified denom from the corresponding escrow account"),
 		Example: fmt.Sprintf(
 			"$ %s tx %s reclaim <denom> <to> --from mykey",
 			version.AppName, types.ModuleName,

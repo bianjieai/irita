@@ -40,21 +40,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	// "github.com/CosmWasm/wasmd/x/wasm"
 
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
@@ -116,6 +117,7 @@ var (
 		cparams.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		cslashing.AppModuleBasic{},
+		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
 		record.AppModuleBasic{},
@@ -126,9 +128,9 @@ var (
 		random.AppModuleBasic{},
 		perm.AppModuleBasic{},
 		identity.AppModuleBasic{},
-		wasm.AppModuleBasic{},
 		node.AppModuleBasic{},
 		opb.AppModuleBasic{},
+		// wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -174,7 +176,7 @@ func init() {
 type IritaApp struct {
 	*baseapp.BaseApp
 	cdc               *codec.LegacyAmino
-	appCodec          codec.Marshaler
+	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
 
 	invCheckPeriod uint
@@ -200,15 +202,19 @@ type IritaApp struct {
 	randomKeeper   randomkeeper.Keeper
 	permKeeper     permkeeper.Keeper
 	identityKeeper identitykeeper.Keeper
-	wasmKeeper     wasm.Keeper
 	nodeKeeper     nodekeeper.Keeper
 	opbKeeper      opbkeeper.Keeper
+	feeGrantKeeper feegrantkeeper.Keeper
+	// wasmKeeper     wasm.Keeper
 
 	// the module manager
 	mm *module.Manager
 
 	// simulation manager
 	sm *module.SimulationManager
+
+	// module configurator
+	configurator module.Configurator
 }
 
 // NewIritaApp returns a reference to an initialized IritaApp.
@@ -216,7 +222,6 @@ func NewIritaApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
 	homePath string, invCheckPeriod uint, encodingConfig simappparams.EncodingConfig, appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
 ) *IritaApp {
-
 	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
@@ -224,7 +229,7 @@ func NewIritaApp(
 
 	bApp := baseapp.NewBaseApp(appName, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
-	bApp.SetAppVersion(version.Version)
+	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
 	keys := sdk.NewKVStoreKeys(
@@ -233,6 +238,7 @@ func NewIritaApp(
 		slashingtypes.StoreKey,
 		paramstypes.StoreKey,
 		upgradetypes.StoreKey,
+		feegrant.StoreKey,
 		evidencetypes.StoreKey,
 		recordtypes.StoreKey,
 		tokentypes.StoreKey,
@@ -242,9 +248,9 @@ func NewIritaApp(
 		randomtypes.StoreKey,
 		permtypes.StoreKey,
 		identitytypes.StoreKey,
-		wasm.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
+		// wasm.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -279,8 +285,9 @@ func NewIritaApp(
 	app.crisisKeeper = crisiskeeper.NewKeeper(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.bankKeeper, authtypes.FeeCollectorName,
 	)
+	app.feeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.accountKeeper)
 
-	sdkUpgradeKeeper := sdkupgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath)
+	sdkUpgradeKeeper := sdkupgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp)
 	app.upgradeKeeper = upgradekeeper.NewKeeper(sdkUpgradeKeeper)
 
 	// create evidence keeper with router
@@ -325,27 +332,27 @@ func NewIritaApp(
 		app.GetSubspace(opbtypes.ModuleName),
 	)
 
-	wasmDir := filepath.Join(homePath, "wasm")
-	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
-	if err != nil {
-		panic("error while reading wasm config: " + err.Error())
-	}
+	// wasmDir := filepath.Join(homePath, "wasm")
+	// wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+	// if err != nil {
+	// 	panic("error while reading wasm config: " + err.Error())
+	// }
 
-	app.wasmKeeper = wasm.NewKeeper(
-		appCodec,
-		keys[wasm.StoreKey],
-		app.GetSubspace(wasm.ModuleName),
-		app.accountKeeper,
-		app.bankKeeper,
-		stakingkeeper.Keeper{},
-		distrkeeper.Keeper{},
-		bApp.Router(),
-		wasmDir,
-		wasmConfig,
-		"",
-		nil,
-		nil,
-	)
+	// app.wasmKeeper = wasm.NewKeeper(
+	// 	appCodec,
+	// 	keys[wasm.StoreKey],
+	// 	app.GetSubspace(wasm.ModuleName),
+	// 	app.accountKeeper,
+	// 	app.bankKeeper,
+	// 	stakingkeeper.Keeper{},
+	// 	distrkeeper.Keeper{},
+	// 	bApp.Router(),
+	// 	wasmDir,
+	// 	wasmConfig,
+	// 	"",
+	// 	nil,
+	// 	nil,
+	// )
 
 	/****  Module Options ****/
 	var skipGenesisInvariants = false
@@ -362,6 +369,7 @@ func NewIritaApp(
 		auth.NewAppModule(appCodec, app.accountKeeper, authsims.RandomGenesisAccounts),
 		bank.NewAppModule(appCodec, app.bankKeeper, app.accountKeeper),
 		crisis.NewAppModule(&app.crisisKeeper, skipGenesisInvariants),
+		feegrantmodule.NewAppModule(appCodec, app.accountKeeper, app.bankKeeper, app.feeGrantKeeper, app.interfaceRegistry),
 		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.nodeKeeper), app.accountKeeper, app.bankKeeper, app.nodeKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
 		evidence.NewAppModule(app.evidenceKeeper),
@@ -370,14 +378,14 @@ func NewIritaApp(
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
 		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
-		oracle.NewAppModule(appCodec, app.oracleKeeper),
+		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
 		perm.NewAppModule(appCodec, app.permKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
-		wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
+		// wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -386,15 +394,15 @@ func NewIritaApp(
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
-		nodetypes.ModuleName, recordtypes.ModuleName,
-		tokentypes.ModuleName, nfttypes.ModuleName, servicetypes.ModuleName,
-		randomtypes.ModuleName, wasm.ModuleName,
+		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
+		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
+		// wasm.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		nodetypes.ModuleName,
 		servicetypes.ModuleName,
-		wasm.ModuleName,
+		// wasm.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -417,14 +425,16 @@ func NewIritaApp(
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
-		wasm.ModuleName,
+		// wasm.ModuleName,
 		opb.ModuleName,
 		genutiltypes.ModuleName,
+		feegrant.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
-	app.mm.RegisterServices(module.NewConfigurator(app.MsgServiceRouter(), app.GRPCQueryRouter()))
+	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
+	app.mm.RegisterServices(app.configurator)
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	//
@@ -433,6 +443,7 @@ func NewIritaApp(
 	app.sm = module.NewSimulationManager(
 		auth.NewAppModule(appCodec, app.accountKeeper, authsims.RandomGenesisAccounts),
 		bank.NewAppModule(appCodec, app.bankKeeper, app.accountKeeper),
+		feegrantmodule.NewAppModule(appCodec, app.accountKeeper, app.bankKeeper, app.feeGrantKeeper, app.interfaceRegistry),
 		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.nodeKeeper), app.accountKeeper, app.bankKeeper, app.nodeKeeper),
 		params.NewAppModule(app.paramsKeeper),
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
@@ -440,13 +451,13 @@ func NewIritaApp(
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
 		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
-		oracle.NewAppModule(appCodec, app.oracleKeeper),
+		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
 		perm.NewAppModule(appCodec, app.permKeeper),
 		identity.NewAppModule(app.identityKeeper),
-		wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
+		// wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -459,18 +470,21 @@ func NewIritaApp(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler(
-		NewAnteHandler(
-			app.permKeeper,
-			app.accountKeeper,
-			app.bankKeeper,
-			app.tokenKeeper,
-			app.opbKeeper,
-			ante.DefaultSigVerificationGasConsumer,
-			encodingConfig.TxConfig.SignModeHandler(),
-		),
+	anteHandler, err := ante.NewAnteHandler(
+		ante.HandlerOptions{
+			AccountKeeper:   app.accountKeeper,
+			BankKeeper:      app.bankKeeper,
+			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+			FeegrantKeeper:  app.feeGrantKeeper,
+			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+		},
 	)
+	if err != nil {
+		panic(err)
+	}
+	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
+
 	// Set software upgrade execution logic
 	// app.RegisterUpgradePlan("add-record-module",
 	// 	store.StoreUpgrades{
@@ -562,7 +576,7 @@ func (app *IritaApp) LegacyAmino() *codec.LegacyAmino {
 //
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
-func (app *IritaApp) AppCodec() codec.Marshaler {
+func (app *IritaApp) AppCodec() codec.Codec {
 	return app.appCodec
 }
 
@@ -658,7 +672,7 @@ func GetMaccPerms() map[string][]string {
 }
 
 // initParamsKeeper init params keeper and its subspaces
-func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
+func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
 
 	paramsKeeper.Subspace(authtypes.ModuleName)
@@ -669,8 +683,8 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(tokentypes.ModuleName)
 	paramsKeeper.Subspace(recordtypes.ModuleName)
 	paramsKeeper.Subspace(servicetypes.ModuleName)
-	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(opbtypes.ModuleName)
+	// paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper
 }

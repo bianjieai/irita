@@ -25,7 +25,7 @@ func GenRootCert(defaultNodeHome string) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			cdc := clientCtx.JSONMarshaler
+			cdc := clientCtx.Codec
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config

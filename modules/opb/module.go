@@ -31,7 +31,7 @@ var (
 
 // AppModuleBasic defines the basic application module used by the OPB module.
 type AppModuleBasic struct {
-	cdc codec.Marshaler
+	cdc codec.Codec
 }
 
 // Name returns the OPB module's name.
@@ -45,12 +45,12 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 }
 
 // DefaultGenesis returns default genesis state as raw bytes for the OPB module.
-func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
+func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(DefaultGenesisState())
 }
 
 // ValidateGenesis performs genesis state validation for the OPB module.
-func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxEncodingConfig, bz json.RawMessage) error {
+func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var data GenesisState
 	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", ModuleName, err)
@@ -90,7 +90,7 @@ type AppModule struct {
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(cdc codec.Marshaler, keeper Keeper) AppModule {
+func NewAppModule(cdc codec.Codec, keeper Keeper) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		keeper:         keeper,
@@ -128,7 +128,7 @@ func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sd
 
 // InitGenesis performs genesis initialization for the OPB module. It returns
 // no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
 
 	cdc.MustUnmarshalJSON(data, &genesisState)
@@ -137,10 +137,13 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data j
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the OPB module.
-func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
+func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
 	return cdc.MustMarshalJSON(gs)
 }
+
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return 2 }
 
 // BeginBlock returns the begin blocker for the OPB module.
 func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {}
