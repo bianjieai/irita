@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-
 	"io/ioutil"
 
 	"github.com/spf13/cobra"

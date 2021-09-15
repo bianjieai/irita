@@ -3,7 +3,8 @@ module github.com/bianjieai/irita
 go 1.16
 
 require (
-	github.com/bianjieai/iritamod v1.0.1-0.20210913023358-72d511dd15fa
+	github.com/CosmWasm/wasmd v0.18.0
+	github.com/bianjieai/iritamod v1.0.1-0.20210913061832-d7e5ab9b85c0
 	github.com/cosmos/cosmos-sdk v0.44.0
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951 // indirect
 	github.com/gogo/protobuf v1.3.3
@@ -15,10 +16,10 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
-	github.com/spf13/cast v1.3.1
+	github.com/spf13/cast v1.4.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.8.0
+	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/tendermint v0.34.12
 	github.com/tendermint/tm-db v0.6.4
@@ -28,6 +29,7 @@ require (
 )
 
 replace (
+	github.com/CosmWasm/wasmd => github.com/provenance-io/wasmd v0.19.0
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20210913071426-f8f3494fd501
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20210908054213-781a5fed16d6

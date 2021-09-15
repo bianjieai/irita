@@ -41,6 +41,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
@@ -52,10 +53,11 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 
-	// "github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/CosmWasm/wasmd/x/wasm"
 
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
@@ -113,9 +115,6 @@ var (
 		genutil.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		capability.AppModuleBasic{},
-		//gov.NewAppModuleBasic(
-		//	upgradeclient.ProposalHandler,
-		//),
 		params.AppModuleBasic{},
 		cparams.AppModuleBasic{},
 		crisis.AppModuleBasic{},
@@ -133,13 +132,12 @@ var (
 		identity.AppModuleBasic{},
 		node.AppModuleBasic{},
 		opb.AppModuleBasic{},
-		// wasm.AppModuleBasic{},
+		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName: nil,
-		//gov.ModuleName:                  {authtypes.Burner},
+		authtypes.FeeCollectorName:          nil,
 		tokentypes.ModuleName:               {authtypes.Minter, authtypes.Burner},
 		servicetypes.DepositAccName:         nil,
 		servicetypes.RequestAccName:         nil,
@@ -172,7 +170,6 @@ type SimApp struct {
 	AccountKeeper  authkeeper.AccountKeeper
 	BankKeeper     bankkeeper.Keeper
 	SlashingKeeper slashingkeeper.Keeper
-	//govKeeper        gov.Keeper
 	CrisisKeeper   crisiskeeper.Keeper
 	UpgradeKeeper  upgradekeeper.Keeper
 	ParamsKeeper   paramskeeper.Keeper
@@ -188,7 +185,7 @@ type SimApp struct {
 	NodeKeeper     nodekeeper.Keeper
 	OpbKeeper      opbkeeper.Keeper
 	FeeGrantKeeper feegrantkeeper.Keeper
-	// WasmKeeper     wasm.Keeper
+	WasmKeeper     wasm.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -229,7 +226,6 @@ func NewSimApp(
 		banktypes.StoreKey,
 		slashingtypes.StoreKey,
 		paramstypes.StoreKey,
-		//gov.StoreKey,
 		upgradetypes.StoreKey,
 		feegrant.StoreKey,
 		evidencetypes.StoreKey,
@@ -243,7 +239,7 @@ func NewSimApp(
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
-		// wasm.StoreKey,
+		wasm.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -282,15 +278,6 @@ func NewSimApp(
 
 	sdkUpgradeKeeper := sdkupgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp)
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(sdkUpgradeKeeper)
-
-	// // register the proposal types
-	// govRouter := govtypes.NewRouter()
-	// govRouter.AddRoute(govtypes.RouterKey, govtypes.ProposalHandler).
-	// 	AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-	// app.govKeeper = govkeeper.NewKeeper(
-	// 	appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
-	// 	&app.NodeKeeper, govRouter,
-	// )
 
 	// create evidence keeper with router
 	EvidenceKeeper := evidencekeeper.NewKeeper(
@@ -333,23 +320,28 @@ func NewSimApp(
 		app.GetSubspace(opbtypes.ModuleName),
 	)
 
-	// wasmDir := filepath.Join(homePath, "wasm")
+	wasmDir := filepath.Join(homePath, "wasm")
 
-	// app.WasmKeeper = wasm.NewKeeper(
-	// 	appCodec,
-	// 	keys[wasm.StoreKey],
-	// 	app.GetSubspace(wasm.ModuleName),
-	// 	app.AccountKeeper,
-	// 	app.BankKeeper,
-	// 	stakingkeeper.Keeper{},
-	// 	distrkeeper.Keeper{},
-	// 	bApp.Router(),
-	// 	wasmDir,
-	// 	wasm.DefaultWasmConfig(),
-	// 	"",
-	// 	nil,
-	// 	nil,
-	// )
+	supportedFeatures := "stargate"
+	app.WasmKeeper = wasm.NewKeeper(
+		appCodec,
+		keys[wasm.StoreKey],
+		app.GetSubspace(wasm.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		stakingkeeper.Keeper{},
+		distrkeeper.Keeper{},
+		nil,
+		nil,
+		nil,
+		nil,
+		bApp.Router(),
+		bApp.MsgServiceRouter(),
+		bApp.GRPCQueryRouter(),
+		wasmDir,
+		wasm.DefaultWasmConfig(),
+		supportedFeatures,
+	)
 
 	/****  Module Options ****/
 
@@ -365,7 +357,6 @@ func NewSimApp(
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
 		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
-		// gov.NewAppModule(appCodec, app.govKeeper, app.AccountKeeper, app.BankKeeper),
 		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.SlashingKeeper, app.NodeKeeper), app.AccountKeeper, app.BankKeeper, app.NodeKeeper),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
@@ -380,7 +371,7 @@ func NewSimApp(
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
 		opb.NewAppModule(appCodec, app.OpbKeeper),
-		// wasm.NewAppModule(&app.WasmKeeper, app.NodeKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -391,14 +382,13 @@ func NewSimApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
 		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		// wasm.ModuleName,
+		wasm.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		node.ModuleName,
-		// govtypes.ModuleName,
 		servicetypes.ModuleName,
-		// wasm.ModuleName,
+		wasm.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -408,11 +398,10 @@ func NewSimApp(
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
 		permtypes.ModuleName,
-		// capabilitytypes.ModuleName,
+		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
 		banktypes.ModuleName,
-		// govtypes.ModuleName,
 		slashingtypes.ModuleName,
 		crisistypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -423,7 +412,7 @@ func NewSimApp(
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
-		// wasm.ModuleName,
+		wasm.ModuleName,
 		opb.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
@@ -445,7 +434,6 @@ func NewSimApp(
 		auth.NewAppModule(appCodec, app.AccountKeeper, authsims.RandomGenesisAccounts),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
-		//gov.NewAppModule(appCodec, app.govKeeper, app.AccountKeeper, app.BankKeeper),
 		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.SlashingKeeper, app.NodeKeeper), app.AccountKeeper, app.BankKeeper, app.NodeKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		cparams.NewAppModule(appCodec, app.ParamsKeeper),
@@ -459,7 +447,7 @@ func NewSimApp(
 		identity.NewAppModule(app.IdentityKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
 		opb.NewAppModule(appCodec, app.OpbKeeper),
-		// wasm.NewAppModule(&app.WasmKeeper, app.NodeKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -656,7 +644,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	ParamsKeeper.Subspace(recordtypes.ModuleName)
 	ParamsKeeper.Subspace(servicetypes.ModuleName)
 	ParamsKeeper.Subspace(opbtypes.ModuleName)
-	// ParamsKeeper.Subspace(wasm.ModuleName)
+	ParamsKeeper.Subspace(wasm.ModuleName)
 
 	return ParamsKeeper
 }

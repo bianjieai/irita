@@ -93,7 +93,7 @@ func TestMsgReclaimType(t *testing.T) {
 
 // TestMsgReclaimValidation tests ValidateBasic for MsgReclaim
 func TestMsgReclaimValidation(t *testing.T) {
-	invalidDenom := "invalid-denom"
+	invalidDenom := "invalid+denom"
 
 	testMsgs := []*MsgReclaim{
 		NewMsgReclaim(testDenom, testAddress, testAddress),    // valid msg

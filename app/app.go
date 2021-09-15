@@ -40,6 +40,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
@@ -51,11 +52,12 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
-	// "github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/CosmWasm/wasmd/x/wasm"
 
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
@@ -130,7 +132,7 @@ var (
 		identity.AppModuleBasic{},
 		node.AppModuleBasic{},
 		opb.AppModuleBasic{},
-		// wasm.AppModuleBasic{},
+		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -205,7 +207,7 @@ type IritaApp struct {
 	nodeKeeper     nodekeeper.Keeper
 	opbKeeper      opbkeeper.Keeper
 	feeGrantKeeper feegrantkeeper.Keeper
-	// wasmKeeper     wasm.Keeper
+	wasmKeeper     wasm.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -250,7 +252,7 @@ func NewIritaApp(
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
-		// wasm.StoreKey,
+		wasm.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -332,27 +334,32 @@ func NewIritaApp(
 		app.GetSubspace(opbtypes.ModuleName),
 	)
 
-	// wasmDir := filepath.Join(homePath, "wasm")
-	// wasmConfig, err := wasm.ReadWasmConfig(appOpts)
-	// if err != nil {
-	// 	panic("error while reading wasm config: " + err.Error())
-	// }
+	wasmDir := filepath.Join(homePath, "wasm")
+	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+	if err != nil {
+		panic("error while reading wasm config: " + err.Error())
+	}
 
-	// app.wasmKeeper = wasm.NewKeeper(
-	// 	appCodec,
-	// 	keys[wasm.StoreKey],
-	// 	app.GetSubspace(wasm.ModuleName),
-	// 	app.accountKeeper,
-	// 	app.bankKeeper,
-	// 	stakingkeeper.Keeper{},
-	// 	distrkeeper.Keeper{},
-	// 	bApp.Router(),
-	// 	wasmDir,
-	// 	wasmConfig,
-	// 	"",
-	// 	nil,
-	// 	nil,
-	// )
+	supportedFeatures := "stargate"
+	app.wasmKeeper = wasm.NewKeeper(
+		appCodec,
+		keys[wasm.StoreKey],
+		app.GetSubspace(wasm.ModuleName),
+		app.accountKeeper,
+		app.bankKeeper,
+		stakingkeeper.Keeper{},
+		distrkeeper.Keeper{},
+		nil,
+		nil,
+		nil,
+		nil,
+		bApp.Router(),
+		bApp.MsgServiceRouter(),
+		bApp.GRPCQueryRouter(),
+		wasmDir,
+		wasmConfig,
+		supportedFeatures,
+	)
 
 	/****  Module Options ****/
 	var skipGenesisInvariants = false
@@ -385,7 +392,7 @@ func NewIritaApp(
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
-		// wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -396,13 +403,13 @@ func NewIritaApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
 		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		// wasm.ModuleName,
+		wasm.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		nodetypes.ModuleName,
 		servicetypes.ModuleName,
-		// wasm.ModuleName,
+		wasm.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -425,7 +432,7 @@ func NewIritaApp(
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
-		// wasm.ModuleName,
+		wasm.ModuleName,
 		opb.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
@@ -457,7 +464,7 @@ func NewIritaApp(
 		identity.NewAppModule(app.identityKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
-		// wasm.NewAppModule(&app.wasmKeeper, app.nodeKeeper),
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -684,7 +691,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(recordtypes.ModuleName)
 	paramsKeeper.Subspace(servicetypes.ModuleName)
 	paramsKeeper.Subspace(opbtypes.ModuleName)
-	// paramsKeeper.Subspace(wasm.ModuleName)
+	paramsKeeper.Subspace(wasm.ModuleName)
 
 	return paramsKeeper
 }

@@ -38,11 +38,12 @@ import (
 	servicetypes "github.com/irisnet/irismod/modules/service/types"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
-	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
+
+	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 )
 
 const (
