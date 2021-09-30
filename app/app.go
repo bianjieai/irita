@@ -36,6 +36,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
@@ -100,6 +101,14 @@ import (
 	"github.com/bianjieai/irita/modules/opb"
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	opbtypes "github.com/bianjieai/irita/modules/opb/types"
+
+	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
+	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
+	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
+	tibc "github.com/bianjieai/tibc-go/modules/tibc/core"
+	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
+	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
+	tibckeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 )
 
 const appName = "IritaApp"
@@ -133,6 +142,8 @@ var (
 		node.AppModuleBasic{},
 		opb.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		tibc.AppModuleBasic{},
+		tibcnfttransfer.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -142,6 +153,7 @@ var (
 		servicetypes.DepositAccName:         nil,
 		servicetypes.RequestAccName:         nil,
 		opbtypes.PointTokenFeeCollectorName: nil,
+		tibcnfttypes.ModuleName:             nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -189,25 +201,31 @@ type IritaApp struct {
 	memKeys map[string]*sdk.MemoryStoreKey
 
 	// keepers
-	accountKeeper  authkeeper.AccountKeeper
-	bankKeeper     bankkeeper.Keeper
-	slashingKeeper slashingkeeper.Keeper
-	crisisKeeper   crisiskeeper.Keeper
-	upgradeKeeper  upgradekeeper.Keeper
-	paramsKeeper   paramskeeper.Keeper
-	evidenceKeeper evidencekeeper.Keeper
-	recordKeeper   recordkeeper.Keeper
-	tokenKeeper    tokenkeeper.Keeper
-	nftKeeper      nftkeeper.Keeper
-	serviceKeeper  servicekeeper.Keeper
-	oracleKeeper   oraclekeeper.Keeper
-	randomKeeper   randomkeeper.Keeper
-	permKeeper     permkeeper.Keeper
-	identityKeeper identitykeeper.Keeper
-	nodeKeeper     nodekeeper.Keeper
-	opbKeeper      opbkeeper.Keeper
-	feeGrantKeeper feegrantkeeper.Keeper
-	wasmKeeper     wasm.Keeper
+	accountKeeper    authkeeper.AccountKeeper
+	bankKeeper       bankkeeper.Keeper
+	slashingKeeper   slashingkeeper.Keeper
+	crisisKeeper     crisiskeeper.Keeper
+	upgradeKeeper    upgradekeeper.Keeper
+	paramsKeeper     paramskeeper.Keeper
+	evidenceKeeper   evidencekeeper.Keeper
+	recordKeeper     recordkeeper.Keeper
+	tokenKeeper      tokenkeeper.Keeper
+	nftKeeper        nftkeeper.Keeper
+	serviceKeeper    servicekeeper.Keeper
+	oracleKeeper     oraclekeeper.Keeper
+	randomKeeper     randomkeeper.Keeper
+	permKeeper       permkeeper.Keeper
+	identityKeeper   identitykeeper.Keeper
+	nodeKeeper       nodekeeper.Keeper
+	opbKeeper        opbkeeper.Keeper
+	feeGrantKeeper   feegrantkeeper.Keeper
+	wasmKeeper       wasm.Keeper
+	capabilityKeeper *capabilitykeeper.Keeper
+	// tibc
+	scopedTIBCKeeper     capabilitykeeper.ScopedKeeper
+	scopedTIBCMockKeeper capabilitykeeper.ScopedKeeper
+	tibcKeeper           *tibckeeper.Keeper
+	nftTransferKeeper    tibcnfttransferkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -253,6 +271,9 @@ func NewIritaApp(
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
 		wasm.StoreKey,
+		capabilitytypes.StoreKey,
+		tibchost.StoreKey,
+		tibcnfttypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -333,6 +354,21 @@ func NewIritaApp(
 		app.bankKeeper, app.tokenKeeper, app.permKeeper,
 		app.GetSubspace(opbtypes.ModuleName),
 	)
+	app.capabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
+	scopedTIBCKeeper := app.capabilityKeeper.ScopeToModule(tibchost.ModuleName)
+	// register the proposal types
+	app.tibcKeeper = tibckeeper.NewKeeper(
+		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{}, scopedTIBCKeeper,
+	)
+	app.nftTransferKeeper = tibcnfttransferkeeper.NewKeeper(
+		appCodec, keys[tibcnfttypes.StoreKey], app.GetSubspace(tibcnfttypes.ModuleName),
+		app.accountKeeper, app.nftKeeper,
+		app.tibcKeeper.PacketKeeper, app.tibcKeeper.ClientKeeper,
+	)
+	nfttransferModule := tibcnfttransfer.NewAppModule(app.nftTransferKeeper)
+	tibcRouter := tibcroutingtypes.NewRouter()
+	tibcRouter.AddRoute(tibcnfttypes.ModuleName, nfttransferModule)
+	app.tibcKeeper.SetRouter(tibcRouter)
 
 	wasmDir := filepath.Join(homePath, "wasm")
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
@@ -393,6 +429,7 @@ func NewIritaApp(
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
+		tibc.NewAppModule(app.tibcKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -403,13 +440,14 @@ func NewIritaApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
 		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		wasm.ModuleName,
+		wasm.ModuleName, tibchost.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		nodetypes.ModuleName,
 		servicetypes.ModuleName,
 		wasm.ModuleName,
+		tibchost.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -436,6 +474,7 @@ func NewIritaApp(
 		opb.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
+		tibchost.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -465,6 +504,7 @@ func NewIritaApp(
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
+		tibc.NewAppModule(app.tibcKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -518,6 +558,7 @@ func NewIritaApp(
 		//ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
 		//app.capabilityKeeper.InitializeAndSeal(ctx)
 	}
+	app.scopedTIBCKeeper = scopedTIBCKeeper
 	return app
 }
 
@@ -692,6 +733,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(servicetypes.ModuleName)
 	paramsKeeper.Subspace(opbtypes.ModuleName)
 	paramsKeeper.Subspace(wasm.ModuleName)
+	paramsKeeper.Subspace(tibchost.ModuleName)
 
 	return paramsKeeper
 }

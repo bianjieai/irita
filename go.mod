@@ -6,6 +6,7 @@ require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.18.0
 	github.com/bianjieai/iritamod v1.0.1-0.20210915110513-91d79696f77c
+	github.com/bianjieai/tibc-go v0.1.1-0.20210930062831-58c8580f08a5
 	github.com/cosmos/cosmos-sdk v0.44.0
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
@@ -22,15 +23,15 @@ require (
 	github.com/rakyll/statik v0.1.7
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
 	github.com/spf13/cast v1.4.0
-	github.com/spf13/cobra v1.1.3
+	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15
 	github.com/tendermint/tendermint v0.34.12
 	github.com/tendermint/tm-db v0.6.4
-	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c
-	google.golang.org/grpc v1.38.0
+	google.golang.org/genproto v0.0.0-20210805201207-89edb61ffb67
+	google.golang.org/grpc v1.39.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
