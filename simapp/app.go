@@ -190,9 +190,9 @@ type SimApp struct {
 	ParamsKeeper      paramskeeper.Keeper
 	EvidenceKeeper    evidencekeeper.Keeper
 	RecordKeeper      recordkeeper.Keeper
-	TokenKeeper   tokenkeeper.Keeper
-	NFTKeeper     nftkeeper.Keeper
-	ServiceKeeper servicekeeper.Keeper
+	TokenKeeper       tokenkeeper.Keeper
+	NFTKeeper         nftkeeper.Keeper
+	ServiceKeeper     servicekeeper.Keeper
 	OracleKeeper      oraclekeeper.Keeper
 	RandomKeeper      randomkeeper.Keeper
 	PermKeeper        permkeeper.Keeper
