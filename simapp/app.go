@@ -261,7 +261,6 @@ func NewSimApp(
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
 		wasm.StoreKey,
-		capabilitytypes.StoreKey,
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
 	)
@@ -344,8 +343,6 @@ func NewSimApp(
 	bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()))
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
 
-	scopedTIBCKeeper := app.CapabilityKeeper.ScopeToModule(tibchost.ModuleName)
-	scopedTIBCMockKeeper := app.CapabilityKeeper.ScopeToModule(tibcmock.ModuleName)
 	// Create Transfer Keepers
 	app.NftTransferKeeper = tibcnfttransferkeeper.NewKeeper(
 		appCodec, keys[tibcnfttypes.StoreKey], app.GetSubspace(tibcnfttypes.ModuleName),
@@ -355,7 +352,7 @@ func NewSimApp(
 	nfttransferModule := tibcnfttransfer.NewAppModule(app.NftTransferKeeper)
 	// Create TIBC Keeper
 	app.TIBCKeeper = tibckeeper.NewKeeper(
-		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{}, scopedTIBCKeeper,
+		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{},
 	)
 	tibcmockModule := tibcmock.NewAppModule()
 	tibcRouter := tibcroutingtypes.NewRouter()
@@ -540,8 +537,6 @@ func NewSimApp(
 		//ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
 		//app.capabilityKeeper.InitializeAndSeal(ctx)
 	}
-	app.ScopedTIBCKeeper = scopedTIBCKeeper
-	app.ScopedTIBCMockKeeper = scopedTIBCMockKeeper
 	return app
 }
 

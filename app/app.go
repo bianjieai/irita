@@ -271,7 +271,6 @@ func NewIritaApp(
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
 		wasm.StoreKey,
-		capabilitytypes.StoreKey,
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
 	)
@@ -354,11 +353,9 @@ func NewIritaApp(
 		app.bankKeeper, app.tokenKeeper, app.permKeeper,
 		app.GetSubspace(opbtypes.ModuleName),
 	)
-	app.capabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
-	scopedTIBCKeeper := app.capabilityKeeper.ScopeToModule(tibchost.ModuleName)
 	// register the proposal types
 	app.tibcKeeper = tibckeeper.NewKeeper(
-		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{}, scopedTIBCKeeper,
+		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{},
 	)
 	app.nftTransferKeeper = tibcnfttransferkeeper.NewKeeper(
 		appCodec, keys[tibcnfttypes.StoreKey], app.GetSubspace(tibcnfttypes.ModuleName),
@@ -558,7 +555,6 @@ func NewIritaApp(
 		//ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
 		//app.capabilityKeeper.InitializeAndSeal(ctx)
 	}
-	app.scopedTIBCKeeper = scopedTIBCKeeper
 	return app
 }
 
