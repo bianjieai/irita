@@ -5,7 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
+	// "github.com/CosmWasm/wasmd/x/wasm"
 
 	"github.com/bianjieai/irita/modules/opb/types"
 )
@@ -34,18 +34,23 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	// check only if the transfer restriction is enabled
 	if restrictionEnabled {
 		for _, msg := range tx.GetMsgs() {
-			switch msg.Route() {
-			case banktypes.ModuleName:
+			switch msg := msg.(type) {
+			case *banktypes.MsgSend:
+				err := vtd.validateBankMsgs(ctx, msg)
+				if err != nil {
+					return ctx, err
+				}
+			case *banktypes.MsgMultiSend:
 				err := vtd.validateBankMsgs(ctx, msg)
 				if err != nil {
 					return ctx, err
 				}
 
-			case wasm.ModuleName:
-				err := vtd.validateWasmMsgs(ctx, msg)
-				if err != nil {
-					return ctx, err
-				}
+				// case wasm.ModuleName:
+				// 	err := vtd.validateWasmMsgs(ctx, msg)
+				// 	if err != nil {
+				// 		return ctx, err
+				// 	}
 			}
 		}
 	}
@@ -65,17 +70,17 @@ func (vtd ValidateTokenTransferDecorator) validateBankMsgs(ctx sdk.Context, msg 
 	return nil
 }
 
-func (vtd ValidateTokenTransferDecorator) validateWasmMsgs(ctx sdk.Context, msg sdk.Msg) error {
-	switch msg := msg.(type) {
-	case *wasm.MsgInstantiateContract:
-		return vtd.validateMsgInstantiateContract(ctx, msg)
+// func (vtd ValidateTokenTransferDecorator) validateWasmMsgs(ctx sdk.Context, msg sdk.Msg) error {
+// 	switch msg := msg.(type) {
+// 	case *wasm.MsgInstantiateContract:
+// 		return vtd.validateMsgInstantiateContract(ctx, msg)
 
-	case *wasm.MsgExecuteContract:
-		return vtd.validateMsgExecuteContract(ctx, msg)
-	}
+// 	case *wasm.MsgExecuteContract:
+// 		return vtd.validateMsgExecuteContract(ctx, msg)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // validateMsgSend validates the MsgSend msg
 func (vtd ValidateTokenTransferDecorator) validateMsgSend(ctx sdk.Context, msg *banktypes.MsgSend) error {
@@ -120,15 +125,15 @@ func (vtd ValidateTokenTransferDecorator) validateMsgMultiSend(ctx sdk.Context, 
 	return nil
 }
 
-// validateMsgInstantiateContract validates the MsgInstantiateContract msg
-func (vtd ValidateTokenTransferDecorator) validateMsgInstantiateContract(ctx sdk.Context, msg *wasm.MsgInstantiateContract) error {
-	return vtd.validateContractFunds(ctx, msg.InitFunds)
-}
+// // validateMsgInstantiateContract validates the MsgInstantiateContract msg
+// func (vtd ValidateTokenTransferDecorator) validateMsgInstantiateContract(ctx sdk.Context, msg *wasm.MsgInstantiateContract) error {
+// 	return vtd.validateContractFunds(ctx, msg.InitFunds)
+// }
 
-// validateMsgExecuteContract validates the MsgExecuteContract msg
-func (vtd ValidateTokenTransferDecorator) validateMsgExecuteContract(ctx sdk.Context, msg *wasm.MsgExecuteContract) error {
-	return vtd.validateContractFunds(ctx, msg.SentFunds)
-}
+// // validateMsgExecuteContract validates the MsgExecuteContract msg
+// func (vtd ValidateTokenTransferDecorator) validateMsgExecuteContract(ctx sdk.Context, msg *wasm.MsgExecuteContract) error {
+// 	return vtd.validateContractFunds(ctx, msg.SentFunds)
+// }
 
 // getOwner gets the owner of the specified denom
 func (vtd ValidateTokenTransferDecorator) getOwner(ctx sdk.Context, denom string) (owner string, err error) {
@@ -146,22 +151,22 @@ func (vtd ValidateTokenTransferDecorator) getOwner(ctx sdk.Context, denom string
 	return
 }
 
-// validateContractFunds validates the funds in the contract transactions
-func (vtd ValidateTokenTransferDecorator) validateContractFunds(ctx sdk.Context, coins sdk.Coins) error {
-	baseTokenDenom := vtd.keeper.BaseTokenDenom(ctx)
+// // validateContractFunds validates the funds in the contract transactions
+// func (vtd ValidateTokenTransferDecorator) validateContractFunds(ctx sdk.Context, coins sdk.Coins) error {
+// 	baseTokenDenom := vtd.keeper.BaseTokenDenom(ctx)
 
-	for _, coin := range coins {
-		if coin.Denom == baseTokenDenom {
-			return sdkerrors.Wrapf(
-				types.ErrUnauthorized,
-				"%s not allowed for contract transactions",
-				coin.Denom,
-			)
-		}
-	}
+// 	for _, coin := range coins {
+// 		if coin.Denom == baseTokenDenom {
+// 			return sdkerrors.Wrapf(
+// 				types.ErrUnauthorized,
+// 				"%s not allowed for contract transactions",
+// 				coin.Denom,
+// 			)
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // owned returns false if any address is not the owner of the denom among the given non-empty addresses
 // True otherwise

@@ -6,6 +6,9 @@ import (
 
 	"github.com/ghodss/yaml"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	cosmoskeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -83,11 +86,16 @@ func printTextInfos(w io.Writer, kos []KeyOutput) {
 // public key is a multisig public key, then the threshold and constituent
 // public keys will be added.
 func bech32KeyOutput(keyInfo cosmoskeyring.Info) (KeyOutput, error) {
-	accAddr := sdk.AccAddress(keyInfo.GetPubKey().Address().Bytes())
-	bechPubKey, err := sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, keyInfo.GetPubKey())
+
+	registry := codectypes.NewInterfaceRegistry()
+	cryptocodec.RegisterInterfaces(registry)
+	cdc := codec.NewProtoCodec(registry)
+
+	bz, err := cdc.MarshalInterfaceJSON(keyInfo.GetPubKey())
 	if err != nil {
 		return KeyOutput{}, err
 	}
+	pubKey := string(bz)
 
 	hdPath, err := keyInfo.GetPath()
 	if err != nil {
@@ -97,8 +105,8 @@ func bech32KeyOutput(keyInfo cosmoskeyring.Info) (KeyOutput, error) {
 	return KeyOutput{
 		Name:       keyInfo.GetName(),
 		Type:       keyInfo.GetType().String(),
-		Address:    accAddr.String(),
-		PubKey:     bechPubKey,
+		Address:    sdk.AccAddress(keyInfo.GetPubKey().Address().Bytes()).String(),
+		PubKey:     pubKey,
 		AddressIdx: hdPath.AddressIndex,
 	}, nil
 }

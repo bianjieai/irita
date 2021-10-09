@@ -3,6 +3,7 @@ package app
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
@@ -23,34 +24,36 @@ import (
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 )
 
+type HandlerOptions struct {
+	permKeeper      perm.Keeper
+	accountKeeper   authkeeper.AccountKeeper
+	bankKeeper      bankkeeper.Keeper
+	feegrantKeeper  authante.FeegrantKeeper
+	tokenKeeper     tokenkeeper.Keeper
+	opbKeeper       opbkeeper.Keeper
+	sigGasConsumer  ante.SignatureVerificationGasConsumer
+	signModeHandler signing.SignModeHandler
+}
+
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, deducts fees from the first
 // signer, and performs other module-specific logic.
-func NewAnteHandler(
-	permKeeper perm.Keeper,
-	ak authkeeper.AccountKeeper,
-	bankKeeper bankkeeper.Keeper,
-	tokenKeeper tokenkeeper.Keeper,
-	opbKeeper opbkeeper.Keeper,
-	sigGasConsumer ante.SignatureVerificationGasConsumer,
-	signModeHandler signing.SignModeHandler,
-) sdk.AnteHandler {
+func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
-		perm.NewAuthDecorator(permKeeper),
+		perm.NewAuthDecorator(options.permKeeper),
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 		ante.NewMempoolFeeDecorator(),
 		ante.NewValidateBasicDecorator(),
-		ante.NewValidateMemoDecorator(ak),
-		ante.NewConsumeGasForTxSizeDecorator(ak),
-		ante.NewRejectFeeGranterDecorator(),
-		ante.NewSetPubKeyDecorator(ak), // SetPubKeyDecorator must be called before all signature verification decorators
-		ante.NewValidateSigCountDecorator(ak),
-		ante.NewDeductFeeDecorator(ak, bankKeeper),
-		ante.NewSigGasConsumeDecorator(ak, sigGasConsumer),
-		ante.NewSigVerificationDecorator(ak, signModeHandler),
-		ante.NewIncrementSequenceDecorator(ak),
-		tokenkeeper.NewValidateTokenFeeDecorator(tokenKeeper, bankKeeper),
-		opbkeeper.NewValidateTokenTransferDecorator(opbKeeper, tokenKeeper),
+		ante.NewValidateMemoDecorator(options.accountKeeper),
+		ante.NewConsumeGasForTxSizeDecorator(options.accountKeeper),
+		ante.NewSetPubKeyDecorator(options.accountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
+		ante.NewValidateSigCountDecorator(options.accountKeeper),
+		ante.NewDeductFeeDecorator(options.accountKeeper, options.bankKeeper, options.feegrantKeeper),
+		ante.NewSigGasConsumeDecorator(options.accountKeeper, options.sigGasConsumer),
+		ante.NewSigVerificationDecorator(options.accountKeeper, options.signModeHandler),
+		ante.NewIncrementSequenceDecorator(options.accountKeeper),
+		tokenkeeper.NewValidateTokenFeeDecorator(options.tokenKeeper, options.bankKeeper),
+		opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper),
 	)
 }
 

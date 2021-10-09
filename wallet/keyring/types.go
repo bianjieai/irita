@@ -54,22 +54,22 @@ func init() {
 
 // encoding info
 func marshalInfo(i cosmoskeyring.Info) []byte {
-	return CryptoCdc.MustMarshalBinaryLengthPrefixed(i)
+	return CryptoCdc.MustMarshalLengthPrefixed(i)
 }
 
 func marshalRoot(root rootInfo) []byte {
-	return CryptoCdc.MustMarshalBinaryLengthPrefixed(root)
+	return CryptoCdc.MustMarshalLengthPrefixed(root)
 }
 
 // decoding info
 func unmarshalInfo(bz []byte) (info cosmoskeyring.Info, err error) {
-	err = CryptoCdc.UnmarshalBinaryLengthPrefixed(bz, &info)
+	err = CryptoCdc.UnmarshalLengthPrefixed(bz, &info)
 	return
 }
 
 // decoding info
 func unmarshalRoot(bz []byte) (root rootInfo, err error) {
-	err = CryptoCdc.UnmarshalBinaryLengthPrefixed(bz, &root)
+	err = CryptoCdc.UnmarshalLengthPrefixed(bz, &root)
 	return
 }
 

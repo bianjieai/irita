@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/codec"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -56,8 +55,7 @@ func AddGenesisValidatorCmd(
 			if err != nil {
 				return err
 			}
-			depCdc := clientCtx.JSONMarshaler
-			cdc := depCdc.(codec.Marshaler)
+			cdc := clientCtx.Codec
 
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
@@ -133,6 +131,12 @@ func AddGenesisValidatorCmd(
 					return err
 				}
 
+				bz, err := clientCtx.Codec.MarshalInterfaceJSON(cospk)
+				if err != nil {
+					return err
+				}
+				pkStr := string(bz)
+
 				operator, err := sdk.AccAddressFromBech32(msg.Operator)
 				if err != nil {
 					return err
@@ -142,8 +146,12 @@ func AddGenesisValidatorCmd(
 					validatorGenState.Validators,
 					node.NewValidator(
 						tmhash.Sum(msg.GetSignBytes()),
-						msg.Name, msg.Description, cospk,
-						msg.Certificate, msg.Power, operator,
+						msg.Name,
+						msg.Description,
+						pkStr,
+						msg.Certificate,
+						msg.Power,
+						operator,
 					),
 				)
 

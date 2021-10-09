@@ -17,7 +17,7 @@ import (
 
 // Keeper defines the OPB keeper
 type Keeper struct {
-	cdc      codec.Marshaler
+	cdc      codec.Codec
 	storeKey sdk.StoreKey
 
 	accountKeeper types.AccountKeeper
@@ -30,7 +30,7 @@ type Keeper struct {
 
 // NewKeeper creates a new Keeper instance
 func NewKeeper(
-	cdc codec.Marshaler,
+	cdc codec.Codec,
 	storeKey sdk.StoreKey,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
