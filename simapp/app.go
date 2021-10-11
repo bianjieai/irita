@@ -413,6 +413,7 @@ func NewSimApp(
 		opb.NewAppModule(appCodec, app.OpbKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 		tibc.NewAppModule(app.TIBCKeeper),
+		nfttransferModule,
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -492,6 +493,7 @@ func NewSimApp(
 		opb.NewAppModule(appCodec, app.OpbKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 		tibc.NewAppModule(app.TIBCKeeper),
+		nfttransferModule,
 	)
 
 	app.sm.RegisterStoreDecoders()
