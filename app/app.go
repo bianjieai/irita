@@ -427,6 +427,7 @@ func NewIritaApp(
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
+		nfttransferModule,
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -502,6 +503,7 @@ func NewIritaApp(
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
+		nfttransferModule,
 	)
 
 	app.sm.RegisterStoreDecoders()
