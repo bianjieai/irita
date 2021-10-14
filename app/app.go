@@ -516,13 +516,16 @@ func NewIritaApp(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	anteHandler, err := ante.NewAnteHandler(
-		ante.HandlerOptions{
-			AccountKeeper:   app.accountKeeper,
-			BankKeeper:      app.bankKeeper,
-			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			FeegrantKeeper:  app.feeGrantKeeper,
-			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+	anteHandler := NewAnteHandler(
+		HandlerOptions{
+			permKeeper:      app.permKeeper,
+			accountKeeper:   app.accountKeeper,
+			bankKeeper:      app.bankKeeper,
+			tokenKeeper:     app.tokenKeeper,
+			opbKeeper:       app.opbKeeper,
+			signModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+			feegrantKeeper:  app.feeGrantKeeper,
+			sigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 		},
 	)
 	if err != nil {

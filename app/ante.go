@@ -54,6 +54,8 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewIncrementSequenceDecorator(options.accountKeeper),
 		tokenkeeper.NewValidateTokenFeeDecorator(options.tokenKeeper, options.bankKeeper),
 		opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper),
+		ante.NewRejectExtensionOptionsDecorator(),
+		ante.NewTxTimeoutHeightDecorator(),
 	)
 }
 
