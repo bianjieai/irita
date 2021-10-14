@@ -52,6 +52,8 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSigGasConsumeDecorator(options.accountKeeper, options.sigGasConsumer),
 		ante.NewSigVerificationDecorator(options.accountKeeper, options.signModeHandler),
 		ante.NewIncrementSequenceDecorator(options.accountKeeper),
+		ante.NewRejectExtensionOptionsDecorator(),
+		ante.NewTxTimeoutHeightDecorator(),
 		tokenkeeper.NewValidateTokenFeeDecorator(options.tokenKeeper, options.bankKeeper),
 		opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper),
 	)
