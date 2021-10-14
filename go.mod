@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.18.0
-	github.com/bianjieai/iritamod v1.0.1-0.20210915110513-91d79696f77c
+	github.com/bianjieai/iritamod v1.0.1-0.20211014065432-af8400a9616c
 	github.com/bianjieai/tibc-go v0.1.1-0.20210930090055-830b2eeacc47
 	github.com/cosmos/cosmos-sdk v0.44.1
 	github.com/cosmos/go-bip39 v1.0.0
@@ -37,7 +37,7 @@ require (
 
 replace (
 	github.com/CosmWasm/wasmd => github.com/provenance-io/wasmd v0.19.0
-    github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20211014035410-4a07c44d6185
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20211014035410-4a07c44d6185
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
 )
