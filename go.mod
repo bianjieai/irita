@@ -37,7 +37,7 @@ require (
 
 replace (
 	github.com/CosmWasm/wasmd => github.com/provenance-io/wasmd v0.19.0
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20211012095628-39ce52dfa8a3
+    github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20211014035410-4a07c44d6185
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
 )
