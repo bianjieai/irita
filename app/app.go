@@ -102,13 +102,15 @@ import (
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 
+	tibc "github.com/bianjieai/irita/modules/tibc"
+	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
+
 	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
 	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
-	tibc "github.com/bianjieai/tibc-go/modules/tibc/core"
 	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
-	tibckeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
+	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 )
 
 const appName = "IritaApp"
@@ -142,7 +144,7 @@ var (
 		node.AppModuleBasic{},
 		opb.AppModuleBasic{},
 		wasm.AppModuleBasic{},
-		tibc.AppModuleBasic{},
+		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
 	)
 
@@ -354,9 +356,10 @@ func NewIritaApp(
 		app.GetSubspace(opbtypes.ModuleName),
 	)
 	// register the proposal types
-	app.tibcKeeper = tibckeeper.NewKeeper(
+	tibccorekeeper := tibccorekeeper.NewKeeper(
 		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{},
 	)
+	app.tibcKeeper = tibckeeper.NewKeeper(tibccorekeeper)
 	app.nftTransferKeeper = tibcnfttransferkeeper.NewKeeper(
 		appCodec, keys[tibcnfttypes.StoreKey], app.GetSubspace(tibcnfttypes.ModuleName),
 		app.accountKeeper, app.nftKeeper,
