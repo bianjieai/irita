@@ -1,0 +1,283 @@
+{
+  "genesis_time": "2021-10-14T09:36:04.66016Z",
+  "chain_id": "testA",
+  "initial_height": "1",
+  "consensus_params": {
+    "block": {
+      "max_bytes": "22020096",
+      "max_gas": "-1",
+      "time_iota_ms": "1000"
+    },
+    "evidence": {
+      "max_age_num_blocks": "100000",
+      "max_age_duration": "172800000000000",
+      "max_bytes": "1048576"
+    },
+    "validator": {
+      "pub_key_types": [
+        "sm2"
+      ]
+    },
+    "version": {}
+  },
+  "app_hash": "",
+  "app_state": {
+    "NFT": null,
+    "auth": {
+      "params": {
+        "max_memo_characters": "256",
+        "tx_sig_limit": "7",
+        "tx_size_cost_per_byte": "10",
+        "sig_verify_cost_ed25519": "590",
+        "sig_verify_cost_secp256k1": "1000",
+        "sig_verify_cost_sm2": "7850"
+      },
+      "accounts": [
+        {
+          "@type": "/cosmos.auth.v1beta1.BaseAccount",
+          "address": "iaa14mw3p9qwa8l6x7du24jmxrkysy08u9gulyukma",
+          "pub_key": null,
+          "account_number": "0",
+          "sequence": "0"
+        }
+      ]
+    },
+    "bank": {
+      "params": {
+        "send_enabled": [],
+        "default_send_enabled": true
+      },
+      "balances": [
+        {
+          "address": "iaa14mw3p9qwa8l6x7du24jmxrkysy08u9gulyukma",
+          "coins": [
+            {
+              "denom": "node0token",
+              "amount": "1000000000"
+            },
+            {
+              "denom": "uirita",
+              "amount": "50000000000"
+            },
+            {
+              "denom": "upoint",
+              "amount": "50000000000"
+            }
+          ]
+        }
+      ],
+      "supply": [],
+      "denom_metadata": []
+    },
+    "crisis": {
+      "constant_fee": {
+        "denom": "uirita",
+        "amount": "1000"
+      }
+    },
+    "evidence": {
+      "evidence": []
+    },
+    "feegrant": {
+      "allowances": []
+    },
+    "genutil": {
+      "gen_txs": [
+        {
+          "body": {
+            "messages": [
+              {
+                "@type": "/iritamod.node.MsgCreateValidator",
+                "name": "node0",
+                "certificate": "-----BEGIN CERTIFICATE-----\nMIIBrDCCAVICFGe6/mMonuYkTRI2l+uyzY0dXtr6MAoGCCqBHM9VAYN1MFgxCzAJ\nBgNVBAYTAkNOMQ0wCwYDVQQIDARyb290MQ0wCwYDVQQHDARyb290MQ0wCwYDVQQK\nDARyb290MQ0wCwYDVQQLDARyb290MQ0wCwYDVQQDDARyb290MB4XDTIxMTAxNDA5\nMzU1OVoXDTIyMTAxNDA5MzU1OVowWTELMAkGA1UEBhMCQ04xDTALBgNVBAgMBHRl\nc3QxDTALBgNVBAcMBHRlc3QxDTALBgNVBAoMBHRlc3QxDTALBgNVBAsMBHRlc3Qx\nDjAMBgNVBAMMBW5vZGUwMFkwEwYHKoZIzj0CAQYIKoEcz1UBgi0DQgAEJeIM55FN\nuLEmAUmX6Wunt3tTD/hplYdIZkykU461PzxsITYCjgPnQ0P6zz7huxI/odvA2MnZ\nNIEo45MmPSwKHjAKBggqgRzPVQGDdQNIADBFAiAWwJ9pCJtwzj+td7vInc/T5iKJ\ndD++ytfpamZ4Izb+bgIhAJEZwIK0Zt/e2Vl0YWRjwiy9j0GeypAeOlKOJ5/E7fpv\n-----END CERTIFICATE-----\n",
+                "power": "100",
+                "description": "node0",
+                "operator": "iaa14mw3p9qwa8l6x7du24jmxrkysy08u9gulyukma"
+              }
+            ],
+            "memo": "1740c29deb69e81ac6d01ff7fc46715da0d9e5b2@192.168.0.1:26656",
+            "timeout_height": "0",
+            "extension_options": [],
+            "non_critical_extension_options": []
+          },
+          "auth_info": {
+            "signer_infos": [
+              {
+                "public_key": {
+                  "@type": "/cosmos.crypto.sm2.PubKey",
+                  "key": "A9PXl+ZUPfqVODIhQoQ3TRsB6VSr5PiCJctO9QVyGKJa"
+                },
+                "mode_info": {
+                  "single": {
+                    "mode": "SIGN_MODE_DIRECT"
+                  }
+                },
+                "sequence": "0"
+              }
+            ],
+            "fee": {
+              "amount": [],
+              "gas_limit": "0",
+              "payer": "",
+              "granter": ""
+            }
+          },
+          "signatures": [
+            "CZ7fimzE5pe4XWoHmT4YgL6B+ogjH9yrr8HZUx2dafRnLky/hzDC8oMi/5afAiqmUvAlW+QKfkE5kkOMvClRiw=="
+          ]
+        }
+      ]
+    },
+    "identity": {
+      "identities": []
+    },
+    "nft": {
+      "collections": []
+    },
+    "node": {
+      "root_cert": "-----BEGIN CERTIFICATE-----\nMIICBTCCAaugAwIBAgIUWYsTpEpi311j2DWY7o6Crr/e58QwCgYIKoEcz1UBg3Uw\nWDELMAkGA1UEBhMCQ04xDTALBgNVBAgMBHJvb3QxDTALBgNVBAcMBHJvb3QxDTAL\nBgNVBAoMBHJvb3QxDTALBgNVBAsMBHJvb3QxDTALBgNVBAMMBHJvb3QwHhcNMjEx\nMDE0MDkzNTU5WhcNMjIxMDE0MDkzNTU5WjBYMQswCQYDVQQGEwJDTjENMAsGA1UE\nCAwEcm9vdDENMAsGA1UEBwwEcm9vdDENMAsGA1UECgwEcm9vdDENMAsGA1UECwwE\ncm9vdDENMAsGA1UEAwwEcm9vdDBZMBMGByqGSM49AgEGCCqBHM9VAYItA0IABOXP\nEdxY5vfHgdrZ1uXgDpHuPSkze/bSWiGcJawt43uR4FsK+tdibUj4wzywt1oluGuA\nHODUYYD2qbL0MY4/CPWjUzBRMB0GA1UdDgQWBBRsAySiZ+H32YlwHYJi/VGvrQ7i\nJzAfBgNVHSMEGDAWgBRsAySiZ+H32YlwHYJi/VGvrQ7iJzAPBgNVHRMBAf8EBTAD\nAQH/MAoGCCqBHM9VAYN1A0gAMEUCIFPQOynjIoREeuVK1SCkaguKVRpChRc0P0Zi\nUc1ci3vmAiEAhhXkUZDoKsmva2CwvrC6YUTF7Vni3VSLJcoFC63Fin8=\n-----END CERTIFICATE-----\n",
+      "params": {
+        "historical_entries": 100
+      },
+      "validators": [],
+      "nodes": [
+        {
+          "id": "1740c29deb69e81ac6d01ff7fc46715da0d9e5b2",
+          "name": "node0",
+          "certificate": ""
+        }
+      ]
+    },
+    "opb": {
+      "params": {
+        "base_token_denom": "uirita",
+        "point_token_denom": "upoint",
+        "base_token_manager": "",
+        "unrestricted_token_transfer": true
+      }
+    },
+    "oracle": {
+      "entries": []
+    },
+    "params": null,
+    "perm": {
+      "role_accounts": [
+        {
+          "address": "iaa14mw3p9qwa8l6x7du24jmxrkysy08u9gulyukma",
+          "roles": [
+            "ROOT_ADMIN"
+          ]
+        }
+      ],
+      "black_list": []
+    },
+    "random": {
+      "pending_random_requests": {}
+    },
+    "record": {
+      "records": []
+    },
+    "service": {
+      "params": {
+        "max_request_timeout": "100",
+        "min_deposit_multiple": "1000",
+        "min_deposit": [
+          {
+            "denom": "upoint",
+            "amount": "5000"
+          }
+        ],
+        "service_fee_tax": "0.050000000000000000",
+        "slash_fraction": "0.001000000000000000",
+        "complaint_retrospect": "1296000s",
+        "arbitration_time_limit": "432000s",
+        "tx_size_limit": "4000",
+        "base_denom": "upoint",
+        "restricted_service_fee_denom": false
+      },
+      "definitions": [],
+      "bindings": [],
+      "withdraw_addresses": {},
+      "request_contexts": {}
+    },
+    "slashing": {
+      "params": {
+        "signed_blocks_window": "100",
+        "min_signed_per_window": "0.500000000000000000",
+        "downtime_jail_duration": "600s",
+        "slash_fraction_double_sign": "0.050000000000000000",
+        "slash_fraction_downtime": "0.010000000000000000"
+      },
+      "signing_infos": [],
+      "missed_blocks": []
+    },
+    "tibc": {
+      "client_genesis": {
+        "clients": [],
+        "clients_consensus": [],
+        "clients_metadata": [],
+        "native_chain_name": "tibc-test",
+        "relayers": []
+      },
+      "packet_genesis": {
+        "acknowledgements": [],
+        "commitments": [],
+        "receipts": [],
+        "send_sequences": [],
+        "recv_sequences": [],
+        "ack_sequences": []
+      },
+      "routing_genesis": {
+        "rules": []
+      }
+    },
+    "token": {
+      "params": {
+        "token_tax_rate": "0.400000000000000000",
+        "issue_token_base_fee": {
+          "denom": "point",
+          "amount": "60000"
+        },
+        "mint_token_fee_ratio": "0.100000000000000000"
+      },
+      "tokens": [
+        {
+          "symbol": "irita",
+          "name": "Irita base native token",
+          "scale": 6,
+          "min_unit": "uirita",
+          "initial_supply": "1000000000",
+          "max_supply": "18446744073709551615",
+          "mintable": true,
+          "owner": ""
+        },
+        {
+          "symbol": "point",
+          "name": "Irita point token",
+          "scale": 6,
+          "min_unit": "upoint",
+          "initial_supply": "1000000000",
+          "max_supply": "18446744073709551615",
+          "mintable": true,
+          "owner": "iaa14mw3p9qwa8l6x7du24jmxrkysy08u9gulyukma"
+        }
+      ],
+      "burned_coins": []
+    },
+    "upgrade": {},
+    "wasm": {
+      "params": {
+        "code_upload_access": {
+          "permission": "Everybody",
+          "address": ""
+        },
+        "instantiate_default_permission": "Everybody",
+        "max_wasm_code_size": "1228800"
+      },
+      "codes": [],
+      "contracts": [],
+      "sequences": [],
+      "gen_msgs": []
+    }
+  }
+}

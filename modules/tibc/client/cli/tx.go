@@ -19,7 +19,7 @@ import (
 )
 
 func NewTxCmd() *cobra.Command {
-	opbTxCmd := &cobra.Command{
+	tibcTxCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "TIBC transaction subcommands",
 		DisableFlagParsing:         true,
@@ -27,12 +27,25 @@ func NewTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	opbTxCmd.AddCommand(
+	tibcClientCmd := &cobra.Command{
+		Use:                        "client",
+		Short:                      "TIBC client subcommands",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+
+	tibcClientCmd.AddCommand(
 		NewCreateClientCmd(),
+		NewUpgradeClient(),
+		NewRegisterRelayer(),
 		cli.NewUpdateClientCmd(),
 	)
+	tibcTxCmd.AddCommand(
+		tibcClientCmd,
+	)
 
-	return opbTxCmd
+	return tibcTxCmd
 }
 
 // NewCreateClientCmd implements the CreateClient command.

@@ -1,6 +1,7 @@
 package types
 
 import (
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -9,15 +10,18 @@ import (
 )
 
 const (
-	TypeMsgCreateClient    = "create"  // type for MsgMint
-	TypeMsgUpgradeClient   = "upgrade" // type for MsgReclaim
-	TypeMsgRegisterRelayer = "registe"
+	TypeMsgCreateClient    = "create"
+	TypeMsgUpgradeClient   = "upgrade"
+	TypeMsgRegisterRelayer = "register"
 )
 
 var (
 	_ sdk.Msg = &MsgCreateClient{}
 	_ sdk.Msg = &MsgUpgradeClient{}
 	_ sdk.Msg = &MsgRegisterRelayer{}
+
+	_ codectypes.UnpackInterfacesMessage = &MsgCreateClient{}
+	_ codectypes.UnpackInterfacesMessage = &MsgUpgradeClient{}
 )
 
 func NewMsgCreateClient(chainName string, clientState exported.ClientState, consensusState exported.ConsensusState, signer sdk.AccAddress) (*MsgCreateClient, error) {
@@ -142,4 +146,28 @@ func (m MsgRegisterRelayer) ValidateBasic() error {
 func (m MsgRegisterRelayer) GetSigners() []sdk.AccAddress {
 	addr, _ := sdk.AccAddressFromBech32(m.Signer)
 	return []sdk.AccAddress{addr}
+}
+
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
+func (cup MsgCreateClient) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
+	if err := unpacker.UnpackAny(cup.ClientState, new(exported.ClientState)); err != nil {
+		return err
+	}
+
+	if err := unpacker.UnpackAny(cup.ConsensusState, new(exported.ConsensusState)); err != nil {
+		return err
+	}
+	return nil
+}
+
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
+func (cup MsgUpgradeClient) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
+	if err := unpacker.UnpackAny(cup.ClientState, new(exported.ClientState)); err != nil {
+		return err
+	}
+
+	if err := unpacker.UnpackAny(cup.ConsensusState, new(exported.ConsensusState)); err != nil {
+		return err
+	}
+	return nil
 }

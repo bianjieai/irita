@@ -9,3 +9,5 @@ node_modules/
 yarn.lock
 dependency-graph.png
 mytestnet
+testA
+testC

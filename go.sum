@@ -133,8 +133,8 @@ github.com/bianjieai/iritamod v1.0.1-0.20210915110513-91d79696f77c h1:Pdpf8sps8A
 github.com/bianjieai/iritamod v1.0.1-0.20210915110513-91d79696f77c/go.mod h1:ojCd40hOzC+OtFotFiuSwrDfz/ohPOSlJLLWej+8Wq8=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20210908054213-781a5fed16d6 h1:HH5nXXpB0kvoYZmKYWiUpAwMc8R7f7BYoj+plO/9EoA=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20210908054213-781a5fed16d6/go.mod h1:10PswMTBUSfFZp3XUY9GV6qqw5NWTDJCQxWttwM9AHA=
-github.com/bianjieai/tibc-go v0.1.1-0.20210930090055-830b2eeacc47 h1:c7KF6hgriMAz26ykUoUQuPii6CEuRcJKVFNBmQQ2ZfQ=
-github.com/bianjieai/tibc-go v0.1.1-0.20210930090055-830b2eeacc47/go.mod h1:400nXSmZHTEdyssJUXyfdxm8WdbodDn8s99mZE0Ckdw=
+github.com/bianjieai/tibc-go v0.1.1-0.20211013113400-8ed8223c61f1 h1:AnKLP/hTN2rGP1Ng0c6UXIwOagbTYOwMwVv8A5Eed04=
+github.com/bianjieai/tibc-go v0.1.1-0.20211013113400-8ed8223c61f1/go.mod h1:mVk/hXupai7WQot65BtCiEExNTNVu7AmnZhBIVM4Ibc=
 github.com/bketelsen/crypt v0.0.3-0.20200106085610-5cbc8cc4026c/go.mod h1:MKsuJmJgSg28kpZDP6UIiPt0e0Oz0kqKNGyRaWEPv84=
 github.com/bketelsen/crypt v0.0.4/go.mod h1:aI6NrJ0pMGgvZKL1iVgXLnfIFJtfV+bKCoqOes/6LfM=
 github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40/go.mod h1:8rLXio+WjiTceGBHIoTvn60HIbs7Hm7bcHjyrSqYB9c=

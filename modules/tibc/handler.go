@@ -16,7 +16,13 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 		switch msg := msg.(type) {
 		case *clienttypes.MsgCreateClient:
-			res, err := k.CreateClient(ctx, msg)
+			res, err := k.CreateClient(ctx.Context(), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+		case *clienttypes.MsgUpgradeClient:
+			res, err := k.UpgradeClient(ctx.Context(), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+		case *clienttypes.MsgRegisterRelayer:
+			res, err := k.RegisterRelayer(ctx.Context(), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		default:
 			res, err := tibcHandler(ctx, msg)
