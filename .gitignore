@@ -8,6 +8,10 @@ docs/.vuepress/dist/
 node_modules/
 yarn.lock
 dependency-graph.png
+
+# testnet
 mytestnet
 testA
 testC
+testA_client_state.json
+testA_consensus_state.json

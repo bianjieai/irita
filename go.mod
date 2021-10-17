@@ -5,7 +5,6 @@ go 1.16
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.18.0
-
 	github.com/bianjieai/iritamod v1.0.1-0.20211014100540-fd439b7cc736
 	github.com/bianjieai/tibc-go v0.1.1-0.20210930090055-830b2eeacc47
 	github.com/cosmos/cosmos-sdk v0.44.2

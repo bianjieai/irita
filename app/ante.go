@@ -1,6 +1,7 @@
 package app
 
 import (
+	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -22,6 +23,7 @@ import (
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
+
 )
 
 type HandlerOptions struct {
@@ -89,6 +91,12 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 
 	// upgrade auth
 	permKeeper.RegisterModuleAuth(upgradetypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+
+	// tibc auth
+	permKeeper.RegisterModuleAuth(tibctypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(&tibctypes.MsgCreateClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(&tibctypes.MsgRegisterRelayer{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(&tibctypes.MsgUpgradeClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 
 	return permKeeper
 }
