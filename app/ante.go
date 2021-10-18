@@ -1,7 +1,6 @@
 package app
 
 import (
-	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -9,6 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+
+	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
 	oracletypes "github.com/irisnet/irismod/modules/oracle/types"
@@ -23,7 +24,6 @@ import (
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
-
 )
 
 type HandlerOptions struct {

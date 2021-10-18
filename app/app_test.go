@@ -18,9 +18,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
+
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/perm"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
 )
 
 var (

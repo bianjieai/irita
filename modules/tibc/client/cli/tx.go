@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	"io/ioutil"
 	"strings"
 
@@ -11,11 +10,14 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	"github.com/bianjieai/irita/modules/tibc/types"
 	"github.com/bianjieai/tibc-go/modules/tibc/core/02-client/client/cli"
+	packet "github.com/bianjieai/tibc-go/modules/tibc/core/04-packet"
 	"github.com/bianjieai/tibc-go/modules/tibc/core/exported"
+
+	"github.com/bianjieai/irita/modules/tibc/types"
 )
 
 func NewTxCmd() *cobra.Command {
@@ -40,6 +42,9 @@ func NewTxCmd() *cobra.Command {
 		NewUpgradeClient(),
 		NewRegisterRelayer(),
 		cli.NewUpdateClientCmd(),
+	)
+	tibcTxCmd.AddCommand(
+		packet.GetTxCmd(),
 	)
 	tibcTxCmd.AddCommand(
 		tibcClientCmd,

@@ -7,6 +7,7 @@ require (
 	github.com/CosmWasm/wasmd v0.18.0
 	github.com/bianjieai/iritamod v1.0.1-0.20211014100540-fd439b7cc736
 	github.com/bianjieai/tibc-go v0.1.1-0.20211018015616-be22bf96950f
+	github.com/client9/misspell v0.3.4 // indirect
 	github.com/cosmos/cosmos-sdk v0.44.2
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951

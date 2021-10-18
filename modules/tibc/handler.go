@@ -3,9 +3,10 @@ package tibc
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	tibc "github.com/bianjieai/tibc-go/modules/tibc/core"
+
 	"github.com/bianjieai/irita/modules/tibc/keeper"
 	clienttypes "github.com/bianjieai/irita/modules/tibc/types"
-	tibc "github.com/bianjieai/tibc-go/modules/tibc/core"
 )
 
 // NewHandler defines the TIBC handler

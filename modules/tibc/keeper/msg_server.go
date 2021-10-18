@@ -2,10 +2,12 @@ package keeper
 
 import (
 	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bianjieai/irita/modules/tibc/types"
 	clienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
+
+	"github.com/bianjieai/irita/modules/tibc/types"
 )
 
 func (k Keeper) CreateClient(ctx context.Context, msg *types.MsgCreateClient) (*types.MsgCreateClientResponse, error) {

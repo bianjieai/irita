@@ -1,10 +1,11 @@
 package tibc
 
 import (
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	"github.com/bianjieai/irita/modules/tibc/client/cli"
 	"github.com/bianjieai/irita/modules/tibc/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	tibc "github.com/bianjieai/tibc-go/modules/tibc/core"
 	clienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
