@@ -11,8 +11,3 @@ dependency-graph.png
 
 # testnet
 mytestnet
-testA
-testC
-*_client_state.json
-*_consensus_state.json
-*_header.json
