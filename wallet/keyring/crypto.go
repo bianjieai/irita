@@ -27,8 +27,8 @@ const (
 )
 
 var SigningAlgoList = keyring.SigningAlgoList{
-	hd.Secp256k1,
 	hd.Sm2,
+	hd.Secp256k1,
 }
 
 // BcryptSecurityParameter is security parameter var, and it can be changed within the lcd test.
