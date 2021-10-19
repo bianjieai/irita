@@ -9,6 +9,9 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
+	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
+
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
 	oracletypes "github.com/irisnet/irismod/modules/oracle/types"
 	servicetypes "github.com/irisnet/irismod/modules/service/types"
@@ -20,8 +23,6 @@ import (
 	"github.com/bianjieai/iritamod/modules/params"
 	"github.com/bianjieai/iritamod/modules/perm"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
-
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 )
 
 type HandlerOptions struct {
@@ -89,6 +90,12 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 
 	// upgrade auth
 	permKeeper.RegisterModuleAuth(upgradetypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+
+	// tibc auth
+	permKeeper.RegisterModuleAuth(tibctypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(&tibctypes.MsgCreateClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(&tibctypes.MsgRegisterRelayer{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(&tibctypes.MsgUpgradeClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 
 	return permKeeper
 }

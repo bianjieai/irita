@@ -1,0 +1,54 @@
+syntax = "proto3";
+package irita.tibc;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+
+option go_package = "github.com/bianjieai/irita/modules/tibc/types";
+option (gogoproto.goproto_getters_all)  = false;
+
+// Msg defines the OPB Msg service.
+service Msg {
+  rpc CreateClient(MsgCreateClient) returns (MsgCreateClientResponse);
+
+  rpc UpgradeClient(MsgUpgradeClient) returns (MsgUpgradeClientResponse);
+
+  rpc RegisterRelayer(MsgRegisterRelayer) returns (MsgRegisterRelayerResponse);
+}
+
+// MsgMint defines a message to mint the base native token.
+message MsgCreateClient {
+  option (gogoproto.equal) = true;
+
+  string chainName = 1;
+  google.protobuf.Any  clientState = 2 ;
+  google.protobuf.Any  consensusState = 3;
+  string signer = 4;
+}
+
+// MsgMintResponse defines the Msg/Mint response type.
+message MsgCreateClientResponse {}
+
+// MsgReclaim defines a message to reclaim the specified native token.
+message MsgUpgradeClient {
+  option (gogoproto.equal) = true;
+
+  string chainName = 1;
+  google.protobuf.Any  clientState = 2 ;
+  google.protobuf.Any  consensusState = 3;
+  string signer = 4;
+}
+
+// MsgReclaimResponse defines the Msg/Reclaim response type.
+message MsgUpgradeClientResponse {}
+
+
+message MsgRegisterRelayer {
+  option (gogoproto.equal) = true;
+
+  string chain_name = 1;
+  repeated string relayers = 2;
+  string signer = 3;
+}
+
+message MsgRegisterRelayerResponse {}

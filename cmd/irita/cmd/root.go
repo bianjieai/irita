@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"github.com/cosmos/cosmos-sdk/client/config"
-	"github.com/pkg/errors"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/cosmos/cosmos-sdk/client/config"
+	"github.com/pkg/errors"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
