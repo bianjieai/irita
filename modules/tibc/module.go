@@ -1,8 +1,6 @@
 package tibc
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-
 	"github.com/bianjieai/irita/modules/tibc/client/cli"
 	"github.com/bianjieai/irita/modules/tibc/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
@@ -13,8 +11,10 @@ import (
 	host "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	"github.com/bianjieai/tibc-go/modules/tibc/core/types"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+
 	"github.com/spf13/cobra"
 )
 

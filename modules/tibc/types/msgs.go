@@ -1,12 +1,13 @@
 package types
 
 import (
+	tibctypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
+	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
+	"github.com/bianjieai/tibc-go/modules/tibc/core/exported"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	tibctypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
-	"github.com/bianjieai/tibc-go/modules/tibc/core/exported"
 )
 
 const (
@@ -59,8 +60,15 @@ func (m MsgCreateClient) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
 	}
-	// todo
-	return nil
+	if err := tibchost.ClientIdentifierValidator(m.ChainName); err != nil {
+		return err
+	}
+
+	clientState, err := tibctypes.UnpackClientState(m.ClientState)
+	if err != nil {
+		return err
+	}
+	return clientState.Validate()
 }
 
 // GetSigners implements Msg.
@@ -104,8 +112,15 @@ func (m MsgUpgradeClient) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
 	}
-	// todo
-	return nil
+	if err := tibchost.ClientIdentifierValidator(m.ChainName); err != nil {
+		return err
+	}
+
+	clientState, err := tibctypes.UnpackClientState(m.ClientState)
+	if err != nil {
+		return err
+	}
+	return clientState.Validate()
 }
 
 // GetSigners implements Msg.
@@ -134,11 +149,19 @@ func (m MsgRegisterRelayer) Type() string {
 
 // ValidateBasic implements Msg.
 func (m MsgRegisterRelayer) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Signer)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+	if err := tibchost.ClientIdentifierValidator(m.ChainName); err != nil {
+		return err
 	}
-	// todo
+
+	if len(m.Relayers) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "string could not be parsed as address")
+	}
+
+	for _, relayer := range m.Relayers {
+		if _, err := sdk.AccAddressFromBech32(relayer); err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+		}
+	}
 	return nil
 }
 

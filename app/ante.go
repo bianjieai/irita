@@ -9,6 +9,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
@@ -22,8 +23,6 @@ import (
 	"github.com/bianjieai/iritamod/modules/params"
 	"github.com/bianjieai/iritamod/modules/perm"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
-
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 )
 
 type HandlerOptions struct {

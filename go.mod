@@ -6,7 +6,7 @@ require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.18.0
 	github.com/bianjieai/iritamod v1.0.1-0.20211014100540-fd439b7cc736
-	github.com/bianjieai/tibc-go v0.1.1-0.20211018015616-be22bf96950f
+	github.com/bianjieai/tibc-go v0.1.1-0.20211018113526-8735964fec23
 	github.com/client9/misspell v0.3.4 // indirect
 	github.com/cosmos/cosmos-sdk v0.44.2
 	github.com/cosmos/go-bip39 v1.0.0
