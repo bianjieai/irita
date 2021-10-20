@@ -39,7 +39,7 @@ func NewTxCmd() *cobra.Command {
 	}
 	tibcRoutingCmd := &cobra.Command{
 		Use:                        "routing",
-		Short:                      "TIBC client subcommands",
+		Short:                      "TIBC routing subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
