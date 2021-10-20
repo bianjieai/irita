@@ -11,6 +11,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCreateClient{},
 		&MsgUpgradeClient{},
 		&MsgRegisterRelayer{},
+		&MsgSetRoutingRules{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

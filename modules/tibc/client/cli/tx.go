@@ -17,6 +17,7 @@ import (
 	packet "github.com/bianjieai/tibc-go/modules/tibc/core/04-packet"
 	"github.com/bianjieai/tibc-go/modules/tibc/core/exported"
 
+	tibcrouting "github.com/bianjieai/irita/modules/tibc/routing/cli"
 	"github.com/bianjieai/irita/modules/tibc/types"
 )
 
@@ -36,7 +37,16 @@ func NewTxCmd() *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	tibcRoutingCmd := &cobra.Command{
+		Use:                        "routing",
+		Short:                      "TIBC client subcommands",
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE:                       client.ValidateCmd,
+	}
+	tibcRoutingCmd.AddCommand(
+		tibcrouting.NewSetRoutingRulesCmd(),
+	)
 	tibcClientCmd.AddCommand(
 		NewCreateClientCmd(),
 		NewUpgradeClient(),
@@ -45,9 +55,8 @@ func NewTxCmd() *cobra.Command {
 	)
 	tibcTxCmd.AddCommand(
 		packet.GetTxCmd(),
-	)
-	tibcTxCmd.AddCommand(
 		tibcClientCmd,
+		tibcRoutingCmd,
 	)
 
 	return tibcTxCmd
