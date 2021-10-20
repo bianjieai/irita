@@ -351,10 +351,10 @@ func NewSimApp(
 		app.TIBCKeeper.PacketKeeper, app.TIBCKeeper.ClientKeeper,
 	)
 	nfttransferModule := tibcnfttransfer.NewAppModule(app.NftTransferKeeper)
-	// Create TIBC Keeper
 	tibccorekeeper := tibccorekeeper.NewKeeper(
 		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{},
 	)
+	// Create TIBC Keeper
 	app.TIBCKeeper = tibckeeper.NewKeeper(tibccorekeeper)
 	tibcmockModule := tibcmock.NewAppModule()
 	tibcRouter := tibcroutingtypes.NewRouter()
