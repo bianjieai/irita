@@ -352,7 +352,6 @@ func NewSimApp(
 	)
 	nfttransferModule := tibcnfttransfer.NewAppModule(app.NftTransferKeeper)
 	// Create TIBC Keeper
-	// register the proposal types
 	tibccorekeeper := tibccorekeeper.NewKeeper(
 		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{},
 	)
