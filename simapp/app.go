@@ -101,14 +101,15 @@ import (
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 
+	tibc "github.com/bianjieai/irita/modules/tibc"
+	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
+
 	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
 	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
-	tibc "github.com/bianjieai/tibc-go/modules/tibc/core"
 	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
-
 	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
-	tibckeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
+	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 	tibcmock "github.com/bianjieai/tibc-go/modules/tibc/testing/mock"
 )
 
@@ -144,7 +145,7 @@ var (
 		node.AppModuleBasic{},
 		opb.AppModuleBasic{},
 		wasm.AppModuleBasic{},
-		tibc.AppModuleBasic{},
+		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
 	)
 
@@ -351,9 +352,11 @@ func NewSimApp(
 	)
 	nfttransferModule := tibcnfttransfer.NewAppModule(app.NftTransferKeeper)
 	// Create TIBC Keeper
-	app.TIBCKeeper = tibckeeper.NewKeeper(
+	// register the proposal types
+	tibccorekeeper := tibccorekeeper.NewKeeper(
 		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{},
 	)
+	app.TIBCKeeper = tibckeeper.NewKeeper(tibccorekeeper)
 	tibcmockModule := tibcmock.NewAppModule()
 	tibcRouter := tibcroutingtypes.NewRouter()
 	tibcRouter.AddRoute(tibcnfttypes.ModuleName, nfttransferModule)
