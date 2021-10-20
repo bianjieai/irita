@@ -2,7 +2,6 @@ package types
 
 import (
 	tibctypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
-	host "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	"github.com/bianjieai/tibc-go/modules/tibc/core/exported"
 
@@ -218,7 +217,7 @@ func (m MsgSetRoutingRules) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic runs basic stateless validity checks
 func (cup MsgSetRoutingRules) ValidateBasic() error {
-	if err := host.RoutingRulesValidator(cup.Rules); err != nil {
+	if err := tibchost.RoutingRulesValidator(cup.Rules); err != nil {
 		return err
 	}
 	return nil
