@@ -54,3 +54,15 @@ func (k Keeper) RegisterRelayer(ctx context.Context, msg *types.MsgRegisterRelay
 	)
 	return &types.MsgRegisterRelayerResponse{}, nil
 }
+
+func (k Keeper) SetRoutingRules(ctx context.Context, msg *types.MsgSetRoutingRules) (*types.MsgSetRoutingRulesResponse, error) {
+
+	err := k.RoutingKeeper.SetRoutingRules(
+		sdk.UnwrapSDKContext(ctx),
+		msg.Rules,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &types.MsgSetRoutingRulesResponse{}, nil
+}

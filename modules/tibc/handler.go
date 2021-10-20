@@ -25,6 +25,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *clienttypes.MsgRegisterRelayer:
 			res, err := k.RegisterRelayer(ctx.Context(), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
+		case *clienttypes.MsgSetRoutingRules:
+			res, err := k.SetRoutingRules(ctx.Context(), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
 		default:
 			res, err := tibcHandler(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)

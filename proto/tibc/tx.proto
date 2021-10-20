@@ -14,6 +14,8 @@ service Msg {
   rpc UpgradeClient(MsgUpgradeClient) returns (MsgUpgradeClientResponse);
 
   rpc RegisterRelayer(MsgRegisterRelayer) returns (MsgRegisterRelayerResponse);
+
+  rpc SetRoutingRules(MsgSetRoutingRules) returns (MsgSetRoutingRulesResponse);
 }
 
 // MsgMint defines a message to mint the base native token.
@@ -52,3 +54,14 @@ message MsgRegisterRelayer {
 }
 
 message MsgRegisterRelayerResponse {}
+
+message MsgSetRoutingRules {
+  option (gogoproto.equal) = true;
+
+  repeated string rules = 1;
+  string signer = 2;
+
+}
+
+message MsgSetRoutingRulesResponse {}
+

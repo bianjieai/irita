@@ -14,12 +14,14 @@ const (
 	TypeMsgCreateClient    = "create"
 	TypeMsgUpgradeClient   = "upgrade"
 	TypeMsgRegisterRelayer = "register"
+	TypeMsgSetRoutingRules = "set-rules"
 )
 
 var (
 	_ sdk.Msg = &MsgCreateClient{}
 	_ sdk.Msg = &MsgUpgradeClient{}
 	_ sdk.Msg = &MsgRegisterRelayer{}
+	_ sdk.Msg = &MsgSetRoutingRules{}
 
 	_ codectypes.UnpackInterfacesMessage = &MsgCreateClient{}
 	_ codectypes.UnpackInterfacesMessage = &MsgUpgradeClient{}
@@ -190,6 +192,32 @@ func (cup MsgUpgradeClient) UnpackInterfaces(unpacker codectypes.AnyUnpacker) er
 	}
 
 	if err := unpacker.UnpackAny(cup.ConsensusState, new(exported.ConsensusState)); err != nil {
+		return err
+	}
+	return nil
+}
+
+func NewMsgSetRoutingRules(rules []string, signer sdk.AccAddress) (*MsgSetRoutingRules, error) {
+	return &MsgSetRoutingRules{
+		Rules:  rules,
+		Signer: signer.String(),
+	}, nil
+}
+
+// Type implements Msg.
+func (m MsgSetRoutingRules) Type() string {
+	return TypeMsgSetRoutingRules
+}
+
+// GetSigners implements Msg.
+func (m MsgSetRoutingRules) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(m.Signer)
+	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic runs basic stateless validity checks
+func (cup MsgSetRoutingRules) ValidateBasic() error {
+	if err := tibchost.RoutingRulesValidator(cup.Rules); err != nil {
 		return err
 	}
 	return nil
