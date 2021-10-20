@@ -18,7 +18,7 @@ func NewSetRoutingRulesCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-rules [path/to/routing_rules.json] [flags]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Submit a rules set proposal",
+		Short: "set routing rules",
 		Long:  "set routing rules",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)

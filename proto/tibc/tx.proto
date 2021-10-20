@@ -58,7 +58,7 @@ message MsgRegisterRelayerResponse {}
 message MsgSetRoutingRules {
   option (gogoproto.equal) = true;
 
-  repeated string Rules = 1;
+  repeated string rules = 1;
   string signer = 2;
 
 }
