@@ -71,10 +71,9 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 
 	// node auth
 	permKeeper.RegisterModuleAuth(node.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
-	permKeeper.RegisterMsgAuth(&perm.MsgAssignRoles{},perm.RoleRootAdmin, perm.RoleNodeAdmin)
-	permKeeper.RegisterMsgAuth(&perm.MsgBlockAccount{},perm.RoleRootAdmin, perm.RoleNodeAdmin)
-	permKeeper.RegisterMsgAuth(&perm.MsgUnassignRoles{},perm.RoleRootAdmin, perm.RoleNodeAdmin)
-	permKeeper.RegisterMsgAuth(&perm.MsgUnblockAccount{},perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(&node.MsgRemoveValidator{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(&node.MsgCreateValidator{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(&node.MsgUpdateValidator{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterModuleAuth(slashingtypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 
 
