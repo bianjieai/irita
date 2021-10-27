@@ -131,12 +131,6 @@ func AddGenesisValidatorCmd(
 					return err
 				}
 
-				bz, err := clientCtx.Codec.MarshalInterfaceJSON(cospk)
-				if err != nil {
-					return err
-				}
-				pkStr := string(bz)
-
 				operator, err := sdk.AccAddressFromBech32(msg.Operator)
 				if err != nil {
 					return err
@@ -148,7 +142,7 @@ func AddGenesisValidatorCmd(
 						tmhash.Sum(msg.GetSignBytes()),
 						msg.Name,
 						msg.Description,
-						pkStr,
+						cospk,
 						msg.Certificate,
 						msg.Power,
 						operator,
