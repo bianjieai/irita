@@ -23,8 +23,8 @@ RUN apk add $PACKAGES
 # RUN apk add libusb-dev linux-headers
 
 # See https://github.com/CosmWasm/wasmvm/releases
-ADD https://github.com/CosmWasm/wasmvm/releases/download/v0.13.0/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
-RUN sha256sum /lib/libwasmvm_muslc.a | grep 39dc389cc6b556280cbeaebeda2b62cf884993137b83f90d1398ac47d09d3900
+ADD https://github.com/CosmWasm/wasmvm/releases/download/v0.14.0/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
+RUN sha256sum /lib/libwasmvm_muslc.a | grep 220b85158d1ae72008f099a7ddafe27f6374518816dd5873fd8be272c5418026
 
 RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build
 
