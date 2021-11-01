@@ -35,6 +35,22 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+## [v2.1.0]
+
+*November 1, 2021*
+
+### Application
+
+
+* [\#135](https://github.com/bianjieai/irita/pull/135) Bump cosmos-sdk version to [v0.44.2](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.44.2)
+* [\#130](https://github.com/bianjieai/irita/pull/130) Integrated tibc protocol
+* [irismod \#189](https://github.com/irisnet/irismod/pull/189) Enhance nft module
+
+### Breaking Changes
+
+* [cosmos-sdk \#9594](https://github.com/cosmos/cosmos-sdk/pull/9594) Remove legacy REST API. Please see the [REST Endpoints Migration guide](https://docs.cosmos.network/master/migrations/rest.html) to migrate to the new REST endpoints.
+
+
 ## [v2.0.0] - 2021-04-26
 
 ### Features
