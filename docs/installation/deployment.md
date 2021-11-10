@@ -297,7 +297,7 @@ sleep 5
 docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "${ChainCMD} q perm roles \$(echo $address | cat -A | sed 's/\\^M\\$//') --chain-id $ChainID";
 docker -H ${DockerIP[0]} cp node$i.crt $NodeName-0:/root/;
 docker -H ${DockerIP[0]} exec -it $NodeName-0 bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx node grant --name \"${Names[$i]}\" --cert /root/node$i.crt --from validator --chain-id $ChainID -b block -y";
-docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx node create-validator --name \"${Names[$i]}\" --from validator --cert /root/node.crt --power 100 --chain-id $ChainID --node=${DockerIP[0]}:26657 -y";
+docker -H ${DockerIP[$i]} exec -it $NodeName-$i bash -c "echo -e \"12345678\n12345678\" | ${ChainCMD} tx node create-validator --name \"${Names[$i]}\" --from validator --cert /root/validator.crt --power 100 --chain-id $ChainID --node=${DockerIP[0]}:26657 -y";
 done
 sleep 5
 for i in `seq 0 $[ ${#DockerIP[*]} -1 ]`; do docker -H ${DockerIP[$i]} exec -it $NodeName-$i sed -i 's/minimum-gas-prices = ""/minimum-gas-prices = "1uirita"/' /root/.$ChainCMD/config/app.toml; done
