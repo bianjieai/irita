@@ -32,8 +32,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-
 	genutilcli "github.com/bianjieai/iritamod/modules/genutil/client/cli"
 	"github.com/bianjieai/iritamod/modules/node"
 
@@ -113,7 +111,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
-	wasm.AddModuleInitFlags(startCmd)
 }
 
 func queryCommand() *cobra.Command {
