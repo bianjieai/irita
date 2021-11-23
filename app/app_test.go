@@ -116,6 +116,7 @@ func setGenesis(iapp *IritaApp) error {
 
 	// Initialize the chain
 	iapp.InitChain(abci.RequestInitChain{
+		ChainId:       "irita_10086-1",
 		Validators:    []abci.ValidatorUpdate{},
 		AppStateBytes: stateBytes,
 	})

@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
@@ -23,6 +24,9 @@ import (
 	"github.com/bianjieai/iritamod/modules/params"
 	"github.com/bianjieai/iritamod/modules/perm"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
+
+	evmante "github.com/tharsis/ethermint/app/ante"
+
 )
 
 type HandlerOptions struct {
@@ -34,6 +38,10 @@ type HandlerOptions struct {
 	opbKeeper       opbkeeper.Keeper
 	sigGasConsumer  ante.SignatureVerificationGasConsumer
 	signModeHandler signing.SignModeHandler
+
+	// evm
+	feeMarketKeeper evmtypes.FeeMarketKeeper
+	evmKeeper 	evmante.EVMKeeper
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence

@@ -1,6 +1,6 @@
 package simapp
 
-import 	(
+import (
 	"io"
 	"os"
 	"path/filepath"
@@ -56,7 +56,6 @@ import 	(
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-
 
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
@@ -356,8 +355,6 @@ func NewSimApp(
 	tibcRouter.AddRoute(tibcnfttypes.ModuleName, nfttransferModule)
 	tibcRouter.AddRoute(tibcmock.ModuleName, tibcmockModule)
 	app.TIBCKeeper.SetRouter(tibcRouter)
-
-
 
 	/****  Module Options ****/
 
