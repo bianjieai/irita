@@ -12,10 +12,13 @@ import (
 	"os"
 	"path/filepath"
 
+	evmhd "github.com/tharsis/ethermint/crypto/hd"
+
+	"github.com/tendermint/tendermint/crypto/algo"
+
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	evmhd "github.com/tharsis/ethermint/crypto/hd"
 	ethermint "github.com/tharsis/ethermint/types"
 
 	"github.com/spf13/cobra"
@@ -122,6 +125,7 @@ func InitTestnet(
 	nodeDaemonHome, nodeCLIHome, startingIPAddress string,
 	numValidators int, algoStr string,
 ) error {
+	algo.Algo = algo.SM2
 	//if chainID == "" {
 	//	chainID = "chain-" + tmrand.NewRand().Str(6)
 	//}

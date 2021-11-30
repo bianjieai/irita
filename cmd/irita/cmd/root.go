@@ -47,6 +47,7 @@ import (
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	//encodingConfig := app.MakeEncodingConfig()
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+
 	initClientCtx := client.Context{}.
 		WithCodec(encodingConfig.Marshaler).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
@@ -63,14 +64,14 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		Use:   "irita",
 		Short: "Irita app command",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
+			clientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 
 			//initClientCtx = client.ReadHomeFlag(initClientCtx, cmd)
-			initClientCtx, err = config.ReadFromClientConfig(initClientCtx)
+			clientCtx, err = config.ReadFromClientConfig(initClientCtx)
 			if err != nil {
 				return err
 			}
-			if err = client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
+			if err = client.SetCmdClientContextHandler(clientCtx, cmd); err != nil {
 				return err
 			}
 
@@ -113,6 +114,8 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	)
 
 	ac := appCreator{encodingConfig}
+
+	//server.AddCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
 
 	ethermintserver.AddCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
 	// add keybase, auxiliary RPC, query, and tx child commands
