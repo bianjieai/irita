@@ -1,6 +1,7 @@
 package app
 
 import (
+	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -32,6 +33,7 @@ type HandlerOptions struct {
 	feegrantKeeper  authante.FeegrantKeeper
 	tokenKeeper     tokenkeeper.Keeper
 	opbKeeper       opbkeeper.Keeper
+	wserviceKeeper  wservicekeeper.IKeeper
 	sigGasConsumer  ante.SignatureVerificationGasConsumer
 	signModeHandler signing.SignModeHandler
 }
@@ -57,6 +59,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewTxTimeoutHeightDecorator(),
 		tokenkeeper.NewValidateTokenFeeDecorator(options.tokenKeeper, options.bankKeeper),
 		opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper),
+		wservicekeeper.NewDeduplicationTxDecorator(options.wserviceKeeper),
 	)
 }
 
@@ -75,7 +78,6 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&node.MsgCreateValidator{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&node.MsgUpdateValidator{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterModuleAuth(slashingtypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
-
 
 	// param auth
 	permKeeper.RegisterModuleAuth(params.ModuleName, perm.RoleRootAdmin, perm.RoleParamAdmin)

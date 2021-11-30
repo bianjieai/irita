@@ -59,6 +59,8 @@ import (
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
+	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
+	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
 
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
@@ -220,6 +222,7 @@ type IritaApp struct {
 	identityKeeper   identitykeeper.Keeper
 	nodeKeeper       nodekeeper.Keeper
 	opbKeeper        opbkeeper.Keeper
+	wservicekeeper   wservicekeeper.IKeeper
 	feeGrantKeeper   feegrantkeeper.Keeper
 	wasmKeeper       wasm.Keeper
 	capabilityKeeper *capabilitykeeper.Keeper
@@ -369,6 +372,8 @@ func NewIritaApp(
 	tibcRouter := tibcroutingtypes.NewRouter()
 	tibcRouter.AddRoute(tibcnfttypes.ModuleName, nfttransferModule)
 	app.tibcKeeper.SetRouter(tibcRouter)
+
+	app.wservicekeeper = wservicekeeper.NewKeeper(appCodec, keys[wservicetypes.StoreKey], app.serviceKeeper)
 
 	wasmDir := filepath.Join(homePath, "wasm")
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
@@ -528,12 +533,10 @@ func NewIritaApp(
 			opbKeeper:       app.opbKeeper,
 			signModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 			feegrantKeeper:  app.feeGrantKeeper,
+			wserviceKeeper:  app.wservicekeeper,
 			sigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 		},
 	)
-	if err != nil {
-		panic(err)
-	}
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
 
