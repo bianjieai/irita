@@ -1,0 +1,12 @@
+syntax = "proto3";
+package irita.wservice;
+
+import "wservice/wservice.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/bianjieai/irita/modules/wservice/types";
+
+// GenesisState defines the NFT module's genesis state
+message GenesisState {
+  repeated RequestSequence req_sequence = 1 [ (gogoproto.nullable) = false ];
+}
