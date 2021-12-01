@@ -2,7 +2,7 @@ package address
 
 import sdk "github.com/cosmos/cosmos-sdk/types"
 
-const (
+var (
 
 	// Bech32ChainPrefix defines the prefix of this chain
 	Bech32ChainPrefix = "i"
