@@ -42,7 +42,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
@@ -57,8 +56,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-
-	"github.com/CosmWasm/wasmd/x/wasm"
 
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
@@ -144,7 +141,6 @@ var (
 		identity.AppModuleBasic{},
 		node.AppModuleBasic{},
 		opb.AppModuleBasic{},
-		wasm.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
 	)
@@ -201,7 +197,6 @@ type SimApp struct {
 	NodeKeeper        nodekeeper.Keeper
 	OpbKeeper         opbkeeper.Keeper
 	FeeGrantKeeper    feegrantkeeper.Keeper
-	WasmKeeper        wasm.Keeper
 	TIBCKeeper        *tibckeeper.Keeper // TIBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	NftTransferKeeper tibcnfttransferkeeper.Keeper
 
@@ -261,7 +256,7 @@ func NewSimApp(
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
-		wasm.StoreKey,
+
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
 	)
@@ -362,29 +357,6 @@ func NewSimApp(
 	tibcRouter.AddRoute(tibcmock.ModuleName, tibcmockModule)
 	app.TIBCKeeper.SetRouter(tibcRouter)
 
-	wasmDir := filepath.Join(homePath, "wasm")
-
-	supportedFeatures := "stargate"
-	app.WasmKeeper = wasm.NewKeeper(
-		appCodec,
-		keys[wasm.StoreKey],
-		app.GetSubspace(wasm.ModuleName),
-		app.AccountKeeper,
-		app.BankKeeper,
-		stakingkeeper.Keeper{},
-		distrkeeper.Keeper{},
-		nil,
-		nil,
-		nil,
-		nil,
-		bApp.Router(),
-		bApp.MsgServiceRouter(),
-		bApp.GRPCQueryRouter(),
-		wasmDir,
-		wasm.DefaultWasmConfig(),
-		supportedFeatures,
-	)
-
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -413,7 +385,6 @@ func NewSimApp(
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
 		opb.NewAppModule(appCodec, app.OpbKeeper),
-		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 		tibc.NewAppModule(app.TIBCKeeper),
 		nfttransferModule,
 	)
@@ -426,13 +397,13 @@ func NewSimApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
 		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		wasm.ModuleName, tibchost.ModuleName,
+		tibchost.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		node.ModuleName,
 		servicetypes.ModuleName,
-		wasm.ModuleName,
+
 		tibchost.ModuleName,
 	)
 
@@ -457,7 +428,7 @@ func NewSimApp(
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
-		wasm.ModuleName,
+
 		opb.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
@@ -493,7 +464,7 @@ func NewSimApp(
 		identity.NewAppModule(app.IdentityKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
 		opb.NewAppModule(appCodec, app.OpbKeeper),
-		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
+
 		tibc.NewAppModule(app.TIBCKeeper),
 		nfttransferModule,
 	)
@@ -692,7 +663,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	ParamsKeeper.Subspace(recordtypes.ModuleName)
 	ParamsKeeper.Subspace(servicetypes.ModuleName)
 	ParamsKeeper.Subspace(opbtypes.ModuleName)
-	ParamsKeeper.Subspace(wasm.ModuleName)
+
 	ParamsKeeper.Subspace(tibchost.ModuleName)
 
 	return ParamsKeeper
