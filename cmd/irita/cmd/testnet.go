@@ -12,6 +12,15 @@ import (
 	"os"
 	"path/filepath"
 
+	evmhd "github.com/tharsis/ethermint/crypto/hd"
+
+	"github.com/tendermint/tendermint/crypto/algo"
+
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
+	"github.com/ethereum/go-ethereum/common"
+	ethermint "github.com/tharsis/ethermint/types"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -44,6 +53,7 @@ import (
 	"github.com/bianjieai/iritamod/utils"
 
 	opbtypes "github.com/bianjieai/irita/modules/opb/types"
+	evmosConfig "github.com/tharsis/ethermint/server/config"
 )
 
 const (
@@ -115,16 +125,22 @@ func InitTestnet(
 	nodeDaemonHome, nodeCLIHome, startingIPAddress string,
 	numValidators int, algoStr string,
 ) error {
+	algo.Algo = algo.SM2
 	if chainID == "" {
-		chainID = "chain-" + tmrand.NewRand().Str(6)
+		chainID = fmt.Sprintf("chain_%d-1", tmrand.Int63n(9999999999999)+1)
 	}
 
 	monikers := make([]string, numValidators)
 	nodeIDs := make([]string, numValidators)
 	valCerts := make([]string, numValidators)
 
-	iritaConfig := srvconfig.DefaultConfig()
+	iritaConfig := evmosConfig.DefaultConfig()
 	iritaConfig.MinGasPrices = minGasPrices
+	iritaConfig.API.Enable = true
+	iritaConfig.Telemetry.Enabled = true
+	iritaConfig.Telemetry.PrometheusRetentionTime = 60
+	iritaConfig.Telemetry.EnableHostnameLabel = false
+	iritaConfig.Telemetry.GlobalLabels = [][]string{{"chain_id", chainID}}
 
 	//nolint:prealloc
 	var (
@@ -205,18 +221,19 @@ func InitTestnet(
 			viper.GetString(flags.FlagKeyringBackend),
 			clientDir,
 			inBuf,
+			evmhd.EthSecp256k1Option(),
 		)
 		if err != nil {
 			return err
 		}
 
 		keyringAlgos, _ := kb.SupportedAlgorithms()
-		algo, err := keyring.NewSigningAlgoFromString(algoStr, keyringAlgos)
+		signAlgo, err := keyring.NewSigningAlgoFromString(algoStr, keyringAlgos)
 		if err != nil {
 			return err
 		}
 
-		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, true, algo)
+		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, true, signAlgo)
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err
@@ -234,9 +251,9 @@ func InitTestnet(
 			return err
 		}
 
-		accTokens := sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)
-		accPointTokens := sdk.TokensFromConsensusPower(50000, sdk.DefaultPowerReduction)
-		accNativeTokens := sdk.TokensFromConsensusPower(50000, sdk.DefaultPowerReduction)
+		accTokens := sdk.TokensFromConsensusPower(5000, ethermint.PowerReduction)
+		accPointTokens := sdk.TokensFromConsensusPower(5000, ethermint.PowerReduction)
+		accNativeTokens := sdk.TokensFromConsensusPower(5000, ethermint.PowerReduction)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
 			sdk.NewCoin(DefaultPointMinUnit, accPointTokens),
@@ -244,7 +261,10 @@ func InitTestnet(
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
-		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
+		genAccounts = append(genAccounts, &ethermint.EthAccount{
+			BaseAccount: authtypes.NewBaseAccount(addr, nil, 0, 0),
+			CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
+		})
 
 		cert, err := ioutil.ReadFile(certPath)
 		if err != nil {
@@ -279,11 +299,17 @@ func InitTestnet(
 			return err
 		}
 
+		customAppTemplate, customAppConfig := evmosConfig.AppConfig(ethermint.AttoPhoton)
+		srvconfig.SetConfigTemplate(customAppTemplate)
+		if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig); err != nil {
+			return err
+		}
+
 		iritaConfigFilePath := filepath.Join(nodeDir, "config/app.toml")
 		srvconfig.WriteConfigFile(iritaConfigFilePath, iritaConfig)
 	}
 
-	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
+	if err := initGenFiles(DefaultPointMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
 		monikers, nodeIDs, rootCertPath); err != nil {
 		return err
 	}
@@ -300,7 +326,7 @@ func InitTestnet(
 }
 
 func initGenFiles(
-	clientCtx client.Context, mbm module.BasicManager, chainID string,
+	coinDenom string, clientCtx client.Context, mbm module.BasicManager, chainID string,
 	genAccounts []authtypes.GenesisAccount, genBalances []banktypes.Balance,
 	genFiles []string, numValidators int, monikers []string, nodeIDs []string,
 	rootCertPath string,
@@ -388,6 +414,12 @@ func initGenFiles(
 	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(DefaultPointMinUnit, sdk.NewInt(5000)))
 	serviceGenState.Params.BaseDenom = DefaultPointMinUnit
 	appGenState[servicetypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&serviceGenState)
+
+	var evmGenState evmtypes.GenesisState
+	clientCtx.Codec.MustUnmarshalJSON(appGenState[evmtypes.ModuleName], &evmGenState)
+
+	evmGenState.Params.EvmDenom = coinDenom
+	appGenState[evmtypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&evmGenState)
 
 	// add all genesis accounts as root admins
 	var permGenState perm.GenesisState
