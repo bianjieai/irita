@@ -8,8 +8,7 @@ require (
 	github.com/bianjieai/tibc-go v0.2.0-alpha
 	github.com/cosmos/cosmos-sdk v0.44.3
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/ibc-go v1.2.2 // indirect
-	github.com/cosmos/ibc-go/v2 v2.0.0-rc0
+	github.com/cosmos/ibc-go/v2 v2.0.0
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.3 // indirect
 	github.com/dgraph-io/ristretto v0.1.0 // indirect
@@ -39,7 +38,7 @@ require (
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/tm-db v0.6.4
-	github.com/tharsis/ethermint v0.7.2
+	github.com/tharsis/ethermint v0.9.0
 	google.golang.org/genproto v0.0.0-20211129164237-f09f9a12af12
 	google.golang.org/grpc v1.41.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -47,10 +46,11 @@ require (
 )
 
 replace (
+	//github.com/tharsis/ethermint => github.com/tharsis/ethermint v0.6.1-0.20211025150104-23a33624750c
+	github.com/bianjieai/iritamod => /Users/bianjie/work/gowork/bianjieai/iritamod
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.34.4-0.20211018063322-440b2f20d063
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
 	// should change to your fork Ethermint
 	github.com/tharsis/ethermint => /Users/bianjie/work/gowork/tharsis/ethermint
-//github.com/tharsis/ethermint => github.com/tharsis/ethermint v0.6.1-0.20211025150104-23a33624750c
 )

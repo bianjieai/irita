@@ -1,6 +1,7 @@
 package app
 
 import (
+	wevmtypes "github.com/bianjieai/iritamod/modules/wevm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -26,7 +27,6 @@ import (
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 
 	evmante "github.com/tharsis/ethermint/app/ante"
-
 )
 
 type HandlerOptions struct {
@@ -41,7 +41,7 @@ type HandlerOptions struct {
 
 	// evm
 	feeMarketKeeper evmtypes.FeeMarketKeeper
-	evmKeeper 	evmante.EVMKeeper
+	evmKeeper       evmante.EVMKeeper
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -84,7 +84,6 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&node.MsgUpdateValidator{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterModuleAuth(slashingtypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 
-
 	// param auth
 	permKeeper.RegisterModuleAuth(params.ModuleName, perm.RoleRootAdmin, perm.RoleParamAdmin)
 
@@ -109,6 +108,11 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgRegisterRelayer{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgUpgradeClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgSetRoutingRules{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+
+	// wevm auth
+	permKeeper.RegisterModuleAuth(wevmtypes.ModuleName, perm.RoleRootAdmin)
+	permKeeper.RegisterMsgAuth(&wevmtypes.MsgAddToContractDenyList{}, perm.RoleRootAdmin)
+	permKeeper.RegisterMsgAuth(&wevmtypes.MsgRemoveFromContractDenyList{}, perm.RoleRootAdmin)
 
 	return permKeeper
 }
