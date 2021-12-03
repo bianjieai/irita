@@ -6,6 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
+	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+
+	"github.com/bianjieai/irita/modules/evm/crypto"
+
 	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
 
@@ -275,6 +279,9 @@ func NewIritaApp(
 	homePath string, invCheckPeriod uint, encodingConfig simappparams.EncodingConfig, appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
 ) *IritaApp {
 	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
+
+	evmutils.SetEthermintSupportedAlgorithms()
+
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -610,6 +617,10 @@ func (app *IritaApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
 func (app *IritaApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+	chainID, _ := ethermint.ParseChainID(req.GetHeader().ChainID)
+	if app.EvmKeeper.Signer == nil {
+		app.EvmKeeper.Signer = crypto.NewSm2Signer(chainID)
+	}
 	return app.mm.BeginBlock(ctx, req)
 }
 
@@ -626,7 +637,10 @@ func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	// add system service at InitChainer, overwrite if it exists
 	var serviceGenState servicetypes.GenesisState
 	app.appCodec.MustUnmarshalJSON(genesisState[servicetypes.ModuleName], &serviceGenState)
+	//req.ChainId
 
+	chainID, _ := ethermint.ParseChainID(req.ChainId)
+	app.EvmKeeper.Signer = crypto.NewSm2Signer(chainID)
 	serviceGenState.Definitions = append(serviceGenState.Definitions, servicetypes.GenOraclePriceSvcDefinition())
 	serviceGenState.Bindings = append(serviceGenState.Bindings, servicetypes.GenOraclePriceSvcBinding(tokentypes.GetNativeToken().MinUnit))
 	serviceGenState.Definitions = append(serviceGenState.Definitions, randomtypes.GetSvcDefinition())
