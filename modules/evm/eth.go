@@ -14,6 +14,8 @@ import (
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
+	evmcrypto "github.com/bianjieai/irita/modules/evm/crypto"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -115,7 +117,7 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrInvalidChainID, "chainID is invalid %s", chainID)
 	}
 
-	signer := ethermint.NewSm2Signer(chainID)
+	signer := evmcrypto.NewSm2Signer(chainID)
 	ethTx := msgEthTx.AsTransaction()
 	txHash := signer.Hash(ethTx)
 	if !simulate {
