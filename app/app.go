@@ -125,6 +125,10 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
+	wevm "github.com/bianjieai/iritamod/modules/wevm"
+	wevmkeeper "github.com/bianjieai/iritamod/modules/wevm/keeper"
+	wevmtypes "github.com/bianjieai/iritamod/modules/wevm/types"
 )
 
 const appName = "IritaApp"
@@ -163,6 +167,7 @@ var (
 		// evm
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
+		wevm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -252,6 +257,7 @@ type IritaApp struct {
 	// Ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
+	WevmKeeper      wevmkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -300,7 +306,7 @@ func NewIritaApp(
 		tibcnfttypes.StoreKey,
 
 		// evm
-		evmtypes.StoreKey, feemarkettypes.StoreKey,
+		evmtypes.StoreKey, feemarkettypes.StoreKey, wevmtypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -391,6 +397,8 @@ func NewIritaApp(
 		tracer, // debug EVM based on Baseapp options
 	)
 
+	app.WevmKeeper = wevmkeeper.NewKeeper(appCodec, keys[wevmtypes.StoreKey])
+
 	app.opbKeeper = opbkeeper.NewKeeper(
 		appCodec, keys[opbtypes.StoreKey], app.accountKeeper,
 		app.bankKeeper, app.tokenKeeper, app.permKeeper,
@@ -450,6 +458,7 @@ func NewIritaApp(
 		// evm
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
+		wevm.NewAppModule(app.WevmKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -460,7 +469,7 @@ func NewIritaApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
 		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		tibchost.ModuleName,
+		tibchost.ModuleName, wevmtypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
@@ -469,7 +478,7 @@ func NewIritaApp(
 		tibchost.ModuleName,
 
 		// evm
-		evmtypes.ModuleName, feemarkettypes.ModuleName,
+		evmtypes.ModuleName, feemarkettypes.ModuleName, wevmtypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -498,7 +507,7 @@ func NewIritaApp(
 		tibchost.ModuleName,
 
 		// evm
-		evmtypes.ModuleName, feemarkettypes.ModuleName,
+		evmtypes.ModuleName, feemarkettypes.ModuleName, wevmtypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -533,6 +542,7 @@ func NewIritaApp(
 		// evm
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
+		wevm.NewAppModule(app.WevmKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -560,6 +570,7 @@ func NewIritaApp(
 			// evm
 			evmFeeMarketKeeper: app.FeeMarketKeeper,
 			evmKeeper:          app.EvmKeeper,
+			wevmKeeper:         app.WevmKeeper,
 		},
 	)
 	app.SetAnteHandler(anteHandler)
@@ -772,6 +783,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	// evm
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
+	paramsKeeper.Subspace(wevmtypes.ModuleName)
 
 	return paramsKeeper
 }
