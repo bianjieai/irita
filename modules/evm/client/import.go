@@ -3,6 +3,9 @@ package client
 import (
 	"bufio"
 
+	cosmossm2 "github.com/cosmos/cosmos-sdk/crypto/keys/sm2"
+	tendermintsm2 "github.com/tendermint/tendermint/crypto/sm2"
+
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -11,7 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 
 	"github.com/tharsis/ethermint/crypto/hd"
 )
@@ -48,11 +50,10 @@ func runImportCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	privKey := &ethsecp256k1.PrivKey{
+	privKey := &cosmossm2.PrivKey{
 		Key: common.FromHex(args[1]),
 	}
-
-	armor := crypto.EncryptArmorPrivKey(privKey, passphrase, "eth_secp256k1")
+	armor := crypto.EncryptArmorPrivKey(privKey, passphrase, tendermintsm2.KeyType)
 
 	return kb.ImportPrivKey(args[0], armor, passphrase)
 }
