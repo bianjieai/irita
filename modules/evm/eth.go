@@ -14,6 +14,8 @@ import (
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
+	evmcrypto "github.com/bianjieai/irita/modules/evm/crypto"
+
 	ethermint "github.com/tharsis/ethermint/types"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -133,10 +135,10 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 
 	msgEthTx.From = common.BytesToAddress(acc.GetAddress()).String()
 	// retrieve pubkey
-	//pubKey := acc.GetPubKey()
-	//if !simulate && pubKey == nil {
-	//	return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidPubKey, "pubkey on account is not set")
-	//}
+	pubKey := acc.GetPubKey()
+	if !simulate && pubKey == nil {
+		return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidPubKey, "pubkey on account is not set")
+	}
 
 	// Check account sequence number.
 	if txData.GetNonce() != acc.GetSequence() {
@@ -151,14 +153,14 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrInvalidChainID, "chainID is invalid %s", chainID)
 	}
 
-	//signer := evmcrypto.NewSm2Signer(chainID)
-	//ethTx := msgEthTx.AsTransaction()
-	//txHash := signer.Hash(ethTx)
-	//if !simulate {
-	//	if !pubKey.VerifySignature(txHash.Bytes(), sig) {
-	//		return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "unable to verify single signer signature")
-	//	}
-	//}
+	signer := evmcrypto.NewSm2Signer(chainID)
+	ethTx := msgEthTx.AsTransaction()
+	txHash := signer.Hash(ethTx)
+	if !simulate {
+		if !pubKey.VerifySignature(txHash.Bytes(), sig) {
+			return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "unable to verify single signer signature")
+		}
+	}
 
 	return next(ctx, msgEthTx, simulate)
 }
