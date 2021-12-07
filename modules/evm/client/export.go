@@ -5,10 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	cosmossm2 "github.com/cosmos/cosmos-sdk/crypto/keys/sm2"
-
-	tendermintsm2 "github.com/tendermint/tendermint/crypto/sm2"
-
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto"
@@ -18,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 	"github.com/tharsis/ethermint/crypto/hd"
 )
 
@@ -67,26 +64,28 @@ func UnsafeExportEthKeyCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Println("armor: ", armor)
+
 			privKey, algo, err := crypto.UnarmorDecryptPrivKey(armor, decryptPassword)
 			if err != nil {
 				return err
 			}
 
-			// SM
-			if algo != tendermintsm2.KeyType {
-				return fmt.Errorf("invalid key algorithm, got %s, expected %s", algo, tendermintsm2.KeyType)
+			if algo != ethsecp256k1.KeyType {
+				return fmt.Errorf("invalid key algorithm, got %s, expected %s", algo, ethsecp256k1.KeyType)
 			}
+
 			// Converts key to Ethermint secp256k1 implementation
-			sm2PrivKey, ok := privKey.(*cosmossm2.PrivKey)
+			ethPrivKey, ok := privKey.(*ethsecp256k1.PrivKey)
 			if !ok {
-				return fmt.Errorf("invalid private key type %T, expected %T", privKey, &cosmossm2.PrivKey{})
+				return fmt.Errorf("invalid private key type %T, expected %T", privKey, &ethsecp256k1.PrivKey{})
 			}
-			key, err := ethcrypto.ToECDSA(sm2PrivKey.Key)
+
+			key, err := ethPrivKey.ToECDSA()
 			if err != nil {
 				return err
 			}
 
+			// Formats key for output
 			privB := ethcrypto.FromECDSA(key)
 			keyS := strings.ToUpper(hexutil.Encode(privB)[2:])
 

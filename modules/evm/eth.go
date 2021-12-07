@@ -4,6 +4,10 @@ import (
 	"errors"
 	"math/big"
 
+	"github.com/palantir/stacktrace"
+
+	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	tx "github.com/cosmos/cosmos-sdk/types/tx"
@@ -13,8 +17,6 @@ import (
 	ethermint "github.com/tharsis/ethermint/types"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-
-	evmcrypto "github.com/bianjieai/irita/modules/evm/crypto"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -73,6 +75,36 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
 	}
 
+	ethAddr := common.HexToAddress(msgEthTx.From)
+	cosmosAddr := sdk.AccAddress(ethAddr.Bytes())
+	account := esvd.accountKeeper.GetAccount(ctx, cosmosAddr)
+
+	pubKeyAlgo := account.GetPubKey().Type()
+	if pubKeyAlgo == ethsecp256k1.KeyType {
+
+		chainID := esvd.evmKeeper.ChainID()
+
+		params := esvd.evmKeeper.GetParams(ctx)
+
+		ethCfg := params.ChainConfig.EthereumConfig(chainID)
+		blockNum := big.NewInt(ctx.BlockHeight())
+		signer := ethtypes.MakeSigner(ethCfg, blockNum)
+
+		sender, err := signer.Sender(msgEthTx.AsTransaction())
+		if err != nil {
+			return ctx, stacktrace.Propagate(
+				sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, err.Error()),
+				"couldn't retrieve sender address ('%s') from the ethereum transaction",
+				msgEthTx.From,
+			)
+		}
+
+		// set up the sender to the transaction field if not already
+		msgEthTx.From = sender.Hex()
+
+		return next(ctx, msgEthTx, simulate)
+	}
+
 	// no need to verify signatures on recheck tx
 	if ctx.IsReCheckTx() {
 		return next(ctx, tx, simulate)
@@ -91,18 +123,20 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 	sig := make([]byte, 64)
 	copy(sig[32-len(R):32], R[:])
 	copy(sig[64-len(S):64], S[:])
+
 	signerAddrs := sigTx.GetSigners()
 	acc, err := authante.GetSignerAcc(ctx, esvd.accountKeeper, signerAddrs[0])
 	if err != nil {
 		return ctx, err
 	}
+	//todo
 
 	msgEthTx.From = common.BytesToAddress(acc.GetAddress()).String()
 	// retrieve pubkey
-	pubKey := acc.GetPubKey()
-	if !simulate && pubKey == nil {
-		return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidPubKey, "pubkey on account is not set")
-	}
+	//pubKey := acc.GetPubKey()
+	//if !simulate && pubKey == nil {
+	//	return ctx, sdkerrors.Wrap(sdkerrors.ErrInvalidPubKey, "pubkey on account is not set")
+	//}
 
 	// Check account sequence number.
 	if txData.GetNonce() != acc.GetSequence() {
@@ -117,14 +151,14 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrInvalidChainID, "chainID is invalid %s", chainID)
 	}
 
-	signer := evmcrypto.NewSm2Signer(chainID)
-	ethTx := msgEthTx.AsTransaction()
-	txHash := signer.Hash(ethTx)
-	if !simulate {
-		if !pubKey.VerifySignature(txHash.Bytes(), sig) {
-			return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "unable to verify single signer signature")
-		}
-	}
+	//signer := evmcrypto.NewSm2Signer(chainID)
+	//ethTx := msgEthTx.AsTransaction()
+	//txHash := signer.Hash(ethTx)
+	//if !simulate {
+	//	if !pubKey.VerifySignature(txHash.Bytes(), sig) {
+	//		return ctx, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "unable to verify single signer signature")
+	//	}
+	//}
 
 	return next(ctx, msgEthTx, simulate)
 }

@@ -148,8 +148,8 @@ github.com/bgentry/speakeasy v0.1.0 h1:ByYyxL9InA1OWqxJqqp2A5pYHUrCiAL6K3J+LKSsQ
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102 h1:o+vk7ds4Bnx9nHND4Oom3hySqLjygJNyu9ap5P+0qlc=
 github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102/go.mod h1:GGKbc9mvV37/jXlFz8eMSfhMQG+1svdAcpdmLn3FDr4=
-github.com/bianjieai/ethermint v0.8.2-0.20211206081541-2d0dcc850ca1 h1:EWtraTNPJfv0KshE/Nu4cm568MEe9n/VPMVQb4dv1Fo=
-github.com/bianjieai/ethermint v0.8.2-0.20211206081541-2d0dcc850ca1/go.mod h1:NVipGnqQhkSDG62yMX+bKAo14O3G2fwFIi7oqDw1AB8=
+github.com/bianjieai/ethermint v0.8.2-0.20211207094922-c2b945a620e5 h1:uDQtflZlHtdUCDTeu05SFxEiV8NU4xFDuWoE0v3RmJU=
+github.com/bianjieai/ethermint v0.8.2-0.20211207094922-c2b945a620e5/go.mod h1:NVipGnqQhkSDG62yMX+bKAo14O3G2fwFIi7oqDw1AB8=
 github.com/bianjieai/iritamod v1.1.1-0.20211203070030-a933e9795048 h1:C2ysW8/OMse0q1p4XCVB1Oj4RAX+PHL0uBqeG2Uz0JY=
 github.com/bianjieai/iritamod v1.1.1-0.20211203070030-a933e9795048/go.mod h1:JF8B3rssjHY+0nhWahpw5613UpRYtYFrz62tDOYB/Gs=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3 h1:M4C+ilCPiP2c2yMdeYaZLwquEBfFa4Uvt1BDviSYD0E=

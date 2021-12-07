@@ -3,6 +3,11 @@ package backend
 import (
 	"context"
 	"fmt"
+	"math/big"
+
+	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
+
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/bianjieai/irita/modules/evm/crypto"
 
@@ -38,7 +43,7 @@ func NewEVMWBackend(ctx *server.Context, logger log.Logger, clientCtx client.Con
 func (e *EVMWBackend) SendTransaction(args evmtypes.TransactionArgs) (common.Hash, error) {
 	// Look up the wallet containing the requested signer
 
-	_, err := e.ctx.Keyring.KeyByAddress(sdk.AccAddress(args.From.Bytes()))
+	info, err := e.ctx.Keyring.KeyByAddress(sdk.AccAddress(args.From.Bytes()))
 	if err != nil {
 
 		e.logger.Error("failed to find key in keyring", "address", args.From, "error", err.Error())
@@ -57,6 +62,16 @@ func (e *EVMWBackend) SendTransaction(args evmtypes.TransactionArgs) (common.Has
 	}
 
 	signer := crypto.NewSm2Signer(e.ChainConfig().ChainID)
+	if info.GetAlgo() == ethsecp256k1.KeyType {
+		// eth
+		fmt.Println("SendTransaction", info.GetAlgo())
+		bn, err := e.BlockNumber()
+		if err != nil {
+			e.logger.Debug("failed to fetch latest block number", "error", err.Error())
+			return common.Hash{}, err
+		}
+		signer = ethtypes.MakeSigner(e.ChainConfig(), new(big.Int).SetUint64(uint64(bn)))
+	}
 
 	// Sign transaction
 	if err := msg.Sign(signer, e.ctx.Keyring); err != nil {
