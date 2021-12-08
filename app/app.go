@@ -411,6 +411,10 @@ func NewIritaApp(
 		app.bankKeeper, app.tokenKeeper, app.permKeeper,
 		app.GetSubspace(opbtypes.ModuleName),
 	)
+
+	ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper)
+	app.EvmKeeper.OpbAuthorization = ethOpbV.Authorization
+
 	// register the proposal types
 	tibccorekeeper := tibccorekeeper.NewKeeper(
 		appCodec, keys[tibchost.StoreKey], app.GetSubspace(tibchost.ModuleName), stakingkeeper.Keeper{},

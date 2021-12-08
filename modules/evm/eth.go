@@ -76,7 +76,29 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 	if !ok {
 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
 	}
+	if msgEthTx.From == "" {
+		chainID := esvd.evmKeeper.ChainID()
 
+		params := esvd.evmKeeper.GetParams(ctx)
+
+		ethCfg := params.ChainConfig.EthereumConfig(chainID)
+		blockNum := big.NewInt(ctx.BlockHeight())
+		signer := ethtypes.MakeSigner(ethCfg, blockNum)
+
+		sender, err := signer.Sender(msgEthTx.AsTransaction())
+		if err != nil {
+			return ctx, stacktrace.Propagate(
+				sdkerrors.Wrap(sdkerrors.ErrorInvalidSigner, err.Error()),
+				"couldn't retrieve sender address ('%s') from the ethereum transaction",
+				msgEthTx.From,
+			)
+		}
+
+		// set up the sender to the transaction field if not already
+		msgEthTx.From = sender.Hex()
+
+		return next(ctx, msgEthTx, simulate)
+	}
 	ethAddr := common.HexToAddress(msgEthTx.From)
 	cosmosAddr := sdk.AccAddress(ethAddr.Bytes())
 	account := esvd.accountKeeper.GetAccount(ctx, cosmosAddr)
