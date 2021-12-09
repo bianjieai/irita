@@ -30,7 +30,7 @@ func (ov EthOpbValidator) Authorization(ctx sdk.Context, denom string, addr stri
 			return false
 		}
 	}
-	return false
+	return true
 }
 
 func (ov EthOpbValidator) getOwner(ctx sdk.Context, denom string) (owner string, err error) {
