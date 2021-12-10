@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/bianjieai/irita/modules/opb/types"
 )
@@ -32,6 +33,11 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	// check only if the transfer restriction is enabled
 	if restrictionEnabled {
 		for _, msg := range tx.GetMsgs() {
+			err = vtd.validateAccountAddress(ctx, msg)
+			if err != nil {
+				return newCtx, err
+			}
+
 			switch msg := msg.(type) {
 			case *banktypes.MsgSend:
 				err := vtd.validateMsgSend(ctx, msg)
@@ -46,9 +52,28 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 
 			}
 		}
+	} else {
+		for _, msg := range tx.GetMsgs() {
+			err = vtd.validateAccountAddress(ctx, msg)
+			if err != nil {
+				return newCtx, err
+			}
+		}
 	}
 
 	return next(ctx, tx, simulate)
+}
+
+// validateMsgSend validates the MsgSend msg
+func (vtd ValidateTokenTransferDecorator) validateAccountAddress(ctx sdk.Context, msg sdk.Msg) error {
+	signers := msg.GetSigners()
+	for _, singer := range signers {
+		state, _ := vtd.keeper.GetAccountState(ctx, singer.String())
+		if state {
+			return sdkerrors.Wrapf(types.ErrAccountDisable, "the account %s is in account deny list ", singer.String())
+		}
+	}
+	return nil
 }
 
 // validateMsgSend validates the MsgSend msg
@@ -163,4 +188,29 @@ func getOutputMap(outputs []banktypes.Output) map[string][]string {
 	}
 
 	return outputMap
+}
+
+type EthCanCallDecorator struct {
+	keeper Keeper
+}
+
+func NewEthCanCallDecorator(Keeper Keeper) EthCanCallDecorator {
+	return EthCanCallDecorator{keeper: Keeper}
+}
+
+func (e EthCanCallDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	for _, msg := range tx.GetMsgs() {
+		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
+		if !ok {
+			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
+		}
+		ethTx := msgEthTx.AsTransaction()
+		if ethTx.To() != nil {
+			state, _ := e.keeper.GetContractState(ctx, ethTx.To().String())
+			if state {
+				return ctx, sdkerrors.Wrapf(types.ErrContractDisable, "the contract %s is in contract deny list ! ", ethTx.To())
+			}
+		}
+	}
+	return next(ctx, tx, simulate)
 }

@@ -17,7 +17,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
-	wevmante "github.com/bianjieai/irita/modules/wevm"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	wevmkeeper "github.com/bianjieai/iritamod/modules/wevm/keeper"
@@ -75,7 +74,8 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
-						wevmante.NewEthCanCallDecorator(options.wevmKeeper),
+						opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper),
+						opbkeeper.NewEthCanCallDecorator(options.opbKeeper),
 						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),

@@ -16,3 +16,39 @@ func (k Keeper) Params(c context.Context, req *types.QueryParamsRequest) (*types
 
 	return &types.QueryParamsResponse{Params: params}, nil
 }
+
+func (k Keeper) ContractState(goCtx context.Context, request *types.QueryContractStateRequest) (*types.QueryContractStateResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	state, err := k.GetContractState(ctx, request.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryContractStateResponse{Exist: state}, nil
+}
+
+func (k Keeper) ContractDenyList(goCtx context.Context, request *types.QueryContractDenyListRequest) (*types.QueryContractDenyListResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	list, err := k.IteratorContractDanyList(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryContractDenyListResponse{ContractAddress: list}, nil
+}
+
+func (k Keeper) AccountState(goCtx context.Context, request *types.QueryAccountStateRequest) (*types.QueryAccountStateResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	state, err := k.GetAccountState(ctx, request.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryAccountStateResponse{Exist: state}, nil
+}
+
+func (k Keeper) AccountDenyList(goCtx context.Context, request *types.QueryAccountDenyListRequest) (*types.QueryAccountDenyListResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	list, err := k.IteratorAccountDanyList(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryAccountDenyListResponse{AccountAddress: list}, nil
+}

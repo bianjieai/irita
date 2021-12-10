@@ -9,4 +9,6 @@ option go_package = "github.com/bianjieai/irita/modules/opb/types";
 // GenesisState defines the OPB module's genesis state.
 message GenesisState {
     Params params = 1 [(gogoproto.nullable) = false];
+    repeated string contract_deny_address = 2 ;
+    repeated string account_deny_address = 3 ;
 }

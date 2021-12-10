@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bianjieai/irita/modules/opb/types"
@@ -85,4 +88,88 @@ func (m msgServer) Reclaim(goCtx context.Context, msg *types.MsgReclaim) (*types
 	})
 
 	return &types.MsgReclaimResponse{}, nil
+}
+
+func (m msgServer) AddToContractDenyList(goCtx context.Context, msg *types.MsgAddToContractDenyList) (*types.MsgAddToContractDenyListResponse, error) {
+	if !common.IsHexAddress(msg.ContractAddress) {
+		return &types.MsgAddToContractDenyListResponse{},
+			errors.Wrapf(types.ErrInvalidContractAddress, "contract Address %s is invalid", msg.ContractAddress)
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	err := m.Keeper.AddToContractDenyList(ctx, msg.ContractAddress)
+	if err != nil {
+		return nil, err
+	}
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.EventTypeContractAdd, msg.ContractAddress),
+		),
+	})
+	return &types.MsgAddToContractDenyListResponse{}, nil
+}
+
+func (m msgServer) RemoveFromContractDenyList(goCtx context.Context, msg *types.MsgRemoveFromContractDenyList) (*types.MsgRemoveFromContractDenyListResponse, error) {
+	if !common.IsHexAddress(msg.ContractAddress) {
+		return &types.MsgRemoveFromContractDenyListResponse{},
+			errors.Wrapf(types.ErrInvalidContractAddress, "contract Address %s is invalid", msg.ContractAddress)
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	err := m.Keeper.RemoveFromContractDenyList(ctx, msg.ContractAddress)
+	if err != nil {
+		return &types.MsgRemoveFromContractDenyListResponse{}, err
+	}
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.EventTypeContractRemove, msg.ContractAddress),
+		),
+	})
+	return &types.MsgRemoveFromContractDenyListResponse{}, nil
+}
+
+func (m msgServer) AddToAccountDenyList(goCtx context.Context, msg *types.MsgAddToAccountDenyList) (*types.MsgAddToAccountDenyListResponse, error) {
+	_, err := sdk.AccAddressFromBech32(msg.AccountAddress)
+	if err != nil {
+		return nil, errors.Wrapf(errors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	err = m.Keeper.AddToAccountDenyList(ctx, msg.AccountAddress)
+	if err != nil {
+		return nil, err
+	}
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.EventTypeAccountAdd, msg.AccountAddress),
+		),
+	})
+	return &types.MsgAddToAccountDenyListResponse{}, nil
+}
+
+func (m msgServer) RemoveFromAccountDenyList(goCtx context.Context, msg *types.MsgRemoveFromAccountDenyList) (*types.MsgRemoveFromAccountDenyListResponse, error) {
+	_, err := sdk.AccAddressFromBech32(msg.AccountAddress)
+	if err != nil {
+		return nil, errors.Wrapf(errors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+	}
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	err = m.Keeper.RemoveFromAccountDenyList(ctx, msg.AccountAddress)
+	if err != nil {
+		return &types.MsgRemoveFromAccountDenyListResponse{}, err
+	}
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.EventTypeAccountRemove, msg.AccountAddress),
+		),
+	})
+	return &types.MsgRemoveFromAccountDenyListResponse{}, nil
+
 }

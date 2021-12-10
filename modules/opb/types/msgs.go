@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 const (
@@ -113,4 +114,135 @@ func (m MsgReclaim) GetSignBytes() []byte {
 func (m MsgReclaim) GetSigners() []sdk.AccAddress {
 	addr, _ := sdk.AccAddressFromBech32(m.Operator)
 	return []sdk.AccAddress{addr}
+}
+
+var (
+	_ sdk.Msg = &MsgAddToContractDenyList{}
+	_ sdk.Msg = &MsgRemoveFromContractDenyList{}
+)
+
+func NewMsgAddToContractDenyList(contractAddr, from string) *MsgAddToContractDenyList {
+	return &MsgAddToContractDenyList{
+		contractAddr,
+		from,
+	}
+}
+
+func (m MsgAddToContractDenyList) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(m.From)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+	}
+
+	if !common.IsHexAddress(m.ContractAddress) {
+		return sdkerrors.Wrap(ErrInvalidContractAddress, "invalid from address")
+	}
+	return nil
+}
+
+func (m *MsgAddToContractDenyList) GetSigners() []sdk.AccAddress {
+	if len(m.From) == 0 {
+		panic("do not have signer")
+	}
+	accAddr, err := sdk.AccAddressFromBech32(m.From)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{accAddr}
+}
+
+func NewMsgRemoveFromContractDenyList(contractAddr, from string) *MsgRemoveFromContractDenyList {
+	return &MsgRemoveFromContractDenyList{
+		contractAddr,
+		from,
+	}
+}
+
+func (m MsgRemoveFromContractDenyList) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(m.From)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+	}
+
+	if !common.IsHexAddress(m.ContractAddress) {
+		return sdkerrors.Wrap(ErrInvalidContractAddress, "invalid from address")
+	}
+	return nil
+}
+
+func (m *MsgRemoveFromContractDenyList) GetSigners() []sdk.AccAddress {
+	if len(m.From) == 0 {
+		panic("do not have signer")
+	}
+	accAddr, err := sdk.AccAddressFromBech32(m.From)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{accAddr}
+}
+
+var (
+	_ sdk.Msg = &MsgAddToAccountDenyList{}
+	_ sdk.Msg = &MsgRemoveFromAccountDenyList{}
+)
+
+func NewMsgAddToAccountDenyList(contractAddr, from string) *MsgAddToAccountDenyList {
+	return &MsgAddToAccountDenyList{
+		contractAddr,
+		from,
+	}
+}
+
+func (m MsgAddToAccountDenyList) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(m.From)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+	}
+
+	_, err = sdk.AccAddressFromBech32(m.AccountAddress)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+	}
+	return nil
+}
+
+func (m *MsgAddToAccountDenyList) GetSigners() []sdk.AccAddress {
+	if len(m.From) == 0 {
+		panic("do not have signer")
+	}
+	accAddr, err := sdk.AccAddressFromBech32(m.From)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{accAddr}
+}
+
+func NewMsgRemoveFromAccountDenyList(contractAddr, from string) *MsgRemoveFromAccountDenyList {
+	return &MsgRemoveFromAccountDenyList{
+		contractAddr,
+		from,
+	}
+}
+
+func (m MsgRemoveFromAccountDenyList) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(m.From)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+	}
+	_, err = sdk.AccAddressFromBech32(m.AccountAddress)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
+	}
+	return nil
+}
+
+func (m *MsgRemoveFromAccountDenyList) GetSigners() []sdk.AccAddress {
+	if len(m.From) == 0 {
+		panic("do not have signer")
+	}
+	accAddr, err := sdk.AccAddressFromBech32(m.From)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{accAddr}
 }

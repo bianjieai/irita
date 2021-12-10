@@ -29,7 +29,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) (res []abci.Valid
 	}
 
 	k.SetParams(ctx, data.Params)
-
+	// todo set denyLists!
 	return nil
 }
 
@@ -37,5 +37,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) (res []abci.Valid
 func ExportGenesis(ctx sdk.Context, k Keeper) *GenesisState {
 	return NewGenesisState(
 		k.GetParams(ctx),
+		k.GetContractDenyList(ctx),
+		k.GetAccountDenyList(ctx),
 	)
 }

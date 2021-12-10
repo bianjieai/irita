@@ -30,6 +30,10 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgMint{},
 		&MsgReclaim{},
+		&MsgAddToContractDenyList{},
+		&MsgAddToAccountDenyList{},
+		&MsgRemoveFromContractDenyList{},
+		&MsgRemoveFromAccountDenyList{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
