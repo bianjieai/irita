@@ -37,6 +37,5 @@ func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) (res []abci.Valid
 func ExportGenesis(ctx sdk.Context, k Keeper) *GenesisState {
 	return NewGenesisState(
 		k.GetParams(ctx),
-		k.GetContractDenyList(ctx),
 	)
 }

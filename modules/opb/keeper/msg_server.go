@@ -4,9 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum/common"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bianjieai/irita/modules/opb/types"
@@ -88,46 +85,4 @@ func (m msgServer) Reclaim(goCtx context.Context, msg *types.MsgReclaim) (*types
 	})
 
 	return &types.MsgReclaimResponse{}, nil
-}
-
-func (m msgServer) AddToContractDenyList(goCtx context.Context, msg *types.MsgAddToContractDenyList) (*types.MsgAddToContractDenyListResponse, error) {
-	if !common.IsHexAddress(msg.ContractAddress) {
-		return &types.MsgAddToContractDenyListResponse{},
-			errors.Wrapf(types.ErrInvalidContractAddress, "contract Address %s is invalid", msg.ContractAddress)
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	err := m.Keeper.AddToContractDenyList(ctx, msg.ContractAddress)
-	if err != nil {
-		return nil, err
-	}
-	ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(types.EventTypeContractAdd, msg.ContractAddress),
-		),
-	})
-	return &types.MsgAddToContractDenyListResponse{}, nil
-}
-
-func (m msgServer) RemoveFromContractDenyList(goCtx context.Context, msg *types.MsgRemoveFromContractDenyList) (*types.MsgRemoveFromContractDenyListResponse, error) {
-	if !common.IsHexAddress(msg.ContractAddress) {
-		return &types.MsgRemoveFromContractDenyListResponse{},
-			errors.Wrapf(types.ErrInvalidContractAddress, "contract Address %s is invalid", msg.ContractAddress)
-	}
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	err := m.Keeper.RemoveFromContractDenyList(ctx, msg.ContractAddress)
-	if err != nil {
-		return &types.MsgRemoveFromContractDenyListResponse{}, err
-	}
-	ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(types.EventTypeContractRemove, msg.ContractAddress),
-		),
-	})
-	return &types.MsgRemoveFromContractDenyListResponse{}, nil
 }

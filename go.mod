@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/99designs/keyring v1.1.6
-	github.com/bianjieai/iritamod v1.1.1-0.20211203070030-a933e9795048
+	github.com/bianjieai/iritamod v1.1.1-0.20211213103559-df247f2a02f3
 	github.com/bianjieai/tibc-go v0.2.0
 	github.com/cosmos/cosmos-sdk v0.44.3
 	github.com/cosmos/go-bip39 v1.0.0
@@ -47,7 +47,6 @@ require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.6.0 // indirect
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
-	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/armon/go-metrics v0.3.9 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
@@ -162,10 +161,8 @@ require (
 )
 
 replace (
-	github.com/bianjieai/iritamod => /Users/bianjie/work/gowork/bianjieai/iritamod
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
-	//github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.8.2-0.20211209034154-93392c59d6dc
-	github.com/tharsis/ethermint => /Users/bianjie/work/gowork/bianjieai/ethermint
+	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.8.2-0.20211213103812-95805b5f22cb
 )

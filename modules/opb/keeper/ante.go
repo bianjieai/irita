@@ -1,12 +1,10 @@
 package keeper
 
 import (
+	"github.com/bianjieai/irita/modules/opb/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-
-	"github.com/bianjieai/irita/modules/opb/types"
 )
 
 // ValidateTokenTransferDecorator checks if the token transfer satisfies the underlying constraint
@@ -163,29 +161,4 @@ func getOutputMap(outputs []banktypes.Output) map[string][]string {
 	}
 
 	return outputMap
-}
-
-type EthCanCallDecorator struct {
-	keeper Keeper
-}
-
-func NewEthCanCallDecorator(Keeper Keeper) EthCanCallDecorator {
-	return EthCanCallDecorator{keeper: Keeper}
-}
-
-func (e EthCanCallDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
-		if !ok {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
-		}
-		ethTx := msgEthTx.AsTransaction()
-		if ethTx.To() != nil {
-			state, _ := e.keeper.GetContractState(ctx, ethTx.To().String())
-			if state {
-				return ctx, sdkerrors.Wrapf(types.ErrContractDisable, "the contract %s is in contract deny list ! ", ethTx.To())
-			}
-		}
-	}
-	return next(ctx, tx, simulate)
 }

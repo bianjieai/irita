@@ -13,12 +13,6 @@ service Query {
     rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
         option (google.api.http).get = "/irita/opb/params";
     }
-    rpc ContractState(QueryContractStateRequest) returns (QueryContractStateResponse) {
-        option (google.api.http).get = "/irita/opb/contractDenyList/{address}";
-    }
-    rpc ContractDenyList(QueryContractDenyListRequest) returns (QueryContractDenyListResponse) {
-        option (google.api.http).get = "/irita/opb/contractDenyList/contracts";
-    }
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method
@@ -29,17 +23,3 @@ message QueryParamsResponse {
     Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-message QueryContractStateRequest {
-    string address = 1;
-}
-
-message QueryContractStateResponse {
-    bool exist = 1;
-}
-
-message QueryContractDenyListRequest {
-}
-
-message QueryContractDenyListResponse {
-    repeated string contract_address = 1;
-}

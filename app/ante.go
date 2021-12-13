@@ -70,8 +70,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
 						perm.NewAuthDecorator(options.permKeeper),
-						opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper),
-						opbkeeper.NewEthCanCallDecorator(options.opbKeeper),
+						perm.NewEthCanCallDecorator(options.permKeeper),
 						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),
@@ -153,6 +152,8 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	// blacklist auth
 	permKeeper.RegisterMsgAuth(&perm.MsgBlockAccount{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
 	permKeeper.RegisterMsgAuth(&perm.MsgUnblockAccount{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgBlockContract{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgUnblockContract{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
 
 	// node auth
 	permKeeper.RegisterModuleAuth(node.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)

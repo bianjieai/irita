@@ -15,9 +15,6 @@ service Msg {
     // from the corresponding escrow.
     rpc Reclaim(MsgReclaim) returns (MsgReclaimResponse);
 
-    rpc AddToContractDenyList(MsgAddToContractDenyList) returns (MsgAddToContractDenyListResponse);
-
-    rpc RemoveFromContractDenyList(MsgRemoveFromContractDenyList) returns (MsgRemoveFromContractDenyListResponse);
 }
 
 // MsgMint defines a message to mint the base native token.
@@ -43,21 +40,3 @@ message MsgReclaim {
 
 // MsgReclaimResponse defines the Msg/Reclaim response type.
 message MsgReclaimResponse {}
-
-message MsgAddToContractDenyList {
-
-    string contract_address = 1;
-
-    string from =2;
-}
-
-message MsgAddToContractDenyListResponse{}
-
-
-message MsgRemoveFromContractDenyList {
-
-    string contract_address = 1;
-
-    string from =2;
-}
-message MsgRemoveFromContractDenyListResponse{}
