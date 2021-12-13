@@ -29,25 +29,15 @@ func GetQueryCmd() *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	AccountDenyListQueryCmd := &cobra.Command{
-		Use:                        types.AccountDenyListName,
-		Short:                      "Querying commands for the account-deny-list",
-		DisableFlagParsing:         true,
-		SuggestionsMinimumDistance: 2,
-		RunE:                       client.ValidateCmd,
-	}
+
 	ContractDenyListQueryCmd.AddCommand(
 		NewGetContractDenyList(),
 		NewGetContractState(),
 	)
-	AccountDenyListQueryCmd.AddCommand(
-		NewGetAccountDenyList(),
-		NewGetAccountState(),
-	)
+
 	opbQueryCmd.AddCommand(
 		GetCmdQueryParams(),
 		ContractDenyListQueryCmd,
-		AccountDenyListQueryCmd,
 	)
 
 	return opbQueryCmd
@@ -125,58 +115,6 @@ func NewGetContractState() *cobra.Command {
 				Address: contractAddr,
 			}
 			res, err := queryClient.ContractState(context.Background(), req)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-	return cmd
-}
-
-func NewGetAccountDenyList() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "deny-list  [flags]",
-		Short: "get all account deny list",
-		Long:  "get all account deny list",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			req := &types.QueryAccountDenyListRequest{}
-			res, err := queryClient.AccountDenyList(context.Background(), req)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-	return cmd
-}
-func NewGetAccountState() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "account [accountAddress] [flags]",
-		Short: "get account state",
-		Long:  "get account state by account address",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-			addr := args[0]
-			req := &types.QueryAccountStateRequest{
-				Address: addr,
-			}
-			res, err := queryClient.AccountState(context.Background(), req)
 			if err != nil {
 				return err
 			}

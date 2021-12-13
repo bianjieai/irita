@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	wevmtypes "github.com/bianjieai/iritamod/modules/wevm/types"
-
 	appante "github.com/bianjieai/irita/modules/evm"
 	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,8 +16,6 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-
-	wevmkeeper "github.com/bianjieai/iritamod/modules/wevm/keeper"
 
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
@@ -53,7 +49,6 @@ type HandlerOptions struct {
 	// evm config
 	evmKeeper          appante.EVMKeeper
 	evmFeeMarketKeeper evmtypes.FeeMarketKeeper
-	wevmKeeper         wevmkeeper.Keeper
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -74,6 +69,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
+						perm.NewAuthDecorator(options.permKeeper),
 						opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper),
 						opbkeeper.NewEthCanCallDecorator(options.opbKeeper),
 						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
@@ -189,11 +185,6 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgRegisterRelayer{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgUpgradeClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgSetRoutingRules{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
-
-	// wevm auth
-	permKeeper.RegisterModuleAuth(wevmtypes.ModuleName, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&wevmtypes.MsgAddToContractDenyList{}, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&wevmtypes.MsgRemoveFromContractDenyList{}, perm.RoleRootAdmin)
 
 	return permKeeper
 }

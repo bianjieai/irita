@@ -12,8 +12,5 @@ var (
 	ErrNotFound = sdkerrors.Register(ModuleName, 6, "not found")
 	// ErrContractAlreadyExist returns an error that the contract is already in ContractDenyList
 	ErrContractAlreadyExist = sdkerrors.Register(ModuleName, 7, "contract already exist")
-	// ErrAccountAlreadyExist returns an error that the account is already in AccountDenyList
-	ErrAccountAlreadyExist = sdkerrors.Register(ModuleName, 8, "account already exist")
-	ErrContractDisable     = sdkerrors.Register(ModuleName, 9, "contract is disable")
-	ErrAccountDisable      = sdkerrors.Register(ModuleName, 10, "account is disable")
+	ErrContractDisable      = sdkerrors.Register(ModuleName, 9, "contract is disable")
 )

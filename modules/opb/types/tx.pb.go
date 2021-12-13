@@ -330,154 +330,6 @@ func (m *MsgRemoveFromContractDenyListResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRemoveFromContractDenyListResponse proto.InternalMessageInfo
 
-type MsgAddToAccountDenyList struct {
-	AccountAddress string `protobuf:"bytes,1,opt,name=account_address,json=accountAddress,proto3" json:"account_address,omitempty"`
-	From           string `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`
-}
-
-func (m *MsgAddToAccountDenyList) Reset()         { *m = MsgAddToAccountDenyList{} }
-func (m *MsgAddToAccountDenyList) String() string { return proto.CompactTextString(m) }
-func (*MsgAddToAccountDenyList) ProtoMessage()    {}
-func (*MsgAddToAccountDenyList) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4834be5158d6ac92, []int{8}
-}
-func (m *MsgAddToAccountDenyList) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgAddToAccountDenyList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgAddToAccountDenyList.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgAddToAccountDenyList) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgAddToAccountDenyList.Merge(m, src)
-}
-func (m *MsgAddToAccountDenyList) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgAddToAccountDenyList) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgAddToAccountDenyList.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgAddToAccountDenyList proto.InternalMessageInfo
-
-type MsgAddToAccountDenyListResponse struct {
-}
-
-func (m *MsgAddToAccountDenyListResponse) Reset()         { *m = MsgAddToAccountDenyListResponse{} }
-func (m *MsgAddToAccountDenyListResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgAddToAccountDenyListResponse) ProtoMessage()    {}
-func (*MsgAddToAccountDenyListResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4834be5158d6ac92, []int{9}
-}
-func (m *MsgAddToAccountDenyListResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgAddToAccountDenyListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgAddToAccountDenyListResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgAddToAccountDenyListResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgAddToAccountDenyListResponse.Merge(m, src)
-}
-func (m *MsgAddToAccountDenyListResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgAddToAccountDenyListResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgAddToAccountDenyListResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgAddToAccountDenyListResponse proto.InternalMessageInfo
-
-type MsgRemoveFromAccountDenyList struct {
-	AccountAddress string `protobuf:"bytes,1,opt,name=account_address,json=accountAddress,proto3" json:"account_address,omitempty"`
-	From           string `protobuf:"bytes,2,opt,name=from,proto3" json:"from,omitempty"`
-}
-
-func (m *MsgRemoveFromAccountDenyList) Reset()         { *m = MsgRemoveFromAccountDenyList{} }
-func (m *MsgRemoveFromAccountDenyList) String() string { return proto.CompactTextString(m) }
-func (*MsgRemoveFromAccountDenyList) ProtoMessage()    {}
-func (*MsgRemoveFromAccountDenyList) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4834be5158d6ac92, []int{10}
-}
-func (m *MsgRemoveFromAccountDenyList) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgRemoveFromAccountDenyList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgRemoveFromAccountDenyList.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgRemoveFromAccountDenyList) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgRemoveFromAccountDenyList.Merge(m, src)
-}
-func (m *MsgRemoveFromAccountDenyList) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgRemoveFromAccountDenyList) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgRemoveFromAccountDenyList.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgRemoveFromAccountDenyList proto.InternalMessageInfo
-
-type MsgRemoveFromAccountDenyListResponse struct {
-}
-
-func (m *MsgRemoveFromAccountDenyListResponse) Reset()         { *m = MsgRemoveFromAccountDenyListResponse{} }
-func (m *MsgRemoveFromAccountDenyListResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgRemoveFromAccountDenyListResponse) ProtoMessage()    {}
-func (*MsgRemoveFromAccountDenyListResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4834be5158d6ac92, []int{11}
-}
-func (m *MsgRemoveFromAccountDenyListResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgRemoveFromAccountDenyListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgRemoveFromAccountDenyListResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgRemoveFromAccountDenyListResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgRemoveFromAccountDenyListResponse.Merge(m, src)
-}
-func (m *MsgRemoveFromAccountDenyListResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgRemoveFromAccountDenyListResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgRemoveFromAccountDenyListResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgRemoveFromAccountDenyListResponse proto.InternalMessageInfo
-
 func init() {
 	proto.RegisterType((*MsgMint)(nil), "irita.opb.MsgMint")
 	proto.RegisterType((*MsgMintResponse)(nil), "irita.opb.MsgMintResponse")
@@ -487,48 +339,39 @@ func init() {
 	proto.RegisterType((*MsgAddToContractDenyListResponse)(nil), "irita.opb.MsgAddToContractDenyListResponse")
 	proto.RegisterType((*MsgRemoveFromContractDenyList)(nil), "irita.opb.MsgRemoveFromContractDenyList")
 	proto.RegisterType((*MsgRemoveFromContractDenyListResponse)(nil), "irita.opb.MsgRemoveFromContractDenyListResponse")
-	proto.RegisterType((*MsgAddToAccountDenyList)(nil), "irita.opb.MsgAddToAccountDenyList")
-	proto.RegisterType((*MsgAddToAccountDenyListResponse)(nil), "irita.opb.MsgAddToAccountDenyListResponse")
-	proto.RegisterType((*MsgRemoveFromAccountDenyList)(nil), "irita.opb.MsgRemoveFromAccountDenyList")
-	proto.RegisterType((*MsgRemoveFromAccountDenyListResponse)(nil), "irita.opb.MsgRemoveFromAccountDenyListResponse")
 }
 
 func init() { proto.RegisterFile("opb/tx.proto", fileDescriptor_4834be5158d6ac92) }
 
 var fileDescriptor_4834be5158d6ac92 = []byte{
-	// 505 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0xcb, 0x6e, 0xd3, 0x40,
-	0x14, 0x86, 0x63, 0x6a, 0x5a, 0x72, 0x84, 0x08, 0x8c, 0x52, 0x08, 0x56, 0xeb, 0x06, 0x73, 0x69,
-	0xb8, 0xc8, 0x46, 0x20, 0xb1, 0x60, 0x83, 0x02, 0x88, 0x05, 0xc2, 0x1b, 0x0b, 0x21, 0x01, 0x12,
-	0x68, 0x6c, 0x4f, 0xcd, 0xa0, 0xda, 0xc7, 0xf2, 0x4c, 0x50, 0xfb, 0x16, 0x3c, 0x02, 0xcf, 0xc2,
-	0xaa, 0xcb, 0x2e, 0x59, 0x42, 0xb2, 0xe1, 0x31, 0x50, 0x27, 0xf6, 0x54, 0x09, 0x8e, 0x89, 0x44,
-	0x76, 0x9e, 0x3f, 0xbf, 0xcf, 0xf7, 0x49, 0x39, 0x1e, 0x38, 0x8f, 0x79, 0xe8, 0xc9, 0x03, 0x37,
-	0x2f, 0x50, 0x22, 0x69, 0xf3, 0x82, 0x4b, 0xea, 0x62, 0x1e, 0x5a, 0xdd, 0x04, 0x13, 0x54, 0xa9,
-	0x77, 0xf2, 0x34, 0x2d, 0x38, 0x14, 0x36, 0x7c, 0x91, 0xf8, 0x3c, 0x93, 0xe4, 0x32, 0xac, 0xd3,
-	0x14, 0x47, 0x99, 0xec, 0x19, 0x7d, 0x63, 0x60, 0x06, 0xe5, 0x89, 0x6c, 0x41, 0xbb, 0x60, 0x11,
-	0xcf, 0x39, 0xcb, 0x64, 0xef, 0x4c, 0xdf, 0x18, 0xb4, 0x83, 0xd3, 0x80, 0x58, 0x70, 0x0e, 0x73,
-	0x56, 0x50, 0x89, 0x45, 0x6f, 0x4d, 0xfd, 0xa8, 0xcf, 0x8f, 0xcd, 0xdf, 0xdf, 0x76, 0x0c, 0xe7,
-	0x12, 0x74, 0x4a, 0x44, 0xc0, 0x44, 0x8e, 0x99, 0x60, 0x4e, 0x08, 0xe0, 0x8b, 0x24, 0x60, 0xd1,
-	0x3e, 0xe5, 0x29, 0xe9, 0xc2, 0xd9, 0x98, 0x65, 0x98, 0x2a, 0x6e, 0x3b, 0x98, 0x1e, 0xfe, 0x1b,
-	0xdb, 0x05, 0x72, 0xca, 0xd0, 0xe4, 0xb7, 0xd0, 0xf3, 0x45, 0x32, 0x8c, 0xe3, 0xd7, 0xf8, 0x0c,
-	0x33, 0x59, 0xd0, 0x48, 0x3e, 0x67, 0xd9, 0xe1, 0x2b, 0x2e, 0x24, 0xb9, 0x0d, 0x17, 0xa3, 0x32,
-	0xfb, 0x48, 0xe3, 0xb8, 0x60, 0x42, 0x94, 0x4a, 0x9d, 0x2a, 0x1f, 0x4e, 0x63, 0x42, 0xc0, 0xdc,
-	0x2b, 0x30, 0x2d, 0xbd, 0xd4, 0xb3, 0xe3, 0x40, 0x7f, 0xd1, 0x68, 0x8d, 0xff, 0x00, 0xdb, 0x4a,
-	0x2a, 0xc5, 0x2f, 0xec, 0x45, 0x81, 0xe9, 0xaa, 0x1d, 0x76, 0xe1, 0x66, 0xe3, 0x7c, 0x2d, 0xf2,
-	0x06, 0xae, 0x54, 0xb2, 0xc3, 0x28, 0x3a, 0xf9, 0x9f, 0xb5, 0xc2, 0x2e, 0x74, 0xe8, 0x34, 0x9a,
-	0x33, 0xb8, 0x50, 0xc6, 0x4d, 0x02, 0xd7, 0x60, 0x67, 0xc1, 0x5c, 0x8d, 0x7e, 0x0f, 0x5b, 0x33,
-	0x8e, 0x2b, 0xe5, 0xdf, 0x82, 0x1b, 0x4d, 0xc3, 0x2b, 0x89, 0x07, 0xdf, 0x4d, 0x58, 0xf3, 0x45,
-	0x42, 0x1e, 0x81, 0xa9, 0x96, 0x9f, 0xb8, 0xfa, 0x4b, 0x71, 0xcb, 0x6d, 0xb5, 0xac, 0xbf, 0xb3,
-	0xea, 0x7d, 0xf2, 0x04, 0x36, 0xaa, 0xf5, 0xdd, 0x9c, 0xad, 0x95, 0xb1, 0xb5, 0x5d, 0x1b, 0xeb,
-	0x01, 0x1c, 0x36, 0xeb, 0xb7, 0xf0, 0xfa, 0xec, 0x7b, 0xb5, 0x25, 0xeb, 0xee, 0x12, 0x25, 0x8d,
-	0x3a, 0x00, 0xab, 0x61, 0xe3, 0x06, 0xf3, 0x9e, 0x8b, 0x9a, 0xd6, 0xfd, 0x65, 0x9b, 0x9a, 0xbc,
-	0x07, 0xdd, 0xda, 0x15, 0x73, 0x6a, 0xf4, 0xe7, 0x3a, 0xd6, 0x9d, 0x7f, 0x77, 0x34, 0x67, 0x04,
-	0x57, 0x1b, 0xf6, 0x69, 0x91, 0xf6, 0x3c, 0xd1, 0x5b, 0xb2, 0x58, 0x61, 0x9f, 0xbe, 0x3c, 0xfa,
-	0x65, 0xb7, 0x8e, 0xc6, 0xb6, 0x71, 0x3c, 0xb6, 0x8d, 0x9f, 0x63, 0xdb, 0xf8, 0x3a, 0xb1, 0x5b,
-	0xc7, 0x13, 0xbb, 0xf5, 0x63, 0x62, 0xb7, 0xde, 0xdd, 0x4b, 0xb8, 0xfc, 0x34, 0x0a, 0xdd, 0x08,
-	0x53, 0x2f, 0xe4, 0x34, 0xfb, 0xcc, 0x19, 0xe5, 0x9e, 0x42, 0x78, 0x29, 0xc6, 0xa3, 0x7d, 0x26,
-	0x3c, 0x75, 0x59, 0x1f, 0xe6, 0x4c, 0x84, 0xeb, 0xea, 0x3e, 0x7e, 0xf8, 0x27, 0x00, 0x00, 0xff,
-	0xff, 0xfb, 0xf5, 0xbe, 0xf4, 0xc0, 0x05, 0x00, 0x00,
+	// 428 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x93, 0xc1, 0x6a, 0xd5, 0x40,
+	0x14, 0x86, 0x93, 0x36, 0xb6, 0xe6, 0x20, 0x54, 0x87, 0x5b, 0x09, 0x83, 0x8d, 0x97, 0x88, 0x78,
+	0x45, 0x49, 0x44, 0xc1, 0x85, 0x1b, 0xa9, 0x8a, 0x0b, 0x31, 0x9b, 0xe0, 0x46, 0x17, 0xca, 0x24,
+	0x19, 0xe3, 0x48, 0x67, 0x4e, 0x98, 0x99, 0x2b, 0xed, 0x5b, 0xf8, 0x08, 0x3e, 0x4e, 0x97, 0x5d,
+	0xba, 0xd4, 0x9b, 0x8d, 0x8f, 0x21, 0xce, 0x4d, 0x52, 0xaa, 0xb7, 0xa5, 0x60, 0x77, 0x73, 0xfe,
+	0xfc, 0x73, 0xbe, 0x9f, 0x9c, 0x39, 0x70, 0x05, 0xdb, 0x32, 0xb3, 0xfb, 0x69, 0xab, 0xd1, 0x22,
+	0x09, 0x85, 0x16, 0x96, 0xa5, 0xd8, 0x96, 0x74, 0xd2, 0x60, 0x83, 0x4e, 0xcd, 0xfe, 0x9c, 0x96,
+	0x86, 0x84, 0xc1, 0x66, 0x6e, 0x9a, 0x5c, 0x28, 0x4b, 0xae, 0xc3, 0x06, 0x93, 0x38, 0x57, 0x36,
+	0xf2, 0xa7, 0xfe, 0x2c, 0x28, 0xfa, 0x8a, 0xdc, 0x80, 0x50, 0xf3, 0x4a, 0xb4, 0x82, 0x2b, 0x1b,
+	0xad, 0x4d, 0xfd, 0x59, 0x58, 0x1c, 0x0b, 0x84, 0xc2, 0x65, 0x6c, 0xb9, 0x66, 0x16, 0x75, 0xb4,
+	0xee, 0x3e, 0x8e, 0xf5, 0x93, 0xe0, 0xd7, 0xb7, 0x9b, 0x7e, 0x72, 0x0d, 0xb6, 0x7a, 0x44, 0xc1,
+	0x4d, 0x8b, 0xca, 0xf0, 0xa4, 0x04, 0xc8, 0x4d, 0x53, 0xf0, 0x6a, 0x8f, 0x09, 0x49, 0x26, 0x70,
+	0xa9, 0xe6, 0x0a, 0xa5, 0xe3, 0x86, 0xc5, 0xb2, 0xf8, 0x6f, 0xec, 0x04, 0xc8, 0x31, 0x63, 0x24,
+	0xbf, 0x85, 0x28, 0x37, 0xcd, 0x6e, 0x5d, 0xbf, 0xc1, 0xe7, 0xa8, 0xac, 0x66, 0x95, 0x7d, 0xc1,
+	0xd5, 0xc1, 0x6b, 0x61, 0x2c, 0xb9, 0x0b, 0x57, 0xab, 0x5e, 0xfb, 0xc0, 0xea, 0x5a, 0x73, 0x63,
+	0xfa, 0x48, 0x5b, 0x83, 0xbe, 0xbb, 0x94, 0x09, 0x81, 0xe0, 0xa3, 0x46, 0xd9, 0xe7, 0x72, 0xe7,
+	0x24, 0x81, 0xe9, 0x69, 0xad, 0x47, 0xfc, 0x7b, 0xd8, 0x71, 0xa1, 0x24, 0x7e, 0xe1, 0x2f, 0x35,
+	0xca, 0x8b, 0xce, 0x70, 0x07, 0x6e, 0x9f, 0xd9, 0x7f, 0x08, 0xf2, 0xb0, 0x5b, 0x83, 0xf5, 0xdc,
+	0x34, 0xe4, 0x31, 0x04, 0x6e, 0xf8, 0x24, 0x1d, 0x5f, 0x4a, 0xda, 0x4f, 0x8b, 0xd2, 0x7f, 0xb5,
+	0xe1, 0x3e, 0x79, 0x0a, 0x9b, 0xc3, 0xf8, 0xb6, 0x4f, 0xda, 0x7a, 0x99, 0xee, 0xac, 0x94, 0xc7,
+	0x06, 0x02, 0xb6, 0x57, 0x4f, 0xe1, 0xd6, 0xc9, 0x7b, 0x2b, 0x4d, 0xf4, 0xde, 0x39, 0x4c, 0x23,
+	0x6a, 0x1f, 0xe8, 0x19, 0x7f, 0x7c, 0xf6, 0x77, 0xce, 0xd3, 0x9c, 0xf4, 0xc1, 0x79, 0x9d, 0x03,
+	0xf9, 0xd9, 0xab, 0xc3, 0x9f, 0xb1, 0x77, 0xb8, 0x88, 0xfd, 0xa3, 0x45, 0xec, 0xff, 0x58, 0xc4,
+	0xfe, 0xd7, 0x2e, 0xf6, 0x8e, 0xba, 0xd8, 0xfb, 0xde, 0xc5, 0xde, 0xbb, 0xfb, 0x8d, 0xb0, 0x9f,
+	0xe6, 0x65, 0x5a, 0xa1, 0xcc, 0x4a, 0xc1, 0xd4, 0x67, 0xc1, 0x99, 0xc8, 0x1c, 0x23, 0x93, 0x58,
+	0xcf, 0xf7, 0xb8, 0xc9, 0xdc, 0x36, 0x1f, 0xb4, 0xdc, 0x94, 0x1b, 0x6e, 0x61, 0x1f, 0xfd, 0x0e,
+	0x00, 0x00, 0xff, 0xff, 0x31, 0xde, 0xb3, 0x0e, 0xe1, 0x03, 0x00, 0x00,
 }
 
 func (this *MsgMint) Equal(that interface{}) bool {
@@ -611,8 +454,6 @@ type MsgClient interface {
 	Reclaim(ctx context.Context, in *MsgReclaim, opts ...grpc.CallOption) (*MsgReclaimResponse, error)
 	AddToContractDenyList(ctx context.Context, in *MsgAddToContractDenyList, opts ...grpc.CallOption) (*MsgAddToContractDenyListResponse, error)
 	RemoveFromContractDenyList(ctx context.Context, in *MsgRemoveFromContractDenyList, opts ...grpc.CallOption) (*MsgRemoveFromContractDenyListResponse, error)
-	AddToAccountDenyList(ctx context.Context, in *MsgAddToAccountDenyList, opts ...grpc.CallOption) (*MsgAddToAccountDenyListResponse, error)
-	RemoveFromAccountDenyList(ctx context.Context, in *MsgRemoveFromAccountDenyList, opts ...grpc.CallOption) (*MsgRemoveFromAccountDenyListResponse, error)
 }
 
 type msgClient struct {
@@ -659,24 +500,6 @@ func (c *msgClient) RemoveFromContractDenyList(ctx context.Context, in *MsgRemov
 	return out, nil
 }
 
-func (c *msgClient) AddToAccountDenyList(ctx context.Context, in *MsgAddToAccountDenyList, opts ...grpc.CallOption) (*MsgAddToAccountDenyListResponse, error) {
-	out := new(MsgAddToAccountDenyListResponse)
-	err := c.cc.Invoke(ctx, "/irita.opb.Msg/AddToAccountDenyList", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *msgClient) RemoveFromAccountDenyList(ctx context.Context, in *MsgRemoveFromAccountDenyList, opts ...grpc.CallOption) (*MsgRemoveFromAccountDenyListResponse, error) {
-	out := new(MsgRemoveFromAccountDenyListResponse)
-	err := c.cc.Invoke(ctx, "/irita.opb.Msg/RemoveFromAccountDenyList", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// Mint defines a method for minting the base native token.
@@ -686,8 +509,6 @@ type MsgServer interface {
 	Reclaim(context.Context, *MsgReclaim) (*MsgReclaimResponse, error)
 	AddToContractDenyList(context.Context, *MsgAddToContractDenyList) (*MsgAddToContractDenyListResponse, error)
 	RemoveFromContractDenyList(context.Context, *MsgRemoveFromContractDenyList) (*MsgRemoveFromContractDenyListResponse, error)
-	AddToAccountDenyList(context.Context, *MsgAddToAccountDenyList) (*MsgAddToAccountDenyListResponse, error)
-	RemoveFromAccountDenyList(context.Context, *MsgRemoveFromAccountDenyList) (*MsgRemoveFromAccountDenyListResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -705,12 +526,6 @@ func (*UnimplementedMsgServer) AddToContractDenyList(ctx context.Context, req *M
 }
 func (*UnimplementedMsgServer) RemoveFromContractDenyList(ctx context.Context, req *MsgRemoveFromContractDenyList) (*MsgRemoveFromContractDenyListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveFromContractDenyList not implemented")
-}
-func (*UnimplementedMsgServer) AddToAccountDenyList(ctx context.Context, req *MsgAddToAccountDenyList) (*MsgAddToAccountDenyListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddToAccountDenyList not implemented")
-}
-func (*UnimplementedMsgServer) RemoveFromAccountDenyList(ctx context.Context, req *MsgRemoveFromAccountDenyList) (*MsgRemoveFromAccountDenyListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RemoveFromAccountDenyList not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -789,42 +604,6 @@ func _Msg_RemoveFromContractDenyList_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_AddToAccountDenyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgAddToAccountDenyList)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).AddToAccountDenyList(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/irita.opb.Msg/AddToAccountDenyList",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).AddToAccountDenyList(ctx, req.(*MsgAddToAccountDenyList))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Msg_RemoveFromAccountDenyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgRemoveFromAccountDenyList)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).RemoveFromAccountDenyList(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/irita.opb.Msg/RemoveFromAccountDenyList",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).RemoveFromAccountDenyList(ctx, req.(*MsgRemoveFromAccountDenyList))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "irita.opb.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -844,14 +623,6 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveFromContractDenyList",
 			Handler:    _Msg_RemoveFromContractDenyList_Handler,
-		},
-		{
-			MethodName: "AddToAccountDenyList",
-			Handler:    _Msg_AddToAccountDenyList_Handler,
-		},
-		{
-			MethodName: "RemoveFromAccountDenyList",
-			Handler:    _Msg_RemoveFromAccountDenyList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1110,126 +881,6 @@ func (m *MsgRemoveFromContractDenyListResponse) MarshalToSizedBuffer(dAtA []byte
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgAddToAccountDenyList) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgAddToAccountDenyList) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgAddToAccountDenyList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.From) > 0 {
-		i -= len(m.From)
-		copy(dAtA[i:], m.From)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.From)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.AccountAddress) > 0 {
-		i -= len(m.AccountAddress)
-		copy(dAtA[i:], m.AccountAddress)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.AccountAddress)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgAddToAccountDenyListResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgAddToAccountDenyListResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgAddToAccountDenyListResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgRemoveFromAccountDenyList) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgRemoveFromAccountDenyList) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgRemoveFromAccountDenyList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.From) > 0 {
-		i -= len(m.From)
-		copy(dAtA[i:], m.From)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.From)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.AccountAddress) > 0 {
-		i -= len(m.AccountAddress)
-		copy(dAtA[i:], m.AccountAddress)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.AccountAddress)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgRemoveFromAccountDenyListResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgRemoveFromAccountDenyListResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgRemoveFromAccountDenyListResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -1344,58 +995,6 @@ func (m *MsgRemoveFromContractDenyList) Size() (n int) {
 }
 
 func (m *MsgRemoveFromContractDenyListResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *MsgAddToAccountDenyList) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.AccountAddress)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.From)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgAddToAccountDenyListResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *MsgRemoveFromAccountDenyList) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.AccountAddress)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.From)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgRemoveFromAccountDenyListResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2115,346 +1714,6 @@ func (m *MsgRemoveFromContractDenyListResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgRemoveFromContractDenyListResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgAddToAccountDenyList) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgAddToAccountDenyList: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgAddToAccountDenyList: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AccountAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.AccountAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field From", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.From = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgAddToAccountDenyListResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgAddToAccountDenyListResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgAddToAccountDenyListResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgRemoveFromAccountDenyList) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgRemoveFromAccountDenyList: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgRemoveFromAccountDenyList: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AccountAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.AccountAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field From", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.From = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgRemoveFromAccountDenyListResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgRemoveFromAccountDenyListResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgRemoveFromAccountDenyListResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

@@ -32,17 +32,7 @@ func NewTxCmd() *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-	AccountDenyListTxCmd := &cobra.Command{
-		Use:                        types.AccountDenyListName,
-		Short:                      "account-deny-list transaction subcommands",
-		DisableFlagParsing:         true,
-		SuggestionsMinimumDistance: 2,
-		RunE:                       client.ValidateCmd,
-	}
-	AccountDenyListTxCmd.AddCommand(
-		NewAddToAccountDenyList(),
-		NewRemoveFromAccountDenyList(),
-	)
+
 	ContractDenyListTxCmd.AddCommand(
 		NewAddToContractDenyList(),
 		NewRemoveFromContractDenyList(),
@@ -51,7 +41,6 @@ func NewTxCmd() *cobra.Command {
 	opbTxCmd.AddCommand(
 		NewMintCmd(),
 		NewReclaimCmd(),
-		AccountDenyListTxCmd,
 		ContractDenyListTxCmd,
 	)
 
@@ -191,58 +180,6 @@ func NewRemoveFromContractDenyList() *cobra.Command {
 			contractAddr := args[0]
 			msg := types.NewMsgRemoveFromContractDenyList(
 				contractAddr,
-				sender,
-			)
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-	flags.AddTxFlagsToCmd(cmd)
-	return cmd
-}
-
-func NewAddToAccountDenyList() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "add [accountAddress] [flags]",
-		Args:  cobra.ExactArgs(1),
-		Short: "add account address to account deny list",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-			sender := clientCtx.GetFromAddress().String()
-			addr := args[0]
-			msg := types.NewMsgAddToAccountDenyList(
-				addr,
-				sender,
-			)
-			if err := msg.ValidateBasic(); err != nil {
-				return err
-			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-	flags.AddTxFlagsToCmd(cmd)
-	return cmd
-}
-
-func NewRemoveFromAccountDenyList() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "remove [accountAddress] [flags]",
-		Args:  cobra.ExactArgs(1),
-		Short: "remove account address from account deny list",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-			sender := clientCtx.GetFromAddress().String()
-			addr := args[0]
-			msg := types.NewMsgRemoveFromAccountDenyList(
-				addr,
 				sender,
 			)
 			if err := msg.ValidateBasic(); err != nil {

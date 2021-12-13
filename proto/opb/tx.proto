@@ -18,12 +18,6 @@ service Msg {
     rpc AddToContractDenyList(MsgAddToContractDenyList) returns (MsgAddToContractDenyListResponse);
 
     rpc RemoveFromContractDenyList(MsgRemoveFromContractDenyList) returns (MsgRemoveFromContractDenyListResponse);
-
-    rpc AddToAccountDenyList(MsgAddToAccountDenyList) returns (MsgAddToAccountDenyListResponse);
-
-    rpc RemoveFromAccountDenyList(MsgRemoveFromAccountDenyList) returns (MsgRemoveFromAccountDenyListResponse);
-
-
 }
 
 // MsgMint defines a message to mint the base native token.
@@ -67,22 +61,3 @@ message MsgRemoveFromContractDenyList {
     string from =2;
 }
 message MsgRemoveFromContractDenyListResponse{}
-
-message MsgAddToAccountDenyList {
-
-    string account_address = 1;
-
-    string from =2;
-}
-
-message MsgAddToAccountDenyListResponse{}
-
-
-message MsgRemoveFromAccountDenyList {
-
-    string account_address = 1;
-
-    string from =2;
-}
-
-message MsgRemoveFromAccountDenyListResponse{}

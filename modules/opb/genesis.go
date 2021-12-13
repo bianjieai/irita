@@ -38,6 +38,5 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *GenesisState {
 	return NewGenesisState(
 		k.GetParams(ctx),
 		k.GetContractDenyList(ctx),
-		k.GetAccountDenyList(ctx),
 	)
 }

@@ -81,7 +81,6 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/gateway v1.1.0 // indirect
-	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
@@ -163,8 +162,10 @@ require (
 )
 
 replace (
+	github.com/bianjieai/iritamod => /Users/bianjie/work/gowork/bianjieai/iritamod
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
-	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.8.2-0.20211209034154-93392c59d6dc
+	//github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.8.2-0.20211209034154-93392c59d6dc
+	github.com/tharsis/ethermint => /Users/bianjie/work/gowork/bianjieai/ethermint
 )

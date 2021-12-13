@@ -169,33 +169,3 @@ func (k Keeper) RemoveFromContractDenyList(ctx sdk.Context, contractAddress stri
 	}
 	return nil
 }
-
-// AddToAccountDenyList add account address to AccountDenyList
-func (k Keeper) AddToAccountDenyList(ctx sdk.Context, address string) error {
-	store := k.GetStore(ctx)
-	accountAddress, err := sdk.AccAddressFromBech32(address)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
-	}
-	if get := store.Get(types.AccountDenyListKey(accountAddress)); get != nil {
-		return errors.Wrap(types.ErrAccountAlreadyExist, "account already in DenyList")
-	}
-	store.Set(types.AccountDenyListKey(accountAddress), []byte("true"))
-	return nil
-}
-
-// RemoveFromAccountDenyList remove account address from AccountDenyList
-func (k Keeper) RemoveFromAccountDenyList(ctx sdk.Context, address string) error {
-	store := k.GetStore(ctx)
-	accountAddress, err := sdk.AccAddressFromBech32(address)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "string could not be parsed as address: %v", err)
-	}
-	get := store.Get(types.AccountDenyListKey(accountAddress))
-	if get != nil {
-		store.Delete(types.AccountDenyListKey(accountAddress))
-	} else {
-		return errors.Wrapf(types.ErrNotFound, "the %s is not in contract dany list", accountAddress)
-	}
-	return nil
-}

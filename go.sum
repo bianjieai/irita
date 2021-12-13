@@ -148,10 +148,6 @@ github.com/bgentry/speakeasy v0.1.0 h1:ByYyxL9InA1OWqxJqqp2A5pYHUrCiAL6K3J+LKSsQ
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102 h1:o+vk7ds4Bnx9nHND4Oom3hySqLjygJNyu9ap5P+0qlc=
 github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102/go.mod h1:GGKbc9mvV37/jXlFz8eMSfhMQG+1svdAcpdmLn3FDr4=
-github.com/bianjieai/ethermint v0.8.2-0.20211209034154-93392c59d6dc h1:bM3HPaPJ3fYwsQ57OYCUciN0PQR+1TrdULrLGOBydTA=
-github.com/bianjieai/ethermint v0.8.2-0.20211209034154-93392c59d6dc/go.mod h1:NVipGnqQhkSDG62yMX+bKAo14O3G2fwFIi7oqDw1AB8=
-github.com/bianjieai/iritamod v1.1.1-0.20211203070030-a933e9795048 h1:C2ysW8/OMse0q1p4XCVB1Oj4RAX+PHL0uBqeG2Uz0JY=
-github.com/bianjieai/iritamod v1.1.1-0.20211203070030-a933e9795048/go.mod h1:JF8B3rssjHY+0nhWahpw5613UpRYtYFrz62tDOYB/Gs=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3 h1:M4C+ilCPiP2c2yMdeYaZLwquEBfFa4Uvt1BDviSYD0E=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3/go.mod h1:2u6xthTnwDYLhO38cDYp8CxzKq7hwJFvCXeK1pEErtM=
 github.com/bianjieai/tibc-go v0.2.0 h1:3EAklRZwdLsTS9G9Q7Wd+N3oZhLOvSCKZRkQbIPCv2s=
@@ -411,7 +407,6 @@ github.com/gogo/gateway v1.1.0/go.mod h1:S7rR8FRQyG3QFESeSv4l2WnsyzlCLG0CzBbUUo/
 github.com/gogo/googleapis v1.1.0/go.mod h1:gf4bu3Q80BeJ6H1S1vYPm8/ELATdvryBaNFGgqEef3s=
 github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0/go.mod h1:E/TSTwGwJL78qG/PmXZO1EjYhfJinVAhrmmHX6Z8B9k=
 github.com/golang/geo v0.0.0-20190916061304-5b978397cfec/go.mod h1:QZ0nwyI2jOfgRAoBvP+ab5aRr7c9x7lhGEJrKvBwjWI=
-github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b h1:VKtxabqXZkF25pY9ekfRL6a582T4P37/31XEstQ5p58=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20160516000752-02826c3e7903/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=

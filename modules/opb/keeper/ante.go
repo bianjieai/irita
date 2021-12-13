@@ -33,11 +33,6 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 	// check only if the transfer restriction is enabled
 	if restrictionEnabled {
 		for _, msg := range tx.GetMsgs() {
-			err = vtd.validateAccountAddress(ctx, msg)
-			if err != nil {
-				return newCtx, err
-			}
-
 			switch msg := msg.(type) {
 			case *banktypes.MsgSend:
 				err := vtd.validateMsgSend(ctx, msg)
@@ -49,31 +44,11 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 				if err != nil {
 					return ctx, err
 				}
-
-			}
-		}
-	} else {
-		for _, msg := range tx.GetMsgs() {
-			err = vtd.validateAccountAddress(ctx, msg)
-			if err != nil {
-				return newCtx, err
 			}
 		}
 	}
 
 	return next(ctx, tx, simulate)
-}
-
-// validateMsgSend validates the MsgSend msg
-func (vtd ValidateTokenTransferDecorator) validateAccountAddress(ctx sdk.Context, msg sdk.Msg) error {
-	signers := msg.GetSigners()
-	for _, singer := range signers {
-		state, _ := vtd.keeper.GetAccountState(ctx, singer.String())
-		if state {
-			return sdkerrors.Wrapf(types.ErrAccountDisable, "the account %s is in account deny list ", singer.String())
-		}
-	}
-	return nil
 }
 
 // validateMsgSend validates the MsgSend msg

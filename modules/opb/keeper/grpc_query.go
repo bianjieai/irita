@@ -34,21 +34,3 @@ func (k Keeper) ContractDenyList(goCtx context.Context, request *types.QueryCont
 	}
 	return &types.QueryContractDenyListResponse{ContractAddress: list}, nil
 }
-
-func (k Keeper) AccountState(goCtx context.Context, request *types.QueryAccountStateRequest) (*types.QueryAccountStateResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	state, err := k.GetAccountState(ctx, request.GetAddress())
-	if err != nil {
-		return nil, err
-	}
-	return &types.QueryAccountStateResponse{Exist: state}, nil
-}
-
-func (k Keeper) AccountDenyList(goCtx context.Context, request *types.QueryAccountDenyListRequest) (*types.QueryAccountDenyListResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	list, err := k.IteratorAccountDanyList(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &types.QueryAccountDenyListResponse{AccountAddress: list}, nil
-}

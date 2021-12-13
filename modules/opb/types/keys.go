@@ -3,8 +3,6 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -40,13 +38,4 @@ func ContractDenyListPath(contractAddress common.Address) string {
 // ContractDenyListKey defines the full key under which a contract deny list is stored.
 func ContractDenyListKey(contractAddress common.Address) []byte {
 	return []byte(ContractDenyListPath(contractAddress))
-}
-
-func AccountDenyListPath(accountAddress sdk.Address) string {
-	return fmt.Sprintf("%s/%s", KeyPrefixAccountDenyList, accountAddress)
-}
-
-// AccountDenyListKey defines the full key under which an account deny list is stored.
-func AccountDenyListKey(accountAddress sdk.Address) []byte {
-	return []byte(AccountDenyListPath(accountAddress))
 }
