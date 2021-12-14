@@ -70,7 +70,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
 						perm.NewAuthDecorator(options.permKeeper),
-						perm.NewEthCanCallDecorator(options.permKeeper),
+						appante.NewEthCanCallDecorator(options.permKeeper),
 						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),

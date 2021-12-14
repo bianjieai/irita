@@ -4,6 +4,9 @@ import (
 	"errors"
 	"math/big"
 
+	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
+	"github.com/bianjieai/iritamod/modules/perm/types"
+
 	"github.com/palantir/stacktrace"
 
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
@@ -639,4 +642,29 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 	newCtx = ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
 	return next(newCtx, tx, simulate)
+}
+
+type EthCanCallDecorator struct {
+	keeper permkeeper.Keeper
+}
+
+func NewEthCanCallDecorator(Keeper permkeeper.Keeper) EthCanCallDecorator {
+	return EthCanCallDecorator{keeper: Keeper}
+}
+
+func (e EthCanCallDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	for _, msg := range tx.GetMsgs() {
+		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
+		if !ok {
+			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
+		}
+		ethTx := msgEthTx.AsTransaction()
+		if ethTx.To() != nil {
+			state := e.keeper.GetBlockContract(ctx, *ethTx.To())
+			if state {
+				return ctx, sdkerrors.Wrapf(types.ErrContractDisable, "the contract %s is in contract deny list ! ", ethTx.To())
+			}
+		}
+	}
+	return next(ctx, tx, simulate)
 }
