@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/99designs/keyring v1.1.6
-	github.com/bianjieai/iritamod v1.1.2-0.20211214022448-6a1534b0c061
+	github.com/bianjieai/iritamod v1.1.2-0.20211214060650-90401af14463
 	github.com/bianjieai/tibc-go v0.2.0
 	github.com/cosmos/cosmos-sdk v0.44.3
 	github.com/cosmos/go-bip39 v1.0.0
