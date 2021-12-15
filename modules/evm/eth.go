@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/bianjieai/iritamod/modules/perm/types"
+	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
 
 	"github.com/palantir/stacktrace"
 
@@ -172,7 +172,7 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 		)
 	}
 
-	chainID, err := ethermint.ParseChainID(ctx.ChainID())
+	chainID, err := ethermint.IritaParseChainID(ctx.ChainID())
 	if err != nil {
 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrInvalidChainID, "chainID is invalid %s", chainID)
 	}
@@ -644,7 +644,7 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 }
 
 type ContractCallable interface {
-	GetBlockContract(sdk.Context, common.Address) bool
+	GetBlockContract(sdk.Context, []byte) bool
 }
 
 type EthContractCallableDecorator struct {
@@ -663,9 +663,9 @@ func (e EthContractCallableDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 		}
 		ethTx := msgEthTx.AsTransaction()
 		if ethTx.To() != nil {
-			state := e.contractCallable.GetBlockContract(ctx, *ethTx.To())
+			state := e.contractCallable.GetBlockContract(ctx, ethTx.To().Bytes())
 			if state {
-				return ctx, sdkerrors.Wrapf(types.ErrContractDisable, "the contract %s is in contract deny list ! ", ethTx.To())
+				return ctx, sdkerrors.Wrapf(permtypes.ErrContractDisable, "the contract %s is in contract deny list ! ", ethTx.To())
 			}
 		}
 	}
