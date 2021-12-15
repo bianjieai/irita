@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	appante "github.com/bianjieai/irita/modules/evm"
-	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -14,6 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+
+	appante "github.com/bianjieai/irita/modules/evm"
+	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
@@ -69,19 +70,19 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
-						perm.NewAuthDecorator(options.permKeeper),
-						appante.NewEthCanCallDecorator(options.permKeeper),
-						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.accountKeeper),
 						appante.NewEthValidateBasicDecorator(options.evmKeeper),
+						appante.NewEvmContractCallableDecorator(options.permKeeper),
+						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 						appante.NewEthSigVerificationDecorator(options.evmKeeper, options.accountKeeper, options.signModeHandler),
 						appante.NewEthAccountVerificationDecorator(options.accountKeeper, options.bankKeeper, options.evmKeeper),
 						appante.NewEthNonceVerificationDecorator(options.accountKeeper),
 						appante.NewEthGasConsumeDecorator(options.evmKeeper),
 						appante.NewCanTransferDecorator(options.evmKeeper, options.evmFeeMarketKeeper),
 						appante.NewEthIncrementSenderSequenceDecorator(options.accountKeeper), // innermost AnteDecorator.
+						perm.NewAuthDecorator(options.permKeeper),
 					)
 
 				default:

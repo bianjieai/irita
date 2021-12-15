@@ -6,9 +6,10 @@ import (
 	"github.com/tharsis/ethermint/encoding"
 
 	//ethermintserver "github.com/tharsis/ethermint/server"
+	servercfg "github.com/tharsis/ethermint/server/config"
+
 	evmclient "github.com/bianjieai/irita/modules/evm/client"
 	evmserver "github.com/bianjieai/irita/modules/evm/server"
-	servercfg "github.com/tharsis/ethermint/server/config"
 
 	"io"
 	"os"

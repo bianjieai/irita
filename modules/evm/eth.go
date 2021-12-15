@@ -644,15 +644,15 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 	return next(newCtx, tx, simulate)
 }
 
-type EthCanCallDecorator struct {
+type EvmContractCallableDecorator struct {
 	keeper permkeeper.Keeper
 }
 
-func NewEthCanCallDecorator(Keeper permkeeper.Keeper) EthCanCallDecorator {
-	return EthCanCallDecorator{keeper: Keeper}
+func NewEvmContractCallableDecorator(Keeper permkeeper.Keeper) EvmContractCallableDecorator {
+	return EvmContractCallableDecorator{keeper: Keeper}
 }
 
-func (e EthCanCallDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (e EvmContractCallableDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {

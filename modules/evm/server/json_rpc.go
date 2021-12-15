@@ -9,12 +9,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 
-	iritaevmrpc "github.com/bianjieai/irita/modules/evm/rpc"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
 	"github.com/tharsis/ethermint/server/config"
+
+	iritaevmrpc "github.com/bianjieai/irita/modules/evm/rpc"
 )
 
 // StartJSONRPC starts the JSON-RPC server

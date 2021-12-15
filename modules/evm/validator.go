@@ -5,11 +5,12 @@ import (
 
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
+
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 )
 
 type EthOpbValidator struct {
