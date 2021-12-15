@@ -4,7 +4,6 @@ import (
 	"errors"
 	"math/big"
 
-	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
 	"github.com/bianjieai/iritamod/modules/perm/types"
 
 	"github.com/palantir/stacktrace"
@@ -644,12 +643,16 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 	return next(newCtx, tx, simulate)
 }
 
-type EvmContractCallableDecorator struct {
-	keeper permkeeper.Keeper
+type ContractCallable interface {
+	GetBlockContract(sdk.Context, common.Address) bool
 }
 
-func NewEvmContractCallableDecorator(Keeper permkeeper.Keeper) EvmContractCallableDecorator {
-	return EvmContractCallableDecorator{keeper: Keeper}
+type EvmContractCallableDecorator struct {
+	contractCallable ContractCallable
+}
+
+func NewEvmContractCallableDecorator(contractCallable ContractCallable) EvmContractCallableDecorator {
+	return EvmContractCallableDecorator{contractCallable: contractCallable}
 }
 
 func (e EvmContractCallableDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
@@ -660,7 +663,7 @@ func (e EvmContractCallableDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 		}
 		ethTx := msgEthTx.AsTransaction()
 		if ethTx.To() != nil {
-			state := e.keeper.GetBlockContract(ctx, *ethTx.To())
+			state := e.contractCallable.GetBlockContract(ctx, *ethTx.To())
 			if state {
 				return ctx, sdkerrors.Wrapf(types.ErrContractDisable, "the contract %s is in contract deny list ! ", ethTx.To())
 			}
