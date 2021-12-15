@@ -647,15 +647,15 @@ type ContractCallable interface {
 	GetBlockContract(sdk.Context, common.Address) bool
 }
 
-type EvmContractCallableDecorator struct {
+type EthContractCallableDecorator struct {
 	contractCallable ContractCallable
 }
 
-func NewEvmContractCallableDecorator(contractCallable ContractCallable) EvmContractCallableDecorator {
-	return EvmContractCallableDecorator{contractCallable: contractCallable}
+func NewEthContractCallableDecorator(contractCallable ContractCallable) EthContractCallableDecorator {
+	return EthContractCallableDecorator{contractCallable: contractCallable}
 }
 
-func (e EvmContractCallableDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (e EthContractCallableDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	for _, msg := range tx.GetMsgs() {
 		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
 		if !ok {

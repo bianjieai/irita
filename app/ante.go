@@ -74,7 +74,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.accountKeeper),
 						appante.NewEthValidateBasicDecorator(options.evmKeeper),
-						appante.NewEvmContractCallableDecorator(options.permKeeper),
+						appante.NewEthContractCallableDecorator(options.permKeeper),
 						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 						appante.NewEthSigVerificationDecorator(options.evmKeeper, options.accountKeeper, options.signModeHandler),
 						appante.NewEthAccountVerificationDecorator(options.accountKeeper, options.bankKeeper, options.evmKeeper),
