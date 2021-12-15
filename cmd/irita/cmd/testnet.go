@@ -31,7 +31,6 @@ import (
 	"github.com/tendermint/tendermint/types"
 	tmtime "github.com/tendermint/tendermint/types/time"
 
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -45,15 +44,19 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 
+	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+
+	servicetypes "github.com/irisnet/irismod/modules/service/types"
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
+
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
-	servicetypes "github.com/irisnet/irismod/modules/service/types"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
+
+	evmosConfig "github.com/tharsis/ethermint/server/config"
 
 	opbtypes "github.com/bianjieai/irita/modules/opb/types"
-	evmosConfig "github.com/tharsis/ethermint/server/config"
 )
 
 const (

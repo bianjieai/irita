@@ -1,20 +1,10 @@
 package cmd
 
 import (
-	ethermintclient "github.com/tharsis/ethermint/client"
-	"github.com/tharsis/ethermint/crypto/hd"
-	"github.com/tharsis/ethermint/encoding"
-
-	//ethermintserver "github.com/tharsis/ethermint/server"
-	evmclient "github.com/bianjieai/irita/modules/evm/client"
-	evmserver "github.com/bianjieai/irita/modules/evm/server"
-	servercfg "github.com/tharsis/ethermint/server/config"
-
 	"io"
 	"os"
 	"path/filepath"
 
-	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cast"
@@ -27,6 +17,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -45,6 +36,16 @@ import (
 	"github.com/bianjieai/iritamod/modules/node"
 
 	"github.com/bianjieai/irita/app"
+
+	"github.com/CosmWasm/wasmd/x/wasm"
+
+	ethermintclient "github.com/tharsis/ethermint/client"
+	"github.com/tharsis/ethermint/crypto/hd"
+	"github.com/tharsis/ethermint/encoding"
+	servercfg "github.com/tharsis/ethermint/server/config"
+
+	evmclient "github.com/bianjieai/irita/modules/evm/client"
+	evmserver "github.com/bianjieai/irita/modules/evm/server"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
@@ -138,6 +139,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
+	wasm.AddModuleInitFlags(startCmd)
 }
 
 func queryCommand() *cobra.Command {

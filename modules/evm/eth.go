@@ -4,6 +4,8 @@ import (
 	"errors"
 	"math/big"
 
+	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
+
 	"github.com/palantir/stacktrace"
 
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
@@ -170,7 +172,7 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 		)
 	}
 
-	chainID, err := ethermint.ParseChainID(ctx.ChainID())
+	chainID, err := ethermint.IritaParseChainID(ctx.ChainID())
 	if err != nil {
 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrInvalidChainID, "chainID is invalid %s", chainID)
 	}
@@ -639,4 +641,33 @@ func (esc EthSetupContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 	newCtx = ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
 	return next(newCtx, tx, simulate)
+}
+
+type ContractCallable interface {
+	GetBlockContract(sdk.Context, []byte) bool
+}
+
+type EthContractCallableDecorator struct {
+	contractCallable ContractCallable
+}
+
+func NewEthContractCallableDecorator(contractCallable ContractCallable) EthContractCallableDecorator {
+	return EthContractCallableDecorator{contractCallable: contractCallable}
+}
+
+func (e EthContractCallableDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	for _, msg := range tx.GetMsgs() {
+		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
+		if !ok {
+			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
+		}
+		ethTx := msgEthTx.AsTransaction()
+		if ethTx.To() != nil {
+			state := e.contractCallable.GetBlockContract(ctx, ethTx.To().Bytes())
+			if state {
+				return ctx, sdkerrors.Wrapf(permtypes.ErrContractDisable, "the contract %s is in contract deny list ! ", ethTx.To())
+			}
+		}
+	}
+	return next(ctx, tx, simulate)
 }

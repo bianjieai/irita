@@ -14,6 +14,7 @@ service Msg {
     // Reclaim defines a method for reclaiming the specified native token
     // from the corresponding escrow.
     rpc Reclaim(MsgReclaim) returns (MsgReclaimResponse);
+
 }
 
 // MsgMint defines a message to mint the base native token.

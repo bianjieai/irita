@@ -6,9 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+	"github.com/CosmWasm/wasmd/x/wasm"
+
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"github.com/bianjieai/irita/modules/evm/crypto"
+	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 
 	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
@@ -129,18 +132,13 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
-
-	wevm "github.com/bianjieai/iritamod/modules/wevm"
-	wevmkeeper "github.com/bianjieai/iritamod/modules/wevm/keeper"
-	wevmtypes "github.com/bianjieai/iritamod/modules/wevm/types"
 )
 
 const appName = "IritaApp"
 
+// DefaultNodeHome default home directories for the application daemon
+var DefaultNodeHome string
 var (
-	// DefaultNodeHome default home directories for the application daemon
-	DefaultNodeHome string
-
 	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
 	// and genesis verification.
@@ -167,13 +165,12 @@ var (
 		opb.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
+		wasm.AppModuleBasic{},
 
 		// evm
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
-		wevm.AppModuleBasic{},
 	)
-
 	// module account permissions
 	maccPerms = map[string][]string{
 		authtypes.FeeCollectorName:          nil,
@@ -186,7 +183,6 @@ var (
 		// evm
 		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 	}
-
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{}
 )
@@ -252,6 +248,7 @@ type IritaApp struct {
 	wservicekeeper   wservicekeeper.IKeeper
 	feeGrantKeeper   feegrantkeeper.Keeper
 	capabilityKeeper *capabilitykeeper.Keeper
+	wasmKeeper       wasm.Keeper
 	// tibc
 	scopedTIBCKeeper     capabilitykeeper.ScopedKeeper
 	scopedTIBCMockKeeper capabilitykeeper.ScopedKeeper
@@ -261,7 +258,6 @@ type IritaApp struct {
 	// Ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
-	WevmKeeper      wevmkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -311,9 +307,10 @@ func NewIritaApp(
 		opbtypes.StoreKey,
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
+		wasm.StoreKey,
 
 		// evm
-		evmtypes.StoreKey, feemarkettypes.StoreKey, wevmtypes.StoreKey,
+		evmtypes.StoreKey, feemarkettypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -403,8 +400,6 @@ func NewIritaApp(
 		tracer, // debug EVM based on Baseapp options
 	)
 
-	app.WevmKeeper = wevmkeeper.NewKeeper(appCodec, keys[wevmtypes.StoreKey])
-
 	app.opbKeeper = opbkeeper.NewKeeper(
 		appCodec, keys[opbtypes.StoreKey], app.accountKeeper,
 		app.bankKeeper, app.tokenKeeper, app.permKeeper,
@@ -430,6 +425,33 @@ func NewIritaApp(
 	app.tibcKeeper.SetRouter(tibcRouter)
 
 	app.wservicekeeper = wservicekeeper.NewKeeper(appCodec, keys[wservicetypes.StoreKey], app.serviceKeeper)
+
+	wasmDir := filepath.Join(homePath, "wasm")
+	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+	if err != nil {
+		panic("error while reading wasm config: " + err.Error())
+	}
+
+	supportedFeatures := "stargate"
+	app.wasmKeeper = wasm.NewKeeper(
+		appCodec,
+		keys[wasm.StoreKey],
+		app.GetSubspace(wasm.ModuleName),
+		app.accountKeeper,
+		app.bankKeeper,
+		stakingkeeper.Keeper{},
+		distrkeeper.Keeper{},
+		nil,
+		nil,
+		nil,
+		nil,
+		bApp.Router(),
+		bApp.MsgServiceRouter(),
+		bApp.GRPCQueryRouter(),
+		wasmDir,
+		wasmConfig,
+		supportedFeatures,
+	)
 
 	/****  Module Options ****/
 	var skipGenesisInvariants = false
@@ -463,12 +485,12 @@ func NewIritaApp(
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
 
 		// evm
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
-		wevm.NewAppModule(app.WevmKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -479,16 +501,17 @@ func NewIritaApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
 		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		tibchost.ModuleName, wevmtypes.ModuleName, evmtypes.ModuleName,
+		tibchost.ModuleName, evmtypes.ModuleName, wasm.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		nodetypes.ModuleName,
 		servicetypes.ModuleName,
 		tibchost.ModuleName,
+		wasm.ModuleName,
 
 		// evm
-		evmtypes.ModuleName, feemarkettypes.ModuleName, wevmtypes.ModuleName,
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -515,9 +538,10 @@ func NewIritaApp(
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
+		wasm.ModuleName,
 
 		// evm
-		evmtypes.ModuleName, feemarkettypes.ModuleName, wevmtypes.ModuleName,
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -547,12 +571,12 @@ func NewIritaApp(
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
 
 		// evm
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
-		wevm.NewAppModule(app.WevmKeeper),
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -580,7 +604,6 @@ func NewIritaApp(
 			// evm
 			evmFeeMarketKeeper: app.FeeMarketKeeper,
 			evmKeeper:          app.EvmKeeper,
-			wevmKeeper:         app.WevmKeeper,
 		},
 	)
 	app.SetAnteHandler(anteHandler)
@@ -620,7 +643,7 @@ func (app *IritaApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
 func (app *IritaApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	chainID, _ := ethermint.ParseChainID(req.GetHeader().ChainID)
+	chainID, _ := ethermint.IritaParseChainID(req.GetHeader().ChainID)
 	if app.EvmKeeper.Signer == nil {
 		app.EvmKeeper.Signer = crypto.NewSm2Signer(chainID)
 	}
@@ -642,7 +665,7 @@ func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	app.appCodec.MustUnmarshalJSON(genesisState[servicetypes.ModuleName], &serviceGenState)
 	//req.ChainId
 
-	chainID, _ := ethermint.ParseChainID(req.ChainId)
+	chainID, _ := ethermint.IritaParseChainID(req.ChainId)
 	app.EvmKeeper.Signer = crypto.NewSm2Signer(chainID)
 	serviceGenState.Definitions = append(serviceGenState.Definitions, servicetypes.GenOraclePriceSvcDefinition())
 	serviceGenState.Bindings = append(serviceGenState.Bindings, servicetypes.GenOraclePriceSvcBinding(tokentypes.GetNativeToken().MinUnit))
@@ -796,11 +819,11 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(servicetypes.ModuleName)
 	paramsKeeper.Subspace(opbtypes.ModuleName)
 	paramsKeeper.Subspace(tibchost.ModuleName)
+	paramsKeeper.Subspace(wasm.ModuleName)
 
 	// evm
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
-	paramsKeeper.Subspace(wevmtypes.ModuleName)
 
 	return paramsKeeper
 }

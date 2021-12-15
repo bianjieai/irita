@@ -5,6 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+
+	"github.com/CosmWasm/wasmd/x/wasm"
+
 	"github.com/spf13/cast"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -143,6 +147,7 @@ var (
 		opb.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
+		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -199,6 +204,7 @@ type SimApp struct {
 	FeeGrantKeeper    feegrantkeeper.Keeper
 	TIBCKeeper        *tibckeeper.Keeper // TIBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	NftTransferKeeper tibcnfttransferkeeper.Keeper
+	WasmKeeper        wasm.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedTIBCKeeper     capabilitykeeper.ScopedKeeper
@@ -256,6 +262,7 @@ func NewSimApp(
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
+		wasm.StoreKey,
 
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
@@ -357,6 +364,29 @@ func NewSimApp(
 	tibcRouter.AddRoute(tibcmock.ModuleName, tibcmockModule)
 	app.TIBCKeeper.SetRouter(tibcRouter)
 
+	wasmDir := filepath.Join(homePath, "wasm")
+
+	supportedFeatures := "stargate"
+	app.WasmKeeper = wasm.NewKeeper(
+		appCodec,
+		keys[wasm.StoreKey],
+		app.GetSubspace(wasm.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		stakingkeeper.Keeper{},
+		distrkeeper.Keeper{},
+		nil,
+		nil,
+		nil,
+		nil,
+		bApp.Router(),
+		bApp.MsgServiceRouter(),
+		bApp.GRPCQueryRouter(),
+		wasmDir,
+		wasm.DefaultWasmConfig(),
+		supportedFeatures,
+	)
+
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -386,6 +416,7 @@ func NewSimApp(
 		node.NewAppModule(appCodec, app.NodeKeeper),
 		opb.NewAppModule(appCodec, app.OpbKeeper),
 		tibc.NewAppModule(app.TIBCKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 		nfttransferModule,
 	)
 
@@ -397,12 +428,13 @@ func NewSimApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
 		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		tibchost.ModuleName,
+		wasm.ModuleName, tibchost.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		node.ModuleName,
 		servicetypes.ModuleName,
+		wasm.ModuleName,
 
 		tibchost.ModuleName,
 	)
@@ -428,6 +460,7 @@ func NewSimApp(
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
+		wasm.ModuleName,
 
 		opb.ModuleName,
 		genutiltypes.ModuleName,
@@ -464,6 +497,7 @@ func NewSimApp(
 		identity.NewAppModule(app.IdentityKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
 		opb.NewAppModule(appCodec, app.OpbKeeper),
+		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 
 		tibc.NewAppModule(app.TIBCKeeper),
 		nfttransferModule,
@@ -663,7 +697,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	ParamsKeeper.Subspace(recordtypes.ModuleName)
 	ParamsKeeper.Subspace(servicetypes.ModuleName)
 	ParamsKeeper.Subspace(opbtypes.ModuleName)
-
+	ParamsKeeper.Subspace(wasm.ModuleName)
 	ParamsKeeper.Subspace(tibchost.ModuleName)
 
 	return ParamsKeeper

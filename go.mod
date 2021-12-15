@@ -4,9 +4,10 @@ go 1.17
 
 require (
 	github.com/99designs/keyring v1.1.6
-	github.com/bianjieai/iritamod v1.1.1-0.20211203070030-a933e9795048
+	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
+	github.com/bianjieai/iritamod v1.1.2-0.20211215103503-585fbfab671f
 	github.com/bianjieai/tibc-go v0.2.0
-	github.com/cosmos/cosmos-sdk v0.44.3
+	github.com/cosmos/cosmos-sdk v0.44.4
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
 	github.com/ethereum/go-ethereum v1.10.11
@@ -36,13 +37,14 @@ require (
 	github.com/tharsis/ethermint v0.8.1
 	golang.org/x/crypto v0.0.0-20211115234514-b4de73f9ece8
 	google.golang.org/genproto v0.0.0-20211116182654-e63d96a377c4
-	google.golang.org/grpc v1.41.0
+	google.golang.org/grpc v1.42.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
 	filippo.io/edwards25519 v1.0.0-beta.2 // indirect
 	github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d // indirect
+	github.com/CosmWasm/wasmvm v0.16.0 // indirect
 	github.com/DataDog/zstd v1.4.8 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/VictoriaMetrics/fastcache v1.6.0 // indirect
@@ -58,8 +60,8 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/coinbase/rosetta-sdk-go v0.6.10 // indirect
 	github.com/confio/ics23/go v0.6.6 // indirect
-	github.com/cosmos/iavl v0.17.1 // indirect
-	github.com/cosmos/ibc-go/v2 v2.0.0 // indirect
+	github.com/cosmos/iavl v0.17.2 // indirect
+	github.com/cosmos/ibc-go/v2 v2.0.1 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
 	github.com/cosmos/ledger-go v0.9.2 // indirect
 	github.com/danieljoos/wincred v1.0.2 // indirect
@@ -162,8 +164,10 @@ require (
 )
 
 replace (
+	//github.com/CosmWasm/wasmd => github.com/provenance-io/wasmd v0.19.0
+	github.com/CosmWasm/wasmd => github.com/bianjieai/wasmd v0.19.1-0.20211215102105-45e28c7c896c
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
-	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.8.2-0.20211209034154-93392c59d6dc
+	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.8.2-0.20211215074220-b1fe9d5f5970
 )

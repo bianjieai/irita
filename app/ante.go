@@ -4,10 +4,6 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	wevmtypes "github.com/bianjieai/iritamod/modules/wevm/types"
-
-	appante "github.com/bianjieai/irita/modules/evm"
-	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -17,10 +13,10 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 
-	wevmante "github.com/bianjieai/irita/modules/wevm"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	appante "github.com/bianjieai/irita/modules/evm"
+	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 
-	wevmkeeper "github.com/bianjieai/iritamod/modules/wevm/keeper"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
@@ -54,7 +50,6 @@ type HandlerOptions struct {
 	// evm config
 	evmKeeper          appante.EVMKeeper
 	evmFeeMarketKeeper evmtypes.FeeMarketKeeper
-	wevmKeeper         wevmkeeper.Keeper
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -75,18 +70,19 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
-						wevmante.NewEthCanCallDecorator(options.wevmKeeper),
-						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.accountKeeper),
 						appante.NewEthValidateBasicDecorator(options.evmKeeper),
+						appante.NewEthContractCallableDecorator(options.permKeeper),
+						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 						appante.NewEthSigVerificationDecorator(options.evmKeeper, options.accountKeeper, options.signModeHandler),
 						appante.NewEthAccountVerificationDecorator(options.accountKeeper, options.bankKeeper, options.evmKeeper),
 						appante.NewEthNonceVerificationDecorator(options.accountKeeper),
 						appante.NewEthGasConsumeDecorator(options.evmKeeper),
 						appante.NewCanTransferDecorator(options.evmKeeper, options.evmFeeMarketKeeper),
 						appante.NewEthIncrementSenderSequenceDecorator(options.accountKeeper), // innermost AnteDecorator.
+						perm.NewAuthDecorator(options.permKeeper),
 					)
 
 				default:
@@ -157,6 +153,8 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	// blacklist auth
 	permKeeper.RegisterMsgAuth(&perm.MsgBlockAccount{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
 	permKeeper.RegisterMsgAuth(&perm.MsgUnblockAccount{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgBlockContract{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgUnblockContract{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
 
 	// node auth
 	permKeeper.RegisterModuleAuth(node.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
@@ -189,11 +187,6 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgRegisterRelayer{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgUpgradeClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgSetRoutingRules{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
-
-	// wevm auth
-	permKeeper.RegisterModuleAuth(wevmtypes.ModuleName, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&wevmtypes.MsgAddToContractDenyList{}, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&wevmtypes.MsgRemoveFromContractDenyList{}, perm.RoleRootAdmin)
 
 	return permKeeper
 }
