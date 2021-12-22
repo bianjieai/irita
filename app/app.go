@@ -406,8 +406,8 @@ func NewIritaApp(
 		app.GetSubspace(opbtypes.ModuleName),
 	)
 
-	ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper, app.EvmKeeper)
-	app.EvmKeeper.CanTransferFunc = ethOpbV.CanTransfer
+	ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper, app.EvmKeeper, logger)
+	app.EvmKeeper.TransferFunc = ethOpbV.Transfer
 
 	// register the proposal types
 	tibccorekeeper := tibccorekeeper.NewKeeper(
