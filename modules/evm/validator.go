@@ -43,12 +43,22 @@ func (ov EthOpbValidator) Transfer(db vm.StateDB, sender, recipient common.Addre
 	if restrictionEnabled {
 		owner, err := ov.getOwner(ctx, params.EvmDenom)
 		if err != nil {
-			ov.logger.Error("unauthorized operation", "err_msg", err.Error())
+			//ov.logger.Error("unauthorized operation", "err_msg", err.Error())
+			ov.evmKeeper.Logger(ctx).Error(
+				"unauthorized operation",
+				"err_msg", err.Error(),
+				"amount", amount.Int64(),
+			)
 			return
 		}
 		if senderCosmosAddr.String() != owner && recipientCosmosAddr.String() != owner {
 			errMsg := fmt.Sprintf("either the sender or recipient must be the owner %s for token %s", owner, params.EvmDenom)
-			ov.logger.Error("unauthorized operation", "err_msg", errMsg)
+			//ov.logger.Error("unauthorized operation", "err_msg", errMsg)
+			ov.evmKeeper.Logger(ctx).Error(
+				"unauthorized operation",
+				"err_msg", errMsg,
+				"amount", amount.Int64(),
+			)
 			return
 		}
 	}
