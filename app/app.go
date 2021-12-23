@@ -623,7 +623,7 @@ func NewIritaApp(
 			Added: []string{evmtypes.StoreKey, feemarkettypes.StoreKey},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			newParams := evmtypes.NewParams("upoint", true, true, evmtypes.DefaultChainConfig())
+			newParams := evmtypes.NewParams("uirita", true, true, evmtypes.DefaultChainConfig())
 			evmtypes.SetDefaultGenesisState(newParams, []evmtypes.GenesisAccount{})
 
 			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
