@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bianjieai/irita/cmd/irita/cmd"
-
 	"github.com/cosmos/cosmos-sdk/x/capability"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -625,7 +623,7 @@ func NewIritaApp(
 			Added: []string{evmtypes.StoreKey, feemarkettypes.StoreKey},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			newParams := evmtypes.NewParams(cmd.DefaultPointMinUnit, true, true, evmtypes.DefaultChainConfig())
+			newParams := evmtypes.NewParams("upoint", true, true, evmtypes.DefaultChainConfig())
 			evmtypes.SetDefaultGenesisState(newParams, []evmtypes.GenesisAccount{})
 
 			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
