@@ -6,6 +6,10 @@ import (
 	"errors"
 	"fmt"
 
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
+	evmhd "github.com/tharsis/ethermint/crypto/hd"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -55,7 +59,7 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 				cliHome, _ := cmd.Flags().GetString(flagNodeCLIHome)
 
 				// attempt to lookup address from Keybase if no address was provided
-				kb, err := keyring.New(sdk.KeyringServiceName(), keyringBackend, cliHome, inBuf)
+				kb, err := keyring.New(sdk.KeyringServiceName(), keyringBackend, cliHome, inBuf, evmhd.EthSecp256k1Option())
 				if err != nil {
 					return err
 				}
@@ -177,6 +181,12 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 
 			appState[banktypes.ModuleName] = bankGenStateBz
 			appState[perm.ModuleName] = permGenStateBz
+
+			var evmGenState evmtypes.GenesisState
+			cdc.MustUnmarshalJSON(appState[evmtypes.ModuleName], &evmGenState)
+
+			evmGenState.Params.EvmDenom = "uirita"
+			appState[evmtypes.ModuleName] = cdc.MustMarshalJSON(&evmGenState)
 
 			appStateJSON, err := json.Marshal(appState)
 			if err != nil {

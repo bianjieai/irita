@@ -5,6 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
+	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+
+	ethermintclient "github.com/tharsis/ethermint/client"
+
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cast"
@@ -39,7 +43,6 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
-	ethermintclient "github.com/tharsis/ethermint/client"
 	"github.com/tharsis/ethermint/crypto/hd"
 	"github.com/tharsis/ethermint/encoding"
 	servercfg "github.com/tharsis/ethermint/server/config"
@@ -51,6 +54,7 @@ import (
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	//encodingConfig := app.MakeEncodingConfig()
+	evmutils.SetEthermintSupportedAlgorithms()
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 
 	initClientCtx := client.Context{}.
@@ -82,7 +86,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			}
 
 			// TODO: define our own token
-			customAppTemplate, customAppConfig := servercfg.AppConfig(DefaultPointMinUnit)
+			customAppTemplate, customAppConfig := servercfg.AppConfig("uirita")
 
 			handleRequestPreRun(cmd, args)
 			handleResponsePreRun(cmd)
