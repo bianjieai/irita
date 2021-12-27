@@ -408,6 +408,7 @@ func NewIritaApp(
 
 	ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper, app.EvmKeeper, logger)
 	app.EvmKeeper.TransferFunc = ethOpbV.Transfer
+	app.EvmKeeper.AccStoreKey = keys[authtypes.StoreKey]
 
 	// register the proposal types
 	tibccorekeeper := tibccorekeeper.NewKeeper(
