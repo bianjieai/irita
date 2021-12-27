@@ -5,12 +5,16 @@ import (
 	"os"
 	"path/filepath"
 
+	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+
+	ethermintclient "github.com/tharsis/ethermint/client"
+	ethermint "github.com/tharsis/ethermint/types"
+
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/tendermint/crypto/algo"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -39,7 +43,6 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
-	ethermintclient "github.com/tharsis/ethermint/client"
 	"github.com/tharsis/ethermint/crypto/hd"
 	"github.com/tharsis/ethermint/encoding"
 	servercfg "github.com/tharsis/ethermint/server/config"
@@ -51,6 +54,7 @@ import (
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	//encodingConfig := app.MakeEncodingConfig()
+	evmutils.SetEthermintSupportedAlgorithms()
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 
 	initClientCtx := client.Context{}.
@@ -69,7 +73,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		Use:   "irita",
 		Short: "Irita app command",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			algo.Algo = algo.SM2
+			// Open when debug
+			// algo.Algo = algo.SM2
+
 			clientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 
 			//initClientCtx = client.ReadHomeFlag(initClientCtx, cmd)
@@ -82,7 +88,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			}
 
 			// TODO: define our own token
-			customAppTemplate, customAppConfig := servercfg.AppConfig(DefaultPointMinUnit)
+			customAppTemplate, customAppConfig := servercfg.AppConfig(ethermint.AttoPhoton)
 
 			handleRequestPreRun(cmd, args)
 			handleResponsePreRun(cmd)

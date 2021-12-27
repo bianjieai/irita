@@ -18,7 +18,6 @@ import (
 
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	"github.com/ethereum/go-ethereum/common"
 	ethermint "github.com/tharsis/ethermint/types"
 
 	"github.com/spf13/cobra"
@@ -265,10 +264,12 @@ func InitTestnet(
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
-		genAccounts = append(genAccounts, &ethermint.EthAccount{
-			BaseAccount: authtypes.NewBaseAccount(addr, nil, 0, 0),
-			CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
-		})
+		//genAccounts = append(genAccounts, &ethermint.EthAccount{
+		//	BaseAccount: authtypes.NewBaseAccount(addr, nil, 0, 0),
+		//	CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
+		//})
+
+		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 		cert, err := ioutil.ReadFile(certPath)
 		if err != nil {
