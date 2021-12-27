@@ -182,6 +182,7 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 			appState[banktypes.ModuleName] = bankGenStateBz
 			appState[perm.ModuleName] = permGenStateBz
 
+			//evm config
 			var evmGenState evmtypes.GenesisState
 			cdc.MustUnmarshalJSON(appState[evmtypes.ModuleName], &evmGenState)
 

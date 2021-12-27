@@ -8,13 +8,13 @@ import (
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 
 	ethermintclient "github.com/tharsis/ethermint/client"
+	ethermint "github.com/tharsis/ethermint/types"
 
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/tendermint/crypto/algo"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -73,7 +73,9 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		Use:   "irita",
 		Short: "Irita app command",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			algo.Algo = algo.SM2
+			// Open when debug
+			// algo.Algo = algo.SM2
+
 			clientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 
 			//initClientCtx = client.ReadHomeFlag(initClientCtx, cmd)
@@ -86,7 +88,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			}
 
 			// TODO: define our own token
-			customAppTemplate, customAppConfig := servercfg.AppConfig("uirita")
+			customAppTemplate, customAppConfig := servercfg.AppConfig(ethermint.AttoPhoton)
 
 			handleRequestPreRun(cmd, args)
 			handleResponsePreRun(cmd)
