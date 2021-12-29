@@ -644,7 +644,7 @@ func (app *IritaApp) Name() string { return app.BaseApp.Name() }
 
 // BeginBlocker application updates every begin block
 func (app *IritaApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
-	chainID, _ := ethermint.IritaParseChainID(req.GetHeader().ChainID)
+	chainID, _ := ethermint.ParseChainID(req.GetHeader().ChainID)
 	if app.EvmKeeper.Signer == nil {
 		app.EvmKeeper.Signer = crypto.NewSm2Signer(chainID)
 	}
@@ -666,7 +666,7 @@ func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	app.appCodec.MustUnmarshalJSON(genesisState[servicetypes.ModuleName], &serviceGenState)
 	//req.ChainId
 
-	chainID, _ := ethermint.IritaParseChainID(req.ChainId)
+	chainID, _ := ethermint.ParseChainID(req.ChainId)
 	app.EvmKeeper.Signer = crypto.NewSm2Signer(chainID)
 	serviceGenState.Definitions = append(serviceGenState.Definitions, servicetypes.GenOraclePriceSvcDefinition())
 	serviceGenState.Bindings = append(serviceGenState.Bindings, servicetypes.GenOraclePriceSvcBinding(tokentypes.GetNativeToken().MinUnit))

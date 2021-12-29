@@ -172,7 +172,7 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 		)
 	}
 
-	chainID, err := ethermint.IritaParseChainID(ctx.ChainID())
+	chainID, err := ethermint.ParseChainID(ctx.ChainID())
 	if err != nil {
 		return ctx, sdkerrors.Wrapf(sdkerrors.ErrInvalidChainID, "chainID is invalid %s", chainID)
 	}

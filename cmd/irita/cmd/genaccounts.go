@@ -35,6 +35,8 @@ const (
 	flagVestingAmt   = "vesting-amount"
 )
 
+const DefaultEvmDenom = "uirita"
+
 // AddGenesisAccountCmd returns add-genesis-account cobra Command.
 func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.Command {
 	cmd := &cobra.Command{
@@ -186,7 +188,7 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 			var evmGenState evmtypes.GenesisState
 			cdc.MustUnmarshalJSON(appState[evmtypes.ModuleName], &evmGenState)
 
-			evmGenState.Params.EvmDenom = "uirita"
+			evmGenState.Params.EvmDenom = DefaultEvmDenom
 			appState[evmtypes.ModuleName] = cdc.MustMarshalJSON(&evmGenState)
 
 			appStateJSON, err := json.Marshal(appState)
