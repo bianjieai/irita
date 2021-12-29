@@ -35,6 +35,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+## [v2.1.1]
+*December 8, 2021*
+### Application
+
+* [iritamod \#32](https://github.com/bianjieai/iritamod/pull/32) (modules/identity) add `data` field, and the field length limit is only related to the block and transaction size limit.
+
 ## [v2.1.0]
 
 *November 1, 2021*
@@ -64,4 +70,6 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 <!-- Release links -->
 
+[v2.1.1]: https://github.com/bianjieai/irita/releases/tag/v2.1.1
+[v2.1.0]: https://github.com/bianjieai/irita/releases/tag/v2.1.0
 [v2.0.0]: https://github.com/bianjieai/irita/releases/tag/v2.0.0
