@@ -254,9 +254,9 @@ func InitTestnet(
 			return err
 		}
 
-		accTokens := sdk.TokensFromConsensusPower(5000, ethermint.PowerReduction)
-		accPointTokens := sdk.TokensFromConsensusPower(5000, ethermint.PowerReduction)
-		accNativeTokens := sdk.TokensFromConsensusPower(5000, ethermint.PowerReduction)
+		accTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
+		accPointTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
+		accNativeTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
 			sdk.NewCoin(DefaultPointMinUnit, accPointTokens),
@@ -264,10 +264,6 @@ func InitTestnet(
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
-		//genAccounts = append(genAccounts, &ethermint.EthAccount{
-		//	BaseAccount: authtypes.NewBaseAccount(addr, nil, 0, 0),
-		//	CodeHash:    common.BytesToHash(evmtypes.EmptyCodeHash).Hex(),
-		//})
 
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 

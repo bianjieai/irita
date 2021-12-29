@@ -74,7 +74,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		Short: "Irita app command",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// Open when debug
-			// algo.Algo = algo.SM2
+			//algo.Algo = algo.SM2
 
 			clientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 
