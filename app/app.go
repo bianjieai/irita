@@ -8,10 +8,12 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-
 	"github.com/bianjieai/irita/modules/evm/crypto"
+	appevmtypes "github.com/bianjieai/irita/modules/evm/types"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+	tibcclienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
+	"github.com/cosmos/cosmos-sdk/x/capability"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
@@ -617,6 +619,51 @@ func NewIritaApp(
 	// 	},
 	// 	func(ctx sdk.Context, plan sdkupgrade.Plan) {},
 	// )
+
+	app.RegisterUpgradePlan(
+		"v2.2-wenchangchain", store.StoreUpgrades{
+			Added: []string{feegrant.StoreKey, tibchost.StoreKey, tibcnfttypes.StoreKey},
+		},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			tibcclienttypes.SetDefaultGenesisState(tibcclienttypes.GenesisState{
+				NativeChainName: "wenchangchain-mainnet",
+			})
+			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
+			fromVM[banktypes.ModuleName] = 1
+			fromVM[stakingtypes.ModuleName] = 1
+			fromVM[opbtypes.ModuleName] = 1
+			fromVM[wservicetypes.ModuleName] = 1
+			fromVM[identitytypes.ModuleName] = 1
+			fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
+			fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
+			fromVM[nodetypes.ModuleName] = node.AppModule{}.ConsensusVersion()
+			fromVM[genutiltypes.ModuleName] = genutil.AppModule{}.ConsensusVersion()
+			fromVM[paramstypes.ModuleName] = cparams.AppModule{}.ConsensusVersion()
+			fromVM[crisistypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
+			fromVM[upgradetypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
+			fromVM[evidencetypes.ModuleName] = evidence.AppModule{}.ConsensusVersion()
+			fromVM[feegrant.ModuleName] = feegrantmodule.AppModule{}.ConsensusVersion()
+			fromVM[tokentypes.ModuleName] = token.AppModule{}.ConsensusVersion()
+			fromVM[recordtypes.ModuleName] = record.AppModule{}.ConsensusVersion()
+			fromVM[nfttypes.ModuleName] = nft.AppModule{}.ConsensusVersion()
+			fromVM[servicetypes.ModuleName] = service.AppModule{}.ConsensusVersion()
+			fromVM[oracletypes.ModuleName] = oracle.AppModule{}.ConsensusVersion()
+			fromVM[randomtypes.ModuleName] = random.AppModule{}.ConsensusVersion()
+			fromVM[permtypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+
+	app.RegisterUpgradePlan(
+		"v3.0.0-wenchangchain", store.StoreUpgrades{
+			Added: []string{evmtypes.StoreKey, feemarkettypes.StoreKey},
+		},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			newParams := evmtypes.NewParams(appevmtypes.DefaultEvmDenom, true, true, evmtypes.DefaultChainConfig())
+			evmtypes.SetDefaultGenesisState(newParams, []evmtypes.GenesisAccount{})
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
 
 	// set peer filter by node ID
 	app.SetIDPeerFilter(app.nodeKeeper.FilterNodeByID)
