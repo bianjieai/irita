@@ -22,3 +22,4 @@ message QueryParamsRequest {}
 message QueryParamsResponse {
     Params params = 1 [ (gogoproto.nullable) = false ];
 }
+

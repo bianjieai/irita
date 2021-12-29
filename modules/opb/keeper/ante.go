@@ -2,13 +2,12 @@ package keeper
 
 import (
 	"github.com/CosmWasm/wasmd/x/wasm"
+
+	"github.com/bianjieai/irita/modules/opb/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	// "github.com/CosmWasm/wasmd/x/wasm"
-
-	"github.com/bianjieai/irita/modules/opb/types"
 )
 
 // ValidateTokenTransferDecorator checks if the token transfer satisfies the underlying constraint
@@ -37,7 +36,7 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 		for _, msg := range tx.GetMsgs() {
 			switch msg := msg.(type) {
 			case *banktypes.MsgSend:
-				err :=vtd.validateMsgSend(ctx, msg)
+				err := vtd.validateMsgSend(ctx, msg)
 				if err != nil {
 					return ctx, err
 				}
@@ -56,7 +55,6 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 				if err != nil {
 					return ctx, err
 				}
-
 			}
 		}
 	}
