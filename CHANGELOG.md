@@ -41,7 +41,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Application
 
 * [\#161](https://github.com/bianjieai/irita/pull/161) Add EVM Support
-* (modules/perm) [#33]  Add EVM contract permission management
+* (modules/perm) [\#33](https://github.com/bianjieai/iritamod/pull/33)  Add EVM contract permission management
 
 ## [v2.1.1]
 *December 8, 2021*
