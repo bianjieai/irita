@@ -169,5 +169,5 @@ replace (
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
-	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.8.2-0.20220107025805-470b2e0c874a
+	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.8.2-0.20220107072301-7a09f560042a
 )
