@@ -6,19 +6,19 @@ order: 8
 
 ## 简介
 
-Smart Contract，是一种旨在以信息化方式传播、验证或执行合同的计算机协议，是对区块链功能的一种可定制化的扩展。目前流行的智能合约实施方法主要是以太坊的`EVM`。 Irita 对 `EVM` 进行了支持。
+Smart Contract，是一种旨在以信息化方式传播、验证或执行合同的计算机协议，是对区块链功能的一种可定制化的扩展。目前流行的智能合约实施方法主要是以太坊的`EVM`。 IRITA 对 `EVM` 进行了支持。
 
 主要特征包括：
 
-- 默认的 `chain-id` 为 `1223`；如果想要修改此端口，请修改 makefile 中的 `github.com/tharsis/ethermint/types.EvmChainID=<your_chain_id>`
-- `EVM` 的相关的端口是: `8545` 和 `8546`
-- 默认是开启 `EVM`，默认支持的 `namespace`  有： ` "eth,net,web3"`
+- 默认的 `EVM` 的 `chain-id` 为 `1223`；如果想要修改此端口，请在编译前修改 makefile 中的 `github.com/tharsis/ethermint/types.EvmChainID=<your_chain_id>`
+- `EVM` 的相关的 `API` 端口是: `8545` 和 `8546`
+- 默认是开启 `EVM`的相关功能。默认开启的 `namespace`  有：`"eth,net,web3"`
 - 兼容 web3 相关的组件。例如： `metamask` 和 `Remix` 等其他相关的开发组件
 - 其他配置项请参考 `app.toml` 的 `EVM Configuration`
 
 ### 注意事项
 
-`EVM` 模块近支持以 `eth_secp256k1` 算法生成的账户。 生成以 `eth_secp256k1` 算法账户的方式为：
+`EVM` 模块仅支持以 `eth_secp256k1` 算法生成的账户。 生成以 `eth_secp256k1` 算法账户的方式为：
 
 ```shell
 irita keys add [account_name] --algo eth_secp256k1
@@ -28,7 +28,7 @@ irita keys add [account_name] --algo eth_secp256k1
 
 ### API 相关功能
 
-Irita 支持了 `EVM` 的所有功能。相关的 `API` 使用文档，可以参考：[EVM API](https://eth.wiki/json-rpc/API)
+IRITA 支持了 `EVM` 的所有功能。相关的 `API` 使用文档，可以参考：[EVM API](https://eth.wiki/json-rpc/API)
 
 ### 导出账户的 `ETH` 私钥
 

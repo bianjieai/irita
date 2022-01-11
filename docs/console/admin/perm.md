@@ -15,6 +15,10 @@ IRITA 管理员可以通过控制台进行链的管理操作，主要管理功�
     - [加入黑名单示例](#加入黑名单示例)
   - [unblock-account](#unblock-account)
     - [移出黑名单示例](#移出黑名单示例)
+  - [block-contract](#block-contract)
+    - [加入黑名单示例](#合约加入黑名单示例)
+  - [unblock-contract](#unblock-contract)
+    - [移出黑名单示例](#合约移出黑名单示例)
 
 ## assign-roles
 
@@ -279,5 +283,145 @@ irita tx perm unblock-account iaa18up8anyjpal8rncm8rd4ukp5f7etga795gp33q --from=
   ],
   "gas_wanted": "200000",
   "gas_used": "39004"
+}
+```
+
+## block-contract
+
+IRITA 管理员可以将指定合约加入黑名单。
+
+```bash
+irita tx perm block-contract [address] [flags]
+```
+
+**参数：**
+
+| 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
+| ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
+| contractAddress  | string  | 是   |             | 账户地址 |
+
+### 合约加入黑名单示例
+
+```shell
+irita tx perm block-contract 0x38f5c8f6B1c66c6DEf5C01E37453FBE68FF1B626 --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+```
+
+```json
+{
+  "height":"85",
+  "txhash":"BFF9770A2C1245495514A754F7759D27E95A454653E10A58B80B93C655EF583C",
+  "codespace":"",
+  "code":0,
+  "data":"0A210A1F2F69726974616D6F642E7065726D2E4D7367426C6F636B436F6E7472616374",
+  "raw_log":"[{\"events\":[{\"type\":\"block_contract\",\"attributes\":[{\"key\":\"contract\",\"value\":\"0x38f5c8f6B1c66c6DEf5C01E37453FBE68FF1B626\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/iritamod.perm.MsgBlockContract\"},{\"key\":\"module\",\"value\":\"perm\"},{\"key\":\"sender\",\"value\":\"iaa19famjucwp47c28j6q79gyswvykrek8dusv260v\"}]}]}]",
+  "logs":[
+    {
+      "msg_index":0,
+      "log":"",
+      "events":[
+        {
+          "type":"block_contract",
+          "attributes":[
+            {
+              "key":"contract",
+              "value":"0x38f5c8f6B1c66c6DEf5C01E37453FBE68FF1B626"
+            }
+          ]
+        },
+        {
+          "type":"message",
+          "attributes":[
+            {
+              "key":"action",
+              "value":"/iritamod.perm.MsgBlockContract"
+            },
+            {
+              "key":"module",
+              "value":"perm"
+            },
+            {
+              "key":"sender",
+              "value":"iaa19famjucwp47c28j6q79gyswvykrek8dusv260v"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "info":"",
+  "gas_wanted":"200000",
+  "gas_used":"52700",
+  "tx":null,
+  "timestamp":""
+}
+```
+
+## unblock-contract
+
+IRITA 管理员可以将指定合约从黑名单移出。
+
+```bash
+irita tx perm unblock-contract [address] [flags]
+```
+
+**参数：**
+
+| 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
+| ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
+| contractAddress  | string  | 是   |             | 账户地址 |
+
+### 合约移出黑名单示例
+
+```shell
+irita tx perm unblock-contract 0x38f5c8f6B1c66c6DEf5C01E37453FBE68FF1B626 --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+```
+
+```json
+{
+    "height":"109",
+    "txhash":"D0E125DDBF2273AB2FC54B1E5BD6898B1F7145EA3384633E38AD922AF248EE0A",
+    "codespace":"",
+    "code":0,
+    "data":"0A230A212F69726974616D6F642E7065726D2E4D7367556E626C6F636B436F6E7472616374",
+    "raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/iritamod.perm.MsgUnblockContract\"},{\"key\":\"module\",\"value\":\"perm\"},{\"key\":\"sender\",\"value\":\"iaa19famjucwp47c28j6q79gyswvykrek8dusv260v\"}]},{\"type\":\"unblock_contract\",\"attributes\":[{\"key\":\"contract\",\"value\":\"0x38f5c8f6B1c66c6DEf5C01E37453FBE68FF1B626\"}]}]}]",
+    "logs":[
+        {
+            "msg_index":0,
+            "log":"",
+            "events":[
+                {
+                    "type":"message",
+                    "attributes":[
+                        {
+                            "key":"action",
+                            "value":"/iritamod.perm.MsgUnblockContract"
+                        },
+                        {
+                            "key":"module",
+                            "value":"perm"
+                        },
+                        {
+                            "key":"sender",
+                            "value":"iaa19famjucwp47c28j6q79gyswvykrek8dusv260v"
+                        }
+                    ]
+                },
+                {
+                    "type":"unblock_contract",
+                    "attributes":[
+                        {
+                            "key":"contract",
+                            "value":"0x38f5c8f6B1c66c6DEf5C01E37453FBE68FF1B626"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "info":"",
+    "gas_wanted":"200000",
+    "gas_used":"51666",
+    "tx":null,
+    "timestamp":""
 }
 ```
