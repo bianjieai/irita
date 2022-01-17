@@ -419,7 +419,7 @@ func NewIritaApp(
 	app.tibcKeeper = tibckeeper.NewKeeper(tibccorekeeper)
 	app.nftTransferKeeper = tibcnfttransferkeeper.NewKeeper(
 		appCodec, keys[tibcnfttypes.StoreKey], app.GetSubspace(tibcnfttypes.ModuleName),
-		app.accountKeeper, app.nftKeeper,
+		app.accountKeeper, tibckeeper.WrapNftKeeper(app.nftKeeper),
 		app.tibcKeeper.PacketKeeper, app.tibcKeeper.ClientKeeper,
 	)
 	nfttransferModule := tibcnfttransfer.NewAppModule(app.nftTransferKeeper)
