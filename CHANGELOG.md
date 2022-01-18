@@ -42,6 +42,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 * [\#161](https://github.com/bianjieai/irita/pull/161) Add EVM Support
 * (modules/perm) [\#33](https://github.com/bianjieai/iritamod/pull/33) Add EVM contract permission management
+* (modules/nft) [\#245](https://github.com/irisnet/irismod/pull/245) improve nft module
 
 ## [v2.1.1]
 *December 8, 2021*
