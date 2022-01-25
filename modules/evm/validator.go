@@ -18,8 +18,6 @@ import (
 
 var IritaCoefficient = new(big.Int).SetUint64(1000000000000)
 
-const feeDenom = "uirita"
-
 type EthOpbValidator struct {
 	opbKeeper   *opbkeeper.Keeper
 	tokenKeeper *tokenkeeper.Keeper

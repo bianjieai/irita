@@ -2,7 +2,6 @@ package evm
 
 import (
 	"errors"
-	"fmt"
 	"math/big"
 
 	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
@@ -597,20 +596,24 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 			return ctx, sdkerrors.Wrap(err, "failed to unpack MsgEthereumTx Data")
 		}
 		if !ctx.MinGasPrices().IsZero() {
-			amount := ctx.MinGasPrices().AmountOf(feeDenom)
+			amount := ctx.MinGasPrices().AmountOf(vbd.evmKeeper.GetParams(ctx).EvmDenom)
 			if !amount.IsZero() {
-				gasPrice := new(big.Int).Set(amount.BigInt())
+
+				// consistent with ethermint
+				// https://github.com/bianjieai/ethermint/blob/5df518e6293679271fb7ec866bddaade4c946099/types/coin.go?_pjax=%23js-repo-pjax-container%2C%20div%5Bitemtype%3D%22http%3A%2F%2Fschema.org%2FSoftwareSourceCode%22%5D%20main%2C%20%5Bdata-pjax-container%5D#L24
+				var defaultAmont int64 = ethermint.DefaultGasPrice
+				minGasFee := amount.RoundInt64()
+
+				if minGasFee != 0 {
+					defaultAmont = minGasFee
+				}
+				txGasPrice := txData.GetGasPrice()
+				gasPrice := new(big.Int).SetInt64(defaultAmont)
 				gasPriceInt := new(big.Int).Mul(gasPrice, IritaCoefficient)
-				if gasPrice.Cmp(gasPriceInt) == -1 {
-					return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "failed to gasPrice")
+				if txGasPrice.Cmp(gasPriceInt) == -1 {
+					return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "invalid gas price")
 				}
 			}
-			fmt.Println("ctx.MinGasPrices()", ctx.MinGasPrices().String())
-		}
-
-		gasPrice := new(big.Int).Set(txData.GetGasPrice())
-		if gasPrice.Cmp(IritaCoefficient) == -1 {
-			return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "failed to gasPrice")
 		}
 
 		params := vbd.evmKeeper.GetParams(ctx)
