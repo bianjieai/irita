@@ -597,20 +597,22 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 			return ctx, sdkerrors.Wrap(err, "failed to unpack MsgEthereumTx Data")
 		}
 		if !ctx.MinGasPrices().IsZero() {
-			amount := ctx.MinGasPrices().AmountOf(feeDenom)
+			fmt.Println(vbd.evmKeeper.GetParams(ctx).EvmDenom)
+			amount := ctx.MinGasPrices().AmountOf(vbd.evmKeeper.GetParams(ctx).EvmDenom)
 			if !amount.IsZero() {
-				gasPrice := new(big.Int).Set(amount.BigInt())
+				var defaultAmont int64 = 1
+				minGasFee, err := amount.Float64()
+
+				if err == nil {
+					defaultAmont = int64(minGasFee)
+				}
+				txGasPrice := txData.GetGasPrice()
+				gasPrice := new(big.Int).SetInt64(defaultAmont)
 				gasPriceInt := new(big.Int).Mul(gasPrice, IritaCoefficient)
-				if gasPrice.Cmp(gasPriceInt) == -1 {
-					return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "failed to gasPrice")
+				if txGasPrice.Cmp(gasPriceInt) == -1 {
+					return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "gas fee verification error")
 				}
 			}
-			fmt.Println("ctx.MinGasPrices()", ctx.MinGasPrices().String())
-		}
-
-		gasPrice := new(big.Int).Set(txData.GetGasPrice())
-		if gasPrice.Cmp(IritaCoefficient) == -1 {
-			return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "failed to gasPrice")
 		}
 
 		params := vbd.evmKeeper.GetParams(ctx)
