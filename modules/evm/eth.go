@@ -597,7 +597,7 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 		}
 		gasPrice := new(big.Int).Set(txData.GetGasPrice())
 		if gasPrice.Cmp(IritaCoefficient) == -1 {
-			return ctx, sdkerrors.Wrap(err, "failed to unpack MsgEthereumTx Data")
+			return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "failed to gasPrice")
 		}
 
 		params := vbd.evmKeeper.GetParams(ctx)
