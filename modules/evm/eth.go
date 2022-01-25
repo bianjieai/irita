@@ -2,7 +2,6 @@ package evm
 
 import (
 	"errors"
-	"fmt"
 	"math/big"
 
 	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
@@ -597,7 +596,6 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 			return ctx, sdkerrors.Wrap(err, "failed to unpack MsgEthereumTx Data")
 		}
 		if !ctx.MinGasPrices().IsZero() {
-			fmt.Println(vbd.evmKeeper.GetParams(ctx).EvmDenom)
 			amount := ctx.MinGasPrices().AmountOf(vbd.evmKeeper.GetParams(ctx).EvmDenom)
 			if !amount.IsZero() {
 				var defaultAmont int64 = 1
@@ -610,7 +608,7 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 				gasPrice := new(big.Int).SetInt64(defaultAmont)
 				gasPriceInt := new(big.Int).Mul(gasPrice, IritaCoefficient)
 				if txGasPrice.Cmp(gasPriceInt) == -1 {
-					return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "gas fee verification error")
+					return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "invalid gas price")
 				}
 			}
 		}
