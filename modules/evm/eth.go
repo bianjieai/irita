@@ -595,6 +595,11 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 		if err != nil {
 			return ctx, sdkerrors.Wrap(err, "failed to unpack MsgEthereumTx Data")
 		}
+		gasPrice := new(big.Int).Set(txData.GetGasPrice())
+		if gasPrice.Cmp(IritaCoefficient) == -1 {
+			return ctx, sdkerrors.Wrap(err, "failed to unpack MsgEthereumTx Data")
+		}
+
 		params := vbd.evmKeeper.GetParams(ctx)
 		ethFeeAmount := sdk.Coins{sdk.NewCoin(params.EvmDenom, sdk.NewIntFromBigInt(txData.Fee()))}
 
