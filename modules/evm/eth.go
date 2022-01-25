@@ -2,6 +2,7 @@ package evm
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 
 	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
@@ -595,6 +596,18 @@ func (vbd EthValidateBasicDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simu
 		if err != nil {
 			return ctx, sdkerrors.Wrap(err, "failed to unpack MsgEthereumTx Data")
 		}
+		if !ctx.MinGasPrices().IsZero() {
+			amount := ctx.MinGasPrices().AmountOf(feeDenom)
+			if !amount.IsZero() {
+				gasPrice := new(big.Int).Set(amount.BigInt())
+				gasPriceInt := new(big.Int).Mul(gasPrice, IritaCoefficient)
+				if gasPrice.Cmp(gasPriceInt) == -1 {
+					return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "failed to gasPrice")
+				}
+			}
+			fmt.Println("ctx.MinGasPrices()", ctx.MinGasPrices().String())
+		}
+
 		gasPrice := new(big.Int).Set(txData.GetGasPrice())
 		if gasPrice.Cmp(IritaCoefficient) == -1 {
 			return ctx, sdkerrors.New(ethermint.RootCodespace, 101, "failed to gasPrice")
