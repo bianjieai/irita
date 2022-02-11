@@ -665,6 +665,31 @@ func NewIritaApp(
 		},
 	)
 
+	app.RegisterUpgradePlan(
+		"v3.0.1-wenchangchain", store.StoreUpgrades{
+			Added: []string{evmtypes.StoreKey, feemarkettypes.StoreKey},
+		},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			err := app.tokenKeeper.IssueToken(
+				ctx,
+				"gas",
+				"Irita EVM token",
+				"ugas",
+				18,
+				1000000000,
+				math.MaxUint64,
+				true,
+				sdk.AccAddress{},
+			)
+			if err != nil {
+				return nil, err
+			}
+			newParams := evmtypes.NewParams("ugas", true, true, evmtypes.DefaultChainConfig())
+			evmtypes.SetDefaultGenesisState(newParams, []evmtypes.GenesisAccount{})
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+
 	// set peer filter by node ID
 	app.SetIDPeerFilter(app.nodeKeeper.FilterNodeByID)
 
