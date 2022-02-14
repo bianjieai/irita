@@ -676,7 +676,7 @@ func NewIritaApp(
 			err = app.tokenKeeper.IssueToken(
 				ctx,
 				"gas",
-				"Irita EVM token",
+				"Irita EVM fee token",
 				"ugas",
 				18,
 				1000000000,
