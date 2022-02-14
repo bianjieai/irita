@@ -666,11 +666,14 @@ func NewIritaApp(
 	)
 
 	app.RegisterUpgradePlan(
-		"v3.0.1-wenchangchain", store.StoreUpgrades{
-			Added: []string{evmtypes.StoreKey, feemarkettypes.StoreKey},
-		},
+		"v3.0.2-wenchangchain", store.StoreUpgrades{},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			err := app.tokenKeeper.IssueToken(
+			opbParams := app.opbKeeper.GetParams(ctx)
+			gasOwner, err := sdk.AccAddressFromBech32(opbParams.BaseTokenManager)
+			if err != nil {
+				return nil, err
+			}
+			err = app.tokenKeeper.IssueToken(
 				ctx,
 				"gas",
 				"Irita EVM token",
@@ -679,13 +682,13 @@ func NewIritaApp(
 				1000000000,
 				math.MaxUint64,
 				true,
-				sdk.AccAddress{},
+				gasOwner,
 			)
 			if err != nil {
 				return nil, err
 			}
 			newParams := evmtypes.NewParams("ugas", true, true, evmtypes.DefaultChainConfig())
-			evmtypes.SetDefaultGenesisState(newParams, []evmtypes.GenesisAccount{})
+			app.EvmKeeper.SetParams(ctx, newParams)
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
