@@ -62,7 +62,8 @@ const (
 	nodeDirPerm         = 0755
 	DefaultPointDenom   = "point"
 	DefaultPointMinUnit = "upoint"
-	DefaultEvmMinUnit   = "gas"
+	NewEvmDenom         = "gas"
+	DefaultEvmMinUnit   = "ugas"
 )
 
 var PowerReduction = sdk.NewIntFromUint64(1000000000000000000)
@@ -395,10 +396,10 @@ func initGenFiles(
 	}
 
 	gasToken := tokentypes.Token{
-		Symbol:        DefaultEvmMinUnit,
-		Name:          "evm point token",
+		Symbol:        NewEvmDenom,
+		Name:          "IRITA Fee Token",
 		Scale:         18,
-		MinUnit:       "ugas",
+		MinUnit:       DefaultEvmMinUnit,
 		InitialSupply: 1000000000,
 		MaxSupply:     math.MaxUint64,
 		Mintable:      true,
