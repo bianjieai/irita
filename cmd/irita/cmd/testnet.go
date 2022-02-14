@@ -62,7 +62,11 @@ const (
 	nodeDirPerm         = 0755
 	DefaultPointDenom   = "point"
 	DefaultPointMinUnit = "upoint"
+	NewEvmDenom         = "gas"
+	DefaultEvmMinUnit   = "ugas"
 )
+
+var PowerReduction = sdk.NewIntFromUint64(1000000000000000000)
 
 var (
 	flagNodeDirPrefix     = "node-dir-prefix"
@@ -257,10 +261,12 @@ func InitTestnet(
 		accTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
 		accPointTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
 		accNativeTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
+		accEvmTokens := sdk.TokensFromConsensusPower(5000, PowerReduction)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
 			sdk.NewCoin(DefaultPointMinUnit, accPointTokens),
 			sdk.NewCoin(tokentypes.GetNativeToken().MinUnit, accNativeTokens),
+			sdk.NewCoin(DefaultEvmMinUnit, accEvmTokens),
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
@@ -310,7 +316,7 @@ func InitTestnet(
 		srvconfig.WriteConfigFile(iritaConfigFilePath, iritaConfig)
 	}
 
-	if err := initGenFiles(DefaultPointMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
+	if err := initGenFiles(DefaultEvmMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
 		monikers, nodeIDs, rootCertPath); err != nil {
 		return err
 	}
@@ -389,8 +395,21 @@ func initGenFiles(
 		Owner:         genAccounts[0].GetAddress().String(),
 	}
 
+	gasToken := tokentypes.Token{
+		Symbol:        NewEvmDenom,
+		Name:          "IRITA Fee Token",
+		Scale:         18,
+		MinUnit:       DefaultEvmMinUnit,
+		InitialSupply: 1000000000,
+		MaxSupply:     math.MaxUint64,
+		Mintable:      true,
+		Owner:         genAccounts[0].GetAddress().String(),
+	}
+
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
+	tokenGenState.Tokens = append(tokenGenState.Tokens, gasToken)
 	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(DefaultPointDenom, sdk.NewInt(60000))
+	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(DefaultEvmMinUnit, sdk.NewInt(60000))
 	appGenState[tokentypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
 
 	// modify the native token denoms in the opb genesis

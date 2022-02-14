@@ -665,6 +665,34 @@ func NewIritaApp(
 		},
 	)
 
+	app.RegisterUpgradePlan(
+		"v3.1.0-wenchangchain", store.StoreUpgrades{},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			opbParams := app.opbKeeper.GetParams(ctx)
+			gasOwner, err := sdk.AccAddressFromBech32(opbParams.BaseTokenManager)
+			if err != nil {
+				return nil, err
+			}
+			err = app.tokenKeeper.IssueToken(
+				ctx,
+				"gas",
+				"IRITA Fee Token",
+				"ugas",
+				18,
+				1000000000,
+				math.MaxUint64,
+				true,
+				gasOwner,
+			)
+			if err != nil {
+				return nil, err
+			}
+			newParams := evmtypes.NewParams("ugas", true, true, evmtypes.DefaultChainConfig())
+			app.EvmKeeper.SetParams(ctx, newParams)
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+
 	// set peer filter by node ID
 	app.SetIDPeerFilter(app.nodeKeeper.FilterNodeByID)
 

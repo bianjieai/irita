@@ -16,8 +16,6 @@ import (
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 )
 
-var IritaCoefficient = new(big.Int).SetUint64(1000000000000)
-
 type EthOpbValidator struct {
 	opbKeeper   *opbkeeper.Keeper
 	tokenKeeper *tokenkeeper.Keeper
@@ -65,7 +63,6 @@ func (ov EthOpbValidator) Transfer(db vm.StateDB, sender, recipient common.Addre
 		}
 	}
 	// go-ethereum
-	amount.Quo(amount, IritaCoefficient)
 	db.SubBalance(sender, amount)
 	db.AddBalance(recipient, amount)
 }
