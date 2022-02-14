@@ -666,7 +666,7 @@ func NewIritaApp(
 	)
 
 	app.RegisterUpgradePlan(
-		"v3.0.2-wenchangchain", store.StoreUpgrades{},
+		"v3.1.0-wenchangchain", store.StoreUpgrades{},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			opbParams := app.opbKeeper.GetParams(ctx)
 			gasOwner, err := sdk.AccAddressFromBech32(opbParams.BaseTokenManager)
