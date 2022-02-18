@@ -687,8 +687,12 @@ func NewIritaApp(
 			if err != nil {
 				return nil, err
 			}
-			newParams := evmtypes.NewParams("ugas", true, true, evmtypes.DefaultChainConfig())
-			app.EvmKeeper.SetParams(ctx, newParams)
+			evmParams := app.EvmKeeper.GetParams(ctx)
+			evmParams.EvmDenom = "ugas"
+			app.EvmKeeper.SetParams(ctx, evmParams)
+			fMtParams := app.FeeMarketKeeper.GetParams(ctx)
+			fMtParams.NoBaseFee = true
+			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
