@@ -17,6 +17,7 @@ import (
 	"github.com/tendermint/tendermint/crypto/algo"
 
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	evmfmttypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	ethermint "github.com/tharsis/ethermint/types"
 
@@ -409,7 +410,6 @@ func initGenFiles(
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
 	tokenGenState.Tokens = append(tokenGenState.Tokens, gasToken)
 	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(DefaultPointDenom, sdk.NewInt(60000))
-	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(DefaultEvmMinUnit, sdk.NewInt(60000))
 	appGenState[tokentypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
 
 	// modify the native token denoms in the opb genesis
@@ -440,6 +440,11 @@ func initGenFiles(
 
 	evmGenState.Params.EvmDenom = coinDenom
 	appGenState[evmtypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&evmGenState)
+
+	var fMKGenState evmfmttypes.GenesisState
+	clientCtx.Codec.MustUnmarshalJSON(appGenState[evmfmttypes.ModuleName], &fMKGenState)
+	fMKGenState.Params.NoBaseFee = true
+	appGenState[evmfmttypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&fMKGenState)
 
 	// add all genesis accounts as root admins
 	var permGenState perm.GenesisState
