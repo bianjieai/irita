@@ -808,6 +808,8 @@ github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:
 github.com/irisnet/irismod v1.4.1-0.20210910095539-475575886daf/go.mod h1:3RQ0ZOTulrldS/fSsC1QDhfYA9frv+Lf5gCGf7j+JkY=
 github.com/irisnet/irismod v1.5.2-0.20220219122033-9a2d36093358 h1:uuz+N9H/0aFffmGyhM4TTEqOqXrrPrfliv6uC8Z6I7U=
 github.com/irisnet/irismod v1.5.2-0.20220219122033-9a2d36093358/go.mod h1:IrhKhC64ZkZ8gGkXS1+XXnZNLQWGocZv9W/gGmynEFA=
+github.com/irisnet/irismod v1.5.2-0.20220220091259-ca1d2a69a184 h1:D1NIjJHeSFUaoWHqBEbXjcTJEx0NAZ1D7rQs3hhoBcw=
+github.com/irisnet/irismod v1.5.2-0.20220220091259-ca1d2a69a184/go.mod h1:IrhKhC64ZkZ8gGkXS1+XXnZNLQWGocZv9W/gGmynEFA=
 github.com/jackpal/go-nat-pmp v1.0.2-0.20160603034137-1fa385a6f458 h1:6OvNmYgJyexcZ3pYbTI9jWx5tHo1Dee/tWbLMfPe2TA=
 github.com/jackpal/go-nat-pmp v1.0.2-0.20160603034137-1fa385a6f458/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
 github.com/jedisct1/go-minisign v0.0.0-20190909160543-45766022959e h1:UvSe12bq+Uj2hWd8aOlwPmoZ+CITRFrdit+sDGfAg8U=
