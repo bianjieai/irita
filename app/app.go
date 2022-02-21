@@ -1,11 +1,12 @@
 package app
 
 import (
-	"github.com/irisnet/irismod/modules/mt"
 	"io"
 	"math"
 	"os"
 	"path/filepath"
+
+	"github.com/irisnet/irismod/modules/mt"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
@@ -676,7 +677,9 @@ func NewIritaApp(
 	)
 
 	app.RegisterUpgradePlan(
-		"v3.1.0-wenchangchain", store.StoreUpgrades{},
+		"v3.1.0-wenchangchain", store.StoreUpgrades{
+			Added: []string{mttypes.StoreKey},
+		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			opbParams := app.opbKeeper.GetParams(ctx)
 			gasOwner, err := sdk.AccAddressFromBech32(opbParams.BaseTokenManager)
