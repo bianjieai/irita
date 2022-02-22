@@ -28,4 +28,5 @@ type AccountKeeper interface {
 type PermKeeper interface {
 	IsRootAdmin(ctx sdk.Context, address sdk.AccAddress) bool
 	IsBaseM1Admin(ctx sdk.Context, address sdk.AccAddress) bool
+	IsPlatformUser(ctx sdk.Context, address sdk.AccAddress) bool
 }

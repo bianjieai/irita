@@ -14,16 +14,19 @@ import (
 type ValidateTokenTransferDecorator struct {
 	keeper      Keeper
 	tokenKeeper types.TokenKeeper
+	permKeeper  types.PermKeeper
 }
 
 // NewValidateTokenTransferDecorator constructs a new ValidateTokenTransferDecorator instance
 func NewValidateTokenTransferDecorator(
 	keeper Keeper,
 	tokenKeeper types.TokenKeeper,
+	permKeeper types.PermKeeper,
 ) ValidateTokenTransferDecorator {
 	return ValidateTokenTransferDecorator{
 		keeper:      keeper,
 		tokenKeeper: tokenKeeper,
+		permKeeper:  permKeeper,
 	}
 }
 
@@ -69,6 +72,17 @@ func (vtd ValidateTokenTransferDecorator) validateMsgSend(ctx sdk.Context, msg *
 		if err != nil {
 			continue
 		}
+		fromAddress, err := sdk.AccAddressFromBech32(msg.FromAddress)
+		if err != nil {
+			continue
+		}
+
+		// If sender have platform user permissions, you can transfer token
+		if vtd.hasPlatformUserPerm(ctx, fromAddress) {
+			return nil
+		}
+		// If sender have not platform user permissions,
+		// determine whether the recipient is the owner
 
 		if msg.FromAddress != owner && msg.ToAddress != owner {
 			return sdkerrors.Wrapf(
@@ -91,6 +105,10 @@ func (vtd ValidateTokenTransferDecorator) validateMsgMultiSend(ctx sdk.Context, 
 		owner, err := vtd.getOwner(ctx, denom)
 		if err != nil {
 			continue
+		}
+		// If sender have platform user permissions, you can transfer token
+		if vtd.hasPlatformUserPermFromArr(ctx, addresses) {
+			return nil
 		}
 
 		if !owned(owner, addresses) && !owned(owner, outputMap[denom]) {
@@ -146,6 +164,26 @@ func (vtd ValidateTokenTransferDecorator) validateContractFunds(ctx sdk.Context,
 	}
 
 	return nil
+}
+
+// hasPlatformUserPermFromArr determine whether the account is a platform user from addresses
+func (vtd ValidateTokenTransferDecorator) hasPlatformUserPermFromArr(ctx sdk.Context, addresses []string) bool {
+	for _, addr := range addresses {
+		fromAddress, err := sdk.AccAddressFromBech32(addr)
+		if err != nil {
+			return false
+		}
+		if !vtd.hasPlatformUserPerm(ctx, fromAddress) {
+			return false
+		}
+	}
+
+	return true
+}
+
+// hasPlatformUserPerm determine whether the account is a platform user
+func (vtd ValidateTokenTransferDecorator) hasPlatformUserPerm(ctx sdk.Context, address sdk.AccAddress) bool {
+	return vtd.permKeeper.IsRootAdmin(ctx, address) || vtd.permKeeper.IsBaseM1Admin(ctx, address) || vtd.permKeeper.IsPlatformUser(ctx, address)
 }
 
 // owned returns false if any address is not the owner of the denom among the given non-empty addresses

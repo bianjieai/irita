@@ -108,7 +108,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				ante.NewRejectExtensionOptionsDecorator(),
 				ante.NewTxTimeoutHeightDecorator(),
 				tokenkeeper.NewValidateTokenFeeDecorator(options.tokenKeeper, options.bankKeeper),
-				opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper),
+				opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper, options.permKeeper),
 				wservicekeeper.NewDeduplicationTxDecorator(options.wserviceKeeper),
 			)
 		default:
