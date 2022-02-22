@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/irisnet/irismod/modules/mt"
+
 	"github.com/CosmWasm/wasmd/x/wasm"
 
 	"github.com/bianjieai/irita/modules/evm/crypto"
@@ -71,6 +73,8 @@ import (
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	mtkeeper "github.com/irisnet/irismod/modules/mt/keeper"
+	mttypes "github.com/irisnet/irismod/modules/mt/types"
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
@@ -158,6 +162,7 @@ var (
 		record.AppModuleBasic{},
 		token.AppModuleBasic{},
 		nft.AppModuleBasic{},
+		mt.AppModuleBasic{},
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
@@ -240,6 +245,7 @@ type IritaApp struct {
 	recordKeeper     recordkeeper.Keeper
 	tokenKeeper      tokenkeeper.Keeper
 	nftKeeper        nftkeeper.Keeper
+	mtKeeper         mtkeeper.Keeper
 	serviceKeeper    servicekeeper.Keeper
 	oracleKeeper     oraclekeeper.Keeper
 	randomKeeper     randomkeeper.Keeper
@@ -300,6 +306,7 @@ func NewIritaApp(
 		recordtypes.StoreKey,
 		tokentypes.StoreKey,
 		nfttypes.StoreKey,
+		mttypes.StoreKey,
 		servicetypes.StoreKey,
 		oracletypes.StoreKey,
 		randomtypes.StoreKey,
@@ -366,6 +373,7 @@ func NewIritaApp(
 
 	app.recordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
 	app.nftKeeper = nftkeeper.NewKeeper(appCodec, keys[nfttypes.StoreKey])
+	app.mtKeeper = mtkeeper.NewKeeper(appCodec, keys[mttypes.StoreKey])
 
 	app.serviceKeeper = servicekeeper.NewKeeper(
 		appCodec, keys[servicetypes.StoreKey], app.accountKeeper, app.bankKeeper,
@@ -479,6 +487,7 @@ func NewIritaApp(
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
 		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
@@ -503,7 +512,7 @@ func NewIritaApp(
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
-		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
+		nfttypes.ModuleName, mttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
 		tibchost.ModuleName, evmtypes.ModuleName, wasm.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
@@ -533,6 +542,7 @@ func NewIritaApp(
 		recordtypes.ModuleName,
 		tokentypes.ModuleName,
 		nfttypes.ModuleName,
+		mttypes.ModuleName,
 		servicetypes.ModuleName,
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
@@ -566,6 +576,7 @@ func NewIritaApp(
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
 		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
@@ -666,7 +677,9 @@ func NewIritaApp(
 	)
 
 	app.RegisterUpgradePlan(
-		"v3.1.0-wenchangchain", store.StoreUpgrades{},
+		"v3.1.0-wenchangchain", store.StoreUpgrades{
+			Added: []string{mttypes.StoreKey},
+		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			opbParams := app.opbKeeper.GetParams(ctx)
 			gasOwner, err := sdk.AccAddressFromBech32(opbParams.BaseTokenManager)
