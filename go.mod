@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
-	github.com/bianjieai/iritamod v1.2.0
+	github.com/bianjieai/iritamod v1.2.1-0.20220222035322-99168809cf24
 	github.com/bianjieai/tibc-go v0.2.0
 	github.com/cosmos/cosmos-sdk v0.44.4
 	github.com/cosmos/go-bip39 v1.0.0
