@@ -77,8 +77,14 @@ func (vtd ValidateTokenTransferDecorator) validateMsgSend(ctx sdk.Context, msg *
 			continue
 		}
 
+		toAddress, err := sdk.AccAddressFromBech32(msg.ToAddress)
+		if err != nil {
+			continue
+		}
+
 		// If sender have platform user permissions, you can transfer token
-		if vtd.hasPlatformUserPerm(ctx, fromAddress) {
+		if vtd.hasPlatformUserPerm(ctx, fromAddress) ||
+			vtd.hasPlatformUserPerm(ctx, toAddress) {
 			return nil
 		}
 		// If sender have not platform user permissions,
@@ -107,7 +113,8 @@ func (vtd ValidateTokenTransferDecorator) validateMsgMultiSend(ctx sdk.Context, 
 			continue
 		}
 		// If sender have platform user permissions, you can transfer token
-		if vtd.hasPlatformUserPermFromArr(ctx, addresses) {
+		if vtd.hasPlatformUserPermFromArr(ctx, addresses) ||
+			vtd.hasPlatformUserPermFromArr(ctx, outputMap[denom]) {
 			return nil
 		}
 
