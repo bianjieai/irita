@@ -631,6 +631,8 @@ github.com/irisnet/irismod v1.5.2-0.20220220101314-1e155de674b5 h1:uIqFk+gNwe6j/
 github.com/irisnet/irismod v1.5.2-0.20220220101314-1e155de674b5/go.mod h1:IrhKhC64ZkZ8gGkXS1+XXnZNLQWGocZv9W/gGmynEFA=
 github.com/irisnet/irismod v1.5.2-0.20220222055054-f632e1524e90 h1:EXGMFrS+z7I9ZwcBReRvVCN+eeP6Nndx6xOj9/eLJ2M=
 github.com/irisnet/irismod v1.5.2-0.20220222055054-f632e1524e90/go.mod h1:IrhKhC64ZkZ8gGkXS1+XXnZNLQWGocZv9W/gGmynEFA=
+github.com/irisnet/irismod v1.5.2-0.20220222061735-b318859ba444 h1:cc+faqhN0D+zvxiWpTa8AmaaCEUKtUIn71Yom6Txyd4=
+github.com/irisnet/irismod v1.5.2-0.20220222061735-b318859ba444/go.mod h1:IrhKhC64ZkZ8gGkXS1+XXnZNLQWGocZv9W/gGmynEFA=
 github.com/jackpal/go-nat-pmp v1.0.2-0.20160603034137-1fa385a6f458 h1:6OvNmYgJyexcZ3pYbTI9jWx5tHo1Dee/tWbLMfPe2TA=
 github.com/jackpal/go-nat-pmp v1.0.2-0.20160603034137-1fa385a6f458/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
 github.com/jedisct1/go-minisign v0.0.0-20190909160543-45766022959e/go.mod h1:G1CVv03EnqU1wYL2dFwXxW2An0az9JTl/ZsqXQeBlkU=
