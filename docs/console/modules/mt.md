@@ -115,7 +115,7 @@ irita tx mt transfer-denom iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g iaa1pjprrg
   "codespace":"",
   "code":0,
   "data":"0A1E0A1C2F697269736D6F642E6D742E4D73675472616E7366657244656E6F6D",
-  "raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/irismod.mt.MsgTransferDenom\"},{\"key\":\"module\",\"value\":\"mt\"},{\"key\":\"sender\",\"value\":\"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g\"}]},{\"type\":\"transfer_denom\",\"attributes\":[{\"key\":\"denom_id\",\"value\":\"6707122d5ff7736102c9f6fd7605a02aef9757b5233337466ca60b0808beb870\"},{\"key\":\"recipient\",\"value\":\"iaa1pjprrg6xy0gkck94msu04j4q36m9wku70v6kfm\"}]}]}]",
+  "raw_log":"<raw-log>",
   "logs":[
     {
       "msg_index":0,
