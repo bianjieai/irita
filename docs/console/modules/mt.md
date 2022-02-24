@@ -6,7 +6,7 @@ order: 7
 
 ## issue
 
-发行资产。
+发行资产类别。
 
 ```bash
 irita tx mt issue [flags]
@@ -16,10 +16,11 @@ irita tx mt issue [flags]
 
 | 名称，速记       | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| --name        | string | 是 |  | 资产类别的名称；长度为3到64，字母数字字符，以字母开始 |
+| --name        | string | 是 |  | 资产类别的名称 |
+| --data        | string | 否 |  | 资产元数据 |
 | --from        | string | 否 |  | 资产类别的发行者 |
 
-### 发行资产示例
+### 发行资产类别示例
 
 ```bash
 irita tx mt issue --name=validator-denom --from=validator --chain-id=irita-tesnet -b=block -o=json -y
@@ -447,7 +448,7 @@ irita query mt denom [denom-id] [flags]
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
 | denom-id  | string  | 是  |             | 资产类别的唯一 ID |
 
-### 查询指定资产示例
+### 查询指定资产类别示例
 
 ```bash
 irita query mt denom ee084d58e26993894026d2a026f984b7bc07ea0ac813c56753ea293c112e5217 -o=json
@@ -466,13 +467,13 @@ irita query mt denom ee084d58e26993894026d2a026f984b7bc07ea0ac813c56753ea293c112
 
 ## denoms
 
-查询所有类别的资产信息。
+查询所有资产类别的信息。
 
 ```bash
 irita query mt denoms [flags]
 ```
 
-### 查询所有类别的资产示例
+### 查询所有资产类别的信息示例
 
 ```bash
 irita query mt denoms -o=json
@@ -501,7 +502,7 @@ irita query mt denoms -o=json
 
 ## supply
 
-根据 `DenomID` 和 `MtID` 查询资产总量。
+根据 `DenomID` 和 `MtID` 查询指定资产总量。
 
 ```bash
 irita query mt supply [denom-id] [mt-id] [flags]
@@ -514,7 +515,7 @@ irita query mt supply [denom-id] [mt-id] [flags]
 | denom-id  | string  | 是  |             | 资产类别的唯一 ID |
 | mt-id     | string  | 是  |             | 资产的唯一 ID |
 
-### 查询指定类别的资产总量示例
+### 查询指定资产总量示例
 
 ```bash
 irita query mt supply ee084d58e26993894026d2a026f984b7bc07ea0ac813c56753ea293c112e5217 dc1d1f5a54cfdc4ed5b9ca90ad09f5b8b9bfa3b78a94b64ce51d4d77c6c212f3 -o=json
@@ -528,7 +529,7 @@ irita query mt supply ee084d58e26993894026d2a026f984b7bc07ea0ac813c56753ea293c11
 
 ## balances
 
-查询指定账户某类别资产的总量。
+查询指定账户某类别中资产的总量。
 
 ```bash
 irita query mt balances [owner] [denom-id] [flags]
@@ -541,7 +542,7 @@ irita query mt balances [owner] [denom-id] [flags]
 | owner     | string  | 是 |             | 资产拥有者地址 |
 | denom-id  | string  | 是 |             | 资产类别的唯一 ID |
 
-### 查询指定账户某类别资产的总量示例
+### 查询指定账户某类别中资产的总量示例
 
 ```bash
 irita q mt balances iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g ee084d58e26993894026d2a026f984b7bc07ea0ac813c56753ea293c112e5217 -o=json
