@@ -84,7 +84,7 @@ irita tx mt issue --name=validator-denom --from=validator --chain-id=irita-tesne
 }
 ```
 
-transfer-denom
+## transfer-denom
 
 转移指定资产类别。
 
