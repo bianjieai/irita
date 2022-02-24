@@ -32,7 +32,7 @@ order: 7
 
 ### 发行
 
-指定资产 DenomName（资产名称）、创建者，即可创造资产空间。
+指定资产 DenomName（资产名称）、创建者，即可创造资产类别。
 
 `CLI`
 
@@ -42,7 +42,7 @@ irita tx mt issue --name=<denom-name> --from=<sender-address>
 
 ### 生产
 
-在发行资产之后即可创建该类型的具体资产，需指定资产 DenomID、发型数量、元数据、发行者地址（Denom拥有者）和接收者地址。
+在发行资产类别之后即可创建该类型的具体资产，需指定资产 DenomID、发型数量、元数据、发行者地址（Denom拥有者）和接收者地址。
 
 `CLI`
 
@@ -52,7 +52,7 @@ irita tx mt mint <denom-id> --amount=<amount> --data=<data> --from=<sender-addre
 
 ### 增发
 
-在发行资产之后即可增发该类型的具体资产，需指定资产 DenomID、增发数量、发行者地址（Denom拥有者）和接收者地址。
+创建具体资产后，资产类别拥有者还可增发该资产，需指定资产 DenomID、增发数量、发行者地址（Denom拥有者）和接收者地址。
 
 `CLI`
 
