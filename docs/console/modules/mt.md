@@ -84,6 +84,83 @@ irita tx mt issue --name=validator-denom --from=validator --chain-id=irita-tesne
 }
 ```
 
+transfer-denom
+
+转移指定资产类别。
+
+```bash
+irita tx mt transfer-denom [from_key_or_address] [recipient] [denom-id] [flags]
+```
+
+**参数：**
+
+| 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
+| ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
+| from_key_or_address   | string | 是 |             | 资产发起者地址；必须拥有此资产 |
+| recipient             | string | 是 |             | 资产接收者地址 |
+| denom-id              | string | 是 |             | 资产类别的唯一 ID |
+
+### 转移资产示例
+
+```bash
+irita tx mt transfer-denom iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g iaa1pjprrg6xy0gkck94msu04j4q36m9wku70v6kfm 6707122d5ff7736102c9f6fd7605a02aef9757b5233337466ca60b0808beb870 --chain-id=irita-tesnet -b=block -o=json -y
+```
+
+结果
+
+```json
+{
+  "height":"8175",
+  "txhash":"17F3BD22C5CF0A088D995E2B788D89B146F0792ACB7E0F6C2994935FB68D1DD7",
+  "codespace":"",
+  "code":0,
+  "data":"0A1E0A1C2F697269736D6F642E6D742E4D73675472616E7366657244656E6F6D",
+  "raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/irismod.mt.MsgTransferDenom\"},{\"key\":\"module\",\"value\":\"mt\"},{\"key\":\"sender\",\"value\":\"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g\"}]},{\"type\":\"transfer_denom\",\"attributes\":[{\"key\":\"denom_id\",\"value\":\"6707122d5ff7736102c9f6fd7605a02aef9757b5233337466ca60b0808beb870\"},{\"key\":\"recipient\",\"value\":\"iaa1pjprrg6xy0gkck94msu04j4q36m9wku70v6kfm\"}]}]}]",
+  "logs":[
+    {
+      "msg_index":0,
+      "log":"",
+      "events":[
+        {
+          "type":"message",
+          "attributes":[
+            {
+              "key":"action",
+              "value":"/irismod.mt.MsgTransferDenom"
+            },
+            {
+              "key":"module",
+              "value":"mt"
+            },
+            {
+              "key":"sender",
+              "value":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g"
+            }
+          ]
+        },
+        {
+          "type":"transfer_denom",
+          "attributes":[
+            {
+              "key":"denom_id",
+              "value":"6707122d5ff7736102c9f6fd7605a02aef9757b5233337466ca60b0808beb870"
+            },
+            {
+              "key":"recipient",
+              "value":"iaa1pjprrg6xy0gkck94msu04j4q36m9wku70v6kfm"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "info":"",
+  "gas_wanted":"200000",
+  "gas_used":"59584"
+}
+```
+
+
 ## mint
 
 创建指定类别的具体资产；可指定发行数量。
