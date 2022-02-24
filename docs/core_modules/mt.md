@@ -72,7 +72,7 @@ irita tx mt edit <denom-id> <mt-id> --data=<data> --from=<sender-address>
 
 ### 转移
 
-转移指定资产。
+转移指定资产；可以指定转移数量。
 
 `CLI`
 
@@ -82,7 +82,7 @@ irita tx mt transfer <sender> <recipient> <denom-id> <mt-id> <amount>
 
 ### 销毁
 
-可以销毁已创建的资产。
+销毁已创建的资产；可以指定销毁数量。
 
 `CLI`
 
@@ -92,7 +92,7 @@ irita tx mt burn <denom-id> <mt-id> <amount> --from=<sender-address>
 
 ### 查询指定的资产类别
 
-根据 Denom 查询资产类别信息。
+根据 DenomID 查询资产类别信息。
 
 `CLI`
 
@@ -112,7 +112,7 @@ irita query mt denoms
 
 ### 查询指定类别资产的总量
 
-根据 Denom 查询资产总量；接受可选的 owner 参数。
+根据 DenomID 查询资产总量。
 
 `CLI`
 
@@ -122,7 +122,7 @@ irita query mt supply <denom-id> <mt-id>
 
 ### 查询指定账户的所有资产
 
-查询某一账户所拥有的全部资产；可以指定 Denom 参数。
+查询账户在指定资产类别中所拥有的全部资产。
 
 `CLI`
 
@@ -130,22 +130,22 @@ irita query mt supply <denom-id> <mt-id>
 irita query mt balances <owner> <denom-id>
 ```
 
-### 查询指定类别的所有资产
-
-根据 Denom 查询所有资产。
-
-`CLI`
-
-```bash
-irita query mt tokens <denom-id>
-```
-
 ### 查询指定资产
 
-根据 Denom 以及 ID 查询具体资产。
+根据 DenomID 以及 MtID 查询具体资产信息。
 
 `CLI`
 
 ```bash
 irita query mt token <denom-id> <mt-id>
+```
+
+### 查询指定类别的所有资产
+
+根据 DenomID 查询所有资产信息。
+
+`CLI`
+
+```bash
+irita query mt tokens <denom-id>
 ```
