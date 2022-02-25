@@ -17,7 +17,7 @@ irita tx mt issue [flags]
 | 名称，速记       | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
 | --name        | string | 是 |  | 资产类别的名称 |
-| --data        | string | 否 |  | 资产元数据 |
+| --data        | bytes  | 否 |  | 资产元数据 |
 | --from        | string | 否 |  | 资产类别的发行者 |
 
 ### 发行资产类别示例
@@ -179,8 +179,8 @@ irita tx mt mint [denom-id] [flags]
 
 | 名称，速记   | 类型   | 必须 | 默认  | 描述                                                  |
 | ------------ | ------ | ---- | ----- | ----------------------------------------------------- |
-| --amount  | string | 否 | | 发行资产数量 |
-| --data    | string | 否 | | 资产元数据 |
+| --amount  | uint64 | 否 | | 发行资产数量 |
+| --data    | bytes  | 否 | | 资产元数据 |
 | --mt-id   | string | 否 | | 资产的唯一 ID；若不填写则是发行，若填写则是增发 |
 | --from    | string | 是 | | 资产发起者地址；必须是 denom 的拥有者 |
 | --recipient | string | 否 | | 资产接收者地址，默认为交易发起者地址 |
@@ -276,7 +276,7 @@ irita tx mt edit [denom-id] [mt-id] [flags]
 
 | 名称，速记 | 类型   | 必须 | 默认 | 描述                                       |
 | ---------- | ------ | ---- | ---- | ------------------------------------------ |
-| --data | string | 否 | | 资产的元数据 |
+| --data | bytes | 否 | | 资产的元数据 |
 | --from | string | 否 | | 资产拥有者地址 |
 
 ### 编辑资产示例
@@ -355,7 +355,7 @@ irita tx mt transfer [from_key_or_address] [recipient] [denom-id] [mt-id] [amoun
 | recipient             | string | 是 |             | 资产接收者地址 |
 | denom-id              | string | 是 |             | 资产类别的唯一 ID |
 | mt-id                 | string | 是 |             | 资产的唯一 ID |
-| amount                | string | 是 |             | 转移资产数量 |
+| amount                | uint64 | 是 |             | 转移资产数量 |
 
 ### 转移资产示例
 
@@ -439,7 +439,7 @@ irita tx mt burn [denom-id] [mt-id] [amount] [flags]
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
 | denom-id  | string  | 是  |             | 资产类别的唯一 ID |
 | mt-id     | string  | 是  |             | 资产的唯一 ID |
-| amount    | string  | 是  |             | 销毁资产的数量 |
+| amount    | uint64  | 是  |             | 销毁资产的数量 |
 
 **标志：**
 
