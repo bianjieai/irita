@@ -94,7 +94,7 @@ func (k Keeper) Reclaim(ctx sdk.Context, denom string, recipient, operator sdk.A
 	var moduleAccName string
 
 	switch denom {
-	case baseTokenDenom:
+	case baseTokenDenom, "ugas":
 		if !k.hasBaseM1Perm(ctx, operator) {
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "address %s has no permission to reclaim %s", operator, denom)
 		}
