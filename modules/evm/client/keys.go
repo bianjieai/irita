@@ -52,8 +52,8 @@ The pass backend requires GnuPG: https://gnupg.org/
 
 	// update the default signing algorithm value to "eth_secp256k1"
 	algoFlag := addCmd.Flag("algo")
-	algoFlag.DefValue = string(cosmoshd.Sm2Type)
-	err := algoFlag.Value.Set(string(cosmoshd.Sm2Type))
+	algoFlag.DefValue = string(cosmoshd.GmSSLType)
+	err := algoFlag.Value.Set(string(cosmoshd.GmSSLType))
 	if err != nil {
 		panic(err)
 	}

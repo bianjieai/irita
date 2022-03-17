@@ -7,7 +7,7 @@ import (
 )
 
 func SetEthermintSupportedAlgorithms() {
-	etherminthd.SupportedAlgorithms = keyring.SigningAlgoList{etherminthd.EthSecp256k1, hd.Secp256k1, hd.Sm2}
-	etherminthd.SupportedAlgorithmsLedger = keyring.SigningAlgoList{etherminthd.EthSecp256k1, hd.Secp256k1, hd.Sm2}
+	etherminthd.SupportedAlgorithms = keyring.SigningAlgoList{etherminthd.EthSecp256k1, hd.Secp256k1, hd.Sm2, hd.GmSSL}
+	etherminthd.SupportedAlgorithmsLedger = keyring.SigningAlgoList{etherminthd.EthSecp256k1, hd.Secp256k1, hd.Sm2, hd.GmSSL}
 
 }

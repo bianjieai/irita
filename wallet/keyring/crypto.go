@@ -27,6 +27,7 @@ const (
 )
 
 var SigningAlgoList = keyring.SigningAlgoList{
+	hd.GmSSL,
 	hd.Sm2,
 	hd.Secp256k1,
 }

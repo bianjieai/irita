@@ -22,7 +22,7 @@ func InitCmd() *cobra.Command {
 		RunE:  runInitCmd,
 	}
 
-	cmd.PersistentFlags().String(FlagKeyAlgo, string(hd.Sm2Type), "Signature algorithm for generating keys")
+	cmd.PersistentFlags().String(FlagKeyAlgo, string(hd.GmSSLType), "Signature algorithm for generating keys")
 	cmd.Flags().Bool(flagRecover, false, "Provide a seed to recover the wallet")
 
 	_ = viper.BindPFlag(flagRecover, cmd.Flags().Lookup(flagRecover))

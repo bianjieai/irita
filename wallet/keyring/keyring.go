@@ -33,8 +33,8 @@ func New(rootDir string, userInput io.Reader, opts ...cosmoskeyring.Option) (Key
 	db := NewFileKeyring(rootDir, userInput)
 
 	options := cosmoskeyring.Options{
-		SupportedAlgos:       cosmoskeyring.SigningAlgoList{hd.Sm2, hd.Secp256k1},
-		SupportedAlgosLedger: cosmoskeyring.SigningAlgoList{hd.Sm2, hd.Secp256k1},
+		SupportedAlgos:       cosmoskeyring.SigningAlgoList{hd.GmSSL, hd.Sm2, hd.Secp256k1},
+		SupportedAlgosLedger: cosmoskeyring.SigningAlgoList{hd.GmSSL, hd.Sm2, hd.Secp256k1},
 	}
 
 	for _, optionFn := range opts {
