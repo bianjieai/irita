@@ -9,70 +9,84 @@ order: 2
 发行资产。
 
 ```bash
-irita tx nft issue [denom] [flags]
+irita tx nft issue [denom-id] [flags]
 ```
 
 **参数：**
 
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| denom  | string  | 是   |             | 资产的类别，全局唯一；长度为3到64，字母数字字符，以字母开始 |
+| denom-id  | string  | 是   |             | 资产的类别，全局唯一；长度为3到64，字母数字字符，以字母开始 |
 
 **标志：**
 
 | 名称，速记       | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| --schema       | string  | 否   |               | 资产元数据 [JSON Schema](https://JSON-Schema.org/) 规范 |
+| --schema              | string  | 否   |               | 资产元数据 [JSON Schema](https://JSON-Schema.org/) 规范 |
+| --mint-restricted     | bool    | 是   |               | 发行受限 |
+| --update-restricted   | bool    | 是   |               | 更新受限 |
 
 ### 发行资产示例
 
 ```bash
-irita tx nft issue security --schema='{"type":"object","properties":{"name":{"type":"string"}}}' --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft issue nftdenom --schema='{"type":"object","properties":{"name":{"type":"string"}}}' --mint-restricted=false --update-restricted=false --from=validator --chain-id=irita-test -b=block -o=json -y
 ```
 
 结果
 
 ```json
 {
-  "height": "87",
-  "txhash": "833DFD23566B67DFE9F81FFFB1C6F58173F3027CA1BC84D3AAFC6C51E9B34AC8",
-  "raw_log": "<raw-log>",
-  "logs": [
+  "height":"11892",
+  "txhash":"9AAA1057A8439ECC2B6E0D47CF353CA9AC8296E88AFEA55A51638140AF317115",
+  "codespace":"",
+  "code":0,
+  "data":"0A1C0A1A2F697269736D6F642E6E66742E4D7367497373756544656E6F6D",
+  "raw_log":"<raw-log>",
+  "logs":[
     {
-      "msg_index": 0,
-      "log": "",
-      "events": [
+      "msg_index":0,
+      "log":"",
+      "events":[
         {
-          "type": "issue_denom",
-          "attributes": [
+          "type":"issue_denom",
+          "attributes":[
             {
-              "key": "denom",
-              "value": "security"
+              "key":"denom_id",
+              "value":"nftdenom"
+            },
+            {
+              "key":"denom_name",
+              "value":""
+            },
+            {
+              "key":"creator",
+              "value":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g"
             }
           ]
         },
         {
-          "type": "message",
-          "attributes": [
+          "type":"message",
+          "attributes":[
             {
-              "key": "action",
-              "value": "issue_denom"
+              "key":"action",
+              "value":"/irismod.nft.MsgIssueDenom"
             },
             {
-              "key": "module",
-              "value": "nft"
+              "key":"module",
+              "value":"nft"
             },
             {
-              "key": "sender",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
+              "key":"sender",
+              "value":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g"
             }
           ]
         }
       ]
     }
   ],
-  "gas_wanted": "200000",
-  "gas_used": "43198"
+  "info":"",
+  "gas_wanted":"200000",
+  "gas_used":"58650"
 }
 ```
 
@@ -81,167 +95,181 @@ irita tx nft issue security --schema='{"type":"object","properties":{"name":{"ty
 创建指定类别的具体资产。
 
 ```bash
-irita tx nft mint [denom] [tokenID] [flags]
+irita tx nft mint [denom-id] [nft-id] [flags]
 ```
 
 **参数：**
 
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| denom  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
-| tokenID  | string  | 是   |             | 资产的唯一 ID，如 `UUID` |
+| denom-id  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
+| nft-id    | string  | 是   |             | 资产的唯一 ID，如 `UUID` |
 
 **标志：**
 
 | 名称，速记   | 类型   | 必须 | 默认  | 描述                                                  |
 | ------------ | ------ | ---- | ----- | ----------------------------------------------------- |
-| --token-uri | string | 否   | | 资产元数据的 `URI` |
-| --token-data | string | 否 | | 资产元数据 |
+| --uri       | string | 否   | | 资产元数据的 `URI` |
+| --uri-hash  | string | 否   | | 资产 `URI` 的哈希 |
+| --data      | string | 否   | | 资产元数据 |
 | --recipient | string | 否   | | 资产接收者地址，默认为交易发起者地址 |
 
 ### 创建资产示例
 
 ```bash
-irita tx nft mint security a4c74c4203af41619d00bb3e2f462c10 --token-uri=http://metadata.io/a4c74c4203af41619d00bb3e2f462c10 --token-data='{"name":"test security"}' --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft mint nftdenom nft1 --uri=https://metadata.io/a4c74c4203af41619d00bb3e2f462c10 --data='{"name":"test nftdenom"}' --from=validator --chain-id=irita-test -b=block -o=json -y
 ```
 
 结果
 
 ```json
 {
-  "height": "105",
-  "txhash": "91713F006A50E66036B82AAEA7109244C8D67D0B9BCB475DB24CE2444B1E1445",
-  "raw_log": "<raw-log>",
-  "logs": [
+  "height":"12879",
+  "txhash":"6C4986952ADC3E6F02EC7AFF8F9550A08B00BBEF837FEC6F5EB94BE443F413E7",
+  "codespace":"",
+  "code":0,
+  "data":"0A190A172F697269736D6F642E6E66742E4D73674D696E744E4654",
+  "raw_log":"<raw-log>",
+  "logs":[
     {
-      "msg_index": 0,
-      "log": "",
-      "events": [
+      "msg_index":0,
+      "log":"",
+      "events":[
         {
-          "type": "message",
-          "attributes": [
+          "type":"message",
+          "attributes":[
             {
-              "key": "action",
-              "value": "mint_nft"
+              "key":"action",
+              "value":"/irismod.nft.MsgMintNFT"
             },
             {
-              "key": "module",
-              "value": "nft"
+              "key":"module",
+              "value":"nft"
             },
             {
-              "key": "sender",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
+              "key":"sender",
+              "value":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g"
             }
           ]
         },
         {
-          "type": "mint_nft",
-          "attributes": [
+          "type":"mint_nft",
+          "attributes":[
             {
-              "key": "recipient",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
+              "key":"token_id",
+              "value":"nft1"
             },
             {
-              "key": "denom",
-              "value": "security"
+              "key":"denom_id",
+              "value":"nftdenom"
             },
             {
-              "key": "token-id",
-              "value": "a4c74c4203af41619d00bb3e2f462c10"
+              "key":"token_uri",
+              "value":"http://metadata.io/a4c74c4203af41619d00bb3e2f462c10"
             },
             {
-              "key": "token-uri",
-              "value": "http://metadata.io/a4c74c4203af41619d00bb3e2f462c10"
+              "key":"recipient",
+              "value":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g"
             }
           ]
         }
       ]
     }
   ],
-  "gas_wanted": "200000",
-  "gas_used": "52368"
+  "info":"",
+  "gas_wanted":"200000",
+  "gas_used":"64001"
 }
 ```
 
 ## edit
 
-编辑指定的资产。可更新的属性包括：资产元数据、元数据 `URI`
+编辑指定的资产。可更新的属性包括：资产元数据、元数据 `URI`、`URI` 的哈希
 
 ```bash
-irita tx nft edit [denom] [tokenID] [flags]
+irita tx nft edit [denom-id] [nft-id] [flags]
 ```
 
 **参数：**
 
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| denom  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
-| tokenID  | string  | 是   |             | 资产的唯一 ID |
+| denom-id  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
+| nft-id    | string  | 是   |             | 资产的唯一 ID |
 
 **标志：**
 
 | 名称，速记 | 类型   | 必须 | 默认 | 描述                                       |
 | ---------- | ------ | ---- | ---- | ------------------------------------------ |
-| --token-uri | string | 否   | | 资产元数据的 `URI` |
-| --token-data | string | 否 | | 资产元数据 |
+| --uri       | string | 否   | | 资产元数据的 `URI` |
+| --uri-hash  | string | 否   | | 资产 `URI` 的哈希 |
+| --data      | string | 否   | | 资产元数据 |
 
 ### 编辑资产示例
 
 ```bash
-irita tx nft edit security a4c74c4203af41619d00bb3e2f462c10 --token-data='{"name":"new test security"}' --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft edit nftdenom nft1 --uri=https://metadata.io/nft1 --data='{"name":"new test nftdenom"}' --from=validator --chain-id=irita-test -b=block -o=json -y
 ```
 
 结果
 
 ```json
 {
-  "height": "132",
-  "txhash": "84AF2212C4651007F3838096032BA96C44C1CEBA245D3E8425D326417D0AB719",
-  "raw_log": "<raw-log>",
-  "logs": [
+  "height":"13242",
+  "txhash":"82155D946C9616CB1C3DB2E6CD24BE82DBEFF413B6B3F778FD0327A843A5ACBD",
+  "codespace":"",
+  "code":0,
+  "data":"0A190A172F697269736D6F642E6E66742E4D7367456469744E4654",
+  "raw_log":"<raw-log>",
+  "logs":[
     {
-      "msg_index": 0,
-      "log": "",
-      "events": [
+      "msg_index":0,
+      "log":"",
+      "events":[
         {
-          "type": "edit_nft",
-          "attributes": [
+          "type":"edit_nft",
+          "attributes":[
             {
-              "key": "denom",
-              "value": "security"
+              "key":"token_id",
+              "value":"nft1"
             },
             {
-              "key": "token-id",
-              "value": "a4c74c4203af41619d00bb3e2f462c10"
+              "key":"denom_id",
+              "value":"nftdenom"
             },
             {
-              "key": "token-uri",
-              "value": "[do-not-modify]"
+              "key":"token_uri",
+              "value":"https://metadata.io/nft1"
+            },
+            {
+              "key":"owner",
+              "value":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g"
             }
           ]
         },
         {
-          "type": "message",
-          "attributes": [
+          "type":"message",
+          "attributes":[
             {
-              "key": "action",
-              "value": "edit_nft"
+              "key":"action",
+              "value":"/irismod.nft.MsgEditNFT"
             },
             {
-              "key": "module",
-              "value": "nft"
+              "key":"module",
+              "value":"nft"
             },
             {
-              "key": "sender",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
+              "key":"sender",
+              "value":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g"
             }
           ]
         }
       ]
     }
   ],
-  "gas_wanted": "200000",
-  "gas_used": "45183"
+  "info":"",
+  "gas_wanted":"200000",
+  "gas_used":"58132"
 }
 ```
 
@@ -250,7 +278,7 @@ irita tx nft edit security a4c74c4203af41619d00bb3e2f462c10 --token-data='{"name
 转移指定资产。
 
 ```bash
-irita tx nft transfer [recipient] [denom] [tokenID] [flags]
+irita tx nft transfer [recipient] [denom-id] [nft-id] [flags]
 ```
 
 **参数：**
@@ -258,66 +286,74 @@ irita tx nft transfer [recipient] [denom] [tokenID] [flags]
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
 | recipient  | string  | 是   |             | 积分的唯一标识符 |
-| denom  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
-| tokenID  | string  | 是   |             | 资产的唯一 ID |
+| denom-id   | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
+| nft-id     | string  | 是   |             | 资产的唯一 ID |
 
 ### 转移资产示例
 
 ```bash
-irita tx nft transfer iaa1gjmj3r0h9krjm9sg4hjkkv5wnsy52xck80g2sf security a4c74c4203af41619d00bb3e2f462c10 --from=node0 --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft transfer iaa1pjprrg6xy0gkck94msu04j4q36m9wku70v6kfm nftdenom nft1 --from=validator --chain-id=irita-test -b=block -o=json -y
 ```
 
 结果
 
 ```json
 {
-  "height": "174",
-  "txhash": "2881520417D4C9A83837D271F856E6C94086629D6EDE8EB397CD23A579D6AD0E",
-  "raw_log": "<raw-log>",
-  "logs": [
+  "height":"13276",
+  "txhash":"42070121B1BC2ACD627E233F274172E07FFC820690D9393281CD506291EFAE29",
+  "codespace":"",
+  "code":0,
+  "data":"0A1D0A1B2F697269736D6F642E6E66742E4D73675472616E736665724E4654",
+  "raw_log":"<raw-log>",
+  "logs":[
     {
-      "msg_index": 0,
-      "log": "",
-      "events": [
+      "msg_index":0,
+      "log":"",
+      "events":[
         {
-          "type": "message",
-          "attributes": [
+          "type":"message",
+          "attributes":[
             {
-              "key": "action",
-              "value": "transfer_nft"
+              "key":"action",
+              "value":"/irismod.nft.MsgTransferNFT"
             },
             {
-              "key": "module",
-              "value": "nft"
+              "key":"module",
+              "value":"nft"
             },
             {
-              "key": "sender",
-              "value": "iaa1w9g6g2692y973597x5euw9dfwm53w8tya4zkyn"
+              "key":"sender",
+              "value":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g"
             }
           ]
         },
         {
-          "type": "transfer_nft",
-          "attributes": [
+          "type":"transfer_nft",
+          "attributes":[
             {
-              "key": "recipient",
-              "value": "iaa1gjmj3r0h9krjm9sg4hjkkv5wnsy52xck80g2sf"
+              "key":"token_id",
+              "value":"nft1"
             },
             {
-              "key": "denom",
-              "value": "security"
+              "key":"denom_id",
+              "value":"nftdenom"
             },
             {
-              "key": "token-id",
-              "value": "a4c74c4203af41619d00bb3e2f462c10"
+              "key":"sender",
+              "value":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g"
+            },
+            {
+              "key":"recipient",
+              "value":"iaa1pjprrg6xy0gkck94msu04j4q36m9wku70v6kfm"
             }
           ]
         }
       ]
     }
   ],
-  "gas_wanted": "200000",
-  "gas_used": "49197"
+  "info":"",
+  "gas_wanted":"200000",
+  "gas_used":"61500"
 }
 ```
 
@@ -326,20 +362,20 @@ irita tx nft transfer iaa1gjmj3r0h9krjm9sg4hjkkv5wnsy52xck80g2sf security a4c74c
 销毁指定资产。
 
 ```bash
-irita tx nft burn [denom] [tokenID] [flags]
+irita tx nft burn [denom-id] [nft-id] [flags]
 ```
 
 **参数：**
 
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| denom  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
-| tokenID  | string  | 是   |             | 资产的唯一 ID |
+| denom-id  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
+| nft-id    | string  | 是   |             | 资产的唯一 ID |
 
 ### 销毁资产示例
 
 ```bash
-irita tx nft burn security a4c74c4203af41619d00bb3e2f462c10 --from=iaa1gjmj3r0h9krjm9sg4hjkkv5wnsy52xck80g2sf --chain-id=irita-test -b=block -o=json --indent -y --home=testnet/node0/iritacli
+irita tx nft burn nftdenom nft1 --from=iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g --chain-id=irita-test -b=block -o=json --indent -y
 ```
 
 结果
@@ -359,7 +395,7 @@ irita tx nft burn security a4c74c4203af41619d00bb3e2f462c10 --from=iaa1gjmj3r0h9
           "attributes": [
             {
               "key": "denom",
-              "value": "security"
+              "value": "nftdenom"
             },
             {
               "key": "token-id",
@@ -397,20 +433,20 @@ irita tx nft burn security a4c74c4203af41619d00bb3e2f462c10 --from=iaa1gjmj3r0h9
 查询指定类别和 `ID` 的资产。
 
 ```bash
-irita query nft token [denom] [tokenID] [flags]
+irita query nft token [denom-id] [nft-id] [flags]
 ```
 
 **参数：**
 
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| denom  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
-| tokenID  | string  | 是   |             | 资产的唯一 ID |
+| denom-id  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
+| nft-id    | string  | 是   |             | 资产的唯一 ID |
 
 ### 查询指定资产示例
 
 ```bash
-irita query nft token security a4c74c4203af41619d00bb3e2f462c10 -o=json --indent --chain-id=irita-test
+irita query nft token nftdenom nft1 --chain-id=irita-test -o=json
 ```
 
 结果
@@ -419,10 +455,12 @@ irita query nft token security a4c74c4203af41619d00bb3e2f462c10 -o=json --indent
 {
   "type": "irismod/nft/BaseNFT",
   "value": {
-    "ID": "a4c74c4203af41619d00bb3e2f462c10",
-    "owner": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt",
-    "tokenURI": "http://metadata.io/a4c74c4203af41619d00bb3e2f462c10",
-    "token_data": "{\"name\":\"test security\"}"
+    "id":"nft1",
+    "name":"",
+    "uri":"https://metadata.io/nft1",
+    "data":"{\"name\":\"new test nftdenom\"}",
+    "owner":"iaa1pjprrg6xy0gkck94msu04j4q36m9wku70v6kfm",
+    "uri_hash":""
   }
 }
 ```
@@ -432,28 +470,36 @@ irita query nft token security a4c74c4203af41619d00bb3e2f462c10 -o=json --indent
 查询指定类别的资产信息。
 
 ```bash
-irita query nft denom [denom] [flags]
+irita query nft denom [denom-id] [flags]
 ```
 
 **参数：**
 
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| denom  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
+| denom-id  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
 
 ### 查询指定类别的资产信息示例
 
 ```bash
-irita query nft denom security -o=json --indent --chain-id=irita-test
+irita query nft denom nftdenom --chain-id=irita-test -o=json
 ```
 
 结果
 
 ```json
 {
-  "name": "security",
-  "schema": "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}",
-  "creator": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt"
+  "id":"nftdenom",
+  "name":"",
+  "schema":"{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}",
+  "creator":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g",
+  "symbol":"",
+  "mint_restricted":false,
+  "update_restricted":false,
+  "description":"",
+  "uri":"",
+  "uri_hash":"",
+  "data":""
 }
 ```
 
@@ -468,7 +514,7 @@ irita query nft denoms [flags]
 ### 查询所有类别的资产信息示例
 
 ```bash
-irita query nft denoms -o=json --indent --chain-id=irita-test
+irita query nft denoms --chain-id=irita-test -o=json
 ```
 
 结果
@@ -476,9 +522,30 @@ irita query nft denoms -o=json --indent --chain-id=irita-test
 ```json
 [
   {
-    "name": "security",
-    "schema": "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}",
-    "creator": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt"
+    "id":"nftdenom1",
+    "name":"",
+    "schema":"",
+    "creator":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g",
+    "symbol":"",
+    "mint_restricted":true,
+    "update_restricted":true,
+    "description":"",
+    "uri":"",
+    "uri_hash":"",
+    "data":""
+  },
+  {
+    "id":"nftdenom",
+    "name":"",
+    "schema":"{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}",
+    "creator":"iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g",
+    "symbol":"",
+    "mint_restricted":false,
+    "update_restricted":false,
+    "description":"",
+    "uri":"",
+    "uri_hash":"",
+    "data":""
   }
 ]
 ```
@@ -488,14 +555,14 @@ irita query nft denoms -o=json --indent --chain-id=irita-test
 查询指定类别资产的总量。如 `owner` 被指定，则查询此 `owner` 所拥有的该类别资产的总量。 
 
 ```bash
-irita query nft supply [denom] [flags]
+irita query nft supply [denom-id] [flags]
 ```
 
 **参数：**
 
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| denom  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
+| denom-id  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
 
 **标志：**
 
@@ -506,7 +573,7 @@ irita query nft supply [denom] [flags]
 ### 查询指定类别的资产总量示例
 
 ```bash
-irita query nft supply security --chain-id=irita-test
+irita query nft supply nftdenom
 ```
 
 结果
@@ -518,7 +585,7 @@ irita query nft supply security --chain-id=irita-test
 ### 查询指定账户某类别资产的总量
 
 ```bash
-irita query nft supply security --owner=iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt --chain-id=irita-test
+irita query nft supply nftdenom --owner=iaa17y3qs2zuanr93nk844x0t7e6ktchwygnc8fr0g
 ```
 
 结果
@@ -560,7 +627,7 @@ irita query nft owner iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt -o=json --inden
   "address": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt",
   "id_collections": [
     {
-      "denom": "security",
+      "denom": "nftdenom",
       "ids": [
         "a4c74c4203af41619d00bb3e2f462c10"
       ]
@@ -572,7 +639,7 @@ irita query nft owner iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt -o=json --inden
 ### 查询账户指定类别的所有资产示例
 
 ```bash
-irita query nft owner iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt --denom=security -o=json --indent --chain-id=irita-test
+irita query nft owner iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt --denom=nftdenom -o=json --indent --chain-id=irita-test
 ```
 
 结果
@@ -582,7 +649,7 @@ irita query nft owner iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt --denom=securit
   "address": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt",
   "id_collections": [
     {
-      "denom": "security",
+      "denom": "nftdenom",
       "ids": [
         "a4c74c4203af41619d00bb3e2f462c10"
       ]
@@ -596,19 +663,19 @@ irita query nft owner iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt --denom=securit
 查询指定类别的所有资产。
 
 ```bash
-irita query nft collection [denom] [flags]
+irita query nft collection [denom-id] [flags]
 ```
 
 **参数：**
 
 | 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
 | ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| denom  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
+| denom-id  | string  | 是   |             | 资产的类别；长度为3到64，字母数字字符，以字母开始 |
 
 ### 查询指定类别的所有资产示例
 
 ```bash
-irita query nft collection security -o=json --indent --chain-id=irita-test
+irita query nft collection nftdenom -o=json --indent --chain-id=irita-test
 ```
 
 结果
@@ -616,7 +683,7 @@ irita query nft collection security -o=json --indent --chain-id=irita-test
 ```json
 {
   "denom": {
-    "name": "security",
+    "name": "nftdenom",
     "schema": "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}",
     "creator": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt"
   },
@@ -627,7 +694,7 @@ irita query nft collection security -o=json --indent --chain-id=irita-test
         "ID": "a4c74c4203af41619d00bb3e2f462c10",
         "owner": "iaa1pf0r9rhfyzdyw3ed2hk0kyzjfwz4tehwsynxvt",
         "tokenURI": "http://metadata.io/a4c74c4203af41619d00bb3e2f462c10",
-        "token_data": "{\"name\":\"test security\"}"
+        "token_data": "{\"name\":\"test nftdenom\"}"
       }
     }
   ]

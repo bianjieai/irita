@@ -37,7 +37,7 @@ order: 2
 `CLI`
 
 ```bash
-irita tx nft issue <denom> --schema=<schema-content or path/to/schema.json>
+irita tx nft issue <denom-id> --schema=<schema-content or path/to/schema.json> --mint-restricted=<mint-restricted> --update-restricted=<update-restricted>
 ```
 
 ### 增发
@@ -47,7 +47,7 @@ irita tx nft issue <denom> --schema=<schema-content or path/to/schema.json>
 `CLI`
 
 ```bash
-irita tx nft mint <denom> ---recipient=<recipient-address> --token-id=<token-id> --token-uri=<token-uri> --token-data=<token-data>
+irita tx nft mint <denom-id> <nft-id> --uri=<token-uri> --uri-hash=<token-urihash> --data=<token-data> ---recipient=<recipient-address> 
 ```
 
 ### 编辑
@@ -57,7 +57,7 @@ irita tx nft mint <denom> ---recipient=<recipient-address> --token-id=<token-id>
 `CLI`
 
 ```bash
-irita tx nft edit <denom> <token-id> --token-uri=<token-uri> --token-data=<token-data>
+irita tx nft edit <denom-id> <nft-id> --uri=<token-uri> --data=<token-data>
 ```
 
 ### 转移
@@ -67,7 +67,7 @@ irita tx nft edit <denom> <token-id> --token-uri=<token-uri> --token-data=<token
 `CLI`
 
 ```bash
-irita tx nft transfer <denom> <token-id> --recipient=<recipient-address>
+irita tx nft transfer <denom-id> <nft-id> --recipient=<recipient-address>
 ```
 
 ### 销毁
@@ -77,7 +77,7 @@ irita tx nft transfer <denom> <token-id> --recipient=<recipient-address>
 `CLI`
 
 ```bash
-irita tx nft burn <denom> <token-id>
+irita tx nft burn <denom-id> <nft-id>
 ```
 
 ### 查询指定的资产类别
@@ -87,7 +87,7 @@ irita tx nft burn <denom> <token-id>
 `CLI`
 
 ```bash
-irita query nft denom <denom>
+irita query nft denom <denom-id>
 ```
 
 ### 查询所有资产类别信息
@@ -107,7 +107,7 @@ irita query nft denoms
 `CLI`
 
 ```bash
-irita query nft supply <denom> --owner=<owner>
+irita query nft supply <denom-id> --owner=<owner>
 ```
 
 ### 查询指定账户的所有资产
@@ -117,7 +117,7 @@ irita query nft supply <denom> --owner=<owner>
 `CLI`
 
 ```bash
-irita query nft owner --denom=<denom>
+irita query nft owner --denom=<denom-id>
 ```
 
 ### 查询指定类别的所有资产
@@ -127,7 +127,7 @@ irita query nft owner --denom=<denom>
 `CLI`
 
 ```bash
-irita query nft collection <denom>
+irita query nft collection <denom-id>
 ```
 
 ### 查询指定资产
@@ -137,5 +137,5 @@ irita query nft collection <denom>
 `CLI`
 
 ```bash
-irita query nft token <denom> <token-id>
+irita query nft token <denom-id> <nft-id>
 ```
