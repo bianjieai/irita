@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
-	github.com/bianjieai/iritamod v1.2.0
+	github.com/bianjieai/iritamod v1.2.1-0.20220318080656-dba56ebd71ba
 	github.com/bianjieai/tibc-go v0.2.0
 	github.com/cosmos/cosmos-sdk v0.44.4
 	github.com/cosmos/go-bip39 v1.0.0
@@ -86,7 +86,6 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
-	github.com/google/orderedcode v0.0.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
@@ -166,8 +165,8 @@ require (
 replace (
 	//github.com/CosmWasm/wasmd => github.com/provenance-io/wasmd v0.19.0
 	github.com/CosmWasm/wasmd => github.com/bianjieai/wasmd v0.19.1-0.20211215102105-45e28c7c896c
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.44.2-irita-20211102.0.20220318075934-87a616a0ab02
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
-	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
+	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20220315151744-3c1f82db3ea6
 	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.8.2-0.20220124120411-1a676983070a
 )
