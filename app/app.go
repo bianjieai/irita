@@ -6,10 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 
@@ -134,7 +130,7 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 )
 
-const appName = "IritaApp"
+var appName = "IritaApp"
 
 // DefaultNodeHome default home directories for the application daemon
 var DefaultNodeHome string
@@ -165,7 +161,6 @@ var (
 		opb.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
-		wasm.AppModuleBasic{},
 
 		// evm
 		evm.AppModuleBasic{},
@@ -248,7 +243,6 @@ type IritaApp struct {
 	wservicekeeper   wservicekeeper.IKeeper
 	feeGrantKeeper   feegrantkeeper.Keeper
 	capabilityKeeper *capabilitykeeper.Keeper
-	wasmKeeper       wasm.Keeper
 	// tibc
 	scopedTIBCKeeper     capabilitykeeper.ScopedKeeper
 	scopedTIBCMockKeeper capabilitykeeper.ScopedKeeper
@@ -307,7 +301,6 @@ func NewIritaApp(
 		opbtypes.StoreKey,
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
-		wasm.StoreKey,
 
 		// evm
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
@@ -427,33 +420,6 @@ func NewIritaApp(
 
 	app.wservicekeeper = wservicekeeper.NewKeeper(appCodec, keys[wservicetypes.StoreKey], app.serviceKeeper)
 
-	wasmDir := filepath.Join(homePath, "wasm")
-	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
-	if err != nil {
-		panic("error while reading wasm config: " + err.Error())
-	}
-
-	supportedFeatures := "stargate"
-	app.wasmKeeper = wasm.NewKeeper(
-		appCodec,
-		keys[wasm.StoreKey],
-		app.GetSubspace(wasm.ModuleName),
-		app.accountKeeper,
-		app.bankKeeper,
-		stakingkeeper.Keeper{},
-		distrkeeper.Keeper{},
-		nil,
-		nil,
-		nil,
-		nil,
-		bApp.Router(),
-		bApp.MsgServiceRouter(),
-		bApp.GRPCQueryRouter(),
-		wasmDir,
-		wasmConfig,
-		supportedFeatures,
-	)
-
 	/****  Module Options ****/
 	var skipGenesisInvariants = false
 	opt := appOpts.Get(crisis.FlagSkipGenesisInvariants)
@@ -486,7 +452,6 @@ func NewIritaApp(
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
-		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
 
 		// evm
@@ -502,14 +467,13 @@ func NewIritaApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
 		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		tibchost.ModuleName, evmtypes.ModuleName, wasm.ModuleName,
+		tibchost.ModuleName, evmtypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		nodetypes.ModuleName,
 		servicetypes.ModuleName,
 		tibchost.ModuleName,
-		wasm.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -539,7 +503,6 @@ func NewIritaApp(
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
-		wasm.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -572,7 +535,6 @@ func NewIritaApp(
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
-		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
 
 		// evm
@@ -637,6 +599,11 @@ func NewIritaApp(
 		//app.capabilityKeeper.InitializeAndSeal(ctx)
 	}
 	return app
+}
+
+// SetName set name for App
+func SetName(name string) {
+	appName = name
 }
 
 // Name returns the name of the App
@@ -738,6 +705,13 @@ func (app *IritaApp) GetMemKey(storeKey string) *sdk.MemoryStoreKey {
 	return app.memKeys[storeKey]
 }
 
+// GetModuleManager returns the Manager.
+//
+// NOTE: This is solely used for testing purposes.
+func (app *IritaApp) GetModuleManager() *module.Manager {
+	return app.mm
+}
+
 // GetSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
@@ -797,6 +771,24 @@ func (app *IritaApp) RegisterUpgradePlan(planName string,
 	}
 }
 
+// GetCrisisKeeper get crisis keeper
+func (app *IritaApp) GetCrisisKeeper() crisiskeeper.Keeper {
+	return app.crisisKeeper
+}
+
+// AddModules add modules
+func (app *IritaApp) AddModules(modules ...module.AppModule) {
+	modulesStr := make([]string, 0, len(modules))
+	for _, module := range modules {
+		app.mm.Modules[module.Name()] = module
+		modulesStr = append(modulesStr, module.Name())
+	}
+	app.mm.OrderInitGenesis = append(app.mm.OrderInitGenesis, modulesStr...)
+	app.mm.OrderBeginBlockers = append(app.mm.OrderBeginBlockers, modulesStr...)
+	app.mm.OrderExportGenesis = append(app.mm.OrderExportGenesis, modulesStr...)
+	app.mm.OrderEndBlockers = append(app.mm.OrderEndBlockers, modulesStr...)
+}
+
 // GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {
 	dupMaccPerms := make(map[string][]string)
@@ -820,7 +812,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(servicetypes.ModuleName)
 	paramsKeeper.Subspace(opbtypes.ModuleName)
 	paramsKeeper.Subspace(tibchost.ModuleName)
-	paramsKeeper.Subspace(wasm.ModuleName)
 
 	// evm
 	paramsKeeper.Subspace(evmtypes.ModuleName)
