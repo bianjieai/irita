@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"io"
 	"math"
 	"os"
@@ -161,6 +162,8 @@ var (
 		opb.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
+		vesting.AppModuleBasic{},
+		service.AppModuleBasic{},
 
 		// evm
 		evm.AppModuleBasic{},
@@ -535,7 +538,7 @@ func NewIritaApp(
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
-		nfttransferModule,
+		//nfttransferModule,
 
 		// evm
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),

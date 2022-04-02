@@ -466,7 +466,7 @@ func NewSimApp(
 		opb.NewAppModule(appCodec, app.OpbKeeper),
 
 		tibc.NewAppModule(app.TIBCKeeper),
-		nfttransferModule,
+		//nfttransferModule,
 	)
 
 	app.sm.RegisterStoreDecoders()
