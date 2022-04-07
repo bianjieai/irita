@@ -131,7 +131,7 @@ import (
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 )
 
-var appName = "IritaApp"
+const appName = "IritaApp"
 
 // DefaultNodeHome default home directories for the application daemon
 var DefaultNodeHome string
@@ -602,11 +602,6 @@ func NewIritaApp(
 		//app.capabilityKeeper.InitializeAndSeal(ctx)
 	}
 	return app
-}
-
-// SetName set name for App
-func SetName(name string) {
-	appName = name
 }
 
 // Name returns the name of the App
