@@ -21,6 +21,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	mttypes "github.com/irisnet/irismod/modules/mt/types"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
 	oracletypes "github.com/irisnet/irismod/modules/oracle/types"
 	servicetypes "github.com/irisnet/irismod/modules/service/types"
@@ -108,7 +109,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				ante.NewRejectExtensionOptionsDecorator(),
 				ante.NewTxTimeoutHeightDecorator(),
 				tokenkeeper.NewValidateTokenFeeDecorator(options.tokenKeeper, options.bankKeeper),
-				opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper),
+				opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper, options.permKeeper),
 				wservicekeeper.NewDeduplicationTxDecorator(options.wserviceKeeper),
 			)
 		default:
@@ -169,6 +170,7 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	// power user auth
 	permKeeper.RegisterMsgAuth(&tokentypes.MsgIssueToken{}, perm.RoleRootAdmin, perm.RolePowerUser)
 	permKeeper.RegisterMsgAuth(&nfttypes.MsgIssueDenom{}, perm.RoleRootAdmin, perm.RolePowerUser)
+	permKeeper.RegisterMsgAuth(&mttypes.MsgIssueDenom{}, perm.RoleRootAdmin, perm.RolePowerUser)
 	permKeeper.RegisterMsgAuth(&servicetypes.MsgDefineService{}, perm.RoleRootAdmin, perm.RolePowerUser)
 	permKeeper.RegisterMsgAuth(&servicetypes.MsgBindService{}, perm.RoleRootAdmin, perm.RolePowerUser)
 
