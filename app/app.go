@@ -183,6 +183,8 @@ var (
 	}
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{}
+
+	extendModule []module.AppModule = make([]module.AppModule, 0)
 )
 
 // Verify app interface at compile time
@@ -511,6 +513,17 @@ func NewIritaApp(
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 	)
 
+	// extend Modules
+	modulesStr := make([]string, 0, len(extendModule))
+	for _, m := range extendModule {
+		app.mm.Modules[m.Name()] = m
+		modulesStr = append(modulesStr, m.Name())
+	}
+	app.mm.OrderInitGenesis = append(app.mm.OrderInitGenesis, modulesStr...)
+	app.mm.OrderBeginBlockers = append(app.mm.OrderBeginBlockers, modulesStr...)
+	app.mm.OrderExportGenesis = append(app.mm.OrderExportGenesis, modulesStr...)
+	app.mm.OrderEndBlockers = append(app.mm.OrderEndBlockers, modulesStr...)
+
 	app.mm.RegisterInvariants(&app.crisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
@@ -775,16 +788,8 @@ func (app *IritaApp) GetCrisisKeeper() crisiskeeper.Keeper {
 }
 
 // AddModules add modules
-func (app *IritaApp) AddModules(modules ...module.AppModule) {
-	modulesStr := make([]string, 0, len(modules))
-	for _, module := range modules {
-		app.mm.Modules[module.Name()] = module
-		modulesStr = append(modulesStr, module.Name())
-	}
-	app.mm.OrderInitGenesis = append(app.mm.OrderInitGenesis, modulesStr...)
-	app.mm.OrderBeginBlockers = append(app.mm.OrderBeginBlockers, modulesStr...)
-	app.mm.OrderExportGenesis = append(app.mm.OrderExportGenesis, modulesStr...)
-	app.mm.OrderEndBlockers = append(app.mm.OrderEndBlockers, modulesStr...)
+func AddModules(modules ...module.AppModule) {
+	extendModule = append(extendModule, modules...)
 }
 
 // GetMaccPerms returns a copy of the module account permissions
