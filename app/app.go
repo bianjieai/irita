@@ -185,7 +185,7 @@ var (
 	allowedReceivingModAcc = map[string]bool{}
 
 	extendModule []module.AppModule = make([]module.AppModule, 0)
-	extendKey                       = make([]string, 0)
+	extendKey                       = make(map[string]*sdk.KVStoreKey, 0)
 )
 
 // Verify app interface at compile time
@@ -312,8 +312,8 @@ func NewIritaApp(
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 	)
 
-	for _, k := range extendKey {
-		keys[k] = sdk.NewKVStoreKey(k)
+	for k, v := range extendKey {
+		keys[k] = v
 	}
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -797,9 +797,9 @@ func AddModules(modules ...module.AppModule) {
 	extendModule = append(extendModule, modules...)
 }
 
-// AddKeys add keys
-func AddKeys(keys ...string) {
-	extendKey = append(extendKey, keys...)
+// AddKey add key
+func AddKey(key string, value *sdk.KVStoreKey) {
+	extendKey[key] = value
 }
 
 // GetMaccPerms returns a copy of the module account permissions
