@@ -188,6 +188,10 @@ var (
 	extendKey                       = make(map[string]*sdk.KVStoreKey, 0)
 )
 
+type AddModuleFun func(app *IritaApp)
+
+var AddModule AddModuleFun
+
 // Verify app interface at compile time
 var _ simapp.App = (*IritaApp)(nil)
 
@@ -312,9 +316,6 @@ func NewIritaApp(
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 	)
 
-	for k, v := range extendKey {
-		keys[k] = v
-	}
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
@@ -519,15 +520,9 @@ func NewIritaApp(
 	)
 
 	// extend Modules
-	modulesStr := make([]string, 0, len(extendModule))
-	for _, m := range extendModule {
-		app.mm.Modules[m.Name()] = m
-		modulesStr = append(modulesStr, m.Name())
+	if AddModule != nil {
+		AddModule(app)
 	}
-	app.mm.OrderInitGenesis = append(app.mm.OrderInitGenesis, modulesStr...)
-	app.mm.OrderBeginBlockers = append(app.mm.OrderBeginBlockers, modulesStr...)
-	app.mm.OrderExportGenesis = append(app.mm.OrderExportGenesis, modulesStr...)
-	app.mm.OrderEndBlockers = append(app.mm.OrderEndBlockers, modulesStr...)
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
@@ -707,6 +702,11 @@ func (app *IritaApp) GetKey(storeKey string) *sdk.KVStoreKey {
 	return app.keys[storeKey]
 }
 
+// GetKeys return the KVStoreKey map
+func (app *IritaApp) GetKeys() map[string]*sdk.KVStoreKey {
+	return app.keys
+}
+
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
@@ -790,16 +790,6 @@ func (app *IritaApp) RegisterUpgradePlan(planName string,
 // GetCrisisKeeper get crisis keeper
 func (app *IritaApp) GetCrisisKeeper() crisiskeeper.Keeper {
 	return app.crisisKeeper
-}
-
-// AddModules add modules
-func AddModules(modules ...module.AppModule) {
-	extendModule = append(extendModule, modules...)
-}
-
-// AddKey add key
-func AddKey(key string, value *sdk.KVStoreKey) {
-	extendKey[key] = value
 }
 
 // GetMaccPerms returns a copy of the module account permissions
