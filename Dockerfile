@@ -1,15 +1,15 @@
 #
 # Build image: docker build -t bianjie/irita .
 #
-FROM golang:1.17.3-alpine3.14 as builder
+FROM golang:1.17.3-buster as builder
 
 # this comes from standard alpine nightly file
 #  https://github.com/rust-lang/docker-rust-nightly/blob/master/alpine3.12/Dockerfile
 # with some changes to support CosmWasm toolchain, etc
-RUN set -eux; apk add --no-cache ca-certificates build-base;
+# RUN set -eux; apk add --no-cache ca-certificates build-base;
 
 # Set up dependencies
-ENV PACKAGES make gcc git libc-dev bash openssl
+# ENV PACKAGES make gcc git libc-dev bash openssl
 
 WORKDIR /irita
 
@@ -17,7 +17,7 @@ WORKDIR /irita
 COPY . .
 
 # Install minimum necessary dependencies
-RUN apk add $PACKAGES
+# RUN apk add $PACKAGES
 
 # NOTE: add these to run with LEDGER_ENABLED=true
 # RUN apk add libusb-dev linux-headers
@@ -26,7 +26,7 @@ RUN apk add $PACKAGES
 # ADD https://github.com/CosmWasm/wasmvm/releases/download/v0.16.0/libwasmvm_muslc.a /lib/libwasmvm_muslc.a
 # RUN sha256sum /lib/libwasmvm_muslc.a | grep ef294a7a53c8d0aa6a8da4b10e94fb9f053f9decf160540d6c7594734bc35cd6
 
-RUN LEDGER_ENABLED=false BUILD_TAGS=muslc make build
+RUN make build
 
 # ----------------------------
 
