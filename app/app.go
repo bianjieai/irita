@@ -189,6 +189,10 @@ type AddModuleFun func(app *IritaApp)
 
 var AddModule AddModuleFun
 
+type RegisterUpgradePlanFun func(app *IritaApp)
+
+var UpgradePlan RegisterUpgradePlanFun
+
 // Verify app interface at compile time
 var _ simapp.App = (*IritaApp)(nil)
 
@@ -592,6 +596,9 @@ func NewIritaApp(
 	// 	},
 	// 	func(ctx sdk.Context, plan sdkupgrade.Plan) {},
 	// )
+	if UpgradePlan != nil {
+		UpgradePlan(app)
+	}
 
 	// set peer filter by node ID
 	app.SetIDPeerFilter(app.nodeKeeper.FilterNodeByID)
