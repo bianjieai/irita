@@ -183,9 +183,6 @@ var (
 	}
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{}
-
-	extendModule []module.AppModule = make([]module.AppModule, 0)
-	extendKey                       = make(map[string]*sdk.KVStoreKey, 0)
 )
 
 type AddModuleFun func(app *IritaApp)
