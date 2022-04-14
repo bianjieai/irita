@@ -185,11 +185,11 @@ var (
 	allowedReceivingModAcc = map[string]bool{}
 )
 
-type AddModuleFun func(app *IritaApp)
+type AddModuleFun func(app *IritaApp, mm *module.Manager, keys map[string]*sdk.KVStoreKey)
 
 var AddModule AddModuleFun
 
-type RegisterUpgradePlanFun func(app *IritaApp)
+type RegisterUpgradePlanFun func(app *IritaApp, configurator module.Configurator, mm *module.Manager)
 
 var UpgradePlan RegisterUpgradePlanFun
 
@@ -522,7 +522,7 @@ func NewIritaApp(
 
 	// extend Modules
 	if AddModule != nil {
-		AddModule(app)
+		AddModule(app, app.mm, app.keys)
 	}
 
 	app.mm.RegisterInvariants(&app.crisisKeeper)
@@ -597,7 +597,7 @@ func NewIritaApp(
 	// 	func(ctx sdk.Context, plan sdkupgrade.Plan) {},
 	// )
 	if UpgradePlan != nil {
-		UpgradePlan(app)
+		UpgradePlan(app, app.configurator, app.mm)
 	}
 
 	// set peer filter by node ID
