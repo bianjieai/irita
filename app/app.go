@@ -7,8 +7,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/irisnet/irismod/modules/mt"
+
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
@@ -66,6 +69,8 @@ import (
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	mtkeeper "github.com/irisnet/irismod/modules/mt/keeper"
+	mttypes "github.com/irisnet/irismod/modules/mt/types"
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
@@ -153,6 +158,7 @@ var (
 		record.AppModuleBasic{},
 		token.AppModuleBasic{},
 		nft.AppModuleBasic{},
+		mt.AppModuleBasic{},
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
@@ -162,8 +168,6 @@ var (
 		opb.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
-		vesting.AppModuleBasic{},
-		service.AppModuleBasic{},
 
 		// evm
 		evm.AppModuleBasic{},
@@ -244,6 +248,7 @@ type IritaApp struct {
 	recordKeeper     recordkeeper.Keeper
 	tokenKeeper      tokenkeeper.Keeper
 	nftKeeper        nftkeeper.Keeper
+	mtKeeper         mtkeeper.Keeper
 	serviceKeeper    servicekeeper.Keeper
 	oracleKeeper     oraclekeeper.Keeper
 	randomKeeper     randomkeeper.Keeper
@@ -303,6 +308,7 @@ func NewIritaApp(
 		recordtypes.StoreKey,
 		tokentypes.StoreKey,
 		nfttypes.StoreKey,
+		mttypes.StoreKey,
 		servicetypes.StoreKey,
 		oracletypes.StoreKey,
 		randomtypes.StoreKey,
@@ -316,7 +322,6 @@ func NewIritaApp(
 		// evm
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 	)
-
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
@@ -455,6 +460,7 @@ func NewIritaApp(
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
 		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
@@ -478,7 +484,7 @@ func NewIritaApp(
 	app.mm.SetOrderBeginBlockers(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
-		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
+		nfttypes.ModuleName, mttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
 		tibchost.ModuleName, evmtypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
@@ -507,6 +513,7 @@ func NewIritaApp(
 		recordtypes.ModuleName,
 		tokentypes.ModuleName,
 		nfttypes.ModuleName,
+		mttypes.ModuleName,
 		servicetypes.ModuleName,
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
@@ -544,6 +551,7 @@ func NewIritaApp(
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
 		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
