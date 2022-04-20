@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"io"
 	"math"
 	"os"
@@ -11,8 +10,6 @@ import (
 
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-
 	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
 
