@@ -371,6 +371,7 @@ func NewIritaApp(
 
 	app.recordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
 	app.nftKeeper = nftkeeper.NewKeeper(appCodec, keys[nfttypes.StoreKey])
+	app.mtKeeper = mtkeeper.NewKeeper(appCodec, keys[mttypes.StoreKey])
 
 	app.serviceKeeper = servicekeeper.NewKeeper(
 		appCodec, keys[servicetypes.StoreKey], app.accountKeeper, app.bankKeeper,
