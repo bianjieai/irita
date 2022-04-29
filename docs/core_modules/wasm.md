@@ -6,8 +6,8 @@ order: 7
 
 ## 简介
 
-Smart Contract，是一种旨在以信息化方式传播、验证或执行合同的计算机协议，是对区块链功能的一种可定制化的扩展。目前流行的智能合约实施方法主要是以太坊的`EVM`（Irita已支持）。Irita 采用的是另一种智能合约方案Wasm，底层采用的是[Webassembly](https://www.wasm.com.cn/)技术，理论上支持
-Webassembly所支持的各种语言来编写智能合约代码，减少了使用其他语言编写智能合约的学习成本。由于**Wasm**还处于快速发展阶段，vm底层代码采用的是Rust语言编写，所以目前支持的智能合约语言是**Rust**。<font color=#FF0000>当前已推出以太坊的`EVM`来替换即将下线的**Wasm**。</font>
+Smart Contract，是一种旨在以信息化方式传播、验证或执行合同的计算机协议，是对区块链功能的一种可定制化的扩展。目前流行的智能合约实施方法主要是以太坊的[EVM](./evm.md)（IRITA已支持）。目前IRITA同时支持的另一种智能合约方案WASM(即将下线)，底层采用的是[Webassembly](https://www.wasm.com.cn/) 技术，理论上支持
+Webassembly所支持的各种语言来编写智能合约代码，减少了使用其他语言编写智能合约的学习成本。由于**WASM**还处于快速发展阶段，vm底层代码采用的是Rust语言编写，所以目前支持的智能合约语言是**Rust**。<font color=#FF0000>当前已推出以太坊的[EVM](./evm.md)来替换即将下线的**WASM**</font>。
 
 ## 功能
 
