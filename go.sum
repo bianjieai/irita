@@ -159,8 +159,8 @@ github.com/bianjieai/iritamod v1.2.1-0.20220222035322-99168809cf24 h1:nIoqKe2Mqw
 github.com/bianjieai/iritamod v1.2.1-0.20220222035322-99168809cf24/go.mod h1:4mf6AkFFyTSATfsG3Z8MiwgaAnqubXdLv+XRzOS7XZA=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3 h1:M4C+ilCPiP2c2yMdeYaZLwquEBfFa4Uvt1BDviSYD0E=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3/go.mod h1:2u6xthTnwDYLhO38cDYp8CxzKq7hwJFvCXeK1pEErtM=
-github.com/bianjieai/tibc-go v0.3.1-0.20220428095652-00d71f570368 h1:Q6nyNPKChADqpxw8sOeneo731jOJ5Gce+Dkyf/DIvv8=
-github.com/bianjieai/tibc-go v0.3.1-0.20220428095652-00d71f570368/go.mod h1:Xd0I5UtMpeNr9CoxBRUnl3gkt7iCcu/g8iKyXhNy0DI=
+github.com/bianjieai/tibc-go v0.3.1-0.20220429030432-3db7c6cf18a5 h1:TLh1GF5eMrMlvIMhkYPowPV2Iy4vbafR8GkYO65zXLg=
+github.com/bianjieai/tibc-go v0.3.1-0.20220429030432-3db7c6cf18a5/go.mod h1:Xd0I5UtMpeNr9CoxBRUnl3gkt7iCcu/g8iKyXhNy0DI=
 github.com/bianjieai/wasmd v0.19.1-0.20211215102105-45e28c7c896c h1:xwQQt8sxV4mGzloHzWzw8enO5JdzMiYfK+rm3ts1VR4=
 github.com/bianjieai/wasmd v0.19.1-0.20211215102105-45e28c7c896c/go.mod h1:kDf8jnIgsT2xVf18/SrLyPNbc32kf1vEVOqG22YzUbQ=
 github.com/bits-and-blooms/bitset v1.2.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
