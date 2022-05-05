@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cosmos/cosmos-sdk/x/capability"
+
 	"github.com/irisnet/irismod/modules/mt"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -124,6 +126,7 @@ import (
 	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
 	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
+	tibcclienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
 	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
 	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
@@ -641,6 +644,59 @@ func NewIritaApp(
 	// 	},
 	// 	func(ctx sdk.Context, plan sdkupgrade.Plan) {},
 	// )
+
+	app.RegisterUpgradePlan("v2.1",
+		store.StoreUpgrades{
+			Added: []string{wservicetypes.StoreKey},
+		},
+		//func(ctx sdk.Context, plan sdkupgrade.Plan) {},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			return nil, nil
+		},
+	)
+
+	app.RegisterUpgradePlan(
+		"v2.2-bsnhub", store.StoreUpgrades{
+			Added: []string{feegrant.StoreKey, tibchost.StoreKey, tibcnfttypes.StoreKey},
+		},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			tibcclienttypes.SetDefaultGenesisState(tibcclienttypes.GenesisState{
+				NativeChainName: "bsnhub-mainnet",
+			})
+			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
+			fromVM[banktypes.ModuleName] = 1
+			fromVM[stakingtypes.ModuleName] = 1
+			fromVM[opbtypes.ModuleName] = 1
+			fromVM[wservicetypes.ModuleName] = 1
+			fromVM[identitytypes.ModuleName] = 1
+			fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
+			fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
+			fromVM[nodetypes.ModuleName] = node.AppModule{}.ConsensusVersion()
+			fromVM[genutiltypes.ModuleName] = genutil.AppModule{}.ConsensusVersion()
+			fromVM[paramstypes.ModuleName] = cparams.AppModule{}.ConsensusVersion()
+			fromVM[crisistypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
+			fromVM[upgradetypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
+			fromVM[evidencetypes.ModuleName] = evidence.AppModule{}.ConsensusVersion()
+			fromVM[feegrant.ModuleName] = feegrantmodule.AppModule{}.ConsensusVersion()
+			fromVM[tokentypes.ModuleName] = token.AppModule{}.ConsensusVersion()
+			fromVM[recordtypes.ModuleName] = record.AppModule{}.ConsensusVersion()
+			fromVM[nfttypes.ModuleName] = nft.AppModule{}.ConsensusVersion()
+			fromVM[servicetypes.ModuleName] = service.AppModule{}.ConsensusVersion()
+			fromVM[oracletypes.ModuleName] = oracle.AppModule{}.ConsensusVersion()
+			fromVM[randomtypes.ModuleName] = random.AppModule{}.ConsensusVersion()
+			fromVM[permtypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+
+	app.RegisterUpgradePlan(
+		"v3.0.0-bsnhub", store.StoreUpgrades{
+			Added: []string{tibcmttypes.StoreKey},
+		},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
 
 	// set peer filter by node ID
 	app.SetIDPeerFilter(app.nodeKeeper.FilterNodeByID)
