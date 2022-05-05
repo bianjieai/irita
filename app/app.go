@@ -118,6 +118,9 @@ import (
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
 
+	tibcmttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer"
+	tibcmttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/keeper"
+	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
 	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
 	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
@@ -169,6 +172,7 @@ var (
 		opb.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
+		tibcmttransfer.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 
 		// evm
@@ -183,6 +187,7 @@ var (
 		servicetypes.RequestAccName:         nil,
 		opbtypes.PointTokenFeeCollectorName: nil,
 		tibcnfttypes.ModuleName:             nil,
+		tibcmttypes.ModuleName:              nil,
 
 		// evm
 		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
@@ -259,6 +264,7 @@ type IritaApp struct {
 	scopedTIBCMockKeeper capabilitykeeper.ScopedKeeper
 	tibcKeeper           *tibckeeper.Keeper
 	nftTransferKeeper    tibcnfttransferkeeper.Keeper
+	mtTransferKeeper     tibcmttransferkeeper.Keeper
 
 	// Ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
@@ -313,6 +319,7 @@ func NewIritaApp(
 		opbtypes.StoreKey,
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
+		tibcmttypes.StoreKey,
 		wasm.StoreKey,
 
 		// evm
@@ -427,9 +434,16 @@ func NewIritaApp(
 		app.accountKeeper, tibckeeper.WrapNftKeeper(app.nftKeeper),
 		app.tibcKeeper.PacketKeeper, app.tibcKeeper.ClientKeeper,
 	)
+	app.mtTransferKeeper = tibcmttransferkeeper.NewKeeper(
+		appCodec, keys[tibcmttypes.StoreKey], app.GetSubspace(tibcmttypes.ModuleName),
+		app.accountKeeper, app.mtKeeper,
+		app.tibcKeeper.PacketKeeper, app.tibcKeeper.ClientKeeper,
+	)
 	nfttransferModule := tibcnfttransfer.NewAppModule(app.nftTransferKeeper)
+	mttransferModule := tibcmttransfer.NewAppModule(app.mtTransferKeeper)
 	tibcRouter := tibcroutingtypes.NewRouter()
 	tibcRouter.AddRoute(tibcnfttypes.ModuleName, nfttransferModule)
+	tibcRouter.AddRoute(tibcmttypes.ModuleName, mttransferModule)
 	app.tibcKeeper.SetRouter(tibcRouter)
 
 	app.wservicekeeper = wservicekeeper.NewKeeper(appCodec, keys[wservicetypes.StoreKey], app.serviceKeeper)
@@ -496,7 +510,7 @@ func NewIritaApp(
 		tibc.NewAppModule(app.tibcKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
-
+		mttransferModule,
 		// evm
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
@@ -584,7 +598,7 @@ func NewIritaApp(
 		tibc.NewAppModule(app.tibcKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
-
+		mttransferModule,
 		// evm
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
