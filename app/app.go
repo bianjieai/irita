@@ -691,7 +691,10 @@ func NewIritaApp(
 
 	app.RegisterUpgradePlan(
 		"v3.0.0-bsnhub", store.StoreUpgrades{
-			Added: []string{tibcmttypes.StoreKey},
+			Added: []string{
+				mttypes.StoreKey,
+				tibcmttypes.StoreKey,
+			},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
