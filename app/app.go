@@ -321,7 +321,6 @@ func NewIritaApp(
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
 		tibcmttypes.StoreKey,
-		wasm.StoreKey,
 
 		// evm
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
