@@ -816,6 +816,11 @@ func (app *IritaApp) GetCrisisKeeper() crisiskeeper.Keeper {
 	return app.crisisKeeper
 }
 
+// GetTokenKeeper get token keeper
+func (app *IritaApp) GetTokenKeeper() tokenkeeper.Keeper {
+	return app.tokenKeeper
+}
+
 // GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {
 	dupMaccPerms := make(map[string][]string)
