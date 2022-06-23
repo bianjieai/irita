@@ -40,6 +40,14 @@ endif
 ifeq ($(WITH_CLEVELDB),yes)
   build_tags += gcc
 endif
+
+ifeq (rocksdb,$(findstring rocksdb,$(IRITA_BUILD_OPTIONS)))
+  CGO_ENABLED=1
+  BUILD_TAGS += rocksdb
+  CGO_CFLAGS="-g -O2 -I${ROCKSDB_PATH}/include"
+  CGO_LDFLAGS="-g -O2 -L${ROCKSDB_PATH} -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"
+endif
+
 build_tags += $(BUILD_TAGS)
 build_tags := $(strip $(build_tags))
 
@@ -66,6 +74,9 @@ buildflags = -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2
 ifeq ($(WITH_CLEVELDB),yes)
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
 endif
+ifeq (rocksdb,$(findstring rocksdb,$(IRITA_BUILD_OPTIONS)))
+  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb
+endif
 ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
 
@@ -84,6 +95,7 @@ ifeq ($(OS),Windows_NT)
 else
 	go build $(BUILD_FLAGS) -o build/irita ./cmd/irita
 endif
+.PHONY: build
 
 build-linux: go.sum update-swagger-docs
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
