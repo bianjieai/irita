@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/tendermint/tendermint/crypto/algo"
+
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 
 	ethermintclient "github.com/tharsis/ethermint/client"
@@ -74,7 +76,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		Short: "Irita app command",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// Open when debug
-			//algo.Algo = algo.SM2
+			algo.Algo = algo.SM2
 
 			clientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 
@@ -123,6 +125,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		config.Cmd(),
+		SnapshotCmd(),
 	)
 
 	ac := appCreator{encodingConfig}

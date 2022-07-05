@@ -320,6 +320,7 @@ func NewIritaApp(
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
+		wservicetypes.StoreKey,
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
 		tibcmttypes.StoreKey,
@@ -423,8 +424,8 @@ func NewIritaApp(
 		app.GetSubspace(opbtypes.ModuleName),
 	)
 
-	ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper, app.EvmKeeper, logger)
-	app.EvmKeeper.TransferFunc = ethOpbV.Transfer
+	//ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper, app.EvmKeeper, logger)
+	//app.EvmKeeper.TransferFunc = ethOpbV.Transfer
 	app.EvmKeeper.AccStoreKey = keys[authtypes.StoreKey]
 
 	// register the proposal types
@@ -524,28 +525,7 @@ func NewIritaApp(
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
-		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
-		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
-		nfttypes.ModuleName, mttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		tibchost.ModuleName, evmtypes.ModuleName, wasm.ModuleName,
-	)
-	app.mm.SetOrderEndBlockers(
-		crisistypes.ModuleName,
-		nodetypes.ModuleName,
-		servicetypes.ModuleName,
-		tibchost.ModuleName,
-		wasm.ModuleName,
-
-		// evm
-		evmtypes.ModuleName, feemarkettypes.ModuleName,
-	)
-
-	// NOTE: The genutils module must occur after staking so that pools are
-	// properly initialized with tokens from genesis accounts.
-	// NOTE: Capability module must occur first so that it can initialize any capabilities
-	// so that other modules that want to create or claim capabilities afterwards in InitChain
-	// can do so safely.
-	app.mm.SetOrderInitGenesis(
+		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
@@ -562,9 +542,106 @@ func NewIritaApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		opb.ModuleName,
+		paramstypes.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
+		wasm.ModuleName,
+
+		// evm
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
+	)
+	app.mm.SetOrderEndBlockers(
+		upgradetypes.ModuleName,
+		permtypes.ModuleName,
+		authtypes.ModuleName,
+		nodetypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		mttypes.ModuleName,
+		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		opb.ModuleName,
+		paramstypes.ModuleName,
+		genutiltypes.ModuleName,
+		feegrant.ModuleName,
+		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
+		wasm.ModuleName,
+
+		// evm
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
+	)
+
+	// NOTE: The genutils module must occur after staking so that pools are
+	// properly initialized with tokens from genesis accounts.
+	// NOTE: Capability module must occur first so that it can initialize any capabilities
+	// so that other modules that want to create or claim capabilities afterwards in InitChain
+	// can do so safely.
+	app.mm.SetOrderInitGenesis(
+		upgradetypes.ModuleName,
+		permtypes.ModuleName,
+		authtypes.ModuleName,
+		nodetypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		mttypes.ModuleName,
+		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		opb.ModuleName,
+		paramstypes.ModuleName,
+		genutiltypes.ModuleName,
+		feegrant.ModuleName,
+		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
+		wasm.ModuleName,
+
+		// evm
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
+	)
+
+	app.mm.SetOrderMigrations(
+		upgradetypes.ModuleName,
+		permtypes.ModuleName,
+		authtypes.ModuleName,
+		nodetypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		mttypes.ModuleName,
+		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		opb.ModuleName,
+		paramstypes.ModuleName,
+		genutiltypes.ModuleName,
+		feegrant.ModuleName,
+		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
 		wasm.ModuleName,
 
 		// evm
