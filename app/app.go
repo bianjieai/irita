@@ -317,6 +317,7 @@ func NewIritaApp(
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
+		wservicetypes.StoreKey,
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
 		tibcmttypes.StoreKey,
