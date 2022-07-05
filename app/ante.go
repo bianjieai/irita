@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	appante "github.com/bianjieai/irita/modules/evm"
+	evmmoudleante "github.com/bianjieai/irita/modules/evm"
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
@@ -29,6 +29,8 @@ import (
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
+	ethermintante "github.com/tharsis/ethermint/app/ante"
 )
 
 type HandlerOptions struct {
@@ -43,7 +45,7 @@ type HandlerOptions struct {
 	signModeHandler signing.SignModeHandler
 
 	// evm config
-	evmKeeper          appante.EVMKeeper
+	evmKeeper          evmmoudleante.EVMKeeper
 	evmFeeMarketKeeper evmtypes.FeeMarketKeeper
 }
 
@@ -68,15 +70,21 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.accountKeeper),
-						appante.NewEthValidateBasicDecorator(options.evmKeeper),
-						appante.NewEthContractCallableDecorator(options.permKeeper),
-						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-						appante.NewEthSigVerificationDecorator(options.evmKeeper, options.accountKeeper, options.signModeHandler),
-						appante.NewEthAccountVerificationDecorator(options.accountKeeper, options.bankKeeper, options.evmKeeper),
-						appante.NewEthNonceVerificationDecorator(options.accountKeeper),
-						appante.NewEthGasConsumeDecorator(options.evmKeeper),
-						appante.NewCanTransferDecorator(options.evmKeeper, options.evmFeeMarketKeeper),
-						appante.NewEthIncrementSenderSequenceDecorator(options.accountKeeper), // innermost AnteDecorator.
+						evmmoudleante.NewEthValidateBasicDecorator(options.evmKeeper),
+						evmmoudleante.NewEthContractCallableDecorator(options.permKeeper),
+						evmmoudleante.NewEthSigVerificationDecorator(options.evmKeeper, options.accountKeeper, options.signModeHandler),
+						//evmmoudleante.NewCanTransferDecorator(options.evmKeeper, options.opbKeeper, options.tokenKeeper),
+						evmmoudleante.NewOpbTransferDecorator(options.evmKeeper, options.opbKeeper, options.tokenKeeper),
+
+						ethermintante.NewCanTransferDecorator(options.evmKeeper),
+						ethermintante.NewEthAccountVerificationDecorator(options.accountKeeper, options.bankKeeper, options.evmKeeper),
+						ethermintante.NewEthGasConsumeDecorator(options.evmKeeper),
+						ethermintante.NewEthIncrementSenderSequenceDecorator(options.accountKeeper), // innermost AnteDecorator.
+						ethermintante.NewEthSetUpContextDecorator(options.evmKeeper),                // outermost AnteDecorator. SetUpContext must be called first
+						ethermintante.NewEthMempoolFeeDecorator(options.evmKeeper),                  // Check eth effective gas price against minimal-gas-prices
+						ethermintante.NewEthValidateBasicDecorator(options.evmKeeper),
+						ethermintante.NewEthSigVerificationDecorator(options.evmKeeper),
+
 						perm.NewAuthDecorator(options.permKeeper),
 					)
 
