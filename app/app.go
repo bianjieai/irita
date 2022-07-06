@@ -10,6 +10,7 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
+	appante "github.com/bianjieai/irita/app/ante"
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	appevmtypes "github.com/bianjieai/irita/modules/evm/types"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
@@ -131,7 +132,7 @@ import (
 	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
 	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 
-	"github.com/tharsis/ethermint/app/ante"
+	ethermintante "github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm"
@@ -400,7 +401,7 @@ func NewIritaApp(
 	)
 
 	permKeeper := permkeeper.NewKeeper(appCodec, keys[permtypes.StoreKey])
-	app.permKeeper = RegisterAccessControl(permKeeper)
+	app.permKeeper = appante.RegisterAccessControl(permKeeper)
 
 	app.identityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
 
@@ -694,21 +695,21 @@ func NewIritaApp(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	anteHandler := NewAnteHandler(
-		HandlerOptions{
-			permKeeper:      app.permKeeper,
-			accountKeeper:   app.accountKeeper,
-			bankKeeper:      app.bankKeeper,
-			tokenKeeper:     app.tokenKeeper,
-			opbKeeper:       app.opbKeeper,
-			signModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			feegrantKeeper:  app.feeGrantKeeper,
-			wserviceKeeper:  app.wservicekeeper,
-			sigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+	anteHandler := appante.NewAnteHandler(
+		appante.HandlerOptions{
+			PermKeeper:      app.permKeeper,
+			AccountKeeper:   app.accountKeeper,
+			BankKeeper:      app.bankKeeper,
+			TokenKeeper:     app.tokenKeeper,
+			OpbKeeper:       app.opbKeeper,
+			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+			FeegrantKeeper:  app.feeGrantKeeper,
+			WserviceKeeper:  app.wservicekeeper,
+			SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
 
 			// evm
-			evmFeeMarketKeeper: app.FeeMarketKeeper,
-			evmKeeper:          app.EvmKeeper,
+			EvmFeeMarketKeeper: app.FeeMarketKeeper,
+			EvmKeeper:          app.EvmKeeper,
 		},
 	)
 	app.SetAnteHandler(anteHandler)
