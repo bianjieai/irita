@@ -142,6 +142,8 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
+	gethparams "github.com/ethereum/go-ethereum/params"
 )
 
 const appName = "IritaApp"
@@ -807,6 +809,14 @@ func NewIritaApp(
 			Added: []string{tibcmttypes.StoreKey},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			fMtParams := feemarkettypes.NewParams(
+				true,
+				gethparams.BaseFeeChangeDenominator,
+				gethparams.ElasticityMultiplier,
+				gethparams.InitialBaseFee,
+				0,
+			)
+			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
