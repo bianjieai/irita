@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
+	"github.com/tendermint/tendermint/crypto/algo"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -74,7 +75,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		Short: "Irita app command",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// Open when debug
-			//algo.Algo = algo.SM2
+			algo.Algo = algo.SM2
 
 			clientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 

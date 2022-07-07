@@ -2,8 +2,9 @@ package evm
 
 import (
 	"errors"
-	"fmt"
 	"math/big"
+
+	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
 
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
@@ -292,103 +293,22 @@ func (e EthContractCallableDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 	return next(ctx, tx, simulate)
 }
 
-type OpbTransferDecorator struct {
-	evmKeeper   EVMKeeper
-	opbKeeper   opbkeeper.Keeper
-	tokenKeeper tokenkeeper.Keeper
-}
-
-// NewOpbTransferDecorator creates a new CanTransferDecorator instance.
-func NewOpbTransferDecorator(evmKeeper EVMKeeper, opbKeeper opbkeeper.Keeper, tokenKeeper tokenkeeper.Keeper) OpbTransferDecorator {
-	return OpbTransferDecorator{
-		evmKeeper:   evmKeeper,
-		opbKeeper:   opbKeeper,
-		tokenKeeper: tokenKeeper,
-	}
-}
-
-// AnteHandle creates an EVM from the message and calls the BlockContext CanTransfer function to
-// see if the address can execute the transaction.
-func (opd OpbTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
-	params := opd.evmKeeper.GetParams(ctx)
-	ethCfg := params.ChainConfig.EthereumConfig(opd.evmKeeper.ChainID())
-	signer := ethtypes.MakeSigner(ethCfg, big.NewInt(ctx.BlockHeight()))
-	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
-		if !ok {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid message type %T, expected %T", msg, (*evmtypes.MsgEthereumTx)(nil))
-		}
-
-		baseFee := opd.evmKeeper.BaseFee(ctx, ethCfg)
-
-		coreMsg, err := msgEthTx.AsMessage(signer, baseFee)
-		if err != nil {
-			return ctx, sdkerrors.Wrapf(
-				err,
-				"failed to create an ethereum core.Message from signer %T", signer,
-			)
-		}
-
-		if err := opd.validator(ctx, coreMsg.From(), coreMsg.To()); err != nil {
-			return ctx, err
-		}
-
-	}
-	return next(ctx, tx, simulate)
-}
-
-func (opd OpbTransferDecorator) validator(ctx sdk.Context, sender common.Address, recipient *common.Address) error {
-	senderCosmosAddr := sdk.AccAddress(sender.Bytes())
-	recipientCosmosAddr := sdk.AccAddress(recipient.Bytes())
-
-	params := opd.evmKeeper.GetParams(ctx)
-	restrictionEnabled := !opd.opbKeeper.UnrestrictedTokenTransfer(ctx)
-	// check only if the transfer restriction is enabled
-	if restrictionEnabled {
-		owner, err := opd.getOwner(ctx, params.EvmDenom)
-		if err != nil {
-			errMsg := fmt.Sprintf("unauthorized operation: either the sender or recipient must be the owner %s for token %s", owner, params.EvmDenom)
-
-			return sdkerrors.ABCIError("wevm", 999999, errMsg)
-		}
-		if senderCosmosAddr.String() != owner && recipientCosmosAddr.String() != owner {
-			errMsg := fmt.Sprintf("unauthorized operation: either the sender or recipient must be the owner %s for token %s", owner, params.EvmDenom)
-
-			return sdkerrors.ABCIError("wevm", 999999, errMsg)
-		}
-	}
-	return nil
-}
-
-func (opd OpbTransferDecorator) getOwner(ctx sdk.Context, denom string) (owner string, err error) {
-	baseTokenDenom := opd.opbKeeper.BaseTokenDenom(ctx)
-
-	if denom == baseTokenDenom {
-		owner = opd.opbKeeper.BaseTokenManager(ctx)
-	} else {
-		ownerAddr, err := opd.tokenKeeper.GetOwner(ctx, denom)
-		if err == nil {
-			owner = ownerAddr.String()
-		}
-	}
-
-	return
-}
-
 // CanTransferDecorator checks if the sender is allowed to transfer funds according to the EVM block
 // context rules.
 type CanTransferDecorator struct {
 	evmKeeper   EVMKeeper
 	opbKeeper   opbkeeper.Keeper
 	tokenKeeper tokenkeeper.Keeper
+	permKeeper  permkeeper.Keeper
 }
 
 // NewCanTransferDecorator creates a new CanTransferDecorator instance.
-func NewCanTransferDecorator(evmKeeper EVMKeeper, opbKeeper opbkeeper.Keeper, tokenKeeper tokenkeeper.Keeper) CanTransferDecorator {
+func NewCanTransferDecorator(evmKeeper EVMKeeper, opbKeeper opbkeeper.Keeper, tokenKeeper tokenkeeper.Keeper, permKeeper permkeeper.Keeper) CanTransferDecorator {
 	return CanTransferDecorator{
 		evmKeeper:   evmKeeper,
 		opbKeeper:   opbKeeper,
 		tokenKeeper: tokenKeeper,
+		permKeeper:  permKeeper,
 	}
 }
 
@@ -427,10 +347,21 @@ func (ctd CanTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 		// author: sheldon@bianjie.ai
 		// Whether to allow transfers
-		// author: sheldon@bianjie.ai
-		// Whether to allow transfers
-		if err := ctd.validator(ctx, coreMsg.From(), coreMsg.To()); err != nil {
-			return ctx, err
+
+		validator := NewEthOpbValidator(ctx, ctd.opbKeeper, ctd.tokenKeeper, ctd.evmKeeper, ctd.permKeeper)
+		evm.Context.CanTransfer = validator.CanTransfer
+
+		if coreMsg.To() != nil {
+
+			if coreMsg.Value().Sign() > 0 && !evm.Context.CanTransfer(stateDB, *coreMsg.To(), coreMsg.Value()) {
+				return ctx, sdkerrors.Wrapf(
+					sdkerrors.ErrInsufficientFunds,
+					"failed to transfer %s from address %s using the EVM block context transfer function",
+					coreMsg.Value(),
+					coreMsg.From(),
+				)
+			}
+
 		}
 
 		// check that caller has enough balance to cover asset transfer for **topmost** call
@@ -462,42 +393,4 @@ func (ctd CanTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 	}
 
 	return next(ctx, tx, simulate)
-}
-
-func (ctd CanTransferDecorator) validator(ctx sdk.Context, sender common.Address, recipient *common.Address) error {
-	senderCosmosAddr := sdk.AccAddress(sender.Bytes())
-	recipientCosmosAddr := sdk.AccAddress(recipient.Bytes())
-
-	params := ctd.evmKeeper.GetParams(ctx)
-	restrictionEnabled := !ctd.opbKeeper.UnrestrictedTokenTransfer(ctx)
-	// check only if the transfer restriction is enabled
-	if restrictionEnabled {
-		owner, err := ctd.getOwner(ctx, params.EvmDenom)
-		if err != nil {
-			errMsg := fmt.Sprintf("unauthorized operation: either the sender or recipient must be the owner %s for token %s", owner, params.EvmDenom)
-
-			return sdkerrors.ABCIError("wevm", 999999, errMsg)
-		}
-		if senderCosmosAddr.String() != owner && recipientCosmosAddr.String() != owner {
-			errMsg := fmt.Sprintf("unauthorized operation: either the sender or recipient must be the owner %s for token %s", owner, params.EvmDenom)
-
-			return sdkerrors.ABCIError("wevm", 999999, errMsg)
-		}
-	}
-	return nil
-}
-
-func (ctd CanTransferDecorator) getOwner(ctx sdk.Context, denom string) (owner string, err error) {
-	baseTokenDenom := ctd.opbKeeper.BaseTokenDenom(ctx)
-
-	if denom == baseTokenDenom {
-		owner = ctd.opbKeeper.BaseTokenManager(ctx)
-	} else {
-		ownerAddr, err := ctd.tokenKeeper.GetOwner(ctx, denom)
-		if err == nil {
-			owner = ownerAddr.String()
-		}
-	}
-
-	return
 }
