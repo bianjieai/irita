@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime/debug"
 
+	iritaante "github.com/bianjieai/irita/app/ante"
 	appante "github.com/bianjieai/irita/modules/evm"
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
@@ -18,7 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	mttypes "github.com/irisnet/irismod/modules/mt/types"
@@ -40,7 +41,7 @@ type HandlerOptions struct {
 	opbKeeper       opbkeeper.Keeper
 	wserviceKeeper  wservicekeeper.IKeeper
 	sigGasConsumer  ante.SignatureVerificationGasConsumer
-	signModeHandler signing.SignModeHandler
+	signModeHandler authsigning.SignModeHandler
 
 	// evm config
 	evmKeeper          appante.EVMKeeper
@@ -99,7 +100,8 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				ante.NewMempoolFeeDecorator(),
 				ante.NewValidateBasicDecorator(),
 				ante.NewValidateMemoDecorator(options.accountKeeper),
-				ante.NewConsumeGasForTxSizeDecorator(options.accountKeeper),
+				//ante.NewConsumeGasForTxSizeDecorator(options.accountKeeper),
+				iritaante.NewConsumeGasForTxSizeDecorator(options.accountKeeper),
 				ante.NewSetPubKeyDecorator(options.accountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
 				ante.NewValidateSigCountDecorator(options.accountKeeper),
 				ante.NewDeductFeeDecorator(options.accountKeeper, options.bankKeeper, options.feegrantKeeper),

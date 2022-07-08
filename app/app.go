@@ -1,10 +1,13 @@
 package app
 
 import (
+	"errors"
 	"io"
 	"math"
 	"os"
 	"path/filepath"
+
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/irisnet/irismod/modules/mt"
 
@@ -706,6 +709,37 @@ func NewIritaApp(
 			fMtParams := app.FeeMarketKeeper.GetParams(ctx)
 			fMtParams.NoBaseFee = true
 			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+
+	app.RegisterUpgradePlan(
+		"v3.2.0-wenchangchain", store.StoreUpgrades{},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			subspace, found := app.paramsKeeper.GetSubspace(baseapp.Paramspace)
+			if !found {
+				return nil, errors.New("not found params")
+			}
+
+			// modify evidenceParams
+			var evidenceParams tmproto.EvidenceParams
+			subspace.GetIfExists(ctx, baseapp.ParamStoreKeyEvidenceParams, &evidenceParams)
+
+			// safety check: no-op if the evidence params is empty (shouldn't happen)
+			if evidenceParams.Equal(tmproto.EvidenceParams{}) {
+				return nil, errors.New("not found params")
+			}
+			evidenceParams.MaxBytes = 131072
+			subspace.Set(ctx, baseapp.ParamStoreKeyEvidenceParams, evidenceParams)
+
+			// modify blockParams
+			var blockParams abci.BlockParams
+			subspace.GetIfExists(ctx, baseapp.ParamStoreKeyBlockParams, &blockParams)
+
+			// 131072 + 131072 = 524288 =  256k
+			blockParams.MaxBytes = 262144
+			subspace.Set(ctx, baseapp.ParamStoreKeyBlockParams, blockParams)
+
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
