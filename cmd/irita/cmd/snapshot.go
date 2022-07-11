@@ -12,6 +12,7 @@ import (
 
 	"github.com/tendermint/tendermint/consensus"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
+	tmmath "github.com/tendermint/tendermint/libs/math"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	tmstate "github.com/tendermint/tendermint/proto/tendermint/state"
 	"github.com/tendermint/tendermint/state"
@@ -21,16 +22,17 @@ import (
 )
 
 const (
-	flagTmpDir             = "tmp-dir"
-	pathSeparator          = string(os.PathSeparator)
-	defaultTmpDir          = "data.bak"
-	dataDir                = "data"
-	blockStoreDir          = "blockstore"
-	stateStoreDir          = "state"
-	applicationDb          = "application.db"
-	evidenceDb             = "evidence.db"
-	csWalFile              = "cs.wal"
-	privValidatorStateFile = "priv_validator_state.json"
+	flagTmpDir               = "tmp-dir"
+	pathSeparator            = string(os.PathSeparator)
+	defaultTmpDir            = "data.bak"
+	dataDir                  = "data"
+	blockStoreDir            = "blockstore"
+	stateStoreDir            = "state"
+	applicationDb            = "application.db"
+	evidenceDb               = "evidence.db"
+	csWalFile                = "cs.wal"
+	privValidatorStateFile   = "priv_validator_state.json"
+	valSetCheckpointInterval = 100000
 )
 
 var privValidatorState = `{
@@ -312,8 +314,9 @@ func saveValidatorsInfo(originDb, targetDb dbm.DB, height, lastHeightChanged int
 	}
 
 	saveLastChangedValidators := func() {
-		valInfo := loadValidatorsInfo(originDb, lastHeightChanged)
-		saveValidators(lastHeightChanged, valInfo)
+		lastStoredHeight := lastStoredHeightFor(height, lastHeightChanged)
+		valInfo := loadValidatorsInfo(originDb, lastStoredHeight)
+		saveValidators(lastStoredHeight, valInfo)
 	}
 
 	saveCurrentValidator()
@@ -361,4 +364,9 @@ func calcValidatorsKey(height int64) []byte {
 
 func calcConsensusParamsKey(height int64) []byte {
 	return []byte(fmt.Sprintf("consensusParamsKey:%v", height))
+}
+
+func lastStoredHeightFor(height, lastHeightChanged int64) int64 {
+	checkpointHeight := height - height%valSetCheckpointInterval
+	return tmmath.MaxInt64(checkpointHeight, lastHeightChanged)
 }
