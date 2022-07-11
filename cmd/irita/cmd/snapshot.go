@@ -305,8 +305,8 @@ func saveValidatorsInfo(originDb, targetDb dbm.DB, height, lastHeightChanged int
 	saveLastValidator := func() {
 		lastHeight := height - 1
 		if lastHeight > 0 {
-			valInfo := loadValidatorsInfo(originDb, height-1)
-			saveValidators(height, valInfo)
+			valInfo := loadValidatorsInfo(originDb, lastHeight)
+			saveValidators(lastHeight, valInfo)
 		}
 	}
 
