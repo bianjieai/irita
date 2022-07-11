@@ -324,8 +324,6 @@ func NewIritaApp(
 
 		// evm
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
-		// wservice
-		wservicetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
