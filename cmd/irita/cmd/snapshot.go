@@ -109,11 +109,12 @@ func Snapshot(dataDir, targetDir string) error {
 	createPrivValidatorState(privState, height)
 
 	//copy application
-	appDir := filepath.Join(dataDir, applicationDb)
-	appTargetDir := filepath.Join(targetDir, applicationDb)
-	if err := copyDir(appDir, appTargetDir); err != nil {
-		return err
-	}
+	// TODO
+	// appDir := filepath.Join(dataDir, applicationDb)
+	// appTargetDir := filepath.Join(targetDir, applicationDb)
+	// if err := copyDir(appDir, appTargetDir); err != nil {
+	// 	return err
+	// }
 
 	//copy evidence.db
 	evidenceDir := filepath.Join(dataDir, evidenceDb)
