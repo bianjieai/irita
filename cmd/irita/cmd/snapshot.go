@@ -109,12 +109,11 @@ func Snapshot(dataDir, targetDir string) error {
 	createPrivValidatorState(privState, height)
 
 	//copy application
-	// TODO
-	// appDir := filepath.Join(dataDir, applicationDb)
-	// appTargetDir := filepath.Join(targetDir, applicationDb)
-	// if err := copyDir(appDir, appTargetDir); err != nil {
-	// 	return err
-	// }
+	appDir := filepath.Join(dataDir, applicationDb)
+	appTargetDir := filepath.Join(targetDir, applicationDb)
+	if err := copyDir(appDir, appTargetDir); err != nil {
+		return err
+	}
 
 	//copy evidence.db
 	evidenceDir := filepath.Join(dataDir, evidenceDb)
@@ -235,10 +234,11 @@ func copyDir(srcPath string, destPath string) error {
 
 func copyFile(src, dest string) (w int64, err error) {
 	srcFile, err := os.Open(src)
-	defer srcFile.Close()
 	if err != nil {
 		return
 	}
+
+	defer srcFile.Close()
 
 	destSplitPathDirs := strings.Split(dest, pathSeparator)
 
@@ -254,12 +254,27 @@ func copyFile(src, dest string) (w int64, err error) {
 			}
 		}
 	}
+
 	dstFile, err := os.Create(dest)
 	if err != nil {
 		return
 	}
 	defer dstFile.Close()
-	return io.Copy(dstFile, srcFile)
+
+	buf := make([]byte, 1024*1024)
+	for {
+		n, err := srcFile.Read(buf)
+		if err != nil && err != io.EOF {
+			return int64(n), err
+		}
+		if n == 0 {
+			break
+		}
+
+		tmp := buf[:n]
+		dstFile.Write(tmp)
+	}
+	return 0, nil
 }
 
 func pathExists(path string) (bool, error) {
