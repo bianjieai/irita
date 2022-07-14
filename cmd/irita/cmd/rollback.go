@@ -29,8 +29,8 @@ func Recover(bs store.BlockStore, ss state.Store) (int64, error) {
 	// NOTE: persistence of state and blocks don't happen atomically. Therefore it is possible that
 	// when the user stopped the node the state wasn't updated but the blockstore was. In this situation
 	// we don't need to rollback any state and can just return early
-	if height == invalidState.LastBlockHeight+1 || height == invalidState.LastBlockHeight {
-		return height, nil
+	if height == invalidState.LastBlockHeight+1 {
+		return invalidState.LastBlockHeight, nil
 	}
 
 	// If the state store isn't one below nor equal to the blockstore height than this violates the

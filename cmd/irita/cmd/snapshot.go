@@ -12,6 +12,7 @@ import (
 
 	"github.com/tendermint/tendermint/consensus"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
+	tmmath "github.com/tendermint/tendermint/libs/math"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	tmstate "github.com/tendermint/tendermint/proto/tendermint/state"
 	"github.com/tendermint/tendermint/state"
@@ -21,16 +22,17 @@ import (
 )
 
 const (
-	flagTmpDir             = "tmp-dir"
-	pathSeparator          = string(os.PathSeparator)
-	defaultTmpDir          = "data.bak"
-	dataDir                = "data"
-	blockStoreDir          = "blockstore"
-	stateStoreDir          = "state"
-	applicationDb          = "application.db"
-	evidenceDb             = "evidence.db"
-	csWalFile              = "cs.wal"
-	privValidatorStateFile = "priv_validator_state.json"
+	flagTmpDir               = "tmp-dir"
+	pathSeparator            = string(os.PathSeparator)
+	defaultTmpDir            = "data.bak"
+	dataDir                  = "data"
+	blockStoreDir            = "blockstore"
+	stateStoreDir            = "state"
+	applicationDb            = "application.db"
+	evidenceDb               = "evidence.db"
+	csWalFile                = "cs.wal"
+	privValidatorStateFile   = "priv_validator_state.json"
+	valSetCheckpointInterval = 100000
 )
 
 var privValidatorState = `{
@@ -232,10 +234,11 @@ func copyDir(srcPath string, destPath string) error {
 
 func copyFile(src, dest string) (w int64, err error) {
 	srcFile, err := os.Open(src)
-	defer srcFile.Close()
 	if err != nil {
 		return
 	}
+
+	defer srcFile.Close()
 
 	destSplitPathDirs := strings.Split(dest, pathSeparator)
 
@@ -251,12 +254,27 @@ func copyFile(src, dest string) (w int64, err error) {
 			}
 		}
 	}
+
 	dstFile, err := os.Create(dest)
 	if err != nil {
 		return
 	}
 	defer dstFile.Close()
-	return io.Copy(dstFile, srcFile)
+
+	buf := make([]byte, 1024*1024)
+	for {
+		n, err := srcFile.Read(buf)
+		if err != nil && err != io.EOF {
+			return int64(n), err
+		}
+		if n == 0 {
+			break
+		}
+
+		tmp := buf[:n]
+		dstFile.Write(tmp)
+	}
+	return 0, nil
 }
 
 func pathExists(path string) (bool, error) {
@@ -312,8 +330,9 @@ func saveValidatorsInfo(originDb, targetDb dbm.DB, height, lastHeightChanged int
 	}
 
 	saveLastChangedValidators := func() {
-		valInfo := loadValidatorsInfo(originDb, lastHeightChanged)
-		saveValidators(lastHeightChanged, valInfo)
+		lastStoredHeight := lastStoredHeightFor(height, lastHeightChanged)
+		valInfo := loadValidatorsInfo(originDb, lastStoredHeight)
+		saveValidators(lastStoredHeight, valInfo)
 	}
 
 	saveCurrentValidator()
@@ -361,4 +380,9 @@ func calcValidatorsKey(height int64) []byte {
 
 func calcConsensusParamsKey(height int64) []byte {
 	return []byte(fmt.Sprintf("consensusParamsKey:%v", height))
+}
+
+func lastStoredHeightFor(height, lastHeightChanged int64) int64 {
+	checkpointHeight := height - height%valSetCheckpointInterval
+	return tmmath.MaxInt64(checkpointHeight, lastHeightChanged)
 }
