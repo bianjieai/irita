@@ -13,13 +13,13 @@ type GasTx interface {
 	GetGas() uint64
 }
 
-type SetupFixedGasMeterDecorator struct{}
+type SetUpContextDecorator struct{}
 
-func NewSetupFixedGasMeterDecorator() SetupFixedGasMeterDecorator {
-	return SetupFixedGasMeterDecorator{}
+func NewSetUpContextDecorator() SetUpContextDecorator {
+	return SetUpContextDecorator{}
 }
 
-func (sfgmd SetupFixedGasMeterDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (sucd SetUpContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	gasTx, ok := tx.(GasTx)
 	if !ok {
 		// Set a gas meter with limit 0 as to prevent an infinite gas meter attack
