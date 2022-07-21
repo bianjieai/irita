@@ -3,15 +3,18 @@ package gas
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/irisnet/irismod/modules/nft/types"
+	mttypes "github.com/irisnet/irismod/modules/mt/types"
+	nfttypes "github.com/irisnet/irismod/modules/nft/types"
 )
 
 var (
 	_ sdk.GasMeter = &FixedGasMeter{}
 
 	DefaultGasConfig = map[string]uint64{
-		sdk.MsgTypeURL(&types.MsgIssueDenom{}): 400000,
-		sdk.MsgTypeURL(&types.MsgMintNFT{}):    400000,
+		sdk.MsgTypeURL(&nfttypes.MsgIssueDenom{}): 400000,
+		sdk.MsgTypeURL(&nfttypes.MsgMintNFT{}):    400000,
+		sdk.MsgTypeURL(&mttypes.MsgIssueDenom{}):  400000,
+		sdk.MsgTypeURL(&mttypes.MsgMintMT{}):      400000,
 	}
 	DefaultGas           = uint64(200000)
 	SingleMsgGasMultiple = sdk.NewDecWithPrec(1, 0)
