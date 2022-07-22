@@ -10,6 +10,7 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
+	appante "github.com/bianjieai/irita/app/ante"
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	appevmtypes "github.com/bianjieai/irita/modules/evm/types"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
@@ -131,7 +132,7 @@ import (
 	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
 	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 
-	"github.com/tharsis/ethermint/app/ante"
+	ethermintante "github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm"
@@ -141,6 +142,8 @@ import (
 	"github.com/tharsis/ethermint/x/feemarket"
 	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
+
+	gethparams "github.com/ethereum/go-ethereum/params"
 )
 
 const appName = "IritaApp"
@@ -320,6 +323,7 @@ func NewIritaApp(
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
+		wservicetypes.StoreKey,
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
 		tibcmttypes.StoreKey,
@@ -399,7 +403,7 @@ func NewIritaApp(
 	)
 
 	permKeeper := permkeeper.NewKeeper(appCodec, keys[permtypes.StoreKey])
-	app.permKeeper = RegisterAccessControl(permKeeper)
+	app.permKeeper = appante.RegisterAccessControl(permKeeper)
 
 	app.identityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
 
@@ -423,8 +427,8 @@ func NewIritaApp(
 		app.GetSubspace(opbtypes.ModuleName),
 	)
 
-	ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper, app.EvmKeeper, logger)
-	app.EvmKeeper.TransferFunc = ethOpbV.Transfer
+	//ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper, app.EvmKeeper, logger)
+	//app.EvmKeeper.TransferFunc = ethOpbV.Transfer
 	app.EvmKeeper.AccStoreKey = keys[authtypes.StoreKey]
 
 	// register the proposal types
@@ -524,28 +528,8 @@ func NewIritaApp(
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
-		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
-		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
-		nfttypes.ModuleName, mttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		tibchost.ModuleName, evmtypes.ModuleName, wasm.ModuleName,
-	)
-	app.mm.SetOrderEndBlockers(
-		crisistypes.ModuleName,
-		nodetypes.ModuleName,
-		servicetypes.ModuleName,
-		tibchost.ModuleName,
-		wasm.ModuleName,
-
-		// evm
-		evmtypes.ModuleName, feemarkettypes.ModuleName,
-	)
-
-	// NOTE: The genutils module must occur after staking so that pools are
-	// properly initialized with tokens from genesis accounts.
-	// NOTE: Capability module must occur first so that it can initialize any capabilities
-	// so that other modules that want to create or claim capabilities afterwards in InitChain
-	// can do so safely.
-	app.mm.SetOrderInitGenesis(
+		paramstypes.ModuleName,
+		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
@@ -565,6 +549,102 @@ func NewIritaApp(
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
+		wasm.ModuleName,
+
+		// evm
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
+	)
+	app.mm.SetOrderEndBlockers(
+		paramstypes.ModuleName,
+		upgradetypes.ModuleName,
+		permtypes.ModuleName,
+		authtypes.ModuleName,
+		nodetypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		mttypes.ModuleName,
+		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		opb.ModuleName,
+		genutiltypes.ModuleName,
+		feegrant.ModuleName,
+		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
+		wasm.ModuleName,
+
+		// evm
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
+	)
+
+	// NOTE: The genutils module must occur after staking so that pools are
+	// properly initialized with tokens from genesis accounts.
+	// NOTE: Capability module must occur first so that it can initialize any capabilities
+	// so that other modules that want to create or claim capabilities afterwards in InitChain
+	// can do so safely.
+	app.mm.SetOrderInitGenesis(
+		paramstypes.ModuleName,
+		upgradetypes.ModuleName,
+		permtypes.ModuleName,
+		authtypes.ModuleName,
+		nodetypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		mttypes.ModuleName,
+		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		opb.ModuleName,
+		genutiltypes.ModuleName,
+		feegrant.ModuleName,
+		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
+		wasm.ModuleName,
+
+		// evm
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
+	)
+
+	app.mm.SetOrderMigrations(
+		paramstypes.ModuleName,
+		upgradetypes.ModuleName,
+		permtypes.ModuleName,
+		authtypes.ModuleName,
+		nodetypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		mttypes.ModuleName,
+		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		opb.ModuleName,
+		genutiltypes.ModuleName,
+		feegrant.ModuleName,
+		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
 		wasm.ModuleName,
 
 		// evm
@@ -617,21 +697,21 @@ func NewIritaApp(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	anteHandler := NewAnteHandler(
-		HandlerOptions{
-			permKeeper:      app.permKeeper,
-			accountKeeper:   app.accountKeeper,
-			bankKeeper:      app.bankKeeper,
-			tokenKeeper:     app.tokenKeeper,
-			opbKeeper:       app.opbKeeper,
-			signModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			feegrantKeeper:  app.feeGrantKeeper,
-			wserviceKeeper:  app.wservicekeeper,
-			sigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+	anteHandler := appante.NewAnteHandler(
+		appante.HandlerOptions{
+			PermKeeper:      app.permKeeper,
+			AccountKeeper:   app.accountKeeper,
+			BankKeeper:      app.bankKeeper,
+			TokenKeeper:     app.tokenKeeper,
+			OpbKeeper:       app.opbKeeper,
+			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+			FeegrantKeeper:  app.feeGrantKeeper,
+			WserviceKeeper:  app.wservicekeeper,
+			SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
 
 			// evm
-			evmFeeMarketKeeper: app.FeeMarketKeeper,
-			evmKeeper:          app.EvmKeeper,
+			EvmFeeMarketKeeper: app.FeeMarketKeeper,
+			EvmKeeper:          app.EvmKeeper,
 		},
 	)
 	app.SetAnteHandler(anteHandler)
@@ -729,6 +809,14 @@ func NewIritaApp(
 			Added: []string{tibcmttypes.StoreKey},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			fMtParams := feemarkettypes.NewParams(
+				true,
+				gethparams.BaseFeeChangeDenominator,
+				gethparams.ElasticityMultiplier,
+				gethparams.InitialBaseFee,
+				0,
+			)
+			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)

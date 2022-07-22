@@ -1,10 +1,12 @@
-package app
+package ante
 
 import (
 	"fmt"
 	"runtime/debug"
 
-	appante "github.com/bianjieai/irita/modules/evm"
+	"github.com/bianjieai/irita/modules/gas"
+
+	evmmoudleante "github.com/bianjieai/irita/modules/evm"
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
@@ -29,22 +31,24 @@ import (
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
+	ethermintante "github.com/tharsis/ethermint/app/ante"
 )
 
 type HandlerOptions struct {
-	permKeeper      perm.Keeper
-	accountKeeper   authkeeper.AccountKeeper
-	bankKeeper      bankkeeper.Keeper
-	feegrantKeeper  authante.FeegrantKeeper
-	tokenKeeper     tokenkeeper.Keeper
-	opbKeeper       opbkeeper.Keeper
-	wserviceKeeper  wservicekeeper.IKeeper
-	sigGasConsumer  ante.SignatureVerificationGasConsumer
-	signModeHandler signing.SignModeHandler
+	PermKeeper      perm.Keeper
+	AccountKeeper   authkeeper.AccountKeeper
+	BankKeeper      bankkeeper.Keeper
+	FeegrantKeeper  authante.FeegrantKeeper
+	TokenKeeper     tokenkeeper.Keeper
+	OpbKeeper       opbkeeper.Keeper
+	WserviceKeeper  wservicekeeper.IKeeper
+	SigGasConsumer  ante.SignatureVerificationGasConsumer
+	SignModeHandler signing.SignModeHandler
 
 	// evm config
-	evmKeeper          appante.EVMKeeper
-	evmFeeMarketKeeper evmtypes.FeeMarketKeeper
+	EvmKeeper          evmmoudleante.EVMKeeper
+	EvmFeeMarketKeeper evmtypes.FeeMarketKeeper
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -65,19 +69,24 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
+						ethermintante.NewEthSetUpContextDecorator(options.EvmKeeper), // outermost AnteDecorator. SetUpContext must be called first
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),
-						ante.NewValidateMemoDecorator(options.accountKeeper),
-						appante.NewEthValidateBasicDecorator(options.evmKeeper),
-						appante.NewEthContractCallableDecorator(options.permKeeper),
-						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-						appante.NewEthSigVerificationDecorator(options.evmKeeper, options.accountKeeper, options.signModeHandler),
-						appante.NewEthAccountVerificationDecorator(options.accountKeeper, options.bankKeeper, options.evmKeeper),
-						appante.NewEthNonceVerificationDecorator(options.accountKeeper),
-						appante.NewEthGasConsumeDecorator(options.evmKeeper),
-						appante.NewCanTransferDecorator(options.evmKeeper, options.evmFeeMarketKeeper),
-						appante.NewEthIncrementSenderSequenceDecorator(options.accountKeeper), // innermost AnteDecorator.
-						perm.NewAuthDecorator(options.permKeeper),
+						ante.NewValidateMemoDecorator(options.AccountKeeper),
+						evmmoudleante.NewEthValidateBasicDecorator(options.EvmKeeper),
+						evmmoudleante.NewEthContractCallableDecorator(options.PermKeeper),
+						evmmoudleante.NewEthSigVerificationDecorator(options.EvmKeeper, options.AccountKeeper, options.SignModeHandler),
+						evmmoudleante.NewOpbTransferDecorator(options.EvmKeeper, options.OpbKeeper, options.TokenKeeper),
+
+						ethermintante.NewCanTransferDecorator(options.EvmKeeper),
+						ethermintante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.BankKeeper, options.EvmKeeper),
+						ethermintante.NewEthGasConsumeDecorator(options.EvmKeeper),
+						ethermintante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper), // innermost AnteDecorator.
+						ethermintante.NewEthMempoolFeeDecorator(options.EvmKeeper),                  // Check eth effective gas price against minimal-gas-prices
+						ethermintante.NewEthValidateBasicDecorator(options.EvmKeeper),
+						ethermintante.NewEthSigVerificationDecorator(options.EvmKeeper),
+
+						perm.NewAuthDecorator(options.PermKeeper),
 					)
 
 				default:
@@ -94,23 +103,23 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		switch tx.(type) {
 		case sdk.Tx:
 			anteHandler = sdk.ChainAnteDecorators(
-				perm.NewAuthDecorator(options.permKeeper),
-				ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+				gas.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+				perm.NewAuthDecorator(options.PermKeeper),
 				ante.NewMempoolFeeDecorator(),
 				ante.NewValidateBasicDecorator(),
-				ante.NewValidateMemoDecorator(options.accountKeeper),
-				ante.NewConsumeGasForTxSizeDecorator(options.accountKeeper),
-				ante.NewSetPubKeyDecorator(options.accountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
-				ante.NewValidateSigCountDecorator(options.accountKeeper),
-				ante.NewDeductFeeDecorator(options.accountKeeper, options.bankKeeper, options.feegrantKeeper),
-				ante.NewSigGasConsumeDecorator(options.accountKeeper, options.sigGasConsumer),
-				ante.NewSigVerificationDecorator(options.accountKeeper, options.signModeHandler),
-				ante.NewIncrementSequenceDecorator(options.accountKeeper),
+				ante.NewValidateMemoDecorator(options.AccountKeeper),
+				ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+				ante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
+				ante.NewValidateSigCountDecorator(options.AccountKeeper),
+				ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+				ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
+				ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
+				ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 				ante.NewRejectExtensionOptionsDecorator(),
 				ante.NewTxTimeoutHeightDecorator(),
-				tokenkeeper.NewValidateTokenFeeDecorator(options.tokenKeeper, options.bankKeeper),
-				opbkeeper.NewValidateTokenTransferDecorator(options.opbKeeper, options.tokenKeeper, options.permKeeper),
-				wservicekeeper.NewDeduplicationTxDecorator(options.wserviceKeeper),
+				tokenkeeper.NewValidateTokenFeeDecorator(options.TokenKeeper, options.BankKeeper),
+				opbkeeper.NewValidateTokenTransferDecorator(options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
+				wservicekeeper.NewDeduplicationTxDecorator(options.WserviceKeeper),
 			)
 		default:
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
@@ -142,8 +151,8 @@ func Recover(logger tmlog.Logger, err *error) {
 
 func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	// permission auth
-	permKeeper.RegisterMsgAuth(&perm.MsgAssignRoles{}, perm.RoleRootAdmin, perm.RolePermAdmin)
-	permKeeper.RegisterMsgAuth(&perm.MsgUnassignRoles{}, perm.RoleRootAdmin, perm.RolePermAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgAssignRoles{}, perm.RoleRootAdmin, perm.RolePermAdmin, perm.RolePowerUserAdmin)
+	permKeeper.RegisterMsgAuth(&perm.MsgUnassignRoles{}, perm.RoleRootAdmin, perm.RolePermAdmin, perm.RolePowerUserAdmin)
 
 	// blacklist auth
 	permKeeper.RegisterMsgAuth(&perm.MsgBlockAccount{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
