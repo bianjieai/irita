@@ -69,20 +69,19 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
+						ethermintante.NewEthSetUpContextDecorator(options.EvmKeeper), // outermost AnteDecorator. SetUpContext must be called first
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.AccountKeeper),
 						evmmoudleante.NewEthValidateBasicDecorator(options.EvmKeeper),
 						evmmoudleante.NewEthContractCallableDecorator(options.PermKeeper),
 						evmmoudleante.NewEthSigVerificationDecorator(options.EvmKeeper, options.AccountKeeper, options.SignModeHandler),
-						//evmmoudleante.NewCanTransferDecorator(options.evmKeeper, options.opbKeeper, options.tokenKeeper),
 						evmmoudleante.NewOpbTransferDecorator(options.EvmKeeper, options.OpbKeeper, options.TokenKeeper),
 
 						ethermintante.NewCanTransferDecorator(options.EvmKeeper),
 						ethermintante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.BankKeeper, options.EvmKeeper),
 						ethermintante.NewEthGasConsumeDecorator(options.EvmKeeper),
 						ethermintante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper), // innermost AnteDecorator.
-						ethermintante.NewEthSetUpContextDecorator(options.EvmKeeper),                // outermost AnteDecorator. SetUpContext must be called first
 						ethermintante.NewEthMempoolFeeDecorator(options.EvmKeeper),                  // Check eth effective gas price against minimal-gas-prices
 						ethermintante.NewEthValidateBasicDecorator(options.EvmKeeper),
 						ethermintante.NewEthSigVerificationDecorator(options.EvmKeeper),
@@ -105,8 +104,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		case sdk.Tx:
 			anteHandler = sdk.ChainAnteDecorators(
 				perm.NewAuthDecorator(options.PermKeeper),
-				gas.NewSetUpContextDecorator(),  // outermost AnteDecorator. SetUpContext must be called first
-				ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+				gas.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 				ante.NewMempoolFeeDecorator(),
 				ante.NewValidateBasicDecorator(),
 				ante.NewValidateMemoDecorator(options.AccountKeeper),

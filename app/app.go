@@ -528,6 +528,7 @@ func NewIritaApp(
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
+		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
@@ -545,7 +546,6 @@ func NewIritaApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		opb.ModuleName,
-		paramstypes.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
@@ -557,6 +557,7 @@ func NewIritaApp(
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
+		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
@@ -574,7 +575,6 @@ func NewIritaApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		opb.ModuleName,
-		paramstypes.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
@@ -592,6 +592,7 @@ func NewIritaApp(
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
+		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
@@ -609,7 +610,6 @@ func NewIritaApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		opb.ModuleName,
-		paramstypes.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
@@ -622,6 +622,7 @@ func NewIritaApp(
 	)
 
 	app.mm.SetOrderMigrations(
+		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
@@ -639,7 +640,6 @@ func NewIritaApp(
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
 		opb.ModuleName,
-		paramstypes.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
