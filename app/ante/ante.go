@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"runtime/debug"
 
+	"github.com/bianjieai/irita/modules/gas"
+
 	evmmoudleante "github.com/bianjieai/irita/modules/evm"
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
@@ -103,6 +105,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		case sdk.Tx:
 			anteHandler = sdk.ChainAnteDecorators(
 				perm.NewAuthDecorator(options.PermKeeper),
+				gas.NewSetUpContextDecorator(),  // outermost AnteDecorator. SetUpContext must be called first
 				ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 				ante.NewMempoolFeeDecorator(),
 				ante.NewValidateBasicDecorator(),
@@ -116,7 +119,6 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 				ante.NewRejectExtensionOptionsDecorator(),
 				ante.NewTxTimeoutHeightDecorator(),
-				NewMultipleMsgValidatorDecorator(options.AccountKeeper),
 				tokenkeeper.NewValidateTokenFeeDecorator(options.TokenKeeper, options.BankKeeper),
 				opbkeeper.NewValidateTokenTransferDecorator(options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
 				wservicekeeper.NewDeduplicationTxDecorator(options.WserviceKeeper),
