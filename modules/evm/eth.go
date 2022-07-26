@@ -338,6 +338,9 @@ func (opd OpbTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 }
 
 func (opd OpbTransferDecorator) validator(ctx sdk.Context, sender common.Address, recipient *common.Address) error {
+	if recipient == nil {
+		return nil
+	}
 	senderCosmosAddr := sdk.AccAddress(sender.Bytes())
 	recipientCosmosAddr := sdk.AccAddress(recipient.Bytes())
 
