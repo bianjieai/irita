@@ -11,6 +11,7 @@ import (
 	"github.com/CosmWasm/wasmd/x/wasm"
 
 	appante "github.com/bianjieai/irita/app/ante"
+	evmmodule "github.com/bianjieai/irita/modules/evm"
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	appevmtypes "github.com/bianjieai/irita/modules/evm/types"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
@@ -407,6 +408,12 @@ func NewIritaApp(
 
 	app.identityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
 
+	app.opbKeeper = opbkeeper.NewKeeper(
+		appCodec, keys[opbtypes.StoreKey], app.accountKeeper,
+		app.bankKeeper, app.tokenKeeper, app.permKeeper,
+		app.GetSubspace(opbtypes.ModuleName),
+	)
+
 	// evm
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
@@ -414,21 +421,12 @@ func NewIritaApp(
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		appCodec, keys[feemarkettypes.StoreKey], app.GetSubspace(feemarkettypes.ModuleName),
 	)
-
 	app.EvmKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
 		app.accountKeeper, app.bankKeeper, appkeeper.WNodeKeeper{Keeper: app.nodeKeeper}, app.FeeMarketKeeper,
 		tracer, // debug EVM based on Baseapp options
 	)
 
-	app.opbKeeper = opbkeeper.NewKeeper(
-		appCodec, keys[opbtypes.StoreKey], app.accountKeeper,
-		app.bankKeeper, app.tokenKeeper, app.permKeeper,
-		app.GetSubspace(opbtypes.ModuleName),
-	)
-
-	//ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper, app.EvmKeeper, logger)
-	//app.EvmKeeper.TransferFunc = ethOpbV.Transfer
 	app.EvmKeeper.AccStoreKey = keys[authtypes.StoreKey]
 
 	// register the proposal types
@@ -851,6 +849,9 @@ func (app *IritaApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) a
 	if app.EvmKeeper.Signer == nil {
 		app.EvmKeeper.Signer = crypto.NewSm2Signer(chainID)
 	}
+	validator := evmmodule.NewEthOpbValidator(
+		ctx, app.opbKeeper, app.tokenKeeper, app.EvmKeeper, app.permKeeper)
+	app.EvmKeeper.Transfer = validator.Transfer
 	return app.mm.BeginBlock(ctx, req)
 }
 
