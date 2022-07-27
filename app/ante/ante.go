@@ -3,10 +3,10 @@ package ante
 import (
 	"fmt"
 	"runtime/debug"
-
+	
 	"github.com/bianjieai/irita/modules/gas"
 
-	evmmoudleante "github.com/bianjieai/irita/modules/evm"
+	evmmoduleante "github.com/bianjieai/irita/modules/evm"
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
@@ -47,7 +47,7 @@ type HandlerOptions struct {
 	SignModeHandler signing.SignModeHandler
 
 	// evm config
-	EvmKeeper          evmmoudleante.EVMKeeper
+	EvmKeeper          evmmoduleante.EVMKeeper
 	EvmFeeMarketKeeper evmtypes.FeeMarketKeeper
 }
 
@@ -73,10 +73,10 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.AccountKeeper),
-						evmmoudleante.NewEthValidateBasicDecorator(options.EvmKeeper),
-						evmmoudleante.NewEthContractCallableDecorator(options.PermKeeper),
-						evmmoudleante.NewEthSigVerificationDecorator(options.EvmKeeper, options.AccountKeeper, options.SignModeHandler),
-						evmmoudleante.NewOpbTransferDecorator(options.EvmKeeper, options.OpbKeeper, options.TokenKeeper),
+						evmmoduleante.NewEthValidateBasicDecorator(options.EvmKeeper),
+						evmmoduleante.NewEthContractCallableDecorator(options.PermKeeper),
+						evmmoduleante.NewEthSigVerificationDecorator(options.EvmKeeper, options.AccountKeeper, options.SignModeHandler),
+						evmmoduleante.NewCanTransferDecorator(options.EvmKeeper, options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
 
 						ethermintante.NewCanTransferDecorator(options.EvmKeeper),
 						ethermintante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.BankKeeper, options.EvmKeeper),
