@@ -4,13 +4,12 @@ import (
 	"errors"
 	"fmt"
 	gogotypes "github.com/gogo/protobuf/types"
-	dbm "github.com/tendermint/tm-db"
-
 	tmstate "github.com/tendermint/tendermint/proto/tendermint/state"
 	"github.com/tendermint/tendermint/proto/tendermint/version"
 	"github.com/tendermint/tendermint/state"
 	"github.com/tendermint/tendermint/store"
 	tmversion "github.com/tendermint/tendermint/version"
+	dbm "github.com/tendermint/tm-db"
 )
 
 const (
@@ -122,8 +121,8 @@ func Recover(bs store.BlockStore, ss state.Store, as dbm.GoLevelDB) (int64, erro
 	batch := as.NewBatch()
 	defer batch.Close()
 	setLatestVersion(batch, rolledBackState.LastBlockHeight)
-	deleteCommitInfo(as, rolledBackState.LastBlockHeight+1)
-
+	deleteCommitInfo(batch, rolledBackState.LastBlockHeight+1)
+	batch.WriteSync()
 	return rolledBackState.LastBlockHeight, nil
 }
 
@@ -133,12 +132,14 @@ func setLatestVersion(batch dbm.Batch, version int64) {
 		panic(err)
 	}
 
-	batch.Set([]byte(latestVersionKey), bz)
+	if err := batch.Set([]byte(latestVersionKey), bz); err != nil {
+		panic(err)
+	}
 }
 
-func deleteCommitInfo(db dbm.GoLevelDB, version int64) {
+func deleteCommitInfo(batch dbm.Batch, version int64) {
 	cInfoKey := fmt.Sprintf(commitInfoKeyFmt, version)
-	if err := db.Delete([]byte(cInfoKey)); err != nil {
+	if err := batch.Delete([]byte(cInfoKey)); err != nil {
 		panic(err)
 	}
 }
