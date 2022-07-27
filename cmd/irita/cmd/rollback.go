@@ -3,6 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	gogotypes "github.com/gogo/protobuf/types"
+	dbm "github.com/tendermint/tm-db"
 
 	tmstate "github.com/tendermint/tendermint/proto/tendermint/state"
 	"github.com/tendermint/tendermint/proto/tendermint/version"
@@ -11,10 +13,16 @@ import (
 	tmversion "github.com/tendermint/tendermint/version"
 )
 
+const (
+	latestVersionKey = "s/latest"
+	commitInfoKeyFmt = "s/%d"
+)
+
 // Recover overwrites the current Tendermint state (height n) with the most
 // recent previous state (height n - 1).
 // Note that this function does not affect application state.
-func Recover(bs store.BlockStore, ss state.Store) (int64, error) {
+func Recover(bs store.BlockStore, ss state.Store, as dbm.GoLevelDB) (int64, error) {
+	defer as.Close()
 	invalidState, err := ss.Load()
 	if err != nil {
 		return -1, err
@@ -110,5 +118,27 @@ func Recover(bs store.BlockStore, ss state.Store) (int64, error) {
 		return -1, fmt.Errorf("failed to save rolled back state: %w", err)
 	}
 
+	// rollback application the latest version
+	batch := as.NewBatch()
+	defer batch.Close()
+	setLatestVersion(batch, rolledBackState.LastBlockHeight)
+	deleteCommitInfo(as, rolledBackState.LastBlockHeight+1)
+
 	return rolledBackState.LastBlockHeight, nil
+}
+
+func setLatestVersion(batch dbm.Batch, version int64) {
+	bz, err := gogotypes.StdInt64Marshal(version)
+	if err != nil {
+		panic(err)
+	}
+
+	batch.Set([]byte(latestVersionKey), bz)
+}
+
+func deleteCommitInfo(db dbm.GoLevelDB, version int64) {
+	cInfoKey := fmt.Sprintf(commitInfoKeyFmt, version)
+	if err := db.Delete([]byte(cInfoKey)); err != nil {
+		panic(err)
+	}
 }
