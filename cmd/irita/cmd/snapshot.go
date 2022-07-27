@@ -2,6 +2,30 @@ package cmd
 
 import (
 	"fmt"
+	opbtypes "github.com/bianjieai/irita/modules/opb/types"
+	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
+	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
+	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
+	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
+	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
+	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
+	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	"github.com/cosmos/iavl"
+	mttypes "github.com/irisnet/irismod/modules/mt/types"
+	nfttypes "github.com/irisnet/irismod/modules/nft/types"
+	oracletypes "github.com/irisnet/irismod/modules/oracle/types"
+	randomtypes "github.com/irisnet/irismod/modules/random/types"
+	recordtypes "github.com/irisnet/irismod/modules/record/types"
+	servicetypes "github.com/irisnet/irismod/modules/service/types"
+	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	"io"
 	"os"
 	"path/filepath"
@@ -28,11 +52,14 @@ const (
 	dataDir                  = "data"
 	blockStoreDir            = "blockstore"
 	stateStoreDir            = "state"
+	applicationDBDir         = "application"
 	applicationDb            = "application.db"
 	evidenceDb               = "evidence.db"
 	csWalFile                = "cs.wal"
 	privValidatorStateFile   = "priv_validator_state.json"
 	valSetCheckpointInterval = 100000
+	DefaultCacheSize         = 10000
+	moduleKeyFmt             = "s/k:%s/"
 )
 
 var privValidatorState = `{
@@ -40,6 +67,34 @@ var privValidatorState = `{
   "round": 0,
   "step": 0
 }`
+
+var storeKeys = []string{
+	authtypes.StoreKey,
+	banktypes.StoreKey,
+	slashingtypes.StoreKey,
+	paramstypes.StoreKey,
+	upgradetypes.StoreKey,
+	feegrant.StoreKey,
+	evidencetypes.StoreKey,
+	recordtypes.StoreKey,
+	tokentypes.StoreKey,
+	nfttypes.StoreKey,
+	mttypes.StoreKey,
+	servicetypes.StoreKey,
+	oracletypes.StoreKey,
+	randomtypes.StoreKey,
+	permtypes.StoreKey,
+	identitytypes.StoreKey,
+	nodetypes.StoreKey,
+	opbtypes.StoreKey,
+	tibchost.StoreKey,
+	tibcnfttypes.StoreKey,
+	//wasm.StoreKey,
+	tibcmttypes.StoreKey,
+
+	// evm
+	evmtypes.StoreKey, feemarkettypes.StoreKey,
+}
 
 // SnapshotCmd delete historical block data and index data
 func SnapshotCmd() *cobra.Command {
@@ -49,20 +104,30 @@ func SnapshotCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			defer func() {
 				if r := recover(); r != nil {
+					fmt.Println(r)
 				}
 			}()
 
 			home := viper.GetString(tmcli.HomeFlag)
 			targetDir := viper.GetString(flagTmpDir)
+
+			// if targetDir exist then tips
+			if b, _ := pathExists(targetDir); b {
+				fmt.Printf("target  dir: (%s) existed! \n", targetDir)
+				return nil
+			}
+
 			if len(targetDir) == 0 {
 				targetDir = filepath.Join(home, defaultTmpDir)
 			}
 			dataDir := filepath.Join(home, dataDir)
 
 			if err := Snapshot(dataDir, targetDir); err != nil {
+				fmt.Errorf("snapshot err: %s", err.Error())
 				_ = os.RemoveAll(targetDir)
 				return err
 			}
+			fmt.Println("snapshot completed!")
 			return nil
 		},
 	}
@@ -85,16 +150,18 @@ func Snapshot(dataDir, targetDir string) error {
 	stateDB := loadDb(stateStoreDir, dataDir)
 	ss := state.NewStore(stateDB)
 
+	appDB := loadDb(applicationDBDir, dataDir)
 	defer func() {
 		blockDB.Close()
 		stateDB.Close()
+		appDB.Close()
 	}()
 
 	var (
 		height int64
 		err    error
 	)
-	if height, err = Recover(*blockStore, ss); err != nil {
+	if height, err = Recover(*blockStore, ss, *appDB); err != nil {
 		return err
 	}
 
@@ -118,7 +185,14 @@ func Snapshot(dataDir, targetDir string) error {
 	//copy evidence.db
 	evidenceDir := filepath.Join(dataDir, evidenceDb)
 	evidenceTargetDir := filepath.Join(targetDir, evidenceDb)
-	return copyDir(evidenceDir, evidenceTargetDir)
+	if err := copyDir(evidenceDir, evidenceTargetDir); err != nil {
+		return err
+	}
+
+	// pruning application versions
+	targetAppDB := loadDb(applicationDBDir, targetDir)
+	defer targetAppDB.Close()
+	return pruningVersions(targetAppDB, height)
 }
 
 func snapshotState(tmDB *dbm.GoLevelDB, targetDir string, height int64) {
@@ -385,4 +459,37 @@ func calcConsensusParamsKey(height int64) []byte {
 func lastStoredHeightFor(height, lastHeightChanged int64) int64 {
 	checkpointHeight := height - height%valSetCheckpointInterval
 	return tmmath.MaxInt64(checkpointHeight, lastHeightChanged)
+}
+
+func pruningVersions(db dbm.DB, heght int64) error {
+	if heght <= 0 {
+		return nil
+	}
+	for _, store := range storeKeys {
+		fmt.Printf("pruning store: %s start \n", store)
+		// read tree
+		tree, err := readTree(db, store)
+		if err != nil {
+			fmt.Printf("read Tree %s err: %s \n", store, err.Error())
+			return err
+		}
+
+		if err := tree.DeleteVersionsRange(0, heght); err != nil {
+			fmt.Printf("delete version from 0 to %d err: %s \n", heght, err.Error())
+			return err
+		}
+
+	}
+	return nil
+}
+
+func readTree(db dbm.DB, store string) (*iavl.MutableTree, error) {
+	prefix := fmt.Sprintf(moduleKeyFmt, store)
+	prefixDB := dbm.NewPrefixDB(db, []byte(prefix))
+
+	tree, err := iavl.NewMutableTree(prefixDB, DefaultCacheSize)
+	if err != nil {
+		return nil, err
+	}
+	return tree, err
 }
