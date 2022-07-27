@@ -16,9 +16,7 @@ var (
 		sdk.MsgTypeURL(&mttypes.MsgIssueDenom{}):  400000,
 		sdk.MsgTypeURL(&mttypes.MsgMintMT{}):      400000,
 	}
-	DefaultGas           = uint64(200000)
-	SingleMsgGasMultiple = sdk.NewDecWithPrec(1, 0)
-	MultiMsgGasMultiple  = sdk.NewDecWithPrec(11, 1)
+	DefaultGas = uint64(200000)
 )
 
 type FixedGasMeter struct {
@@ -39,21 +37,15 @@ func (fgm *FixedGasMeter) ConsumeGas(amount uint64, descriptor string) {
 }
 
 func (g *FixedGasMeter) ConsumeGasWithMsgs(msgs []sdk.Msg) {
-	multiple := SingleMsgGasMultiple
-	if len(msgs) > 1 {
-		multiple = MultiMsgGasMultiple
-	}
-
-	totalGas := int64(0)
+	totalGas := uint64(0)
 	for _, msg := range msgs {
 		gasNeed, ok := g.gasConfig[sdk.MsgTypeURL(msg)]
 		if !ok {
 			gasNeed = DefaultGas
 		}
-		totalGas += int64(gasNeed)
+		totalGas += gasNeed
 	}
-	totalGas = sdk.NewDec(totalGas).Mul(multiple).RoundInt().Int64()
-	g.gasMeter.ConsumeGas(uint64(totalGas), "tx_msg_consume")
+	g.gasMeter.ConsumeGas(totalGas, "tx_msg_consume")
 }
 
 // GasConsumed implements types.GasMeter
