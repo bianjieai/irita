@@ -37,6 +37,7 @@ func Recover(bs store.BlockStore, ss state.Store, as dbm.GoLevelDB) (int64, erro
 	// when the user stopped the node the state wasn't updated but the blockstore was. In this situation
 	// we don't need to rollback any state and can just return early
 	if height == invalidState.LastBlockHeight+1 {
+		rollBackApplication(as, invalidState.LastBlockHeight)
 		return invalidState.LastBlockHeight, nil
 	}
 
@@ -118,12 +119,16 @@ func Recover(bs store.BlockStore, ss state.Store, as dbm.GoLevelDB) (int64, erro
 	}
 
 	// rollback application the latest version
+	rollBackApplication(as, rolledBackState.LastBlockHeight)
+	return rolledBackState.LastBlockHeight, nil
+}
+
+func rollBackApplication(as dbm.GoLevelDB, height int64) {
 	batch := as.NewBatch()
 	defer batch.Close()
-	setLatestVersion(batch, rolledBackState.LastBlockHeight)
-	deleteCommitInfo(batch, rolledBackState.LastBlockHeight+1)
+	setLatestVersion(batch, height)
+	deleteCommitInfo(batch, height+1)
 	batch.WriteSync()
-	return rolledBackState.LastBlockHeight, nil
 }
 
 func setLatestVersion(batch dbm.Batch, version int64) {
