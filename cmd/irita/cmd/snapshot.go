@@ -59,6 +59,7 @@ const (
 	privValidatorStateFile   = "priv_validator_state.json"
 	valSetCheckpointInterval = 100000
 	DefaultCacheSize         = 10000
+	moduleKeyFmt             = "s/k:%s/"
 )
 
 var privValidatorState = `{
@@ -103,6 +104,7 @@ func SnapshotCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			defer func() {
 				if r := recover(); r != nil {
+					fmt.Println(r)
 				}
 			}()
 
@@ -482,7 +484,7 @@ func pruningVersions(db dbm.DB, heght int64) error {
 }
 
 func readTree(db dbm.DB, store string) (*iavl.MutableTree, error) {
-	prefix := fmt.Sprintf("s/k:%s/", store)
+	prefix := fmt.Sprintf(moduleKeyFmt, store)
 	prefixDB := dbm.NewPrefixDB(db, []byte(prefix))
 
 	tree, err := iavl.NewMutableTree(prefixDB, DefaultCacheSize)
