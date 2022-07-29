@@ -461,8 +461,8 @@ func lastStoredHeightFor(height, lastHeightChanged int64) int64 {
 	return tmmath.MaxInt64(checkpointHeight, lastHeightChanged)
 }
 
-func pruningVersions(db dbm.DB, heght int64) error {
-	if heght <= 0 {
+func pruningVersions(db dbm.DB, height int64) error {
+	if height <= 0 {
 		return nil
 	}
 	for _, store := range storeKeys {
@@ -474,9 +474,21 @@ func pruningVersions(db dbm.DB, heght int64) error {
 			return err
 		}
 
-		if err := tree.DeleteVersionsRange(0, heght); err != nil {
-			fmt.Printf("delete version from 0 to %d err: %s \n", heght, err.Error())
-			return err
+		start := int64(0)
+		length := int64(10000)
+		for {
+			if start >= height {
+				break
+			}
+			end := start + length
+			if end > height {
+				end = height
+			}
+			if err := tree.DeleteVersionsRange(start, end); err != nil {
+				fmt.Printf("delete version from 0 to %d err: %s \n", height, err.Error())
+				return err
+			}
+			start = end
 		}
 
 	}
