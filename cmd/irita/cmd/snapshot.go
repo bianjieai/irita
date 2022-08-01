@@ -481,7 +481,7 @@ func pruningVersions(db dbm.DB, height int64) error {
 		}
 
 		start := int64(0)
-		length := int64(10000)
+		length := int64(100000)
 		for {
 			if start >= height {
 				break
