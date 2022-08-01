@@ -474,6 +474,12 @@ func pruningVersions(db dbm.DB, height int64) error {
 			return err
 		}
 
+		// if module not exist then return
+		if !tree.VersionExists(height) {
+			fmt.Printf("store: %s not exists \n", store)
+			continue
+		}
+
 		start := int64(0)
 		length := int64(10000)
 		for {
@@ -485,7 +491,7 @@ func pruningVersions(db dbm.DB, height int64) error {
 				end = height
 			}
 			if err := tree.DeleteVersionsRange(start, end); err != nil {
-				fmt.Printf("delete version from 0 to %d err: %s \n", height, err.Error())
+				fmt.Printf("delete version from %d to %d err: %s \n", start, end, err.Error())
 				return err
 			}
 			start = end
