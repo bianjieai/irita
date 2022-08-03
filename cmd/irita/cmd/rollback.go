@@ -142,6 +142,23 @@ func setLatestVersion(batch dbm.Batch, version int64) {
 	}
 }
 
+func getLatestVersion(db dbm.DB) int64 {
+	bz, err := db.Get([]byte(latestVersionKey))
+	if err != nil {
+		panic(err)
+	} else if bz == nil {
+		return 0
+	}
+
+	var latestVersion int64
+
+	if err := gogotypes.StdInt64Unmarshal(&latestVersion, bz); err != nil {
+		panic(err)
+	}
+
+	return latestVersion
+}
+
 func deleteCommitInfo(batch dbm.Batch, version int64) {
 	cInfoKey := fmt.Sprintf(commitInfoKeyFmt, version)
 	if err := batch.Delete([]byte(cInfoKey)); err != nil {
