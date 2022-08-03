@@ -3,7 +3,7 @@ package ante
 import (
 	"fmt"
 	"runtime/debug"
-	
+
 	"github.com/bianjieai/irita/modules/gas"
 
 	evmmoduleante "github.com/bianjieai/irita/modules/evm"
@@ -84,7 +84,6 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 						ethermintante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper), // innermost AnteDecorator.
 						ethermintante.NewEthMempoolFeeDecorator(options.EvmKeeper),                  // Check eth effective gas price against minimal-gas-prices
 						ethermintante.NewEthValidateBasicDecorator(options.EvmKeeper),
-						ethermintante.NewEthSigVerificationDecorator(options.EvmKeeper),
 
 						perm.NewAuthDecorator(options.PermKeeper),
 					)
