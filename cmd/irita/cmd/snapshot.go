@@ -135,7 +135,7 @@ func SnapshotCmd() *cobra.Command {
 			}
 
 			// if targetDir exist then tips
-			if b, _ := pathExists(targetDir); b {
+			if b, _ := pathExists(filepath.Join(targetDir, applicationDb)); b {
 				fmt.Printf("target  dir: (%s) existed! \n", targetDir)
 				return nil
 			}
