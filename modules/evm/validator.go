@@ -15,6 +15,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
+var zeroAmount = new(big.Int).SetUint64(0)
+
 type EthOpbValidator struct {
 	opbKeeper   opbkeeper.Keeper
 	tokenKeeper tokenkeeper.Keeper
@@ -42,33 +44,38 @@ func NewEthOpbValidator(
 
 func (ov EthOpbValidator) Transfer(db vm.StateDB, sender, recipient common.Address, amount *big.Int) {
 
-	senderCosmosAddr := sdk.AccAddress(sender.Bytes())
-	recipientCosmosAddr := sdk.AccAddress(recipient.Bytes())
+	// When amount > 0, enable transfer verification
+	if amount.Cmp(zeroAmount) > 0 {
+		senderCosmosAddr := sdk.AccAddress(sender.Bytes())
+		recipientCosmosAddr := sdk.AccAddress(recipient.Bytes())
 
-	params := ov.evmKeeper.GetParams(ov.ctx)
-	restrictionEnabled := !ov.opbKeeper.UnrestrictedTokenTransfer(ov.ctx)
-	// check only if the transfer restriction is enabled
-	if restrictionEnabled {
-		owner, err := ov.getOwner(ov.ctx, params.EvmDenom)
-		if err != nil {
-			//ov.logger.Error("unauthorized operation", "err_msg", err.Error())
-			ov.opbKeeper.Logger(ov.ctx).Error(
-				"unauthorized operation",
-				"err_msg", err.Error(),
-				"amount", amount.Int64(),
-			)
-			return
+		params := ov.evmKeeper.GetParams(ov.ctx)
+		restrictionEnabled := !ov.opbKeeper.UnrestrictedTokenTransfer(ov.ctx)
+		// check only if the transfer restriction is enabled
+		if restrictionEnabled {
+
+			owner, err := ov.getOwner(ov.ctx, params.EvmDenom)
+			if err != nil {
+				//ov.logger.Error("unauthorized operation", "err_msg", err.Error())
+				ov.opbKeeper.Logger(ov.ctx).Error(
+					"unauthorized operation",
+					"err_msg", err.Error(),
+					"amount", amount.Int64(),
+				)
+				return
+			}
+			if senderCosmosAddr.String() != owner && recipientCosmosAddr.String() != owner {
+				errMsg := fmt.Sprintf("either the sender or recipient must be the owner %s for token %s", owner, params.EvmDenom)
+				//ov.logger.Error("unauthorized operation", "err_msg", errMsg)
+				ov.opbKeeper.Logger(ov.ctx).Error(
+					"unauthorized operation",
+					"err_msg", errMsg,
+					"amount", amount.Int64(),
+				)
+				return
+			}
 		}
-		if senderCosmosAddr.String() != owner && recipientCosmosAddr.String() != owner {
-			errMsg := fmt.Sprintf("either the sender or recipient must be the owner %s for token %s", owner, params.EvmDenom)
-			//ov.logger.Error("unauthorized operation", "err_msg", errMsg)
-			ov.opbKeeper.Logger(ov.ctx).Error(
-				"unauthorized operation",
-				"err_msg", errMsg,
-				"amount", amount.Int64(),
-			)
-			return
-		}
+
 	}
 	// go-ethereum
 	db.SubBalance(sender, amount)
