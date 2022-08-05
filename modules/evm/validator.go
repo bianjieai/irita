@@ -15,6 +15,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
+var zeroAmount = new(big.Int).SetUint64(0)
+
 type EthOpbValidator struct {
 	opbKeeper   opbkeeper.Keeper
 	tokenKeeper tokenkeeper.Keeper
@@ -42,7 +44,8 @@ func NewEthOpbValidator(
 
 func (ov EthOpbValidator) Transfer(db vm.StateDB, sender, recipient common.Address, amount *big.Int) {
 
-	if amount.Cmp(new(big.Int).SetUint64(0)) > 0 {
+	// When amount > 0, enable transfer verification
+	if amount.Cmp(zeroAmount) > 0 {
 		senderCosmosAddr := sdk.AccAddress(sender.Bytes())
 		recipientCosmosAddr := sdk.AccAddress(recipient.Bytes())
 
