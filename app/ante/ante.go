@@ -118,7 +118,6 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				ante.NewTxTimeoutHeightDecorator(),
 				tokenkeeper.NewValidateTokenFeeDecorator(options.TokenKeeper, options.BankKeeper),
 				opbkeeper.NewValidateTokenTransferDecorator(options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
-				wservicekeeper.NewDeduplicationTxDecorator(options.WserviceKeeper),
 			)
 		default:
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
