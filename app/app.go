@@ -15,12 +15,10 @@ import (
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	appevmtypes "github.com/bianjieai/irita/modules/evm/types"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
 	tibcclienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-
-	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
-	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
 
 	"github.com/spf13/cast"
 
@@ -262,7 +260,6 @@ type IritaApp struct {
 	identityKeeper   identitykeeper.Keeper
 	nodeKeeper       nodekeeper.Keeper
 	opbKeeper        opbkeeper.Keeper
-	wservicekeeper   wservicekeeper.IKeeper
 	feeGrantKeeper   feegrantkeeper.Keeper
 	capabilityKeeper *capabilitykeeper.Keeper
 	wasmKeeper       wasm.Keeper
@@ -449,8 +446,6 @@ func NewIritaApp(
 	tibcRouter.AddRoute(tibcnfttypes.ModuleName, nfttransferModule)
 	tibcRouter.AddRoute(tibcmttypes.ModuleName, mttransferModule)
 	app.tibcKeeper.SetRouter(tibcRouter)
-
-	app.wservicekeeper = wservicekeeper.NewKeeper(appCodec, keys[wservicetypes.StoreKey], app.serviceKeeper)
 
 	wasmDir := filepath.Join(homePath, "wasm")
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
@@ -703,7 +698,6 @@ func NewIritaApp(
 			OpbKeeper:       app.opbKeeper,
 			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 			FeegrantKeeper:  app.feeGrantKeeper,
-			WserviceKeeper:  app.wservicekeeper,
 			SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
 
 			// evm

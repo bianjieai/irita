@@ -9,7 +9,6 @@ import (
 	evmmoduleante "github.com/bianjieai/irita/modules/evm"
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
-	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
 	"github.com/bianjieai/iritamod/modules/identity"
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/params"
@@ -42,7 +41,6 @@ type HandlerOptions struct {
 	FeegrantKeeper  authante.FeegrantKeeper
 	TokenKeeper     tokenkeeper.Keeper
 	OpbKeeper       opbkeeper.Keeper
-	WserviceKeeper  wservicekeeper.IKeeper
 	SigGasConsumer  ante.SignatureVerificationGasConsumer
 	SignModeHandler signing.SignModeHandler
 
