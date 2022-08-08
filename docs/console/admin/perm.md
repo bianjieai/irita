@@ -24,16 +24,29 @@ IRITA 管理员可以通过控制台进行链的管理操作，主要管理功�
 
 IRITA 管理员可以为指定账户增加相应的操作权限。
 
+| Role    | 名称              | 描述                               |
+| ------- |-----------------|----------------------------------|
+| ROOT_ADMIN | 根权限             | 所有权限                             |
+| PERM_ADMIN | 角色管理            | 分配 / 取消账户权限                      |
+| BLACKLIST_ADMIN | 黑名单管理           | 移入/ 移出黑名单                        |
+| NODE_ADMIN | 节点管理            | node 模块，slashing 模块， upgrade升级模块 |
+| PARAM_ADMIN | 参数管理            | params模块                         |
+| POWER_USER | 资产数字化管理         | issue denom                      |
+| RELAYER_USER | 跨链中继管理          | <跨链中继预留角色>                       |
+| ID_ADMIN | ID管理            | Create Identity ；创建身份            |
+| BASE_M1_ADMIN | 通证管理            | 增发/ 取回 平台通证                      |
+| POWER_USER_ADMIN | POWER_USER 的管理员 | 管理 POWER_USER                    |
+
 ```bash
 irita tx perm assign-roles [address] [roles]
 ```
 
 **参数：**
 
-| 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
-| ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| address  | string  | 是   |             | 账户地址 |
-| roles  | string  | 是   |             | 权限值，可用值包括：PermAdmin，BlacklistAdmin，NodeAdmin，ParamAdmin，PowerUser, IDAdmin, BaseM1Admin, RelayerUser |
+| 名称      | 类型    | 必须 | 默认          | 描述                                                                                                                   |
+| ---------------- | ------- | ---- | ------------- |----------------------------------------------------------------------------------------------------------------------|
+| address  | string  | 是   |             | 账户地址                                                                                                                 |
+| roles  | string  | 是   |             | 权限值，可用值包括：PermAdmin，BlacklistAdmin，NodeAdmin，ParamAdmin，PowerUser, IDAdmin, BaseM1Admin, RelayerUser, PowerUserAdmin |
 
 ### 增加权限示例
 
@@ -97,10 +110,10 @@ irita tx perm unassign-roles [address] [roles] [flags]
 
 **参数：**
 
-| 名称      | 类型    | 必须 | 默认          | 描述                                                                     |
-| ---------------- | ------- | ---- | ------------- | ------------------------------------------------------------------------ |
-| address  | string  | 是   |             | 账户地址 |
-| roles  | string  | 是   |             | 权限值，可用值包括：PermAdmin，BlacklistAdmin，NodeAdmin，ParamAdmin，PowerUser, IDAdmin, BaseM1Admin, RelayerUser |
+| 名称      | 类型    | 必须 | 默认          | 描述                                                                                                     |
+| ---------------- | ------- | ---- | ------------- |--------------------------------------------------------------------------------------------------------|
+| address  | string  | 是   |             | 账户地址                                                                                                   |
+| roles  | string  | 是   |             | 权限值，可用值包括：PermAdmin，BlacklistAdmin，NodeAdmin，ParamAdmin，PowerUser, IDAdmin, BaseM1Admin, RelayerUser, PowerUserAdmin |
 
 ### 移除权限示例
 
