@@ -31,6 +31,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -526,38 +527,47 @@ func pruningVersions(targetDir string, batchNum int64) error {
 	if height <= 0 {
 		return nil
 	}
+	w := &sync.WaitGroup{}
 	for _, store := range storeKeys {
-		fmt.Printf("pruning store: %s start  - %s \n", store, time.Now().Format("2006-01-02 15:04:05"))
-		// read tree
-		tree, err := readTree(targetAppDB, store)
-		if err != nil {
-			fmt.Printf("read Tree %s err: %s \n", store, err.Error())
-			return err
-		}
-
-		// if module not exist then return
-		if !tree.VersionExists(height) {
-			fmt.Printf("store: %s not exists \n", store)
-			continue
-		}
-
-		start := int64(0)
-		for {
-			if start >= height {
-				break
-			}
-			end := start + batchNum
-			if end > height {
-				end = height
-			}
-			if err := tree.DeleteVersionsRange(start, end); err != nil {
-				fmt.Printf("delete version from %d to %d err: %s \n", start, end, err.Error())
-				return err
-			}
-			start = end
-		}
+		w.Add(1)
+		go pruneStore(targetAppDB, store, height, batchNum, w)
 	}
+	w.Wait()
 	return nil
+}
+
+func pruneStore(targetAppDB *dbm.GoLevelDB, store string, height int64, batchNum int64, w *sync.WaitGroup) {
+	defer w.Done()
+	fmt.Printf("pruning store: %s start  - %s \n", store, time.Now().Format("2006-01-02 15:04:05"))
+	// read tree
+	tree, err := readTree(targetAppDB, store)
+	if err != nil {
+		fmt.Printf("read Tree %s err: %s \n", store, err.Error())
+		return
+	}
+
+	// if module not exist then return
+	if !tree.VersionExists(height) {
+		fmt.Printf("store: %s not exists \n", store)
+		return
+	}
+
+	start := int64(0)
+	for {
+		if start >= height {
+			break
+		}
+		end := start + batchNum
+		if end > height {
+			end = height
+		}
+		if err := tree.DeleteVersionsRange(start, end); err != nil {
+			fmt.Printf("delete version from %d to %d err: %s \n", start, end, err.Error())
+			return
+		}
+		start = end
+	}
+	fmt.Printf("pruning store: %s end  - %s \n", store, time.Now().Format("2006-01-02 15:04:05"))
 }
 
 func readTree(db dbm.DB, store string) (*iavl.MutableTree, error) {
