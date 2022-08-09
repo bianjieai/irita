@@ -492,7 +492,7 @@ func pruneStore(targetAppDB *dbm.GoLevelDB, store string, height int64, batchNum
 	defer w.Done()
 	fmt.Printf("pruning store: %s start  - %s \n", store, time.Now().Format("2006-01-02 15:04:05"))
 	// read tree
-	tree, err := readTree(targetAppDB, store)
+	tree, err := readTree(targetAppDB, height, store)
 	if err != nil {
 		fmt.Printf("read Tree %s err: %s \n", store, err.Error())
 		return
@@ -506,7 +506,7 @@ func pruneStore(targetAppDB *dbm.GoLevelDB, store string, height int64, batchNum
 
 	list := tree.AvailableVersions()
 	start := int64(list[0])
-	fmt.Printf("pruning store from %d to %d \n", start, height)
+	fmt.Printf("pruning store %s from %d to %d \n", store, start, height)
 	for {
 		if start >= height {
 			break
@@ -524,7 +524,7 @@ func pruneStore(targetAppDB *dbm.GoLevelDB, store string, height int64, batchNum
 	fmt.Printf("pruning store: %s end  - %s \n", store, time.Now().Format("2006-01-02 15:04:05"))
 }
 
-func readTree(db dbm.DB, store string) (*iavl.MutableTree, error) {
+func readTree(db dbm.DB, latestVersion int64, store string) (*iavl.MutableTree, error) {
 	prefix := fmt.Sprintf(moduleKeyFmt, store)
 	prefixDB := dbm.NewPrefixDB(db, []byte(prefix))
 
@@ -532,5 +532,6 @@ func readTree(db dbm.DB, store string) (*iavl.MutableTree, error) {
 	if err != nil {
 		return nil, err
 	}
+	tree.LoadVersion(latestVersion)
 	return tree, err
 }
