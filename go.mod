@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
-	github.com/bianjieai/iritamod v1.2.1-0.20220706112746-f988d76b5406
+	github.com/bianjieai/iritamod v1.3.0
 	github.com/bianjieai/tibc-go v0.3.1-0.20220412124234-9b75094ff868
 	github.com/cosmos/cosmos-sdk v0.45.2
 	github.com/cosmos/go-bip39 v1.0.0
@@ -17,7 +17,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/improbable-eng/grpc-web v0.15.0
-	github.com/irisnet/irismod v1.5.3-0.20220705030521-0c78477e6a75
+	github.com/irisnet/irismod v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mtibben/percent v0.2.1
 	github.com/olebedev/config v0.0.0-20190528211619-364964f3a8e4
