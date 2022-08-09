@@ -9,6 +9,7 @@ require (
 	github.com/bianjieai/tibc-go v0.3.1-0.20220429030432-3db7c6cf18a5
 	github.com/cosmos/cosmos-sdk v0.44.4
 	github.com/cosmos/go-bip39 v1.0.0
+	github.com/cosmos/iavl v0.17.2
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
 	github.com/ethereum/go-ethereum v1.10.13
 	github.com/ghodss/yaml v1.0.0
@@ -25,6 +26,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/rs/cors v1.8.0
+	github.com/sirupsen/logrus v1.8.1
 	github.com/snikch/goodman v0.0.0-20171125024755-10e37e294daa
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/cobra v1.3.0
@@ -60,7 +62,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/coinbase/rosetta-sdk-go v0.6.10 // indirect
 	github.com/confio/ics23/go v0.6.6 // indirect
-	github.com/cosmos/iavl v0.17.2 // indirect
 	github.com/cosmos/ibc-go/v2 v2.0.1 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
 	github.com/cosmos/ledger-go v0.9.2 // indirect
