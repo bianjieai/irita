@@ -2,31 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	opbtypes "github.com/bianjieai/irita/modules/opb/types"
-	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
-	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
-	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
-	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
-	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
-	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
-	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
+	"github.com/bianjieai/irita/app"
 	"github.com/cosmos/cosmos-sdk/version"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/iavl"
-	mttypes "github.com/irisnet/irismod/modules/mt/types"
-	nfttypes "github.com/irisnet/irismod/modules/nft/types"
-	oracletypes "github.com/irisnet/irismod/modules/oracle/types"
-	randomtypes "github.com/irisnet/irismod/modules/random/types"
-	recordtypes "github.com/irisnet/irismod/modules/record/types"
-	servicetypes "github.com/irisnet/irismod/modules/service/types"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	"io"
 	"os"
 	"path/filepath"
@@ -50,7 +28,7 @@ import (
 
 const (
 	flagTmpDir               = "tmp-dir"
-	flagBatchNum             = "batch-num"
+	flagMaxPruningVersions   = "max-pruning-versions"
 	pathSeparator            = string(os.PathSeparator)
 	defaultTmpDir            = "data.bak"
 	dataDir                  = "data"
@@ -72,33 +50,7 @@ var privValidatorState = `{
   "step": 0
 }`
 
-var storeKeys = []string{
-	authtypes.StoreKey,
-	banktypes.StoreKey,
-	slashingtypes.StoreKey,
-	paramstypes.StoreKey,
-	upgradetypes.StoreKey,
-	feegrant.StoreKey,
-	evidencetypes.StoreKey,
-	recordtypes.StoreKey,
-	tokentypes.StoreKey,
-	nfttypes.StoreKey,
-	mttypes.StoreKey,
-	servicetypes.StoreKey,
-	oracletypes.StoreKey,
-	randomtypes.StoreKey,
-	permtypes.StoreKey,
-	identitytypes.StoreKey,
-	nodetypes.StoreKey,
-	opbtypes.StoreKey,
-	tibchost.StoreKey,
-	tibcnfttypes.StoreKey,
-	//wasm.StoreKey,
-	tibcmttypes.StoreKey,
-
-	// evm
-	evmtypes.StoreKey, feemarkettypes.StoreKey,
-}
+var storeKeys = app.GetStoreKeys()
 
 func NewSnapshotCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -161,7 +113,7 @@ func PruneCmd() *cobra.Command {
 		Use:   "prune",
 		Short: "prune snapshot's historical versions of application",
 		Example: fmt.Sprintf(
-			"$ %s snapshot prune --tmp-dir=/home/data.bak --batch-num=10000",
+			"$ %s snapshot prune --tmp-dir=/home/data.bak --max-pruning-versions=2000",
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -173,7 +125,7 @@ func PruneCmd() *cobra.Command {
 
 			home := viper.GetString(tmcli.HomeFlag)
 			targetDir := viper.GetString(flagTmpDir)
-			batchNum := viper.GetInt64(flagBatchNum)
+			batchNum := viper.GetInt64(flagMaxPruningVersions)
 
 			if len(targetDir) == 0 {
 				targetDir = filepath.Join(home, defaultTmpDir)
@@ -194,7 +146,7 @@ func PruneCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().String(flagTmpDir, "", "Snapshot file storage directory")
-	cmd.Flags().Int64(flagBatchNum, 10000, "batch number proportional to memory usage")
+	cmd.Flags().Int64(flagMaxPruningVersions, 2000, "the number that delete pruning versions in one time, affect memory usage")
 	return cmd
 }
 
@@ -552,7 +504,9 @@ func pruneStore(targetAppDB *dbm.GoLevelDB, store string, height int64, batchNum
 		return
 	}
 
-	start := int64(0)
+	list := tree.AvailableVersions()
+	start := int64(list[0])
+	fmt.Printf("pruning store from %d to %d \n", start, height)
 	for {
 		if start >= height {
 			break
