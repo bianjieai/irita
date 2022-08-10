@@ -1,15 +1,16 @@
 #
 # Build image: docker build -t bianjie/irita .
 #
-FROM golang:1.17.3-alpine3.14 as builder
+FROM golang:1.17.3-buster as builder
 
 # this comes from standard alpine nightly file
 #  https://github.com/rust-lang/docker-rust-nightly/blob/master/alpine3.12/Dockerfile
 # with some changes to support CosmWasm toolchain, etc
-RUN set -eux; apk add --no-cache ca-certificates build-base;
+# RUN set -eux; apk add --no-cache ca-certificates build-base;
 
 # Set up dependencies
 ENV PACKAGES make gcc git libc-dev bash openssl
+ENV GOPROXY https://goproxy.cn,direct
 
 WORKDIR /irita
 
@@ -17,7 +18,7 @@ WORKDIR /irita
 COPY . .
 
 # Install minimum necessary dependencies
-RUN apk add $PACKAGES
+RUN apt-get update && apt-get install $PACKAGES -y
 
 # NOTE: add these to run with LEDGER_ENABLED=true
 # RUN apk add libusb-dev linux-headers
