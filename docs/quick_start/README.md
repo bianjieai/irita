@@ -12,5 +12,3 @@ parent:
 4. [资产数字化建模](./nft.md)
 5. [区块链存证应用](./record.md)
 6. [分布式服务调用](./iservice.md)
-7. [智能合约](./wasm.md)
-

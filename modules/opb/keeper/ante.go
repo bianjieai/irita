@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"github.com/CosmWasm/wasmd/x/wasm"
-
 	"github.com/bianjieai/irita/modules/opb/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -45,16 +43,6 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 				}
 			case *banktypes.MsgMultiSend:
 				err := vtd.validateMsgMultiSend(ctx, msg)
-				if err != nil {
-					return ctx, err
-				}
-			case *wasm.MsgInstantiateContract:
-				err := vtd.validateMsgInstantiateContract(ctx, msg)
-				if err != nil {
-					return ctx, err
-				}
-			case *wasm.MsgExecuteContract:
-				err := vtd.validateMsgExecuteContract(ctx, msg)
 				if err != nil {
 					return ctx, err
 				}
@@ -128,16 +116,6 @@ func (vtd ValidateTokenTransferDecorator) validateMsgMultiSend(ctx sdk.Context, 
 	}
 
 	return nil
-}
-
-// validateMsgInstantiateContract validates the MsgInstantiateContract msg
-func (vtd ValidateTokenTransferDecorator) validateMsgInstantiateContract(ctx sdk.Context, msg *wasm.MsgInstantiateContract) error {
-	return vtd.validateContractFunds(ctx, msg.Funds)
-}
-
-// validateMsgExecuteContract validates the MsgExecuteContract msg
-func (vtd ValidateTokenTransferDecorator) validateMsgExecuteContract(ctx sdk.Context, msg *wasm.MsgExecuteContract) error {
-	return vtd.validateContractFunds(ctx, msg.Funds)
 }
 
 // getOwner gets the owner of the specified denom
