@@ -142,6 +142,34 @@ import (
 
 const appName = "IritaApp"
 
+var storeKeys = []string{
+	authtypes.StoreKey,
+	banktypes.StoreKey,
+	slashingtypes.StoreKey,
+	paramstypes.StoreKey,
+	upgradetypes.StoreKey,
+	feegrant.StoreKey,
+	evidencetypes.StoreKey,
+	recordtypes.StoreKey,
+	tokentypes.StoreKey,
+	nfttypes.StoreKey,
+	mttypes.StoreKey,
+	servicetypes.StoreKey,
+	oracletypes.StoreKey,
+	randomtypes.StoreKey,
+	permtypes.StoreKey,
+	identitytypes.StoreKey,
+	nodetypes.StoreKey,
+	opbtypes.StoreKey,
+	tibchost.StoreKey,
+	tibcnfttypes.StoreKey,
+	tibcmttypes.StoreKey,
+	wasm.StoreKey,
+
+	// evm
+	evmtypes.StoreKey, feemarkettypes.StoreKey,
+}
+
 // DefaultNodeHome default home directories for the application daemon
 var DefaultNodeHome string
 var (
@@ -298,33 +326,7 @@ func NewIritaApp(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	keys := sdk.NewKVStoreKeys(
-		authtypes.StoreKey,
-		banktypes.StoreKey,
-		slashingtypes.StoreKey,
-		paramstypes.StoreKey,
-		upgradetypes.StoreKey,
-		feegrant.StoreKey,
-		evidencetypes.StoreKey,
-		recordtypes.StoreKey,
-		tokentypes.StoreKey,
-		nfttypes.StoreKey,
-		mttypes.StoreKey,
-		servicetypes.StoreKey,
-		oracletypes.StoreKey,
-		randomtypes.StoreKey,
-		permtypes.StoreKey,
-		identitytypes.StoreKey,
-		nodetypes.StoreKey,
-		opbtypes.StoreKey,
-		tibchost.StoreKey,
-		tibcnfttypes.StoreKey,
-		tibcmttypes.StoreKey,
-		wasm.StoreKey,
-
-		// evm
-		evmtypes.StoreKey, feemarkettypes.StoreKey,
-	)
+	keys := sdk.NewKVStoreKeys(storeKeys...)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
@@ -828,6 +830,11 @@ func GetMaccPerms() map[string][]string {
 		dupMaccPerms[k] = v
 	}
 	return dupMaccPerms
+}
+
+// GetStoreKeys return app store keys list
+func GetStoreKeys() []string {
+	return storeKeys
 }
 
 // initParamsKeeper init params keeper and its subspaces

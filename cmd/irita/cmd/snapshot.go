@@ -2,34 +2,15 @@ package cmd
 
 import (
 	"fmt"
-	opbtypes "github.com/bianjieai/irita/modules/opb/types"
-	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
-	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
-	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
-	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
-	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
-	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
-	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	"github.com/bianjieai/irita/app"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/iavl"
-	mttypes "github.com/irisnet/irismod/modules/mt/types"
-	nfttypes "github.com/irisnet/irismod/modules/nft/types"
-	oracletypes "github.com/irisnet/irismod/modules/oracle/types"
-	randomtypes "github.com/irisnet/irismod/modules/random/types"
-	recordtypes "github.com/irisnet/irismod/modules/record/types"
-	servicetypes "github.com/irisnet/irismod/modules/service/types"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -47,6 +28,7 @@ import (
 
 const (
 	flagTmpDir               = "tmp-dir"
+	flagMaxPruningVersions   = "max-pruning-versions"
 	pathSeparator            = string(os.PathSeparator)
 	defaultTmpDir            = "data.bak"
 	dataDir                  = "data"
@@ -68,39 +50,29 @@ var privValidatorState = `{
   "step": 0
 }`
 
-var storeKeys = []string{
-	authtypes.StoreKey,
-	banktypes.StoreKey,
-	slashingtypes.StoreKey,
-	paramstypes.StoreKey,
-	upgradetypes.StoreKey,
-	feegrant.StoreKey,
-	evidencetypes.StoreKey,
-	recordtypes.StoreKey,
-	tokentypes.StoreKey,
-	nfttypes.StoreKey,
-	mttypes.StoreKey,
-	servicetypes.StoreKey,
-	oracletypes.StoreKey,
-	randomtypes.StoreKey,
-	permtypes.StoreKey,
-	identitytypes.StoreKey,
-	nodetypes.StoreKey,
-	opbtypes.StoreKey,
-	tibchost.StoreKey,
-	tibcnfttypes.StoreKey,
-	//wasm.StoreKey,
-	tibcmttypes.StoreKey,
+var storeKeys = app.GetStoreKeys()
 
-	// evm
-	evmtypes.StoreKey, feemarkettypes.StoreKey,
+func NewSnapshotCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "snapshot",
+		Short: "snapshot the latest information and drop the others, prune version",
+	}
+	cmd.AddCommand(
+		SnapshotCmd(),
+		PruneCmd(),
+	)
+	return cmd
 }
 
 // SnapshotCmd delete historical block data and index data
 func SnapshotCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "snapshot",
+		Use:   "create",
 		Short: "snapshot the latest information and drop the others",
+		Example: fmt.Sprintf(
+			"$ %s snapshot create --home=/root/.%s --tmp-dir=/home/data.bak",
+			version.AppName, version.AppName,
+		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			defer func() {
 				if r := recover(); r != nil {
@@ -111,18 +83,18 @@ func SnapshotCmd() *cobra.Command {
 			home := viper.GetString(tmcli.HomeFlag)
 			targetDir := viper.GetString(flagTmpDir)
 
-			// if targetDir exist then tips
-			if b, _ := pathExists(targetDir); b {
-				fmt.Printf("target  dir: (%s) existed! \n", targetDir)
-				return nil
-			}
-
 			if len(targetDir) == 0 {
 				targetDir = filepath.Join(home, defaultTmpDir)
 			}
+
+			// if targetDir exist then tips
+			if b, _ := pathExists(filepath.Join(targetDir, applicationDb)); b {
+				fmt.Printf("target  dir: (%s) existed! \n", targetDir)
+				return nil
+			}
 			dataDir := filepath.Join(home, dataDir)
 
-			if err := Snapshot(dataDir, targetDir); err != nil {
+			if err := snapshot(dataDir, targetDir); err != nil {
 				fmt.Errorf("snapshot err: %s", err.Error())
 				_ = os.RemoveAll(targetDir)
 				return err
@@ -135,6 +107,49 @@ func SnapshotCmd() *cobra.Command {
 	return cmd
 }
 
+// PruneCmd delete historical version data of application
+func PruneCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "prune",
+		Short: "prune snapshot's historical versions of application",
+		Example: fmt.Sprintf(
+			"$ %s snapshot prune --tmp-dir=/home/data.bak --max-pruning-versions=2000",
+			version.AppName,
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Println(r)
+				}
+			}()
+
+			home := viper.GetString(tmcli.HomeFlag)
+			targetDir := viper.GetString(flagTmpDir)
+			batchNum := viper.GetInt64(flagMaxPruningVersions)
+
+			if len(targetDir) == 0 {
+				targetDir = filepath.Join(home, defaultTmpDir)
+			}
+
+			// if targetDir not exist then tips
+			if b, _ := pathExists(targetDir); !b {
+				fmt.Printf("target dir: (%s) not existed! \n", targetDir)
+				return nil
+			}
+
+			if err := pruningVersions(targetDir, batchNum); err != nil {
+				fmt.Errorf("prune err: %s", err.Error())
+				return err
+			}
+			fmt.Println("prune completed!")
+			return nil
+		},
+	}
+	cmd.Flags().String(flagTmpDir, "", "Snapshot file storage directory")
+	cmd.Flags().Int64(flagMaxPruningVersions, 2000, "the number that delete pruning versions in one time, affect memory usage")
+	return cmd
+}
+
 func loadDb(name, path string) *dbm.GoLevelDB {
 	db, err := dbm.NewGoLevelDB(name, path)
 	if err != nil {
@@ -143,7 +158,7 @@ func loadDb(name, path string) *dbm.GoLevelDB {
 	return db
 }
 
-func Snapshot(dataDir, targetDir string) error {
+func snapshot(dataDir, targetDir string) error {
 	blockDB := loadDb(blockStoreDir, dataDir)
 	blockStore := store.NewBlockStore(blockDB)
 
@@ -185,14 +200,7 @@ func Snapshot(dataDir, targetDir string) error {
 	//copy evidence.db
 	evidenceDir := filepath.Join(dataDir, evidenceDb)
 	evidenceTargetDir := filepath.Join(targetDir, evidenceDb)
-	if err := copyDir(evidenceDir, evidenceTargetDir); err != nil {
-		return err
-	}
-
-	// pruning application versions
-	targetAppDB := loadDb(applicationDBDir, targetDir)
-	defer targetAppDB.Close()
-	return pruningVersions(targetAppDB, height)
+	return copyDir(evidenceDir, evidenceTargetDir)
 }
 
 func snapshotState(tmDB *dbm.GoLevelDB, targetDir string, height int64) {
@@ -461,29 +469,62 @@ func lastStoredHeightFor(height, lastHeightChanged int64) int64 {
 	return tmmath.MaxInt64(checkpointHeight, lastHeightChanged)
 }
 
-func pruningVersions(db dbm.DB, heght int64) error {
-	if heght <= 0 {
+func pruningVersions(targetDir string, batchNum int64) error {
+	// pruning application versions
+	targetAppDB := loadDb(applicationDBDir, targetDir)
+	defer targetAppDB.Close()
+
+	height := getLatestVersion(targetAppDB)
+	fmt.Printf("application latest version: %d \n", height)
+	if height <= 0 {
 		return nil
 	}
+	w := &sync.WaitGroup{}
 	for _, store := range storeKeys {
-		fmt.Printf("pruning store: %s start \n", store)
-		// read tree
-		tree, err := readTree(db, store)
-		if err != nil {
-			fmt.Printf("read Tree %s err: %s \n", store, err.Error())
-			return err
-		}
-
-		if err := tree.DeleteVersionsRange(0, heght); err != nil {
-			fmt.Printf("delete version from 0 to %d err: %s \n", heght, err.Error())
-			return err
-		}
-
+		w.Add(1)
+		go pruneStore(targetAppDB, store, height, batchNum, w)
 	}
+	w.Wait()
 	return nil
 }
 
-func readTree(db dbm.DB, store string) (*iavl.MutableTree, error) {
+func pruneStore(targetAppDB *dbm.GoLevelDB, store string, height int64, batchNum int64, w *sync.WaitGroup) {
+	defer w.Done()
+	fmt.Printf("pruning store: %s start  - %s \n", store, time.Now().Format("2006-01-02 15:04:05"))
+	// read tree
+	tree, err := readTree(targetAppDB, height, store)
+	if err != nil {
+		fmt.Printf("read Tree %s err: %s \n", store, err.Error())
+		return
+	}
+
+	// if module not exist then return
+	if !tree.VersionExists(height) {
+		fmt.Printf("store: %s not exists \n", store)
+		return
+	}
+
+	list := tree.AvailableVersions()
+	start := int64(list[0])
+	fmt.Printf("pruning store %s from %d to %d \n", store, start, height)
+	for {
+		if start >= height {
+			break
+		}
+		end := start + batchNum
+		if end > height {
+			end = height
+		}
+		if err := tree.DeleteVersionsRange(start, end); err != nil {
+			fmt.Printf("delete version from %d to %d err: %s \n", start, end, err.Error())
+			return
+		}
+		start = end
+	}
+	fmt.Printf("pruning store: %s end  - %s \n", store, time.Now().Format("2006-01-02 15:04:05"))
+}
+
+func readTree(db dbm.DB, latestVersion int64, store string) (*iavl.MutableTree, error) {
 	prefix := fmt.Sprintf(moduleKeyFmt, store)
 	prefixDB := dbm.NewPrefixDB(db, []byte(prefix))
 
@@ -491,5 +532,6 @@ func readTree(db dbm.DB, store string) (*iavl.MutableTree, error) {
 	if err != nil {
 		return nil, err
 	}
+	tree.LoadVersion(latestVersion)
 	return tree, err
 }
