@@ -200,9 +200,18 @@ func snapshot(dataDir, targetDir string) error {
 
 func copyUpgradeInfo(dataDir string, targetDir string) {
 	upgradeInfoFrom := filepath.Join(dataDir, upgradeInfoFile)
+	b, err := pathExists(filepath.Join(targetDir, applicationDb))
+	if err != nil {
+		panic(fmt.Sprintf("read file %s err: %s", upgradeInfoFrom, err))
+	}
+	if b {
+		fmt.Printf("target  dir: (%s) not found! skip\n", targetDir)
+		return
+	}
+
 	upgradeInfoTo := filepath.Join(targetDir, upgradeInfoFile)
 
-	_, err := copyFile(upgradeInfoFrom, upgradeInfoTo)
+	_, err = copyFile(upgradeInfoFrom, upgradeInfoTo)
 	if err != nil {
 		panic(fmt.Sprintf("snapshot %s err: %s", upgradeInfoFrom, err))
 	}
