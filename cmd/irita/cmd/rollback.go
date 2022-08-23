@@ -20,7 +20,7 @@ const (
 // Recover overwrites the current Tendermint state (height n) with the most
 // recent previous state (height n - 1).
 // Note that this function does not affect application state.
-func Recover(bs store.BlockStore, ss state.Store, as dbm.GoLevelDB) (int64, error) {
+func Recover(bs *store.BlockStore, ss state.Store, as dbm.GoLevelDB) (int64, error) {
 	defer as.Close()
 	invalidState, err := ss.Load()
 	if err != nil {
