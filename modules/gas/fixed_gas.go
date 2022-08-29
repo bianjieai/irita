@@ -16,7 +16,8 @@ var (
 		sdk.MsgTypeURL(&mttypes.MsgIssueDenom{}):  400000,
 		sdk.MsgTypeURL(&mttypes.MsgMintMT{}):      400000,
 	}
-	DefaultGas = uint64(200000)
+	DefaultGas         = uint64(200000)
+	DefaultSimulateGas = uint64(500000)
 )
 
 type FixedGasMeter struct {

@@ -16,6 +16,11 @@ import (
 	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
 	"github.com/cosmos/cosmos-sdk/x/capability"
 
+	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
+	tibcclienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
+	"github.com/cosmos/cosmos-sdk/x/capability"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+
 	"github.com/spf13/cast"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -256,7 +261,6 @@ type IritaApp struct {
 	identityKeeper   identitykeeper.Keeper
 	nodeKeeper       nodekeeper.Keeper
 	opbKeeper        opbkeeper.Keeper
-	wservicekeeper   wservicekeeper.IKeeper
 	feeGrantKeeper   feegrantkeeper.Keeper
 	capabilityKeeper *capabilitykeeper.Keeper
 
@@ -318,7 +322,6 @@ func NewIritaApp(
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
 		opbtypes.StoreKey,
-		wservicetypes.StoreKey,
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
 		tibcmttypes.StoreKey,
@@ -670,7 +673,6 @@ func NewIritaApp(
 			OpbKeeper:       app.opbKeeper,
 			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 			FeegrantKeeper:  app.feeGrantKeeper,
-			WserviceKeeper:  app.wservicekeeper,
 			SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
 
 			// evm
