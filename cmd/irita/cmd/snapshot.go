@@ -39,6 +39,7 @@ const (
 	evidenceDb               = "evidence.db"
 	csWalFile                = "cs.wal"
 	privValidatorStateFile   = "priv_validator_state.json"
+	upgradeInfoFile          = "upgrade-info.json"
 	valSetCheckpointInterval = 100000
 	DefaultCacheSize         = 10000
 	moduleKeyFmt             = "s/k:%s/"
@@ -176,7 +177,7 @@ func snapshot(dataDir, targetDir string) error {
 		height int64
 		err    error
 	)
-	if height, err = Recover(*blockStore, ss, *appDB); err != nil {
+	if height, err = Recover(blockStore, ss, *appDB); err != nil {
 		return err
 	}
 
@@ -186,21 +187,51 @@ func snapshot(dataDir, targetDir string) error {
 	snapshotState(stateDB, targetDir, height)
 	//save local current block height consensus data
 	snapshotCsWAL(dataDir, targetDir, height)
+	// create private validator state
+	createPrivValidatorState(targetDir, height)
+	// copy application
+	copyAppDB(dataDir, targetDir)
+	// copy evidence.db
+	copyEvidenceDB(dataDir, targetDir)
+	// copy upgrade info
+	copyUpgradeInfo(dataDir, targetDir)
+	return nil
+}
 
-	privState := filepath.Join(targetDir, privValidatorStateFile)
-	createPrivValidatorState(privState, height)
+func copyUpgradeInfo(dataDir string, targetDir string) {
+	upgradeInfoFrom := filepath.Join(dataDir, upgradeInfoFile)
+	b, err := pathExists(filepath.Join(targetDir, applicationDb))
+	if err != nil {
+		panic(fmt.Sprintf("read file %s err: %s", upgradeInfoFrom, err))
+	}
+	if b {
+		fmt.Printf("target  dir: (%s) not found! skip\n", targetDir)
+		return
+	}
 
-	//copy application
+	upgradeInfoTo := filepath.Join(targetDir, upgradeInfoFile)
+
+	_, err = copyFile(upgradeInfoFrom, upgradeInfoTo)
+	if err != nil {
+		panic(fmt.Sprintf("snapshot %s err: %s", upgradeInfoFrom, err))
+	}
+}
+
+func copyEvidenceDB(dataDir string, targetDir string) {
+	evidenceDir := filepath.Join(dataDir, evidenceDb)
+	evidenceTargetDir := filepath.Join(targetDir, evidenceDb)
+	err := copyDir(evidenceDir, evidenceTargetDir)
+	if err != nil {
+		panic(fmt.Sprintf("snapshot %s err: %s", evidenceDir, err))
+	}
+}
+
+func copyAppDB(dataDir string, targetDir string) {
 	appDir := filepath.Join(dataDir, applicationDb)
 	appTargetDir := filepath.Join(targetDir, applicationDb)
 	if err := copyDir(appDir, appTargetDir); err != nil {
-		return err
+		panic(fmt.Sprintf("snapshot %s err: %s", appDir, err))
 	}
-
-	//copy evidence.db
-	evidenceDir := filepath.Join(dataDir, evidenceDb)
-	evidenceTargetDir := filepath.Join(targetDir, evidenceDb)
-	return copyDir(evidenceDir, evidenceTargetDir)
 }
 
 func snapshotState(tmDB *dbm.GoLevelDB, targetDir string, height int64) {
@@ -225,10 +256,10 @@ func snapshotState(tmDB *dbm.GoLevelDB, targetDir string, height int64) {
 	if err != nil {
 		panic(err)
 	}
-	if err := newStore.Save(state); err != nil {
+	if err = newStore.Save(state); err != nil {
 		panic(err)
 	}
-	if err := newStore.SaveABCIResponses(height, abciResponse); err != nil {
+	if err = newStore.SaveABCIResponses(height, abciResponse); err != nil {
 		panic(err)
 	}
 
@@ -451,9 +482,10 @@ func saveConsensusParamsInfo(originDb, targetDb dbm.DB, height int64) {
 	targetDb.Set(calcConsensusParamsKey(consensusParamsInfo.LastHeightChanged), bz)
 }
 
-func createPrivValidatorState(path string, height int64) {
+func createPrivValidatorState(targetDir string, height int64) {
+	privState := filepath.Join(targetDir, privValidatorStateFile)
 	valState := fmt.Sprintf(privValidatorState, height)
-	tmos.MustWriteFile(path, []byte(valState), 0644)
+	tmos.MustWriteFile(privState, []byte(valState), 0644)
 }
 
 func calcValidatorsKey(height int64) []byte {
