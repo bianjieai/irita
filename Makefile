@@ -65,8 +65,8 @@ buildflags = -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2
 ifeq ($(WITH_CLEVELDB),yes)
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
 endif
-#ldflags += $(LDFLAGS)
-#ldflags := $(strip $(ldflags))
+ldflags += $(LDFLAGS)
+ldflags := $(strip $(ldflags))
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 
