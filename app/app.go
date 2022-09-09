@@ -10,7 +10,6 @@ import (
 	evmmodule "github.com/bianjieai/irita/modules/evm"
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	"github.com/spf13/cast"
 
@@ -24,7 +23,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
@@ -670,6 +668,7 @@ func NewIritaApp(
 			EvmKeeper:          app.EvmKeeper,
 		},
 	)
+
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
 
@@ -681,7 +680,7 @@ func NewIritaApp(
 				mttypes.StoreKey,
 				tibcmttypes.StoreKey,
 			},
-			Deleted: []string{"wasm"},
+			Deleted: []string{"wasm", "wservice"},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			opbParams := app.opbKeeper.GetParams(ctx)
@@ -704,24 +703,25 @@ func NewIritaApp(
 				return nil, err
 			}
 
-			newParams := evmtypes.NewParams("uwei", true, true, evmtypes.DefaultChainConfig())
+			newParams := evmtypes.NewParams(
+				"uwei",
+				true,
+				true,
+				evmtypes.DefaultChainConfig())
 			evmtypes.SetDefaultGenesisState(newParams, []evmtypes.GenesisAccount{})
-			defaultGenesis := feemarkettypes.DefaultGenesisState()
-			defaultGenesis.Params = feemarkettypes.NewParams(
+			fMtParams := feemarkettypes.NewParams(
 				true,
 				gethparams.BaseFeeChangeDenominator,
 				gethparams.ElasticityMultiplier,
 				gethparams.InitialBaseFee,
 				0,
 			)
-			feeMarketModule := app.mm.Modules[feemarkettypes.ModuleName]
-			feeMarketModule.InitGenesis(ctx, app.AppCodec(), legacy.Cdc.MustMarshalJSON(defaultGenesis))
-
+			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
+			fromVM[tibchost.ModuleName] = tibc.AppModule{}.ConsensusVersion()
 			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
 			fromVM[banktypes.ModuleName] = 1
 			fromVM[stakingtypes.ModuleName] = 1
 			fromVM[opbtypes.ModuleName] = 1
-			fromVM[wservicetypes.ModuleName] = 1
 			fromVM[identitytypes.ModuleName] = 1
 			fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
 			fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
@@ -739,7 +739,6 @@ func NewIritaApp(
 			fromVM[oracletypes.ModuleName] = oracle.AppModule{}.ConsensusVersion()
 			fromVM[randomtypes.ModuleName] = random.AppModule{}.ConsensusVersion()
 			fromVM[permtypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
-			fromVM[feemarkettypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
 
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
@@ -802,7 +801,6 @@ func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	serviceGenState.Bindings = append(serviceGenState.Bindings, servicetypes.GenOraclePriceSvcBinding(tokentypes.GetNativeToken().MinUnit))
 	serviceGenState.Definitions = append(serviceGenState.Definitions, randomtypes.GetSvcDefinition())
 	genesisState[servicetypes.ModuleName] = app.appCodec.MustMarshalJSON(&serviceGenState)
-
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
