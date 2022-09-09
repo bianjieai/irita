@@ -127,6 +127,7 @@ import (
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm"
+	ethermintevm "github.com/tharsis/ethermint/x/evm"
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -703,12 +704,16 @@ func NewIritaApp(
 				return nil, err
 			}
 
+			// evm params
 			newParams := evmtypes.NewParams(
 				"uwei",
 				true,
 				true,
 				evmtypes.DefaultChainConfig())
-			evmtypes.SetDefaultGenesisState(newParams, []evmtypes.GenesisAccount{})
+
+			app.EvmKeeper.SetParams(ctx, newParams)
+
+			//fee market params
 			fMtParams := feemarkettypes.NewParams(
 				true,
 				gethparams.BaseFeeChangeDenominator,
@@ -717,6 +722,11 @@ func NewIritaApp(
 				0,
 			)
 			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
+			app.FeeMarketKeeper.SetBlockGasUsed(ctx, 0)
+
+			fromVM[feemarkettypes.ModuleName] = feemarket.AppModule{}.ConsensusVersion()
+			fromVM[evmtypes.ModuleName] = ethermintevm.AppModule{}.ConsensusVersion()
+
 			fromVM[tibchost.ModuleName] = tibc.AppModule{}.ConsensusVersion()
 			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
 			fromVM[banktypes.ModuleName] = 1
