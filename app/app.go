@@ -10,8 +10,6 @@ import (
 	evmmodule "github.com/bianjieai/irita/modules/evm"
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
-	tibcclienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	"github.com/spf13/cast"
 
@@ -25,7 +23,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
@@ -130,6 +127,7 @@ import (
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm"
+	ethermintevm "github.com/tharsis/ethermint/x/evm"
 	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
 	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
@@ -671,52 +669,9 @@ func NewIritaApp(
 			EvmKeeper:          app.EvmKeeper,
 		},
 	)
+
 	app.SetAnteHandler(anteHandler)
 	app.SetEndBlocker(app.EndBlocker)
-
-	app.RegisterUpgradePlan("v2.1",
-		store.StoreUpgrades{
-			Added: []string{wservicetypes.StoreKey},
-		},
-		//func(ctx sdk.Context, plan sdkupgrade.Plan) {},
-		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			return nil, nil
-		},
-	)
-
-	app.RegisterUpgradePlan(
-		"v2.2-bsnhub", store.StoreUpgrades{
-			Added: []string{feegrant.StoreKey, tibchost.StoreKey, tibcnfttypes.StoreKey},
-		},
-		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			tibcclienttypes.SetDefaultGenesisState(tibcclienttypes.GenesisState{
-				NativeChainName: "bsnhub-mainnet",
-			})
-			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
-			fromVM[banktypes.ModuleName] = 1
-			fromVM[stakingtypes.ModuleName] = 1
-			fromVM[opbtypes.ModuleName] = 1
-			fromVM[wservicetypes.ModuleName] = 1
-			fromVM[identitytypes.ModuleName] = 1
-			fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
-			fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
-			fromVM[nodetypes.ModuleName] = node.AppModule{}.ConsensusVersion()
-			fromVM[genutiltypes.ModuleName] = genutil.AppModule{}.ConsensusVersion()
-			fromVM[paramstypes.ModuleName] = cparams.AppModule{}.ConsensusVersion()
-			fromVM[crisistypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
-			fromVM[upgradetypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
-			fromVM[evidencetypes.ModuleName] = evidence.AppModule{}.ConsensusVersion()
-			fromVM[feegrant.ModuleName] = feegrantmodule.AppModule{}.ConsensusVersion()
-			fromVM[tokentypes.ModuleName] = token.AppModule{}.ConsensusVersion()
-			fromVM[recordtypes.ModuleName] = record.AppModule{}.ConsensusVersion()
-			fromVM[nfttypes.ModuleName] = nft.AppModule{}.ConsensusVersion()
-			fromVM[servicetypes.ModuleName] = service.AppModule{}.ConsensusVersion()
-			fromVM[oracletypes.ModuleName] = oracle.AppModule{}.ConsensusVersion()
-			fromVM[randomtypes.ModuleName] = random.AppModule{}.ConsensusVersion()
-			fromVM[permtypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
-			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
-		},
-	)
 
 	app.RegisterUpgradePlan(
 		"v3.0.0-datangchain", store.StoreUpgrades{
@@ -726,7 +681,7 @@ func NewIritaApp(
 				mttypes.StoreKey,
 				tibcmttypes.StoreKey,
 			},
-			Deleted: []string{"wasm"},
+			Deleted: []string{"wasm", "wservice"},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			opbParams := app.opbKeeper.GetParams(ctx)
@@ -749,24 +704,34 @@ func NewIritaApp(
 				return nil, err
 			}
 
-			newParams := evmtypes.NewParams("uwei", true, true, evmtypes.DefaultChainConfig())
-			evmtypes.SetDefaultGenesisState(newParams, []evmtypes.GenesisAccount{})
-			defaultGenesis := feemarkettypes.DefaultGenesisState()
-			defaultGenesis.Params = feemarkettypes.NewParams(
+			// evm params
+			newParams := evmtypes.NewParams(
+				"uwei",
+				true,
+				true,
+				evmtypes.DefaultChainConfig())
+
+			app.EvmKeeper.SetParams(ctx, newParams)
+
+			//fee market params
+			fMtParams := feemarkettypes.NewParams(
 				true,
 				gethparams.BaseFeeChangeDenominator,
 				gethparams.ElasticityMultiplier,
 				gethparams.InitialBaseFee,
 				0,
 			)
-			feeMarketModule := app.mm.Modules[feemarkettypes.ModuleName]
-			feeMarketModule.InitGenesis(ctx, app.AppCodec(), legacy.Cdc.MustMarshalJSON(defaultGenesis))
+			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
+			app.FeeMarketKeeper.SetBlockGasUsed(ctx, 0)
 
+			fromVM[feemarkettypes.ModuleName] = feemarket.AppModule{}.ConsensusVersion()
+			fromVM[evmtypes.ModuleName] = ethermintevm.AppModule{}.ConsensusVersion()
+
+			fromVM[tibchost.ModuleName] = tibc.AppModule{}.ConsensusVersion()
 			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
 			fromVM[banktypes.ModuleName] = 1
 			fromVM[stakingtypes.ModuleName] = 1
 			fromVM[opbtypes.ModuleName] = 1
-			fromVM[wservicetypes.ModuleName] = 1
 			fromVM[identitytypes.ModuleName] = 1
 			fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
 			fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
@@ -784,7 +749,6 @@ func NewIritaApp(
 			fromVM[oracletypes.ModuleName] = oracle.AppModule{}.ConsensusVersion()
 			fromVM[randomtypes.ModuleName] = random.AppModule{}.ConsensusVersion()
 			fromVM[permtypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
-			fromVM[feemarkettypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
 
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
@@ -847,7 +811,6 @@ func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	serviceGenState.Bindings = append(serviceGenState.Bindings, servicetypes.GenOraclePriceSvcBinding(tokentypes.GetNativeToken().MinUnit))
 	serviceGenState.Definitions = append(serviceGenState.Definitions, randomtypes.GetSvcDefinition())
 	genesisState[servicetypes.ModuleName] = app.appCodec.MustMarshalJSON(&serviceGenState)
-
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 

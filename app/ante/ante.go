@@ -74,8 +74,6 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 						evmmoduleante.NewEthValidateBasicDecorator(options.EvmKeeper),
 						evmmoduleante.NewEthContractCallableDecorator(options.PermKeeper),
 						evmmoduleante.NewEthSigVerificationDecorator(options.EvmKeeper, options.AccountKeeper, options.SignModeHandler),
-						evmmoduleante.NewCanTransferDecorator(options.EvmKeeper, options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
-
 						ethermintante.NewCanTransferDecorator(options.EvmKeeper),
 						ethermintante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.BankKeeper, options.EvmKeeper),
 						ethermintante.NewEthGasConsumeDecorator(options.EvmKeeper),

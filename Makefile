@@ -58,15 +58,16 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=irita \
 		  -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2 \
 		  -X github.com/bianjieai/irita/address.Bech32ChainPrefix=d \
 		  -X github.com/bianjieai/irita/address.PrefixAcc=t \
-		  -X github.com/bianjieai/irita/address.PrefixAddress=c
+		  -X github.com/bianjieai/irita/address.PrefixAddress=c \
+		  -X github.com/tharsis/ethermint/types.EvmChainID=115
 
 buildflags = -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2
 
 ifeq ($(WITH_CLEVELDB),yes)
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
 endif
-#ldflags += $(LDFLAGS)
-#ldflags := $(strip $(ldflags))
+ldflags += $(LDFLAGS)
+ldflags := $(strip $(ldflags))
 
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 

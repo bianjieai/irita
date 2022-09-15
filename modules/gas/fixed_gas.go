@@ -1,6 +1,8 @@
 package gas
 
 import (
+	"math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	mttypes "github.com/irisnet/irismod/modules/mt/types"
@@ -16,8 +18,7 @@ var (
 		sdk.MsgTypeURL(&mttypes.MsgIssueDenom{}):  400000,
 		sdk.MsgTypeURL(&mttypes.MsgMintMT{}):      400000,
 	}
-	DefaultGas         = uint64(200000)
-	DefaultSimulateGas = uint64(500000)
+	DefaultGas = uint64(200000)
 )
 
 type FixedGasMeter struct {
@@ -25,7 +26,10 @@ type FixedGasMeter struct {
 	gasConfig map[string]uint64
 }
 
-func NewFixedGasMeter(limit sdk.Gas) sdk.GasMeter {
+func NewFixedGasMeter(limit sdk.Gas, simulate bool) sdk.GasMeter {
+	if simulate {
+		limit = math.MaxUint64
+	}
 	return &FixedGasMeter{
 		gasMeter:  sdk.NewGasMeter(limit),
 		gasConfig: DefaultGasConfig,
