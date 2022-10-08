@@ -89,7 +89,7 @@ func SnapshotCmd() *cobra.Command {
 			}
 
 			// if targetDir exist then tips
-			if b, _ := pathExists(filepath.Join(targetDir, applicationDb)); b {
+			if b, _ := pathExists(filepath.Join(targetDir)); b {
 				fmt.Printf("target  dir: (%s) existed! \n", targetDir)
 				return nil
 			}
@@ -200,12 +200,12 @@ func snapshot(dataDir, targetDir string) error {
 
 func copyUpgradeInfo(dataDir string, targetDir string) {
 	upgradeInfoFrom := filepath.Join(dataDir, upgradeInfoFile)
-	b, err := pathExists(filepath.Join(targetDir, applicationDb))
+	b, err := pathExists(upgradeInfoFrom)
 	if err != nil {
 		panic(fmt.Sprintf("read file %s err: %s", upgradeInfoFrom, err))
 	}
-	if b {
-		fmt.Printf("target  dir: (%s) not found! skip\n", targetDir)
+	if !b {
+		fmt.Printf("upgrade info file: (%s) not found! skip\n", upgradeInfoFrom)
 		return
 	}
 
