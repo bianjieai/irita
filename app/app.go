@@ -691,9 +691,9 @@ func NewIritaApp(
 			}
 			err = app.tokenKeeper.IssueToken(
 				ctx,
-				"wei",
+				"gas",
 				"IRITA Fee Token",
-				"uwei",
+				"ugas",
 				18,
 				1000000000,
 				math.MaxUint64,
@@ -706,7 +706,7 @@ func NewIritaApp(
 
 			// evm params
 			newParams := evmtypes.NewParams(
-				"uwei",
+				"ugas",
 				true,
 				true,
 				evmtypes.DefaultChainConfig())
