@@ -98,9 +98,6 @@ import (
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 
 	"github.com/bianjieai/irita/lite"
-	"github.com/bianjieai/irita/modules/opb"
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
-	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
@@ -144,7 +141,6 @@ var (
 		perm.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		node.AppModuleBasic{},
-		opb.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
 		wasm.AppModuleBasic{},
@@ -152,12 +148,11 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:          nil,
-		tokentypes.ModuleName:               {authtypes.Minter, authtypes.Burner},
-		servicetypes.DepositAccName:         nil,
-		servicetypes.RequestAccName:         nil,
-		opbtypes.PointTokenFeeCollectorName: nil,
-		tibcnfttypes.ModuleName:             nil,
+		authtypes.FeeCollectorName:  nil,
+		tokentypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
+		servicetypes.DepositAccName: nil,
+		servicetypes.RequestAccName: nil,
+		tibcnfttypes.ModuleName:     nil,
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -200,7 +195,6 @@ type SimApp struct {
 	PermKeeper        permkeeper.Keeper
 	IdentityKeeper    identitykeeper.Keeper
 	NodeKeeper        nodekeeper.Keeper
-	OpbKeeper         opbkeeper.Keeper
 	FeeGrantKeeper    feegrantkeeper.Keeper
 	TIBCKeeper        *tibckeeper.Keeper // TIBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	NftTransferKeeper tibcnfttransferkeeper.Keeper
@@ -261,7 +255,6 @@ func NewSimApp(
 		permtypes.StoreKey,
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
-		opbtypes.StoreKey,
 		wasm.StoreKey,
 
 		tibchost.StoreKey,
@@ -311,14 +304,16 @@ func NewSimApp(
 
 	app.TokenKeeper = tokenkeeper.NewKeeper(
 		appCodec, keys[tokentypes.StoreKey], app.GetSubspace(tokentypes.ModuleName),
-		app.BankKeeper, app.ModuleAccountAddrs(), opbtypes.PointTokenFeeCollectorName,
+		app.BankKeeper, app.ModuleAccountAddrs(),
+		authtypes.FeeCollectorName,
 	)
 	app.RecordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
 	app.NFTKeeper = nftkeeper.NewKeeper(appCodec, keys[nfttypes.StoreKey])
 
 	app.ServiceKeeper = servicekeeper.NewKeeper(
 		appCodec, keys[servicetypes.StoreKey], app.AccountKeeper, app.BankKeeper,
-		app.GetSubspace(servicetypes.ModuleName), app.ModuleAccountAddrs(), opbtypes.PointTokenFeeCollectorName,
+		app.GetSubspace(servicetypes.ModuleName), app.ModuleAccountAddrs(),
+		servicetypes.FeeCollectorName,
 	)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
@@ -337,11 +332,6 @@ func NewSimApp(
 
 	app.IdentityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
 
-	app.OpbKeeper = opbkeeper.NewKeeper(
-		appCodec, keys[opbtypes.StoreKey], app.AccountKeeper,
-		app.BankKeeper, app.TokenKeeper, app.PermKeeper,
-		app.GetSubspace(opbtypes.ModuleName),
-	)
 	// set the BaseApp's parameter store
 	bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()))
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
@@ -414,7 +404,6 @@ func NewSimApp(
 		identity.NewAppModule(app.IdentityKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
-		opb.NewAppModule(appCodec, app.OpbKeeper),
 		tibc.NewAppModule(app.TIBCKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 		nfttransferModule,
@@ -462,7 +451,6 @@ func NewSimApp(
 		identitytypes.ModuleName,
 		wasm.ModuleName,
 
-		opb.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
@@ -496,7 +484,6 @@ func NewSimApp(
 		perm.NewAppModule(appCodec, app.PermKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
-		opb.NewAppModule(appCodec, app.OpbKeeper),
 		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 
 		tibc.NewAppModule(app.TIBCKeeper),
@@ -696,7 +683,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	ParamsKeeper.Subspace(tokentypes.ModuleName)
 	ParamsKeeper.Subspace(recordtypes.ModuleName)
 	ParamsKeeper.Subspace(servicetypes.ModuleName)
-	ParamsKeeper.Subspace(opbtypes.ModuleName)
 	ParamsKeeper.Subspace(wasm.ModuleName)
 	ParamsKeeper.Subspace(tibchost.ModuleName)
 
