@@ -5,17 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-
-	"github.com/CosmWasm/wasmd/x/wasm"
-
-	"github.com/spf13/cast"
-
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -60,6 +49,11 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	"github.com/spf13/cast"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	dbm "github.com/tendermint/tm-db"
 
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
@@ -143,7 +137,6 @@ var (
 		node.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
-		wasm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -198,7 +191,6 @@ type SimApp struct {
 	FeeGrantKeeper    feegrantkeeper.Keeper
 	TIBCKeeper        *tibckeeper.Keeper // TIBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	NftTransferKeeper tibcnfttransferkeeper.Keeper
-	WasmKeeper        wasm.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedTIBCKeeper     capabilitykeeper.ScopedKeeper
@@ -255,7 +247,6 @@ func NewSimApp(
 		permtypes.StoreKey,
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
-		wasm.StoreKey,
 
 		tibchost.StoreKey,
 		tibcnfttypes.StoreKey,
@@ -354,29 +345,6 @@ func NewSimApp(
 	tibcRouter.AddRoute(tibcmock.ModuleName, tibcmockModule)
 	app.TIBCKeeper.SetRouter(tibcRouter)
 
-	wasmDir := filepath.Join(homePath, "wasm")
-
-	supportedFeatures := "stargate"
-	app.WasmKeeper = wasm.NewKeeper(
-		appCodec,
-		keys[wasm.StoreKey],
-		app.GetSubspace(wasm.ModuleName),
-		app.AccountKeeper,
-		app.BankKeeper,
-		stakingkeeper.Keeper{},
-		distrkeeper.Keeper{},
-		nil,
-		nil,
-		nil,
-		nil,
-		bApp.Router(),
-		bApp.MsgServiceRouter(),
-		bApp.GRPCQueryRouter(),
-		wasmDir,
-		wasm.DefaultWasmConfig(),
-		supportedFeatures,
-	)
-
 	/****  Module Options ****/
 
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
@@ -405,7 +373,6 @@ func NewSimApp(
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
 		tibc.NewAppModule(app.TIBCKeeper),
-		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 		nfttransferModule,
 	)
 
@@ -417,13 +384,12 @@ func NewSimApp(
 		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
 		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
 		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		wasm.ModuleName, tibchost.ModuleName,
+		tibchost.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		node.ModuleName,
 		servicetypes.ModuleName,
-		wasm.ModuleName,
 
 		tibchost.ModuleName,
 	)
@@ -449,7 +415,6 @@ func NewSimApp(
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
-		wasm.ModuleName,
 
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
@@ -484,7 +449,6 @@ func NewSimApp(
 		perm.NewAppModule(appCodec, app.PermKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
-		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.NodeKeeper),
 
 		tibc.NewAppModule(app.TIBCKeeper),
 		nfttransferModule,
@@ -683,7 +647,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	ParamsKeeper.Subspace(tokentypes.ModuleName)
 	ParamsKeeper.Subspace(recordtypes.ModuleName)
 	ParamsKeeper.Subspace(servicetypes.ModuleName)
-	ParamsKeeper.Subspace(wasm.ModuleName)
 	ParamsKeeper.Subspace(tibchost.ModuleName)
 
 	return ParamsKeeper

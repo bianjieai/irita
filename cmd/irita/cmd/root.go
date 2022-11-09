@@ -41,8 +41,6 @@ import (
 
 	"github.com/bianjieai/irita/app"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-
 	"github.com/tharsis/ethermint/crypto/hd"
 	"github.com/tharsis/ethermint/encoding"
 	servercfg "github.com/tharsis/ethermint/server/config"
@@ -146,7 +144,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
-	wasm.AddModuleInitFlags(startCmd)
 }
 
 func queryCommand() *cobra.Command {

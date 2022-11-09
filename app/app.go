@@ -6,18 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/irisnet/irismod/modules/mt"
-
-	"github.com/CosmWasm/wasmd/x/wasm"
-
 	appante "github.com/bianjieai/irita/app/ante"
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-
+	"github.com/irisnet/irismod/modules/mt"
 	"github.com/spf13/cast"
-
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
@@ -159,7 +152,6 @@ var storeKeys = []string{
 	tibchost.StoreKey,
 	tibcnfttypes.StoreKey,
 	tibcmttypes.StoreKey,
-	wasm.StoreKey,
 
 	// evm
 	evmtypes.StoreKey, feemarkettypes.StoreKey,
@@ -195,7 +187,6 @@ var (
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
 		tibcmttransfer.AppModuleBasic{},
-		wasm.AppModuleBasic{},
 
 		// evm
 		evm.AppModuleBasic{},
@@ -277,7 +268,6 @@ type IritaApp struct {
 	nodeKeeper       nodekeeper.Keeper
 	feeGrantKeeper   feegrantkeeper.Keeper
 	capabilityKeeper *capabilitykeeper.Keeper
-	wasmKeeper       wasm.Keeper
 	// tibc
 	scopedTIBCKeeper     capabilitykeeper.ScopedKeeper
 	scopedTIBCMockKeeper capabilitykeeper.ScopedKeeper
@@ -431,33 +421,6 @@ func NewIritaApp(
 	tibcRouter.AddRoute(tibcmttypes.ModuleName, mttransferModule)
 	app.tibcKeeper.SetRouter(tibcRouter)
 
-	wasmDir := filepath.Join(homePath, "wasm")
-	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
-	if err != nil {
-		panic("error while reading wasm config: " + err.Error())
-	}
-
-	supportedFeatures := "stargate"
-	app.wasmKeeper = wasm.NewKeeper(
-		appCodec,
-		keys[wasm.StoreKey],
-		app.GetSubspace(wasm.ModuleName),
-		app.accountKeeper,
-		app.bankKeeper,
-		stakingkeeper.Keeper{},
-		distrkeeper.Keeper{},
-		nil,
-		nil,
-		nil,
-		nil,
-		bApp.Router(),
-		bApp.MsgServiceRouter(),
-		bApp.GRPCQueryRouter(),
-		wasmDir,
-		wasmConfig,
-		supportedFeatures,
-	)
-
 	/****  Module Options ****/
 	var skipGenesisInvariants = false
 	opt := appOpts.Get(crisis.FlagSkipGenesisInvariants)
@@ -490,7 +453,6 @@ func NewIritaApp(
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
-		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
 		mttransferModule,
 		// evm
@@ -525,7 +487,6 @@ func NewIritaApp(
 		tibchost.ModuleName,
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
-		wasm.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -553,7 +514,6 @@ func NewIritaApp(
 		tibchost.ModuleName,
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
-		wasm.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -587,7 +547,6 @@ func NewIritaApp(
 		tibchost.ModuleName,
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
-		wasm.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -616,7 +575,6 @@ func NewIritaApp(
 		tibchost.ModuleName,
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
-		wasm.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -649,7 +607,6 @@ func NewIritaApp(
 		identity.NewAppModule(app.identityKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
-		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
 		mttransferModule,
 		// evm
@@ -899,7 +856,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(recordtypes.ModuleName)
 	paramsKeeper.Subspace(servicetypes.ModuleName)
 	paramsKeeper.Subspace(tibchost.ModuleName)
-	paramsKeeper.Subspace(wasm.ModuleName)
 
 	// evm
 	paramsKeeper.Subspace(evmtypes.ModuleName)
