@@ -168,8 +168,8 @@ github.com/bianjieai/ethermint v0.10.2-irita-20220826 h1:QMFNu4q8zdvwIKcnBPq2SFA
 github.com/bianjieai/ethermint v0.10.2-irita-20220826/go.mod h1:QN0lLwrKBWShtB8L1/8Z0uU06mWPLaqUCiVM3g0+lRA=
 github.com/bianjieai/iritamod v1.3.0 h1:tOV1W9Ozz5zZoXQxY2ZY7nEJG2Fk5/465/51hx7XQbA=
 github.com/bianjieai/iritamod v1.3.0/go.mod h1:6WLWIGKdgUcJaN7ym6FqSdr80OMW7CP7jT/+u549scU=
-github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20221114030827-e973ebcc4352 h1:5nXCq1hzBWdcVwE9Fy1zNKW/y5fQjmrIUVkXZhg9X5k=
-github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20221114030827-e973ebcc4352/go.mod h1:2u6xthTnwDYLhO38cDYp8CxzKq7hwJFvCXeK1pEErtM=
+github.com/bianjieai/tendermint v0.34.13-irita-221114 h1:Dff9jmyp4btUFy4aWmJvMY+HyuoAff8jxRADj12Qm6I=
+github.com/bianjieai/tendermint v0.34.13-irita-221114/go.mod h1:2u6xthTnwDYLhO38cDYp8CxzKq7hwJFvCXeK1pEErtM=
 github.com/bianjieai/tibc-go v0.3.1-0.20220412124234-9b75094ff868 h1:dPS+AcwCQsWTMXRgZwO+Yy2rY8y9G+X38MA7toAivok=
 github.com/bianjieai/tibc-go v0.3.1-0.20220412124234-9b75094ff868/go.mod h1:FLV9sKb/X9vGZegxJgCPK1zk5/yg5nD5v67t1f6ZkR8=
 github.com/bianjieai/wasmd v0.19.1-0.20211215102105-45e28c7c896c h1:xwQQt8sxV4mGzloHzWzw8enO5JdzMiYfK+rm3ts1VR4=

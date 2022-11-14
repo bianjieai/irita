@@ -168,6 +168,6 @@ replace (
 	github.com/CosmWasm/wasmd => github.com/bianjieai/wasmd v0.19.1-0.20211215102105-45e28c7c896c
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
-	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20221114030827-e973ebcc4352
+	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.13-irita-221114
 	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.10.2-irita-20220826
 )
