@@ -109,6 +109,10 @@ func (e *EVMWBackend) SendTransaction(args evmtypes.TransactionArgs) (common.Has
 		return common.Hash{}, err
 	}
 
+	if txData.GetGas() > e.RPCGasCap() {
+		return common.Hash{}, fmt.Errorf("failed to gas limit exceeded")
+	}
+
 	fees := sdk.Coins{sdk.NewCoin(res.Params.EvmDenom, sdk.NewIntFromBigInt(txData.Fee()))}
 	builder.SetFeeAmount(fees)
 	builder.SetGasLimit(msg.GetGas())
