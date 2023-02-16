@@ -15,6 +15,8 @@ We would like to share the strategy we used and the settings and information tha
 Consensus node p2p interconnection, enabling node address exchange but not broadcasting transactions. Full nodes only connect to consensus nodes, and broadcast transactions but do not exchange node addresses. Parameters involved in modifying the config.toml file are as follows:
 
 1. Consensus nodes:
+
+```toml
 pex = true # Enable node address exchange
 
 broadcast = false # Do not broadcast transactions
@@ -22,8 +24,11 @@ broadcast = false # Do not broadcast transactions
 persistent_peers = "consensus node ID@consensus node IP:26656" # Other consensus node peers
 
 size # Transaction memory pool is not less than the total memory pool of full nodes
+```
 
 2. Full nodes:
+
+```toml
 pex = false # Do not exchange node addresses
 
 broadcast = true # Broadcast transactions
@@ -31,15 +36,21 @@ broadcast = true # Broadcast transactions
 persistent_peers = "consensus node ID@consensus node IP:26656" # Consensus node peers
 
 size # Transaction memory pool is smaller than that of consensus nodes
+```
 
 ## Node Size Limits Adjustment
 
 Connection numbers, memory pool, single transaction, total transactions in memory pool, request body, requesting/receiving rate, block time, and other size limits:
 
 1. Main parameters in app.toml:
+
+```toml
 iavl-cache-size # The default size of the node iavl cache is 50M, which can be increased moderately to improve transaction processing speed.
+```
 
 2. Main parameters in config.toml:
+
+```toml
 size # Default 5000. Increase moderately with configuration to pack more transactions in each block;
 
 max_tx_bytes # Default 1048576 (1M). Recommend to limit the size of a single transaction or the number of msgs in a transaction;
@@ -59,6 +70,7 @@ timeout_propose # Default 3s. Try to reduce in the case of non-empty proposal bl
 flush_throttle_timeout # Default 100ms. Can shorten the waiting time for caching messages in an intranet environment;
 
 max_packet_msg_payload_size # Default 1024 (1K). Can increase message packet size in an intranet environment.
+```
 
 ## Node Resource Configuration Adjustment
 
@@ -68,6 +80,7 @@ CPU, memory, disk, and bandwidth:
 2. Memory mainly depends on the amount of data. For new chains, the initial 4G is sufficient, and it can be increased as needed later;
 3. Disk has a significant impact on node performance. It is recommended to use SSD or higher IOPS;
 4. Network bandwidth can accelerate transaction broadcasting and improve consensus voting efficiency.
+
 ## On-Chain Block Size Adjustment
 
 While maintaining or approaching the speed of producing empty blocks, ensure that the total size of pending transactions in the mempool to be packaged does not exceed the current block size, then gradually increasing the block size to package more transactions and achieve higher TPS. 
@@ -75,10 +88,10 @@ While maintaining or approaching the speed of producing empty blocks, ensure tha
 The following are the block debugging sizes achieved on a server with the following configuration: 8-core CPU, 32GB RAM, high-performance SSD disks with high I/O from Alibaba Cloud, and 10Gbps network bandwidth. The TPS achieved for transactions under different message (msgs) sizes are also listed below:
 
 1. iris query params subspace baseapp BlockParams
-  value: '{"max_bytes":"819200","max_gas":"-1"}'
+  value: `'{"max_bytes":"819200","max_gas":"-1"}'`
 
 2. iris query params subspace baseapp EvidenceParams
-  value: '{"max_age_num_blocks":"100000","max_age_duration":"172800000000000","max_bytes":"818176"}'
+  value: `'{"max_age_num_blocks":"100000","max_age_duration":"172800000000000","max_bytes":"818176"}'`
 
 3. Each transaction contains 7500 msgs with an average TPS of 16.4K. 
 
