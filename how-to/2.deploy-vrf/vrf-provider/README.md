@@ -1,22 +1,21 @@
-# Cosmos VRF Provider
+# VRF Provider
 
-VRF Provider Application for Cosmos Enterprise.
+VRF Provider Application
 
-Requires: [cosmos-vrf](https://github.com/bianjieai/cosmos-vrf)
+Requires: [vrf](../vrf)
 
-## 配置
+## Configuration
 
-配置请参考 `configs/example.toml`
+Please refer to `configs/example.toml` for configuration.
 
-## 生产部署
+## Production Deployment
 
-### 配置更改
+#### Configuration Changes
 
-1. 链配置：`chain_id` 和 `uri` 替换为主网配置
-2. `vrf_admin_key`：使用 `vrf-provider genkey`命令生成 `vrf_admin_key`，示例：`vrf-provider genkey -p 123456789`（默认密码是`12345678`）
-3. `contract_services.vrf.contract.addr`：替换为自己部署的 `VRF`合约地质
-4. `contract_services.vrf.contract.opt_priv_key`：替换为要设置的 `provider` 地质
+1. Chain configuration: Replace `chain_id` and `uri` with mainnet configuration 
+2. `vrf_admin_key`: Use the command `vrf-provider genkey` to generate `vrf_admin_key`. For example, `vrf-provider genkey -p 123456789` where `123456789` is the default password.
+3. `contract_services.vrf.contract.addr`: Replace it with the deployed `VRF` contract address.
+4. `contract_services.vrf.contract.opt_priv_key`: Replace it with the address of `provider` that you want to set.
+#### Startup
 
-### 启动
-
-启动命令： `vrf-provider start -c configs/example.toml`
+Startup command: `vrf-provider start -c configs/example.toml.`
