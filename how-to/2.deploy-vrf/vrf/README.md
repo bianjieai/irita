@@ -1,6 +1,6 @@
-# Cosmos VRF
+# VRF Contract
 
-EVM Based VRF Contract for Cosmos Enterprise.
+EVM Based VRF Contract
 
 ## 1. Deoloy `VRFCoordinator` contract
 
