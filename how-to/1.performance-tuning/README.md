@@ -82,22 +82,27 @@ The following are the block debugging sizes achieved on a server with the follow
 
 3. Each transaction contains 7500 msgs with an average TPS of 16.4K. 
 
-
+![image](https://user-images.githubusercontent.com/31681438/219251944-92d0ff31-6417-447b-9a63-0bbe9af85bc3.png)
 
 4. Each transaction contains 5000 msgs with an average TPS of 17.5K. 
 
+![image](https://user-images.githubusercontent.com/31681438/219252001-5b09f486-625f-46dc-b129-31aad3219b96.png)
 
 5. Each transaction contains 1500 msgs with an average TPS of 16.7K.
 
+![image](https://user-images.githubusercontent.com/31681438/219252041-d3036a58-6130-4208-b4d5-01f03a635fc8.png)
 
 6. Each transaction contains 1000 msgs with an average TPS of 17.4K. 
 
+![image](https://user-images.githubusercontent.com/31681438/219252119-02b1e661-fc9a-4480-aea2-7505eeab5208.png)
 
-7. Each transaction contains 500 msgs with an average TPS of 7.86K. 
+7. Each transaction contains 500 msgs with an average TPS of 7.86K. 
 
+![image](https://user-images.githubusercontent.com/31681438/219252152-da1c0c92-3aa1-4448-a630-fe5564bb8ce6.png)
 
 8. Each transaction contains 100 msgs with an average TPS of 8.49K.
 
+![image](https://user-images.githubusercontent.com/31681438/219252197-4cd742c0-5a1c-4e1b-b32a-9b7384737be9.png)
 
 ## Transaction Sending Methods:
 
