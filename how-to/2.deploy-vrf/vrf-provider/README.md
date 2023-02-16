@@ -8,7 +8,7 @@ Requires: [vrf](../vrf)
 
 Please refer to `configs/example.toml` for configuration.
 
-## Production Deployment
+## Deployment
 
 #### Configuration Changes
 
