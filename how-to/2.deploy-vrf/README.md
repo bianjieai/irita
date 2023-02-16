@@ -31,7 +31,7 @@ In the enterprise blockchain scenarios, crypto-currency is not involved due to r
 
 This work was inspired by the business requirements of Wenchang Chain during the 2022 World Cup to support activities such as bracket challenges, lucky draws, etc. This allows for verifiable, tamper-proof, and low-cost random numbers and encryption certificates to support DApps on WenChang Chain.
 
->** Wenchang Chain is an Open-Permissioned Blockchain developed by Bianjie.AI using the technical framework IRITA - the Cosmos enterprise-level consortium chain product.*
+>*Wenchang Chain is an Open-Permissioned Blockchain developed by Bianjie.AI using the technical framework IRITA - the Cosmos enterprise-level consortium chain product.*
 Since its release, the VRF service on Wenchang Chain has supported various applications such as metaverse gaming, customer loyalty program, and a variety of other businesses.
 
 ## 3. **Deployment guide for enterprise VRF use cases**
