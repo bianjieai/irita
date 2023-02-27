@@ -14,9 +14,8 @@ import (
 
 	evmhd "github.com/tharsis/ethermint/crypto/hd"
 
-	"github.com/tendermint/tendermint/crypto/algo"
-
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	evmfmttypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	ethermint "github.com/tharsis/ethermint/types"
 
@@ -54,15 +53,17 @@ import (
 	"github.com/bianjieai/iritamod/utils"
 
 	evmosConfig "github.com/tharsis/ethermint/server/config"
-
-	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 )
 
 const (
 	nodeDirPerm         = 0755
 	DefaultPointDenom   = "point"
 	DefaultPointMinUnit = "upoint"
+	NewEvmDenom         = "gas"
+	DefaultEvmMinUnit   = "ugas"
 )
+
+var PowerReduction = sdk.NewIntFromUint64(1000000000000000000)
 
 var (
 	flagNodeDirPrefix     = "node-dir-prefix"
@@ -127,7 +128,6 @@ func InitTestnet(
 	nodeDaemonHome, nodeCLIHome, startingIPAddress string,
 	numValidators int, algoStr string,
 ) error {
-	algo.Algo = algo.SM2
 	if chainID == "" {
 		chainID = fmt.Sprintf("chain_%d-1", tmrand.Int63n(9999999999999)+1)
 	}
@@ -257,10 +257,12 @@ func InitTestnet(
 		accTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
 		accPointTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
 		accNativeTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
+		accEvmTokens := sdk.TokensFromConsensusPower(5000, PowerReduction)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
 			sdk.NewCoin(DefaultPointMinUnit, accPointTokens),
 			sdk.NewCoin(tokentypes.GetNativeToken().MinUnit, accNativeTokens),
+			sdk.NewCoin(DefaultEvmMinUnit, accEvmTokens),
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
@@ -310,7 +312,7 @@ func InitTestnet(
 		srvconfig.WriteConfigFile(iritaConfigFilePath, iritaConfig)
 	}
 
-	if err := initGenFiles(DefaultPointMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
+	if err := initGenFiles(DefaultEvmMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
 		monikers, nodeIDs, rootCertPath); err != nil {
 		return err
 	}
@@ -389,17 +391,21 @@ func initGenFiles(
 		Owner:         genAccounts[0].GetAddress().String(),
 	}
 
+	gasToken := tokentypes.Token{
+		Symbol:        NewEvmDenom,
+		Name:          "IRITA Fee Token",
+		Scale:         18,
+		MinUnit:       DefaultEvmMinUnit,
+		InitialSupply: 1000000000,
+		MaxSupply:     math.MaxUint64,
+		Mintable:      true,
+		Owner:         genAccounts[0].GetAddress().String(),
+	}
+
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
+	tokenGenState.Tokens = append(tokenGenState.Tokens, gasToken)
 	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(DefaultPointDenom, sdk.NewInt(60000))
 	appGenState[tokentypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
-
-	// modify the native token denoms in the opb genesis
-	var opbGenState opbtypes.GenesisState
-	jsonMarshaler.MustUnmarshalJSON(appGenState[opbtypes.ModuleName], &opbGenState)
-
-	opbGenState.Params.BaseTokenDenom = tokentypes.GetNativeToken().MinUnit
-	opbGenState.Params.PointTokenDenom = DefaultPointMinUnit
-	appGenState[opbtypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&opbGenState)
 
 	// modify the constant fee denoms in the crisis genesis
 	var crisisGenState crisistypes.GenesisState
@@ -421,6 +427,11 @@ func initGenFiles(
 
 	evmGenState.Params.EvmDenom = coinDenom
 	appGenState[evmtypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&evmGenState)
+
+	var fMKGenState evmfmttypes.GenesisState
+	clientCtx.Codec.MustUnmarshalJSON(appGenState[evmfmttypes.ModuleName], &fMKGenState)
+	fMKGenState.Params.NoBaseFee = true
+	appGenState[evmfmttypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&fMKGenState)
 
 	// add all genesis accounts as root admins
 	var permGenState perm.GenesisState

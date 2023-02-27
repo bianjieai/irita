@@ -17,7 +17,10 @@ func (node WNodeKeeper) GetHistoricalInfo(ctx sdk.Context, height int64) (stakin
 }
 
 func (node WNodeKeeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool) {
-	addr, f := node.Keeper.GetValidatorByConsAddr(ctx, consAddr)
+	addr, found := node.Keeper.GetValidatorByConsAddr(ctx, consAddr)
+	if !found {
+		return stakingtypes.Validator{}, false
+	}
 	validator.Jailed = addr.Jailed
 
 	_, i, err := bech32.DecodeAndConvert(addr.Operator)
@@ -26,5 +29,5 @@ func (node WNodeKeeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.Con
 	}
 	validator.OperatorAddress = sdk.ValAddress(i).String()
 
-	return validator, f
+	return validator, found
 }

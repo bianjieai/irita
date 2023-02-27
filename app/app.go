@@ -6,18 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-
+	appante "github.com/bianjieai/irita/app/ante"
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-
-	wservicekeeper "github.com/bianjieai/irita/modules/wservice/keeper"
-	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
-
+	"github.com/irisnet/irismod/modules/mt"
 	"github.com/spf13/cast"
-
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
@@ -69,6 +62,8 @@ import (
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	mtkeeper "github.com/irisnet/irismod/modules/mt/keeper"
+	mttypes "github.com/irisnet/irismod/modules/mt/types"
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
@@ -108,13 +103,13 @@ import (
 	"github.com/bianjieai/irita/address"
 	"github.com/bianjieai/irita/lite"
 	appkeeper "github.com/bianjieai/irita/modules/evm"
-	"github.com/bianjieai/irita/modules/opb"
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
-	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
 
+	tibcmttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer"
+	tibcmttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/keeper"
+	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
 	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
 	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
@@ -122,7 +117,7 @@ import (
 	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
 	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 
-	"github.com/tharsis/ethermint/app/ante"
+	ethermintante "github.com/tharsis/ethermint/app/ante"
 	srvflags "github.com/tharsis/ethermint/server/flags"
 	ethermint "github.com/tharsis/ethermint/types"
 	"github.com/tharsis/ethermint/x/evm"
@@ -135,6 +130,32 @@ import (
 )
 
 const appName = "IritaApp"
+
+var storeKeys = []string{
+	authtypes.StoreKey,
+	banktypes.StoreKey,
+	slashingtypes.StoreKey,
+	paramstypes.StoreKey,
+	upgradetypes.StoreKey,
+	feegrant.StoreKey,
+	evidencetypes.StoreKey,
+	recordtypes.StoreKey,
+	tokentypes.StoreKey,
+	nfttypes.StoreKey,
+	mttypes.StoreKey,
+	servicetypes.StoreKey,
+	oracletypes.StoreKey,
+	randomtypes.StoreKey,
+	permtypes.StoreKey,
+	identitytypes.StoreKey,
+	nodetypes.StoreKey,
+	tibchost.StoreKey,
+	tibcnfttypes.StoreKey,
+	tibcmttypes.StoreKey,
+
+	// evm
+	evmtypes.StoreKey, feemarkettypes.StoreKey,
+}
 
 // DefaultNodeHome default home directories for the application daemon
 var DefaultNodeHome string
@@ -156,16 +177,16 @@ var (
 		record.AppModuleBasic{},
 		token.AppModuleBasic{},
 		nft.AppModuleBasic{},
+		mt.AppModuleBasic{},
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
 		perm.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		node.AppModuleBasic{},
-		opb.AppModuleBasic{},
 		tibc.AppModule{},
 		tibcnfttransfer.AppModuleBasic{},
-		wasm.AppModuleBasic{},
+		tibcmttransfer.AppModuleBasic{},
 
 		// evm
 		evm.AppModuleBasic{},
@@ -173,12 +194,12 @@ var (
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:          nil,
-		tokentypes.ModuleName:               {authtypes.Minter, authtypes.Burner},
-		servicetypes.DepositAccName:         nil,
-		servicetypes.RequestAccName:         nil,
-		opbtypes.PointTokenFeeCollectorName: nil,
-		tibcnfttypes.ModuleName:             nil,
+		authtypes.FeeCollectorName:  nil,
+		tokentypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
+		servicetypes.DepositAccName: nil,
+		servicetypes.RequestAccName: nil,
+		tibcnfttypes.ModuleName:     nil,
+		tibcmttypes.ModuleName:      nil,
 
 		// evm
 		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
@@ -238,22 +259,21 @@ type IritaApp struct {
 	recordKeeper     recordkeeper.Keeper
 	tokenKeeper      tokenkeeper.Keeper
 	nftKeeper        nftkeeper.Keeper
+	mtKeeper         mtkeeper.Keeper
 	serviceKeeper    servicekeeper.Keeper
 	oracleKeeper     oraclekeeper.Keeper
 	randomKeeper     randomkeeper.Keeper
 	permKeeper       permkeeper.Keeper
 	identityKeeper   identitykeeper.Keeper
 	nodeKeeper       nodekeeper.Keeper
-	opbKeeper        opbkeeper.Keeper
-	wservicekeeper   wservicekeeper.IKeeper
 	feeGrantKeeper   feegrantkeeper.Keeper
 	capabilityKeeper *capabilitykeeper.Keeper
-	wasmKeeper       wasm.Keeper
 	// tibc
 	scopedTIBCKeeper     capabilitykeeper.ScopedKeeper
 	scopedTIBCMockKeeper capabilitykeeper.ScopedKeeper
 	tibcKeeper           *tibckeeper.Keeper
 	nftTransferKeeper    tibcnfttransferkeeper.Keeper
+	mtTransferKeeper     tibcmttransferkeeper.Keeper
 
 	// Ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
@@ -287,31 +307,7 @@ func NewIritaApp(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	keys := sdk.NewKVStoreKeys(
-		authtypes.StoreKey,
-		banktypes.StoreKey,
-		slashingtypes.StoreKey,
-		paramstypes.StoreKey,
-		upgradetypes.StoreKey,
-		feegrant.StoreKey,
-		evidencetypes.StoreKey,
-		recordtypes.StoreKey,
-		tokentypes.StoreKey,
-		nfttypes.StoreKey,
-		servicetypes.StoreKey,
-		oracletypes.StoreKey,
-		randomtypes.StoreKey,
-		permtypes.StoreKey,
-		identitytypes.StoreKey,
-		nodetypes.StoreKey,
-		opbtypes.StoreKey,
-		tibchost.StoreKey,
-		tibcnfttypes.StoreKey,
-		wasm.StoreKey,
-
-		// evm
-		evmtypes.StoreKey, feemarkettypes.StoreKey,
-	)
+	keys := sdk.NewKVStoreKeys(storeKeys...)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
@@ -359,15 +355,17 @@ func NewIritaApp(
 
 	app.tokenKeeper = tokenkeeper.NewKeeper(
 		appCodec, keys[tokentypes.StoreKey], app.GetSubspace(tokentypes.ModuleName),
-		app.bankKeeper, app.ModuleAccountAddrs(), opbtypes.PointTokenFeeCollectorName,
+		app.bankKeeper, app.ModuleAccountAddrs(), authtypes.FeeCollectorName,
 	)
 
 	app.recordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
 	app.nftKeeper = nftkeeper.NewKeeper(appCodec, keys[nfttypes.StoreKey])
+	app.mtKeeper = mtkeeper.NewKeeper(appCodec, keys[mttypes.StoreKey])
 
 	app.serviceKeeper = servicekeeper.NewKeeper(
 		appCodec, keys[servicetypes.StoreKey], app.accountKeeper, app.bankKeeper,
-		app.GetSubspace(servicetypes.ModuleName), app.ModuleAccountAddrs(), opbtypes.PointTokenFeeCollectorName,
+		app.GetSubspace(servicetypes.ModuleName), app.ModuleAccountAddrs(),
+		servicetypes.FeeCollectorName,
 	)
 
 	app.oracleKeeper = oraclekeeper.NewKeeper(
@@ -382,7 +380,7 @@ func NewIritaApp(
 	)
 
 	permKeeper := permkeeper.NewKeeper(appCodec, keys[permtypes.StoreKey])
-	app.permKeeper = RegisterAccessControl(permKeeper)
+	app.permKeeper = appante.RegisterAccessControl(permKeeper)
 
 	app.identityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
 
@@ -393,21 +391,12 @@ func NewIritaApp(
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		appCodec, keys[feemarkettypes.StoreKey], app.GetSubspace(feemarkettypes.ModuleName),
 	)
-
 	app.EvmKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], app.GetSubspace(evmtypes.ModuleName),
 		app.accountKeeper, app.bankKeeper, appkeeper.WNodeKeeper{Keeper: app.nodeKeeper}, app.FeeMarketKeeper,
 		tracer, // debug EVM based on Baseapp options
 	)
 
-	app.opbKeeper = opbkeeper.NewKeeper(
-		appCodec, keys[opbtypes.StoreKey], app.accountKeeper,
-		app.bankKeeper, app.tokenKeeper, app.permKeeper,
-		app.GetSubspace(opbtypes.ModuleName),
-	)
-
-	ethOpbV := appkeeper.NewEthOpbValidator(&app.opbKeeper, &app.tokenKeeper, app.EvmKeeper, logger)
-	app.EvmKeeper.TransferFunc = ethOpbV.Transfer
 	app.EvmKeeper.AccStoreKey = keys[authtypes.StoreKey]
 
 	// register the proposal types
@@ -420,39 +409,17 @@ func NewIritaApp(
 		app.accountKeeper, tibckeeper.WrapNftKeeper(app.nftKeeper),
 		app.tibcKeeper.PacketKeeper, app.tibcKeeper.ClientKeeper,
 	)
+	app.mtTransferKeeper = tibcmttransferkeeper.NewKeeper(
+		appCodec, keys[tibcmttypes.StoreKey], app.GetSubspace(tibcmttypes.ModuleName),
+		app.accountKeeper, app.mtKeeper,
+		app.tibcKeeper.PacketKeeper, app.tibcKeeper.ClientKeeper,
+	)
 	nfttransferModule := tibcnfttransfer.NewAppModule(app.nftTransferKeeper)
+	mttransferModule := tibcmttransfer.NewAppModule(app.mtTransferKeeper)
 	tibcRouter := tibcroutingtypes.NewRouter()
 	tibcRouter.AddRoute(tibcnfttypes.ModuleName, nfttransferModule)
+	tibcRouter.AddRoute(tibcmttypes.ModuleName, mttransferModule)
 	app.tibcKeeper.SetRouter(tibcRouter)
-
-	app.wservicekeeper = wservicekeeper.NewKeeper(appCodec, keys[wservicetypes.StoreKey], app.serviceKeeper)
-
-	wasmDir := filepath.Join(homePath, "wasm")
-	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
-	if err != nil {
-		panic("error while reading wasm config: " + err.Error())
-	}
-
-	supportedFeatures := "stargate"
-	app.wasmKeeper = wasm.NewKeeper(
-		appCodec,
-		keys[wasm.StoreKey],
-		app.GetSubspace(wasm.ModuleName),
-		app.accountKeeper,
-		app.bankKeeper,
-		stakingkeeper.Keeper{},
-		distrkeeper.Keeper{},
-		nil,
-		nil,
-		nil,
-		nil,
-		bApp.Router(),
-		bApp.MsgServiceRouter(),
-		bApp.GRPCQueryRouter(),
-		wasmDir,
-		wasmConfig,
-		supportedFeatures,
-	)
 
 	/****  Module Options ****/
 	var skipGenesisInvariants = false
@@ -477,6 +444,7 @@ func NewIritaApp(
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
 		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
@@ -484,11 +452,9 @@ func NewIritaApp(
 		identity.NewAppModule(app.identityKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
-		opb.NewAppModule(appCodec, app.opbKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
-		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
-
+		mttransferModule,
 		// evm
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
@@ -499,17 +465,55 @@ func NewIritaApp(
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
-		upgradetypes.ModuleName, slashingtypes.ModuleName, evidencetypes.ModuleName,
-		nodetypes.ModuleName, recordtypes.ModuleName, tokentypes.ModuleName,
-		nfttypes.ModuleName, servicetypes.ModuleName, randomtypes.ModuleName,
-		tibchost.ModuleName, evmtypes.ModuleName, wasm.ModuleName,
+		paramstypes.ModuleName,
+		upgradetypes.ModuleName,
+		permtypes.ModuleName,
+		authtypes.ModuleName,
+		nodetypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		mttypes.ModuleName,
+		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		genutiltypes.ModuleName,
+		feegrant.ModuleName,
+		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
+
+		// evm
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
-		crisistypes.ModuleName,
+		paramstypes.ModuleName,
+		upgradetypes.ModuleName,
+		permtypes.ModuleName,
+		authtypes.ModuleName,
 		nodetypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		mttypes.ModuleName,
 		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		genutiltypes.ModuleName,
+		feegrant.ModuleName,
 		tibchost.ModuleName,
-		wasm.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -521,6 +525,8 @@ func NewIritaApp(
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
+		paramstypes.ModuleName,
+		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
@@ -531,15 +537,44 @@ func NewIritaApp(
 		recordtypes.ModuleName,
 		tokentypes.ModuleName,
 		nfttypes.ModuleName,
+		mttypes.ModuleName,
 		servicetypes.ModuleName,
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
 		identitytypes.ModuleName,
-		opb.ModuleName,
 		genutiltypes.ModuleName,
 		feegrant.ModuleName,
 		tibchost.ModuleName,
-		wasm.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
+
+		// evm
+		evmtypes.ModuleName, feemarkettypes.ModuleName,
+	)
+
+	app.mm.SetOrderMigrations(
+		paramstypes.ModuleName,
+		upgradetypes.ModuleName,
+		permtypes.ModuleName,
+		authtypes.ModuleName,
+		nodetypes.ModuleName,
+		banktypes.ModuleName,
+		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
+		evidencetypes.ModuleName,
+		recordtypes.ModuleName,
+		tokentypes.ModuleName,
+		nfttypes.ModuleName,
+		mttypes.ModuleName,
+		servicetypes.ModuleName,
+		oracletypes.ModuleName,
+		randomtypes.ModuleName,
+		identitytypes.ModuleName,
+		genutiltypes.ModuleName,
+		feegrant.ModuleName,
+		tibchost.ModuleName,
+		tibcnfttypes.ModuleName,
+		tibcmttypes.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -564,17 +599,16 @@ func NewIritaApp(
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
 		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
 		perm.NewAppModule(appCodec, app.permKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
-		opb.NewAppModule(appCodec, app.opbKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
-		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
 		nfttransferModule,
-
+		mttransferModule,
 		// evm
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
@@ -590,21 +624,19 @@ func NewIritaApp(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	anteHandler := NewAnteHandler(
-		HandlerOptions{
-			permKeeper:      app.permKeeper,
-			accountKeeper:   app.accountKeeper,
-			bankKeeper:      app.bankKeeper,
-			tokenKeeper:     app.tokenKeeper,
-			opbKeeper:       app.opbKeeper,
-			signModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			feegrantKeeper:  app.feeGrantKeeper,
-			wserviceKeeper:  app.wservicekeeper,
-			sigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+	anteHandler := appante.NewAnteHandler(
+		appante.HandlerOptions{
+			PermKeeper:      app.permKeeper,
+			AccountKeeper:   app.accountKeeper,
+			BankKeeper:      app.bankKeeper,
+			TokenKeeper:     app.tokenKeeper,
+			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+			FeegrantKeeper:  app.feeGrantKeeper,
+			SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
 
 			// evm
-			evmFeeMarketKeeper: app.FeeMarketKeeper,
-			evmKeeper:          app.EvmKeeper,
+			EvmFeeMarketKeeper: app.FeeMarketKeeper,
+			EvmKeeper:          app.EvmKeeper,
 		},
 	)
 	app.SetAnteHandler(anteHandler)
@@ -806,6 +838,11 @@ func GetMaccPerms() map[string][]string {
 	return dupMaccPerms
 }
 
+// GetStoreKeys return app store keys list
+func GetStoreKeys() []string {
+	return storeKeys
+}
+
 // initParamsKeeper init params keeper and its subspaces
 func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
 	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
@@ -818,9 +855,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(tokentypes.ModuleName)
 	paramsKeeper.Subspace(recordtypes.ModuleName)
 	paramsKeeper.Subspace(servicetypes.ModuleName)
-	paramsKeeper.Subspace(opbtypes.ModuleName)
 	paramsKeeper.Subspace(tibchost.ModuleName)
-	paramsKeeper.Subspace(wasm.ModuleName)
 
 	// evm
 	paramsKeeper.Subspace(evmtypes.ModuleName)

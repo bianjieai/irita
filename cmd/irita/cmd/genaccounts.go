@@ -35,7 +35,7 @@ const (
 	flagVestingAmt   = "vesting-amount"
 )
 
-const DefaultEvmDenom = "uirita"
+const DefaultEvmDenom = "ugas"
 
 // AddGenesisAccountCmd returns add-genesis-account cobra Command.
 func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.Command {
