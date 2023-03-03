@@ -20,6 +20,7 @@ import (
 
 	abciserver "github.com/tendermint/tendermint/abci/server"
 	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
+	talgo "github.com/tendermint/tendermint/crypto/algo"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
@@ -31,6 +32,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/rosetta"
 	crgserver "github.com/cosmos/cosmos-sdk/server/rosetta/lib/server"
 
+	"github.com/bianjieai/iritamod/modules/node/client/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -94,6 +96,13 @@ which accepts a path for the resulting pprof file.
 				return err
 			}
 
+			nodeCertType, _ := cmd.Flags().GetString(cli.FlagCertType)
+			if nodeCertType == talgo.SM2 || nodeCertType == talgo.ED25519 {
+				talgo.Algo = nodeCertType
+			} else {
+				return fmt.Errorf("the %s type is not supported", nodeCertType)
+			}
+
 			withTM, _ := cmd.Flags().GetBool(srvflags.WithTendermint)
 			if !withTM {
 				serverCtx.Logger.Info("starting ABCI without Tendermint")
@@ -124,6 +133,9 @@ which accepts a path for the resulting pprof file.
 			return nil
 		},
 	}
+
+	// TODO
+	cmd.Flags().String(cli.FlagCertType, talgo.Algo, "node certificate type")
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "The application home directory")
 	cmd.Flags().Bool(srvflags.WithTendermint, true, "Run abci app embedded in-process with tendermint")

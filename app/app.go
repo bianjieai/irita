@@ -696,10 +696,11 @@ func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	// add system service at InitChainer, overwrite if it exists
 	var serviceGenState servicetypes.GenesisState
 	app.appCodec.MustUnmarshalJSON(genesisState[servicetypes.ModuleName], &serviceGenState)
-	//req.ChainId
 
+	//req.ChainId
 	chainID, _ := ethermint.ParseChainID(req.ChainId)
 	app.EvmKeeper.Signer = crypto.NewSm2Signer(chainID)
+
 	serviceGenState.Definitions = append(serviceGenState.Definitions, servicetypes.GenOraclePriceSvcDefinition())
 	serviceGenState.Bindings = append(serviceGenState.Bindings, servicetypes.GenOraclePriceSvcBinding(tokentypes.GetNativeToken().MinUnit))
 	serviceGenState.Definitions = append(serviceGenState.Definitions, randomtypes.GetSvcDefinition())

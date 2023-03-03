@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/bianjieai/iritamod/modules/node/types"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 )
 
@@ -330,4 +331,36 @@ func parseCoins(srcCoinsStr string) (sdk.DecCoins, error) {
 		return sdk.NewDecCoinsFromCoins(cs...), nil
 	}
 	return sdk.DecCoins{}, fmt.Errorf("parsed decimal coins are invalid: %s", srcCoinsStr)
+}
+
+// multi certificate processing
+func parseRootCerts(rootCertStr string) ([]types.Certificate, error) {
+	rootCertStr = strings.TrimSpace(rootCertStr)
+	if len(rootCertStr) == 0 {
+		return nil, fmt.Errorf("certificate null")
+	}
+
+	rootCertStrs := strings.Split(rootCertStr, ",")
+	rootCerts := make([]types.Certificate, len(rootCertStrs))
+
+	for _, root := range rootCertStrs {
+		rootCert := strings.Split(root, ";")
+		if len(rootCert) != 2 {
+			return nil, fmt.Errorf("certificate path error")
+		}
+
+		rootCertType := rootCert[0]
+		rootCertPath := rootCert[1]
+		rootCertData, err := ioutil.ReadFile(rootCertPath)
+		if err != nil {
+			return nil, err
+		}
+
+		rootCerts = append(rootCerts, types.Certificate{
+			Key:   rootCertType,
+			Value: string(rootCertData),
+		})
+	}
+
+	return rootCerts, nil
 }
