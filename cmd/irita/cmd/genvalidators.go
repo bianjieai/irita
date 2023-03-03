@@ -83,11 +83,10 @@ func AddGenesisValidatorCmd(
 			}
 
 			certType := viper.GetString(certTypeFlag)
-			if certType == algo.SM2 || certType == algo.ED25519 {
-				algo.Algo = certType
-			} else {
-				return fmt.Errorf("the %s type is not supported", certType)
+			if _, err := cautil.IsSupportedAlgorithms(certType); err != nil {
+				return err
 			}
+			algo.Algo = certType
 
 			// Set flags for creating gentx
 			viper.Set(flags.FlagHome, viper.GetString(flagClientHome))

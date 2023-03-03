@@ -33,6 +33,7 @@ import (
 	crgserver "github.com/cosmos/cosmos-sdk/server/rosetta/lib/server"
 
 	"github.com/bianjieai/iritamod/modules/node/client/cli"
+	cautil "github.com/bianjieai/iritamod/utils/ca"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -96,12 +97,11 @@ which accepts a path for the resulting pprof file.
 				return err
 			}
 
-			nodeCertType, _ := cmd.Flags().GetString(cli.FlagCertType)
-			if nodeCertType == talgo.SM2 || nodeCertType == talgo.ED25519 {
-				talgo.Algo = nodeCertType
-			} else {
-				return fmt.Errorf("the %s type is not supported", nodeCertType)
+			nodeCertAlgo, _ := cmd.Flags().GetString(cli.FlagNodeAlgo)
+			if _, err := cautil.IsSupportedAlgorithms(nodeCertAlgo); err != nil {
+				return err
 			}
+			talgo.Algo = nodeCertAlgo
 
 			withTM, _ := cmd.Flags().GetBool(srvflags.WithTendermint)
 			if !withTM {
@@ -133,9 +133,6 @@ which accepts a path for the resulting pprof file.
 			return nil
 		},
 	}
-
-	// TODO
-	cmd.Flags().String(cli.FlagCertType, talgo.Algo, "node certificate type")
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "The application home directory")
 	cmd.Flags().Bool(srvflags.WithTendermint, true, "Run abci app embedded in-process with tendermint")

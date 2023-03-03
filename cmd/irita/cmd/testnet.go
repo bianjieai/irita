@@ -50,9 +50,11 @@ import (
 
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
+	"github.com/bianjieai/iritamod/modules/node/client/cli"
 	itypes "github.com/bianjieai/iritamod/modules/node/types"
 	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
+	cautil "github.com/bianjieai/iritamod/utils/ca"
 
 	evmosConfig "github.com/tharsis/ethermint/server/config"
 )
@@ -74,7 +76,6 @@ var (
 	flagNodeDaemonHome    = "node-daemon-home"
 	flagNodeCLIHome       = "node-cli-home"
 	flagStartingIPAddress = "starting-ip-address"
-	flagCertType          = "cert-type"
 )
 
 // get cmd to initialize all files for tendermint testnet and application
@@ -101,7 +102,7 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 			startingIPAddress := viper.GetString(flagStartingIPAddress)
 			numValidators := viper.GetInt(flagNumValidators)
 			algo, _ := cmd.Flags().GetString(flags.FlagKeyAlgorithm)
-			nodeCertType := viper.GetString(flagCertType)
+			nodeCertType := viper.GetString(cli.FlagNodeAlgo)
 
 			return InitTestnet(
 				clientCtx, cmd, config, mbm, genBalIterator, outputDir, chainID, minGasPrices,
@@ -116,7 +117,6 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 	cmd.Flags().String(flagNodeDaemonHome, "irita", "Home directory of the node's daemon configuration")
 	cmd.Flags().String(flagNodeCLIHome, "iritacli", "Home directory of the node's cli configuration")
 	cmd.Flags().String(flagStartingIPAddress, "192.168.0.1", "Starting IP address (192.168.0.1 results in persistent peers list ID0@192.168.0.1:46656, ID1@192.168.0.2:46656, ...)")
-	cmd.Flags().String(flagCertType, talgo.Algo, "node certificate type")
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
@@ -164,14 +164,23 @@ func InitTestnet(
 		return err
 	}
 
-	if nodeCertType == talgo.SM2 || nodeCertType == talgo.ED25519 {
-		talgo.Algo = nodeCertType
-	} else {
-		return fmt.Errorf("the %s type is not supported", nodeCertType)
+	if _, err := cautil.IsSupportedAlgorithms(nodeCertType); err != nil {
+		return err
 	}
+	talgo.Algo = nodeCertType
 
-	rootKeyPathMap := map[string]string{"ed25519": filepath.Join(outputDir, "root_key_ed25519.pem"), "sm2": filepath.Join(outputDir, "root_key_sm2.pem")}
-	rootCertPathMap := map[string]string{"ed25519": filepath.Join(outputDir, "root_cert_ed25519.pem"), "sm2": filepath.Join(outputDir, "root_cert_sm2.pem")}
+	var (
+		rootKeyPathMap  = map[string]string{}
+		rootCertPathMap = map[string]string{}
+	)
+
+	for _, certAlgo := range cautil.NodeAlgoList {
+		keyPath := fmt.Sprintf("root_key_%s.pem", certAlgo)
+		certPath := fmt.Sprintf("root_cert_%s.pem", certAlgo)
+
+		rootKeyPathMap[certAlgo] = filepath.Join(outputDir, keyPath)
+		rootCertPathMap[certAlgo] = filepath.Join(outputDir, certPath)
+	}
 
 	utils.GenMultiRootCert(rootKeyPathMap, rootCertPathMap, "/C=CN/ST=root/L=root/O=root/OU=root/CN=root")
 	// generate private keys, node IDs, and initial transactions
@@ -373,6 +382,7 @@ func initGenFiles(
 	for i, nodeID := range nodeIDs {
 		nodeGenState.Nodes[i].Id = nodeID
 		nodeGenState.Nodes[i].Name = monikers[i]
+		nodeGenState.Nodes[i].Certificate = &itypes.Certificate{}
 	}
 
 	appGenState[node.ModuleName] = jsonMarshaler.MustMarshalJSON(&nodeGenState)

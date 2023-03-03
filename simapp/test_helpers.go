@@ -54,6 +54,7 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	Validator: &tmproto.ValidatorParams{
 		PubKeyTypes: []string{
 			tmtypes.ABCIPubKeyTypeEd25519,
+			tmtypes.ABCIPubKeyTypeSm2,
 		},
 	},
 }
