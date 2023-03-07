@@ -18,7 +18,7 @@ import (
 // GenRootCert returns a command that sets the root cert.
 func GenRootCert(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-root-cert [cert_type];[cert][,[cert_type];[cert]] ",
+		Use:   "set-root-cert [cert_type]:[cert][,[cert_type]:[cert]] ",
 		Short: "Add X.509 root certificate to verify the validator or node certificate",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -334,19 +334,18 @@ func parseCoins(srcCoinsStr string) (sdk.DecCoins, error) {
 }
 
 // multi certificate processing
-func parseRootCerts(rootCertStr string) ([]types.Certificate, error) {
+func parseRootCerts(rootCertStr string) (rootCerts []types.Certificate, err error) {
 	rootCertStr = strings.TrimSpace(rootCertStr)
 	if len(rootCertStr) == 0 {
 		return nil, fmt.Errorf("certificate null")
 	}
 
 	rootCertStrs := strings.Split(rootCertStr, ",")
-	rootCerts := make([]types.Certificate, len(rootCertStrs))
 
 	for _, root := range rootCertStrs {
-		rootCert := strings.Split(root, ";")
+		rootCert := strings.Split(root, ":")
 		if len(rootCert) != 2 {
-			return nil, fmt.Errorf("certificate path error")
+			return nil, fmt.Errorf("certificate path error: %s", rootCert)
 		}
 
 		rootCertType := rootCert[0]
