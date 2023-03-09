@@ -164,8 +164,8 @@ github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816 h1:P6+9MxwW+sACE1/M7rJq7N
 github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816/go.mod h1:844fVGwl2JVfV8cxsr0+A0mtcYUkkPlEW3Q4skuEwaI=
 github.com/bianjieai/ethermint v0.10.2-irita-20220826 h1:QMFNu4q8zdvwIKcnBPq2SFAFafGAYuclpqLh6G9h1F0=
 github.com/bianjieai/ethermint v0.10.2-irita-20220826/go.mod h1:QN0lLwrKBWShtB8L1/8Z0uU06mWPLaqUCiVM3g0+lRA=
-github.com/bianjieai/iritamod v1.2.1-0.20230306090055-8ef1d1c1bda0 h1:E5vwDDc1V5UJCBXOmgOrcN34WR9MvRRYZLntgvjPfJs=
-github.com/bianjieai/iritamod v1.2.1-0.20230306090055-8ef1d1c1bda0/go.mod h1:6WLWIGKdgUcJaN7ym6FqSdr80OMW7CP7jT/+u549scU=
+github.com/bianjieai/iritamod v1.2.1-0.20230308100339-76fef1b3a3f2 h1:GieYdHcOHoOqPkyC2lWFKhyM3pePaJRqcJsOqKfVfCw=
+github.com/bianjieai/iritamod v1.2.1-0.20230308100339-76fef1b3a3f2/go.mod h1:6WLWIGKdgUcJaN7ym6FqSdr80OMW7CP7jT/+u549scU=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20230308024443-8e6507a544a7 h1:0KkqRb/Kt5dWuqxJxzIxp31MXksOlxvZY8c5apLfGzU=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20230308024443-8e6507a544a7/go.mod h1:2u6xthTnwDYLhO38cDYp8CxzKq7hwJFvCXeK1pEErtM=
 github.com/bianjieai/tibc-go v0.3.1-0.20220412124234-9b75094ff868 h1:dPS+AcwCQsWTMXRgZwO+Yy2rY8y9G+X38MA7toAivok=
