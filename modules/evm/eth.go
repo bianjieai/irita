@@ -394,3 +394,48 @@ func (ctd CanTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate 
 
 	return next(ctx, tx, simulate)
 }
+
+type EthFeeGrantValidator struct {
+	feegrantKeeper FeegrantKeeper
+	evmKeeper      EVMKeeper
+}
+
+// NewEthFeeGrantValidator creates a new EthFeeGrantValidator
+func NewEthFeeGrantValidator(evmKeeper EVMKeeper, fk FeegrantKeeper) EthFeeGrantValidator {
+	return EthFeeGrantValidator{
+		feegrantKeeper: fk,
+		evmKeeper:      evmKeeper,
+	}
+}
+
+func (ev EthFeeGrantValidator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+	params := ev.evmKeeper.GetParams(ctx)
+	ethCfg := params.ChainConfig.EthereumConfig(ev.evmKeeper.ChainID())
+	blockNum := big.NewInt(ctx.BlockHeight())
+	signer := ethtypes.MakeSigner(ethCfg, blockNum)
+	for _, msg := range tx.GetMsgs() {
+		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
+		if !ok {
+			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
+		}
+		sender, err := signer.Sender(msgEthTx.AsTransaction())
+		if err != nil {
+			return ctx, sdkerrors.Wrapf(
+				sdkerrors.ErrorInvalidSigner,
+				"couldn't retrieve sender address ('%s') from the ethereum transaction: %s",
+				msgEthTx.From,
+				err.Error(),
+			)
+		}
+		fromAddr := sender.Bytes()
+
+		feePayerAddr := msgEthTx.GetFeePayer()
+		if feePayerAddr != nil {
+			if _, err := ev.feegrantKeeper.GetAllowance(ctx, feePayerAddr, fromAddr); err != nil {
+				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
+			}
+		}
+
+	}
+	return next(ctx, tx, simulate)
+}
