@@ -418,7 +418,8 @@ func (ev EthFeeGrantValidator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 		if !ok {
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
 		}
-		sender, err := signer.Sender(msgEthTx.AsTransaction())
+		ethTx := msgEthTx.AsTransaction()
+		sender, err := signer.Sender(ethTx)
 		if err != nil {
 			return ctx, sdkerrors.Wrapf(
 				sdkerrors.ErrorInvalidSigner,
@@ -427,13 +428,27 @@ func (ev EthFeeGrantValidator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 				err.Error(),
 			)
 		}
-		fromAddr := sender.Bytes()
+		txData, err := evmtypes.UnpackTxData(msgEthTx.Data)
+		if err != nil {
+			return ctx, sdkerrors.Wrap(err, "failed to unpack tx data")
+		}
+		feeGranter := sender.Bytes()
+		feePayer := msgEthTx.GetFeePayer()
+		feeAmt := txData.Fee()
+		if feeAmt.Sign() == 0 {
+			return ctx, sdkerrors.Wrap(err, "failed to fee amount")
+		}
 
-		feePayerAddr := msgEthTx.GetFeePayer()
-		if feePayerAddr != nil {
-			if _, err := ev.feegrantKeeper.GetAllowance(ctx, feePayerAddr, fromAddr); err != nil {
-				return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
+		fees := sdk.Coins{sdk.NewCoin(params.EvmDenom, sdk.NewIntFromBigInt(feeAmt))}
+
+		msgs := []sdk.Msg{msg}
+
+		if feePayer != nil {
+			err := ev.feegrantKeeper.UseGrantedFees(ctx, feePayer, feeGranter, fees, msgs)
+			if err != nil {
+				return ctx, sdkerrors.Wrapf(err, "%s not allowed to pay fees from %s", feeGranter, feePayer)
 			}
+
 		}
 
 	}
