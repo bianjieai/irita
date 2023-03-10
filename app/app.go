@@ -16,7 +16,6 @@ import (
 	evmmodule "github.com/bianjieai/irita/modules/evm"
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"github.com/spf13/cast"
@@ -739,7 +738,6 @@ func NewIritaApp(
 			fromVM[banktypes.ModuleName] = 1
 			fromVM[stakingtypes.ModuleName] = 1
 			fromVM[opbtypes.ModuleName] = 1
-			fromVM[wservicetypes.ModuleName] = 1
 			fromVM[identitytypes.ModuleName] = 1
 			fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
 			fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
