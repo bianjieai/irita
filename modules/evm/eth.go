@@ -432,7 +432,8 @@ func (ev EthFeeGrantValidator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 		if err != nil {
 			return ctx, sdkerrors.Wrap(err, "failed to unpack tx data")
 		}
-		feeGranter := sender.Bytes()
+		feeGrantee := sender.Bytes()
+		feeGranteeCosmosAddr := sdk.AccAddress(feeGrantee)
 		feePayer := msgEthTx.GetFeePayer()
 		feeAmt := txData.Fee()
 		if feeAmt.Sign() == 0 {
@@ -444,9 +445,10 @@ func (ev EthFeeGrantValidator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate b
 		msgs := []sdk.Msg{msg}
 
 		if feePayer != nil {
-			err := ev.feegrantKeeper.UseGrantedFees(ctx, feePayer, feeGranter, fees, msgs)
+			err := ev.feegrantKeeper.UseGrantedFees(ctx, feePayer, feeGrantee, fees, msgs)
 			if err != nil {
-				return ctx, sdkerrors.Wrapf(err, "%s not allowed to pay fees from %s", feeGranter, feePayer)
+				return ctx, sdkerrors.Wrapf(err,
+					"%s(%s) not allowed to pay fees from %s", sender.Hex(), feeGranteeCosmosAddr, feePayer)
 			}
 
 		}
