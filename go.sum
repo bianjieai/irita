@@ -647,6 +647,8 @@ github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816 h1:P6+9MxwW+sACE1/M7rJq7N
 github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816/go.mod h1:844fVGwl2JVfV8cxsr0+A0mtcYUkkPlEW3Q4skuEwaI=
 github.com/bianjieai/ethermint v0.10.2-irita-20221124.0.20230314015522-b3d2565cb05d h1:igYrW9C0EA+oKIeFLzgJOGfUhVk8mujB/RiVPiJqsnw=
 github.com/bianjieai/ethermint v0.10.2-irita-20221124.0.20230314015522-b3d2565cb05d/go.mod h1:wY1g0XkLenjcgfuok56QprJPZk8/1Z2DKiDsjqnZWso=
+github.com/bianjieai/irismod v0.0.0-20230314072410-46ab97a79919 h1:HpPfRBT18nKrB3VontRMJ67hefLl3HSVF5qgQOMNUaU=
+github.com/bianjieai/irismod v0.0.0-20230314072410-46ab97a79919/go.mod h1:EgSmw43lxN13U37IncMc03Ram7AJuXBsyi8juy7ndEY=
 github.com/bianjieai/iritamod v1.3.0 h1:tOV1W9Ozz5zZoXQxY2ZY7nEJG2Fk5/465/51hx7XQbA=
 github.com/bianjieai/iritamod v1.3.0/go.mod h1:6WLWIGKdgUcJaN7ym6FqSdr80OMW7CP7jT/+u549scU=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3 h1:M4C+ilCPiP2c2yMdeYaZLwquEBfFa4Uvt1BDviSYD0E=
@@ -1208,9 +1210,6 @@ github.com/influxdata/promql/v2 v2.12.0/go.mod h1:fxOPu+DY0bqCTCECchSRtWfc+0X19y
 github.com/influxdata/roaring v0.4.13-0.20180809181101-fc520f41fab6/go.mod h1:bSgUQ7q5ZLSO+bKBGqJiCBGAl+9DxyW63zLTujjUlOE=
 github.com/influxdata/tdigest v0.0.0-20181121200506-bf2b5ad3c0a9/go.mod h1:Js0mqiSBE6Ffsg94weZZ2c+v/ciT8QRHFOap7EKDrR0=
 github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:Wbbw6tYNvwa5dlB6304Sd+82Z3f7PmVZHVKU637d4po=
-github.com/irisnet/irismod v1.5.2-alpha1.0.20220310091659-03a461a21657/go.mod h1:IrhKhC64ZkZ8gGkXS1+XXnZNLQWGocZv9W/gGmynEFA=
-github.com/irisnet/irismod v1.6.0 h1:lO1tAvMIbI1poAyMPQAqaVknkN7QXehpZMxHnK4UFrI=
-github.com/irisnet/irismod v1.6.0/go.mod h1:EgSmw43lxN13U37IncMc03Ram7AJuXBsyi8juy7ndEY=
 github.com/jackpal/go-nat-pmp v1.0.2-0.20160603034137-1fa385a6f458/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
 github.com/jackpal/go-nat-pmp v1.0.2 h1:KzKSgb7qkJvOUTqYl9/Hg/me3pWgBmERKrTGD7BdWus=
 github.com/jackpal/go-nat-pmp v1.0.2/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
