@@ -170,5 +170,5 @@ replace (
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 	github.com/irisnet/irismod => github.com/bianjieai/irismod v1.6.1
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
-	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.10.2-irita-20221124.0.20230314015522-b3d2565cb05d
+	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.10.2-irita-20230315
 )
