@@ -120,9 +120,11 @@ import (
 
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
+	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 
 	tibcmttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer"
 	tibcmttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/keeper"
+	tibcmttransfertypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
 	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
 	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
 	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
@@ -760,6 +762,12 @@ func NewIritaApp(
 			fromVM[permtypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
 			fromVM[feemarkettypes.ModuleName] = feemarket.AppModule{}.ConsensusVersion()
 			fromVM[evmtypes.ModuleName] = evm.AppModule{}.ConsensusVersion()
+
+			fromVM[cparams.ModuleName] = cparams.AppModule{}.ConsensusVersion()
+			fromVM[mttypes.ModuleName] = mt.AppModule{}.ConsensusVersion()
+			fromVM[tibcmttransfertypes.ModuleName] = tibcmttransfer.AppModule{}.ConsensusVersion()
+			fromVM[tibcnfttypes.ModuleName] = tibcnfttransfer.AppModule{}.ConsensusVersion()
+			fromVM[tibctypes.ModuleName] = tibc.AppModule{}.ConsensusVersion()
 
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
