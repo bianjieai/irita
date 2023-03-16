@@ -3,6 +3,8 @@ package evm
 import (
 	"math/big"
 
+	"github.com/cosmos/cosmos-sdk/x/feegrant"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	tx "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/ethereum/go-ethereum/common"
@@ -30,4 +32,10 @@ type EVMKeeper interface {
 
 type protoTxProvider interface {
 	GetProtoTx() *tx.Tx
+}
+
+// FeegrantKeeper defines the expected feegrant keeper.
+type FeegrantKeeper interface {
+	GetAllowance(ctx sdk.Context, granter, grantee sdk.AccAddress) (feegrant.FeeAllowanceI, error)
+	UseGrantedFees(ctx sdk.Context, granter, grantee sdk.AccAddress, fee sdk.Coins, msgs []sdk.Msg) error
 }

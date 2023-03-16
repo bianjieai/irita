@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"runtime/debug"
 
+	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
+
 	"github.com/bianjieai/irita/modules/gas"
 
 	evmmoduleante "github.com/bianjieai/irita/modules/evm"
@@ -38,7 +40,7 @@ type HandlerOptions struct {
 	PermKeeper      perm.Keeper
 	AccountKeeper   authkeeper.AccountKeeper
 	BankKeeper      bankkeeper.Keeper
-	FeegrantKeeper  authante.FeegrantKeeper
+	FeegrantKeeper  feegrantkeeper.Keeper
 	TokenKeeper     tokenkeeper.Keeper
 	OpbKeeper       opbkeeper.Keeper
 	SigGasConsumer  ante.SignatureVerificationGasConsumer
@@ -72,11 +74,11 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.AccountKeeper),
 						evmmoduleante.NewEthValidateBasicDecorator(options.EvmKeeper),
+						evmmoduleante.NewEthFeeGrantValidator(options.EvmKeeper, options.FeegrantKeeper),
 						evmmoduleante.NewEthContractCallableDecorator(options.PermKeeper),
 						evmmoduleante.NewEthSigVerificationDecorator(options.EvmKeeper, options.AccountKeeper, options.SignModeHandler),
 						evmmoduleante.NewCanTransferDecorator(options.EvmKeeper, options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
 
-						ethermintante.NewCanTransferDecorator(options.EvmKeeper),
 						ethermintante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.BankKeeper, options.EvmKeeper),
 						ethermintante.NewEthGasConsumeDecorator(options.EvmKeeper),
 						ethermintante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper), // innermost AnteDecorator.

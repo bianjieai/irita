@@ -6,6 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cosmos/cosmos-sdk/x/staking"
+
+	"github.com/cosmos/cosmos-sdk/x/capability"
+
 	"github.com/irisnet/irismod/modules/mt"
 
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -13,11 +17,7 @@ import (
 	appante "github.com/bianjieai/irita/app/ante"
 	evmmodule "github.com/bianjieai/irita/modules/evm"
 	"github.com/bianjieai/irita/modules/evm/crypto"
-	appevmtypes "github.com/bianjieai/irita/modules/evm/types"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-	wservicetypes "github.com/bianjieai/irita/modules/wservice/types"
-	tibcclienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
-	"github.com/cosmos/cosmos-sdk/x/capability"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"github.com/spf13/cast"
@@ -717,19 +717,31 @@ func NewIritaApp(
 	// )
 
 	app.RegisterUpgradePlan(
-		"v2.2-wenchangchain", store.StoreUpgrades{
-			Added: []string{feegrant.StoreKey, tibchost.StoreKey, tibcnfttypes.StoreKey},
+		"v3.2.0-wenchangchain", store.StoreUpgrades{
+			Added: []string{tibcmttypes.StoreKey},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			tibcclienttypes.SetDefaultGenesisState(tibcclienttypes.GenesisState{
-				NativeChainName: "wenchangchain-mainnet",
-			})
+			fMtParams := feemarkettypes.NewParams(
+				true,
+				gethparams.BaseFeeChangeDenominator,
+				gethparams.ElasticityMultiplier,
+				gethparams.InitialBaseFee,
+				0,
+			)
+			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+
+	app.RegisterUpgradePlan(
+		"v3.3.0-wenchangchain-tianzhou", store.StoreUpgrades{},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+
 			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
-			fromVM[banktypes.ModuleName] = 1
-			fromVM[stakingtypes.ModuleName] = 1
-			fromVM[opbtypes.ModuleName] = 1
-			fromVM[wservicetypes.ModuleName] = 1
-			fromVM[identitytypes.ModuleName] = 1
+			fromVM[banktypes.ModuleName] = bank.AppModule{}.ConsensusVersion()
+			fromVM[stakingtypes.ModuleName] = staking.AppModule{}.ConsensusVersion()
+			fromVM[opbtypes.ModuleName] = opb.AppModule{}.ConsensusVersion()
+			fromVM[identitytypes.ModuleName] = identity.AppModule{}.ConsensusVersion()
 			fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
 			fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
 			fromVM[nodetypes.ModuleName] = node.AppModule{}.ConsensusVersion()
@@ -746,68 +758,9 @@ func NewIritaApp(
 			fromVM[oracletypes.ModuleName] = oracle.AppModule{}.ConsensusVersion()
 			fromVM[randomtypes.ModuleName] = random.AppModule{}.ConsensusVersion()
 			fromVM[permtypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
-			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
-		},
-	)
+			fromVM[feemarkettypes.ModuleName] = feemarket.AppModule{}.ConsensusVersion()
+			fromVM[evmtypes.ModuleName] = evm.AppModule{}.ConsensusVersion()
 
-	app.RegisterUpgradePlan(
-		"v3.0.0-wenchangchain", store.StoreUpgrades{
-			Added: []string{evmtypes.StoreKey, feemarkettypes.StoreKey},
-		},
-		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			newParams := evmtypes.NewParams(appevmtypes.DefaultEvmDenom, true, true, evmtypes.DefaultChainConfig())
-			evmtypes.SetDefaultGenesisState(newParams, []evmtypes.GenesisAccount{})
-			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
-		},
-	)
-
-	app.RegisterUpgradePlan(
-		"v3.1.0-wenchangchain", store.StoreUpgrades{
-			Added: []string{mttypes.StoreKey},
-		},
-		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			opbParams := app.opbKeeper.GetParams(ctx)
-			gasOwner, err := sdk.AccAddressFromBech32(opbParams.BaseTokenManager)
-			if err != nil {
-				return nil, err
-			}
-			err = app.tokenKeeper.IssueToken(
-				ctx,
-				"gas",
-				"IRITA Fee Token",
-				"ugas",
-				18,
-				1000000000,
-				math.MaxUint64,
-				true,
-				gasOwner,
-			)
-			if err != nil {
-				return nil, err
-			}
-			evmParams := app.EvmKeeper.GetParams(ctx)
-			evmParams.EvmDenom = "ugas"
-			app.EvmKeeper.SetParams(ctx, evmParams)
-			fMtParams := app.FeeMarketKeeper.GetParams(ctx)
-			fMtParams.NoBaseFee = true
-			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
-			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
-		},
-	)
-
-	app.RegisterUpgradePlan(
-		"v3.2.0-wenchangchain", store.StoreUpgrades{
-			Added: []string{tibcmttypes.StoreKey},
-		},
-		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			fMtParams := feemarkettypes.NewParams(
-				true,
-				gethparams.BaseFeeChangeDenominator,
-				gethparams.ElasticityMultiplier,
-				gethparams.InitialBaseFee,
-				0,
-			)
-			app.FeeMarketKeeper.SetParams(ctx, fMtParams)
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
