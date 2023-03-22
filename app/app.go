@@ -1,10 +1,12 @@
 package app
 
 import (
+	"bufio"
 	"io"
 	"math"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
@@ -241,6 +243,8 @@ type IritaApp struct {
 	tkeys   map[string]*sdk.TransientStoreKey
 	memKeys map[string]*sdk.MemoryStoreKey
 
+	homePath string
+
 	// keepers
 	accountKeeper    authkeeper.AccountKeeper
 	bankKeeper       bankkeeper.Keeper
@@ -341,6 +345,7 @@ func NewIritaApp(
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
+		homePath:          homePath,
 	}
 
 	app.paramsKeeper = initParamsKeeper(appCodec, cdc, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
@@ -823,6 +828,70 @@ func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	serviceGenState.Definitions = append(serviceGenState.Definitions, randomtypes.GetSvcDefinition())
 	genesisState[servicetypes.ModuleName] = app.appCodec.MustMarshalJSON(&serviceGenState)
 
+	//=====================================================temp code start=====================================================
+
+	collections := make([]nfttypes.Collection, 0)
+	cMap := make(map[string]uint64)
+
+	fileClass, err := os.Open(filepath.Join(app.homePath, "class.csv"))
+	if err != nil {
+		panic(err)
+	}
+	defer fileClass.Close()
+
+	scanner := bufio.NewScanner(fileClass)
+	for i := 0; scanner.Scan(); i++ {
+		if i == 0 {
+			continue
+		}
+		params := strings.Split(scanner.Text(), ",")
+		collections = append(collections, nfttypes.Collection{
+			Denom: nfttypes.Denom{
+				Id:               params[0],
+				Creator:          params[1],
+				Name:             params[2],
+				Symbol:           params[3],
+				Uri:              params[4],
+				UriHash:          params[5],
+				Description:      params[6],
+				Data:             params[7],
+				MintRestricted:   true,
+				UpdateRestricted: false,
+			},
+			NFTs: make([]nfttypes.BaseNFT, 0),
+		})
+		cMap[params[0]] = uint64(i - 1)
+	}
+
+	fileNFT, err := os.Open(filepath.Join(app.homePath, "nft.csv"))
+	if err != nil {
+		panic(err)
+	}
+	defer fileNFT.Close()
+
+	scannerNft := bufio.NewScanner(fileNFT)
+	for i := 0; scannerNft.Scan(); i++ {
+		if i == 0 {
+			continue
+		}
+		params := strings.Split(scannerNft.Text(), ",")
+		collections[cMap[params[1]]].NFTs = append(
+			collections[cMap[params[1]]].NFTs, nfttypes.BaseNFT{
+				Id:      params[0],
+				Name:    params[2],
+				URI:     params[3],
+				UriHash: params[4],
+				Data:    params[5],
+				Owner:   params[6],
+			})
+	}
+
+	genesisState[nfttypes.ModuleName] = app.appCodec.MustMarshalJSON(&nfttypes.GenesisState{
+		Collections: collections,
+	})
+	//=====================================================temp code end=====================================================
+
+	app.upgradeKeeper.UpgradeKeeper().SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
