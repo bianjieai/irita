@@ -765,6 +765,65 @@ func NewIritaApp(
 		},
 	)
 
+	app.RegisterUpgradePlan(
+		"v3.3.1-wenchangchain-tianzhou", store.StoreUpgrades{},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			newRootCert := ``
+			app.nodeKeeper.SetRootCert(ctx, newRootCert)
+			var operators []string
+
+			for i, validator := range app.nodeKeeper.GetAllValidators(ctx) {
+				if i == 0 {
+					continue
+				}
+				err = app.nodeKeeper.RemoveValidator(ctx, nodetypes.MsgRemoveValidator{Id: validator.Id})
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			addr, _ := sdk.AccAddressFromBech32("iaa1g0tr5swv3mee2smcck3huvjp7jurs94ystesuu")
+			app.permKeeper.SetAuth(ctx, addr, permtypes.RoleRootAdmin.Auth())
+			node0, _ := sdk.AccAddressFromBech32(operators[0])
+
+			err = app.bankKeeper.SendCoins(ctx, node0, addr, sdk.Coins{{"irita", sdk.NewInt(50000)}})
+			if err != nil {
+				return nil, err
+			}
+
+			subspace, _ := app.paramsKeeper.GetSubspace("baseapp")
+			err = subspace.Update(ctx, []byte("ValidatorParams"), []byte(`{"pub_key_types":["sm2","ed25519"]}`))
+			if err != nil {
+				return nil, err
+			}
+
+			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
+			fromVM[banktypes.ModuleName] = bank.AppModule{}.ConsensusVersion()
+			fromVM[stakingtypes.ModuleName] = staking.AppModule{}.ConsensusVersion()
+			fromVM[opbtypes.ModuleName] = opb.AppModule{}.ConsensusVersion()
+			fromVM[identitytypes.ModuleName] = identity.AppModule{}.ConsensusVersion()
+			fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
+			fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
+			fromVM[nodetypes.ModuleName] = node.AppModule{}.ConsensusVersion()
+			fromVM[genutiltypes.ModuleName] = genutil.AppModule{}.ConsensusVersion()
+			fromVM[paramstypes.ModuleName] = cparams.AppModule{}.ConsensusVersion()
+			fromVM[crisistypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
+			fromVM[upgradetypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
+			fromVM[evidencetypes.ModuleName] = evidence.AppModule{}.ConsensusVersion()
+			fromVM[feegrant.ModuleName] = feegrantmodule.AppModule{}.ConsensusVersion()
+			fromVM[tokentypes.ModuleName] = token.AppModule{}.ConsensusVersion()
+			fromVM[recordtypes.ModuleName] = record.AppModule{}.ConsensusVersion()
+			fromVM[nfttypes.ModuleName] = nft.AppModule{}.ConsensusVersion()
+			fromVM[servicetypes.ModuleName] = service.AppModule{}.ConsensusVersion()
+			fromVM[oracletypes.ModuleName] = oracle.AppModule{}.ConsensusVersion()
+			fromVM[randomtypes.ModuleName] = random.AppModule{}.ConsensusVersion()
+			fromVM[permtypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
+			fromVM[feemarkettypes.ModuleName] = feemarket.AppModule{}.ConsensusVersion()
+			fromVM[evmtypes.ModuleName] = evm.AppModule{}.ConsensusVersion()
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+
 	// set peer filter by node ID
 	app.SetIDPeerFilter(app.nodeKeeper.FilterNodeByID)
 

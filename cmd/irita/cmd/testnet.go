@@ -14,8 +14,6 @@ import (
 
 	evmhd "github.com/tharsis/ethermint/crypto/hd"
 
-	"github.com/tendermint/tendermint/crypto/algo"
-
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	evmfmttypes "github.com/tharsis/ethermint/x/feemarket/types"
 
@@ -132,7 +130,6 @@ func InitTestnet(
 	nodeDaemonHome, nodeCLIHome, startingIPAddress string,
 	numValidators int, algoStr string,
 ) error {
-	algo.Algo = algo.SM2
 	if chainID == "" {
 		chainID = fmt.Sprintf("chain_%d-1", tmrand.Int63n(9999999999999)+1)
 	}
