@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/hex"
 	"io"
 	"math"
 	"os"
@@ -768,31 +769,98 @@ func NewIritaApp(
 	app.RegisterUpgradePlan(
 		"v3.3.1-wenchangchain-tianzhou", store.StoreUpgrades{},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			newRootCert := ``
+			newRootCert := `-----BEGIN CERTIFICATE-----
+MIIBxTCCAXegAwIBAgIUFjlatN/bqAt5t2nKUO/SV/ijciUwBQYDK2VwMFgxCzAJ
+BgNVBAYTAkNOMQ0wCwYDVQQIDARyb290MQ0wCwYDVQQHDARyb290MQ0wCwYDVQQK
+DARyb290MQ0wCwYDVQQLDARyb290MQ0wCwYDVQQDDARyb290MB4XDTIzMDUwODEw
+NTcxOVoXDTI0MDUwNzEwNTcxOVowWDELMAkGA1UEBhMCQ04xDTALBgNVBAgMBHJv
+b3QxDTALBgNVBAcMBHJvb3QxDTALBgNVBAoMBHJvb3QxDTALBgNVBAsMBHJvb3Qx
+DTALBgNVBAMMBHJvb3QwKjAFBgMrZXADIQDEQVxc7o1LjHz5jG0zIpKDAqbfWugc
+AwMPd5neMT//SaNTMFEwHQYDVR0OBBYEFEHCwH2KcZr+OEnlb/7OFCZLnrV3MB8G
+A1UdIwQYMBaAFEHCwH2KcZr+OEnlb/7OFCZLnrV3MA8GA1UdEwEB/wQFMAMBAf8w
+BQYDK2VwA0EAGzA2a8F7bR6OF+LTIUMtypfPm0cjcVMd8jDEZSkt6cjPrV+t46ag
+/NZAUBGcLj6xo2us3bFQ98zBWgSzZKuFCg==
+-----END CERTIFICATE-----
+`
 			app.nodeKeeper.SetRootCert(ctx, newRootCert)
 			var operators []string
-
-			for i, validator := range app.nodeKeeper.GetAllValidators(ctx) {
-				if i == 0 {
-					continue
-				}
+			for _, validator := range app.nodeKeeper.GetAllValidators(ctx) {
+				operators = append(operators, validator.Operator)
 				err = app.nodeKeeper.RemoveValidator(ctx, nodetypes.MsgRemoveValidator{Id: validator.Id})
 				if err != nil {
 					return nil, err
 				}
+			}
+			for _, n := range app.nodeKeeper.GetNodes(ctx) {
+				idBytes, _ := hex.DecodeString(n.Id)
+				err = app.nodeKeeper.RemoveNode(ctx, idBytes)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			err = app.NodeCreateValidator(ctx, nodetypes.MsgCreateValidator{Name: "node4", Power: 100, Certificate: `-----BEGIN CERTIFICATE-----
+MIIBbDCCAR4CFAVBNG0oenjPGnhOYuzQ58buriZVMAUGAytlcDBYMQswCQYDVQQG
+EwJDTjENMAsGA1UECAwEcm9vdDENMAsGA1UEBwwEcm9vdDENMAsGA1UECgwEcm9v
+dDENMAsGA1UECwwEcm9vdDENMAsGA1UEAwwEcm9vdDAeFw0yMzA1MDgxMDU3MTla
+Fw0yNDA1MDcxMDU3MTlaMFkxCzAJBgNVBAYTAkNOMQ0wCwYDVQQIDAR0ZXN0MQ0w
+CwYDVQQHDAR0ZXN0MQ0wCwYDVQQKDAR0ZXN0MQ0wCwYDVQQLDAR0ZXN0MQ4wDAYD
+VQQDDAVub2RlMDAqMAUGAytlcAMhAHr6OeIOjYcuyNKirMpTyBOtkaQN9IJ3MvRk
+85qhs7H9MAUGAytlcANBAFMys3aawWro/zjMzM/qxJLwto6jlORNLlC/xcnRqhiQ
+kFcRV4Kzb2XnZiPin1Cv1B8n4gHhg8MZoXyvGBY4/A8=
+-----END CERTIFICATE-----
+`, Operator: operators[0]})
+			if err != nil {
+				return nil, err
+			}
+			err = app.NodeCreateValidator(ctx, nodetypes.MsgCreateValidator{Name: "node5", Power: 100, Certificate: `-----BEGIN CERTIFICATE-----
+MIIBbDCCAR4CFAVBNG0oenjPGnhOYuzQ58buriZWMAUGAytlcDBYMQswCQYDVQQG
+EwJDTjENMAsGA1UECAwEcm9vdDENMAsGA1UEBwwEcm9vdDENMAsGA1UECgwEcm9v
+dDENMAsGA1UECwwEcm9vdDENMAsGA1UEAwwEcm9vdDAeFw0yMzA1MDgxMDU3MjVa
+Fw0yNDA1MDcxMDU3MjVaMFkxCzAJBgNVBAYTAkNOMQ0wCwYDVQQIDAR0ZXN0MQ0w
+CwYDVQQHDAR0ZXN0MQ0wCwYDVQQKDAR0ZXN0MQ0wCwYDVQQLDAR0ZXN0MQ4wDAYD
+VQQDDAVub2RlMTAqMAUGAytlcAMhAHLdo52SqQj6Va7v071HBVCtFsC7gQ4ZVZdM
+gdB6EPdYMAUGAytlcANBACPOb33sV5C/0V5YXMIOCzBYSGNTG+PoPeo6PG1NxcT8
+Cu7LcTeut/8EcG/l7YX2hfaM/EhIwKULRIz5cvj7kAg=
+-----END CERTIFICATE-----
+`, Operator: operators[1]})
+			if err != nil {
+				return nil, err
+			}
+			err = app.NodeCreateValidator(ctx, nodetypes.MsgCreateValidator{Name: "node6", Power: 100, Certificate: `-----BEGIN CERTIFICATE-----
+MIIBbDCCAR4CFAVBNG0oenjPGnhOYuzQ58buriZXMAUGAytlcDBYMQswCQYDVQQG
+EwJDTjENMAsGA1UECAwEcm9vdDENMAsGA1UEBwwEcm9vdDENMAsGA1UECgwEcm9v
+dDENMAsGA1UECwwEcm9vdDENMAsGA1UEAwwEcm9vdDAeFw0yMzA1MDgxMDU3Mjha
+Fw0yNDA1MDcxMDU3MjhaMFkxCzAJBgNVBAYTAkNOMQ0wCwYDVQQIDAR0ZXN0MQ0w
+CwYDVQQHDAR0ZXN0MQ0wCwYDVQQKDAR0ZXN0MQ0wCwYDVQQLDAR0ZXN0MQ4wDAYD
+VQQDDAVub2RlMjAqMAUGAytlcAMhAI169IWzPjta+/oYwFrXl8kc8Tk8YNvpaTX7
+L90yFiyGMAUGAytlcANBAEtvmB1Ibi6cFwsXqkzi3EypIjQKK2tYceET2vdKAGA0
+GnO3WRe6Bgr6emYXCVr7FwrJCInm0J+Urd5UK4TsNwI=
+-----END CERTIFICATE-----
+`, Operator: operators[2]})
+			if err != nil {
+				return nil, err
+			}
+			err = app.NodeCreateValidator(ctx, nodetypes.MsgCreateValidator{Name: "node7", Power: 100, Certificate: `-----BEGIN CERTIFICATE-----
+MIIBbDCCAR4CFAVBNG0oenjPGnhOYuzQ58buriZYMAUGAytlcDBYMQswCQYDVQQG
+EwJDTjENMAsGA1UECAwEcm9vdDENMAsGA1UEBwwEcm9vdDENMAsGA1UECgwEcm9v
+dDENMAsGA1UECwwEcm9vdDENMAsGA1UEAwwEcm9vdDAeFw0yMzA1MDgxMDU3MzBa
+Fw0yNDA1MDcxMDU3MzBaMFkxCzAJBgNVBAYTAkNOMQ0wCwYDVQQIDAR0ZXN0MQ0w
+CwYDVQQHDAR0ZXN0MQ0wCwYDVQQKDAR0ZXN0MQ0wCwYDVQQLDAR0ZXN0MQ4wDAYD
+VQQDDAVub2RlMzAqMAUGAytlcAMhAOmrijAuBv0yD1Ho9reStSB6MmBOjrxZwV1h
+DiV8k6mzMAUGAytlcANBALDQmqZovC40IHrjVFWDW6Mp12Svneyk0AQVAcE2PAX9
+ePv3e1Td/VJFr4wVr0pF5X/fAeqQP6l75XneB0AwPgU=
+-----END CERTIFICATE-----
+`, Operator: operators[3]})
+			if err != nil {
+				return nil, err
 			}
 
 			addr, _ := sdk.AccAddressFromBech32("iaa1g0tr5swv3mee2smcck3huvjp7jurs94ystesuu")
 			app.permKeeper.SetAuth(ctx, addr, permtypes.RoleRootAdmin.Auth())
 			node0, _ := sdk.AccAddressFromBech32(operators[0])
 
-			err = app.bankKeeper.SendCoins(ctx, node0, addr, sdk.Coins{{"irita", sdk.NewInt(50000)}})
-			if err != nil {
-				return nil, err
-			}
-
-			subspace, _ := app.paramsKeeper.GetSubspace("baseapp")
-			err = subspace.Update(ctx, []byte("ValidatorParams"), []byte(`{"pub_key_types":["sm2","ed25519"]}`))
+			err = app.bankKeeper.SendCoins(ctx, node0, addr, sdk.Coins{{"uirita", sdk.NewInt(50000)}})
 			if err != nil {
 				return nil, err
 			}
@@ -1036,4 +1104,16 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 
 	return paramsKeeper
+}
+
+func (app IritaApp) NodeCreateValidator(ctx sdk.Context, msg nodetypes.MsgCreateValidator) error {
+	_, err := app.nodeKeeper.CreateValidator(ctx, msg)
+	if err != nil {
+		return err
+	}
+	_, err = app.nodeKeeper.AddNode(ctx, msg.Name, msg.Certificate)
+	if err != nil {
+		return err
+	}
+	return nil
 }
