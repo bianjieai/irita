@@ -18,6 +18,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	"github.com/bianjieai/iritamod/modules/node/types"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
 	"github.com/bianjieai/iritamod/modules/node"
@@ -25,8 +26,9 @@ import (
 )
 
 var (
-	rootAdmin = sdk.AccAddress(tmhash.SumTruncated([]byte("rootAdmin")))
-	rootStr   = `-----BEGIN CERTIFICATE-----
+	rootAdmin    = sdk.AccAddress(tmhash.SumTruncated([]byte("rootAdmin")))
+	rootCertType = "ed25519"
+	rootCertData = `-----BEGIN CERTIFICATE-----
 MIIBxTCCAXegAwIBAgIUHMPutrm+7FT7fIFf2fEgyQnIg8kwBQYDK2VwMFgxCzAJ
 BgNVBAYTAkNOMQ0wCwYDVQQIDARyb290MQ0wCwYDVQQHDARyb290MQ0wCwYDVQQK
 DARyb290MQ0wCwYDVQQLDARyb290MQ0wCwYDVQQDDARyb290MB4XDTIwMDYxOTA3
@@ -72,7 +74,10 @@ func setGenesis(iapp *IritaApp) error {
 
 	// add root cert
 	validatorGenState := node.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
-	validatorGenState.RootCert = rootStr
+	validatorGenState.RootCert = append(validatorGenState.RootCert, types.Certificate{
+		Key:   rootCertType,
+		Value: rootCertData,
+	})
 	validatorGenStateBz := iapp.cdc.MustMarshalJSON(validatorGenState)
 	genesisState[node.ModuleName] = validatorGenStateBz
 

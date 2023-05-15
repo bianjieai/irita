@@ -34,6 +34,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bianjieai/iritamod/modules/node"
+	"github.com/bianjieai/iritamod/modules/node/types"
 	"github.com/bianjieai/iritamod/modules/perm"
 )
 
@@ -53,6 +54,7 @@ var DefaultConsensusParams = &abci.ConsensusParams{
 	Validator: &tmproto.ValidatorParams{
 		PubKeyTypes: []string{
 			tmtypes.ABCIPubKeyTypeEd25519,
+			tmtypes.ABCIPubKeyTypeSm2,
 		},
 	},
 }
@@ -77,7 +79,10 @@ func Setup(isCheckTx bool) *SimApp {
 
 		// add root cert
 		validatorGenState := node.GetGenesisStateFromAppState(app.appCodec, genesisState)
-		validatorGenState.RootCert = rootCert
+		validatorGenState.RootCert = append(validatorGenState.RootCert, types.Certificate{
+			Key:   rootCertType,
+			Value: rootCertData,
+		})
 		validatorGenStateBz := app.cdc.MustMarshalJSON(validatorGenState)
 		genesisState[node.ModuleName] = validatorGenStateBz
 
@@ -449,7 +454,8 @@ func (ao EmptyAppOptions) Get(o string) interface{} {
 	return nil
 }
 
-const rootCert = `-----BEGIN CERTIFICATE-----
+const rootCertType = "ed25519"
+const rootCertData = `-----BEGIN CERTIFICATE-----
 MIIBxTCCAXegAwIBAgIUHMPutrm+7FT7fIFf2fEgyQnIg8kwBQYDK2VwMFgxCzAJ
 BgNVBAYTAkNOMQ0wCwYDVQQIDARyb290MQ0wCwYDVQQHDARyb290MQ0wCwYDVQQK
 DARyb290MQ0wCwYDVQQLDARyb290MQ0wCwYDVQQDDARyb290MB4XDTIwMDYxOTA3
