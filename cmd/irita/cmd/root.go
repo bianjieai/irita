@@ -38,6 +38,7 @@ import (
 
 	genutilcli "github.com/bianjieai/iritamod/modules/genutil/client/cli"
 	"github.com/bianjieai/iritamod/modules/node"
+	"github.com/bianjieai/iritamod/modules/node/client/cli"
 
 	"github.com/bianjieai/irita/app"
 
@@ -140,6 +141,8 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		//keys.Commands(app.DefaultNodeHome),
 		evmclient.KeyCommands(app.DefaultNodeHome),
 	)
+
+	cli.SetGlobeFlag(rootCmd)
 
 }
 
