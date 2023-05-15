@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 
 	cfg "github.com/tendermint/tendermint/config"
+	"github.com/tendermint/tendermint/crypto/algo"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmtypes "github.com/tendermint/tendermint/types"
 
@@ -28,8 +29,8 @@ import (
 
 // ValidatorMsgBuildingHelpers helpers for message building gen-tx command
 type ValidatorMsgBuildingHelpers interface {
-	CreateValidatorMsgHelpers(ipDefault string) (fs *flag.FlagSet, certFlag, powerFlag, defaultsDesc string)
-	PrepareFlagsForTxCreateValidator(config *cfg.Config, nodeID, chainID string, cert string)
+	CreateValidatorMsgHelpers(ipDefault string) (fs *flag.FlagSet, certTypeFlag, pubkeyFlag, powerFlag, defaultsDesc string)
+	PrepareFlagsForTxCreateValidator(config *cfg.Config, nodeID string, chainID string, certType string, cert string)
 	BuildCreateValidatorMsg(cliCtx client.Context, txBldr tx.Factory) (tx.Factory, sdk.Msg, error)
 }
 
@@ -38,7 +39,7 @@ func AddGenesisValidatorCmd(
 	mbm module.BasicManager, smbh ValidatorMsgBuildingHelpers, defaultNodeHome, defaultCLIHome string,
 ) *cobra.Command {
 	ipDefault, _ := server.ExternalIP()
-	fsCreateValidator, flagCert, _, defaultsDesc := smbh.CreateValidatorMsgHelpers(ipDefault)
+	fsCreateValidator, certTypeFlag, certFlag, _, defaultsDesc := smbh.CreateValidatorMsgHelpers(ipDefault)
 
 	cmd := &cobra.Command{
 		Use:   "add-genesis-validator",
@@ -81,9 +82,15 @@ func AddGenesisValidatorCmd(
 				return errors.Wrap(err, "failed to validate genesis state")
 			}
 
+			certType := viper.GetString(certTypeFlag)
+			if _, err := cautil.IsSupportedAlgorithms(certType); err != nil {
+				return err
+			}
+			algo.Algo = certType
+
 			// Set flags for creating gentx
 			viper.Set(flags.FlagHome, viper.GetString(flagClientHome))
-			smbh.PrepareFlagsForTxCreateValidator(config, nodeID, genDoc.ChainID, viper.GetString(flagCert))
+			smbh.PrepareFlagsForTxCreateValidator(config, nodeID, genDoc.ChainID, certType, viper.GetString(certFlag))
 
 			//txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 			//cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
@@ -108,18 +115,28 @@ func AddGenesisValidatorCmd(
 			if msg, ok := msg.(*node.MsgCreateValidator); ok {
 				validatorGenState := node.GetGenesisStateFromAppState(cdc, genesisState)
 
-				cert, err := cautil.ReadCertificateFromMem([]byte(msg.Certificate))
+				cert, err := cautil.ReadCertificateFromMem([]byte(msg.Certificate.Value))
 				if err != nil {
 					return errors.Wrap(err, "failed to convert certificate")
 				}
 
-				rootCert, err := cautil.ReadCertificateFromMem([]byte(validatorGenState.RootCert))
-				if err != nil {
-					return errors.Wrap(err, "failed to convert root certificate")
-				}
+				validatorCert := false
+				for _, rootCertStruct := range validatorGenState.RootCert {
+					if rootCertStruct.Key != msg.Certificate.Key {
+						continue
+					}
 
-				if err = cert.VerifyCertFromRoot(rootCert); err != nil {
-					return errors.Wrap(err, "invalid certificate, cannot be verified by root certificate")
+					rootCert, err := cautil.ReadCertificateFromMem([]byte(rootCertStruct.Value))
+					if err != nil {
+						return errors.Wrap(err, "failed to convert root certificate")
+					}
+					if err = cert.VerifyCertFromRoot(rootCert); err != nil {
+						return errors.Wrap(err, "invalid certificate, cannot be verified by root certificate")
+					}
+					validatorCert = true
+				}
+				if !validatorCert {
+					return fmt.Errorf("certificate verification failure")
 				}
 
 				pk, err := cautil.GetPubkeyFromCert(cert)

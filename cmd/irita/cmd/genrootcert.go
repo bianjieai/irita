@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/spf13/cobra"
 
@@ -19,7 +18,7 @@ import (
 // GenRootCert returns a command that sets the root cert.
 func GenRootCert(defaultNodeHome string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-root-cert [cert]",
+		Use:   "set-root-cert [cert_type]:[cert][,[cert_type]:[cert]] ",
 		Short: "Add X.509 root certificate to verify the validator or node certificate",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -29,9 +28,9 @@ func GenRootCert(defaultNodeHome string) *cobra.Command {
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
 
-			cert, err := ioutil.ReadFile(args[0])
+			rootCerts, err := parseRootCerts(args[0])
 			if err != nil {
-				return err
+				return fmt.Errorf("parse root cert err: %s", err)
 			}
 
 			genFile := config.GenesisFile()
@@ -41,7 +40,7 @@ func GenRootCert(defaultNodeHome string) *cobra.Command {
 			}
 
 			nodeGenState := node.GetGenesisStateFromAppState(cdc, appState)
-			nodeGenState.RootCert = string(cert)
+			nodeGenState.RootCert = rootCerts
 
 			nodeGenStateBz, err := cdc.MarshalJSON(&nodeGenState)
 			if err != nil {

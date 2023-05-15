@@ -14,8 +14,6 @@ import (
 
 	evmhd "github.com/tharsis/ethermint/crypto/hd"
 
-	"github.com/tendermint/tendermint/crypto/algo"
-
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 	evmfmttypes "github.com/tharsis/ethermint/x/feemarket/types"
 
@@ -25,6 +23,7 @@ import (
 	"github.com/spf13/viper"
 
 	tmconfig "github.com/tendermint/tendermint/config"
+	talgo "github.com/tendermint/tendermint/crypto/algo"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/libs/tempfile"
@@ -51,8 +50,11 @@ import (
 
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
+	"github.com/bianjieai/iritamod/modules/node/client/cli"
+	itypes "github.com/bianjieai/iritamod/modules/node/types"
 	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
+	cautil "github.com/bianjieai/iritamod/utils/ca"
 
 	evmosConfig "github.com/tharsis/ethermint/server/config"
 
@@ -102,10 +104,11 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 			startingIPAddress := viper.GetString(flagStartingIPAddress)
 			numValidators := viper.GetInt(flagNumValidators)
 			algo, _ := cmd.Flags().GetString(flags.FlagKeyAlgorithm)
+			nodeCertType := viper.GetString(cli.FlagNodeAlgo)
 
 			return InitTestnet(
 				clientCtx, cmd, config, mbm, genBalIterator, outputDir, chainID, minGasPrices,
-				nodeDirPrefix, nodeDaemonHome, nodeCLIHome, startingIPAddress, numValidators, algo,
+				nodeDirPrefix, nodeDaemonHome, nodeCLIHome, startingIPAddress, numValidators, algo, nodeCertType,
 			)
 		},
 	}
@@ -123,16 +126,15 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 	return cmd
 }
 
-// Initialize the testnet
+// InitTestnet Initialize the testnet
 func InitTestnet(
 	clientCtx client.Context, cmd *cobra.Command,
 	config *tmconfig.Config, mbm module.BasicManager,
 	genBalIterator banktypes.GenesisBalancesIterator,
 	outputDir, chainID, minGasPrices, nodeDirPrefix,
 	nodeDaemonHome, nodeCLIHome, startingIPAddress string,
-	numValidators int, algoStr string,
+	numValidators int, algoStr string, nodeCertType string,
 ) error {
-	algo.Algo = algo.SM2
 	if chainID == "" {
 		chainID = fmt.Sprintf("chain_%d-1", tmrand.Int63n(9999999999999)+1)
 	}
@@ -159,15 +161,30 @@ func InitTestnet(
 
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 
-	rootKeyPath := filepath.Join(outputDir, "root_key.pem")
-	rootCertPath := filepath.Join(outputDir, "root_cert.pem")
-
 	if err := os.MkdirAll(outputDir, nodeDirPerm); err != nil {
 		_ = os.RemoveAll(outputDir)
 		return err
 	}
 
-	utils.GenRootCert(rootKeyPath, rootCertPath, "/C=CN/ST=root/L=root/O=root/OU=root/CN=root")
+	if _, err := cautil.IsSupportedAlgorithms(nodeCertType); err != nil {
+		return err
+	}
+	talgo.Algo = nodeCertType
+
+	var (
+		rootKeyPathMap  = map[string]string{}
+		rootCertPathMap = map[string]string{}
+	)
+
+	for _, certAlgo := range cautil.NodeAlgoList {
+		keyPath := fmt.Sprintf("root_key_%s.pem", certAlgo)
+		certPath := fmt.Sprintf("root_cert_%s.pem", certAlgo)
+
+		rootKeyPathMap[certAlgo] = filepath.Join(outputDir, keyPath)
+		rootCertPathMap[certAlgo] = filepath.Join(outputDir, certPath)
+	}
+
+	utils.GenMultiRootCert(rootKeyPathMap, rootCertPathMap, "/C=CN/ST=root/L=root/O=root/OU=root/CN=root")
 	// generate private keys, node IDs, and initial transactions
 	for i := 0; i < numValidators; i++ {
 		nodeDirName := fmt.Sprintf("%s%d", nodeDirPrefix, i)
@@ -218,7 +235,7 @@ func InitTestnet(
 		}
 
 		utils.GenCertRequest(keyPath, cerPath, fmt.Sprintf("/C=CN/ST=test/L=test/O=test/OU=test/CN=%s", nodeDirName))
-		utils.IssueCert(cerPath, rootCertPath, rootKeyPath, certPath)
+		utils.IssueCert(cerPath, rootCertPathMap[nodeCertType], rootKeyPathMap[nodeCertType], certPath)
 		valCerts[i] = certPath
 
 		memo := fmt.Sprintf("%s@%s:26656", nodeIDs[i], ip)
@@ -274,11 +291,15 @@ func InitTestnet(
 
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-		cert, err := ioutil.ReadFile(certPath)
+		certData, err := ioutil.ReadFile(certPath)
 		if err != nil {
 			return err
 		}
-		msg := node.NewMsgCreateValidator(nodeDirName, nodeDirName, string(cert), 100, addr)
+		cert := &itypes.Certificate{
+			Key:   nodeCertType,
+			Value: string(certData),
+		}
+		msg := node.NewMsgCreateValidator(nodeDirName, nodeDirName, cert, 100, addr)
 
 		txBuilder := clientCtx.TxConfig.NewTxBuilder()
 		if err := txBuilder.SetMsgs(msg); err != nil {
@@ -318,7 +339,7 @@ func InitTestnet(
 	}
 
 	if err := initGenFiles(DefaultEvmMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
-		monikers, nodeIDs, rootCertPath); err != nil {
+		monikers, nodeIDs, rootCertPathMap); err != nil {
 		return err
 	}
 
@@ -337,27 +358,33 @@ func initGenFiles(
 	coinDenom string, clientCtx client.Context, mbm module.BasicManager, chainID string,
 	genAccounts []authtypes.GenesisAccount, genBalances []banktypes.Balance,
 	genFiles []string, numValidators int, monikers []string, nodeIDs []string,
-	rootCertPath string,
+	rootCerts map[string]string,
 ) error {
-	rootCertBz, err := ioutil.ReadFile(rootCertPath)
-	if err != nil {
-		return fmt.Errorf("failed to read root certificate: %s", err.Error())
-	}
-	rootCert := string(rootCertBz)
-
 	jsonMarshaler := clientCtx.Codec
-
 	appGenState := mbm.DefaultGenesis(jsonMarshaler)
 
+	// set the node in the genesis state
 	var nodeGenState node.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[node.ModuleName], &nodeGenState)
 
-	nodeGenState.RootCert = rootCert
+	for rootCertTyep, rootCertPath := range rootCerts {
+		rootCertBz, err := ioutil.ReadFile(rootCertPath)
+		if err != nil {
+			return fmt.Errorf("failed to read root certificate: %s", err.Error())
+		}
+		rootCertData := string(rootCertBz)
+
+		nodeGenState.RootCert = append(nodeGenState.RootCert, itypes.Certificate{
+			Key:   rootCertTyep,
+			Value: rootCertData,
+		})
+	}
 
 	nodeGenState.Nodes = make([]node.Node, len(nodeIDs))
 	for i, nodeID := range nodeIDs {
 		nodeGenState.Nodes[i].Id = nodeID
 		nodeGenState.Nodes[i].Name = monikers[i]
+		nodeGenState.Nodes[i].Certificate = &itypes.Certificate{}
 	}
 
 	appGenState[node.ModuleName] = jsonMarshaler.MustMarshalJSON(&nodeGenState)
@@ -435,12 +462,14 @@ func initGenFiles(
 	serviceGenState.Params.BaseDenom = DefaultPointMinUnit
 	appGenState[servicetypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&serviceGenState)
 
+	// set the evm in the genesis state
 	var evmGenState evmtypes.GenesisState
 	clientCtx.Codec.MustUnmarshalJSON(appGenState[evmtypes.ModuleName], &evmGenState)
 
 	evmGenState.Params.EvmDenom = coinDenom
 	appGenState[evmtypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&evmGenState)
 
+	// set the evm fee market in the genesis state
 	var fMKGenState evmfmttypes.GenesisState
 	clientCtx.Codec.MustUnmarshalJSON(appGenState[evmfmttypes.ModuleName], &fMKGenState)
 	fMKGenState.Params.NoBaseFee = true
