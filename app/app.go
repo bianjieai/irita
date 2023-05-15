@@ -1,6 +1,9 @@
 package app
 
 import (
+	v044 "github.com/bianjieai/iritamod/modules/node/legacy/v044"
+	"github.com/bianjieai/iritamod/utils/ca"
+	"github.com/tendermint/tendermint/crypto/algo"
 	"io"
 	"math"
 	"os"
@@ -697,6 +700,56 @@ func NewIritaApp(
 			},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+
+	app.RegisterUpgradePlan(
+		"v3.1.0-bsnhub", store.StoreUpgrades{},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			consensusParams := app.BaseApp.GetConsensusParams(ctx)
+			consensusParams.Validator.PubKeyTypes = ca.NodeAlgoList
+			app.BaseApp.StoreConsensusParams(ctx, consensusParams)
+
+			v044.AddNewRootCertValue = `-----BEGIN CERTIFICATE-----
+MIIB1TCCAYegAwIBAgIUEuQuy771v+CHVgNcZdd3V7apDIswBQYDK2VwMGAxCzAJ
+BgNVBAYTAmFzMQswCQYDVQQIDAJhczEKMAgGA1UEBwwBYTELMAkGA1UECgwCc2Ex
+CzAJBgNVBAsMAmFzMQswCQYDVQQDDAJhczERMA8GCSqGSIb3DQEJARYCYXMwHhcN
+MjMwMzEwMDMzOTQyWhcNMjQwMzA5MDMzOTQyWjBgMQswCQYDVQQGEwJhczELMAkG
+A1UECAwCYXMxCjAIBgNVBAcMAWExCzAJBgNVBAoMAnNhMQswCQYDVQQLDAJhczEL
+MAkGA1UEAwwCYXMxETAPBgkqhkiG9w0BCQEWAmFzMCowBQYDK2VwAyEAzdDCkqI+
+y2NpmttTbdCmLljjnhbHLifszGqH+avgQ8ejUzBRMB0GA1UdDgQWBBQHfn9OG+tb
+4nQin9WC03TqcCysKzAfBgNVHSMEGDAWgBQHfn9OG+tb4nQin9WC03TqcCysKzAP
+BgNVHRMBAf8EBTADAQH/MAUGAytlcANBAJ2dBUzeyj+4/MFnivL+38xdNKEd37KD
+NCfK3b5TAUnLanK7TYG+XtOVEyVFFibekpwwKqy1ej9XVzeE9x3C5wc=
+-----END CERTIFICATE-----`
+			v044.AddNewRootCertType = algo.ED25519
+			v044.OldRootCertType = algo.SM2
+
+			// TODO 下面部分生产环境应该有了，测试完成后删除掉 fromVM 和修改上面的证书
+			fromVM[nodetypes.ModuleName] = 1
+			fromVM[banktypes.ModuleName] = 1
+			fromVM[stakingtypes.ModuleName] = 1
+			fromVM[opbtypes.ModuleName] = 1
+			fromVM[wservicetypes.ModuleName] = 1
+			fromVM[identitytypes.ModuleName] = 1
+			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
+			fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
+			fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
+			fromVM[genutiltypes.ModuleName] = genutil.AppModule{}.ConsensusVersion()
+			fromVM[paramstypes.ModuleName] = cparams.AppModule{}.ConsensusVersion()
+			fromVM[crisistypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
+			fromVM[upgradetypes.ModuleName] = crisis.AppModule{}.ConsensusVersion()
+			fromVM[evidencetypes.ModuleName] = evidence.AppModule{}.ConsensusVersion()
+			fromVM[feegrant.ModuleName] = feegrantmodule.AppModule{}.ConsensusVersion()
+			fromVM[tokentypes.ModuleName] = token.AppModule{}.ConsensusVersion()
+			fromVM[recordtypes.ModuleName] = record.AppModule{}.ConsensusVersion()
+			fromVM[nfttypes.ModuleName] = nft.AppModule{}.ConsensusVersion()
+			fromVM[servicetypes.ModuleName] = service.AppModule{}.ConsensusVersion()
+			fromVM[oracletypes.ModuleName] = oracle.AppModule{}.ConsensusVersion()
+			fromVM[randomtypes.ModuleName] = random.AppModule{}.ConsensusVersion()
+			fromVM[permtypes.ModuleName] = perm.AppModule{}.ConsensusVersion()
+
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
