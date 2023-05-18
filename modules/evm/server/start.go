@@ -3,10 +3,6 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/bianjieai/iritamod/utils/ca"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/state"
-	ttypes "github.com/tendermint/tendermint/types"
 	"io"
 	"net/http"
 	"os"
@@ -305,48 +301,6 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, appCreator ty
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		logger.Error("failed load or gen node key", "error", err.Error())
-		return err
-	}
-
-	// TODO 只用在升级node模块v1到v2时执行一次就行。可以添加一个命令，执行此段逻辑
-	stateDB, err := node.DefaultDBProvider(&node.DBContext{ID: "state", Config: cfg})
-	if err != nil {
-		return err
-	}
-
-	// genesis
-	genesisDoc, err := stateDB.Get([]byte("genesisDoc"))
-	if err != nil {
-		return err
-	}
-	var genDoc *ttypes.GenesisDoc
-	err = tmjson.Unmarshal(genesisDoc, &genDoc)
-	if err != nil {
-		panic(fmt.Sprintf("Failed to load genesis doc due to unmarshaling error: %v ", err))
-	}
-	genDoc.ConsensusParams.Validator.PubKeyTypes = ca.NodeAlgoList
-	b, err := tmjson.Marshal(genDoc)
-	if err != nil {
-		return err
-	}
-	err = stateDB.Set([]byte("genesisDoc"), b)
-	if err != nil {
-		return err
-	}
-
-	// state
-	stateStore := state.NewStore(stateDB)
-	load, err := stateStore.Load()
-	if err != nil {
-		return err
-	}
-	load.ConsensusParams.Validator.PubKeyTypes = ca.NodeAlgoList
-	err = stateStore.Save(load)
-	if err != nil {
-		return err
-	}
-	err = stateDB.Close()
-	if err != nil {
 		return err
 	}
 
