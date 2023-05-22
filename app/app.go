@@ -14,11 +14,13 @@ import (
 
 	"github.com/CosmWasm/wasmd/x/wasm"
 
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+
 	appante "github.com/bianjieai/irita/app/ante"
 	evmmodule "github.com/bianjieai/irita/modules/evm"
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	layer2module "github.com/bianjieai/irita/modules/layer2"
 
 	"github.com/spf13/cast"
 
@@ -99,6 +101,9 @@ import (
 	"github.com/bianjieai/iritamod/modules/identity"
 	identitykeeper "github.com/bianjieai/iritamod/modules/identity/keeper"
 	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
+	"github.com/bianjieai/iritamod/modules/layer2"
+	layer2keeper "github.com/bianjieai/iritamod/modules/layer2/keeper"
+	layer2types "github.com/bianjieai/iritamod/modules/layer2/types"
 	"github.com/bianjieai/iritamod/modules/node"
 	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
 	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
@@ -179,6 +184,7 @@ var (
 		tibcnfttransfer.AppModuleBasic{},
 		tibcmttransfer.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		layer2.AppModuleBasic{},
 
 		// evm
 		evm.AppModuleBasic{},
@@ -263,6 +269,7 @@ type IritaApp struct {
 	feeGrantKeeper   feegrantkeeper.Keeper
 	capabilityKeeper *capabilitykeeper.Keeper
 	wasmKeeper       wasm.Keeper
+	layer2Keeper     layer2keeper.Keeper
 	// tibc
 	scopedTIBCKeeper     capabilitykeeper.ScopedKeeper
 	scopedTIBCMockKeeper capabilitykeeper.ScopedKeeper
@@ -325,7 +332,7 @@ func NewIritaApp(
 		tibcnfttypes.StoreKey,
 		tibcmttypes.StoreKey,
 		wasm.StoreKey,
-
+		layer2types.StoreKey,
 		// evm
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 	)
@@ -409,6 +416,11 @@ func NewIritaApp(
 		app.bankKeeper, app.tokenKeeper, app.permKeeper,
 		app.GetSubspace(opbtypes.ModuleName),
 	)
+
+	layer2NFTKeeper := layer2module.NewNftKeeper(appCodec, app.nftKeeper)
+	app.layer2Keeper = layer2keeper.NewKeeper(
+		appCodec, keys[layer2types.StoreKey],
+		app.permKeeper, layer2NFTKeeper)
 
 	// evm
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
@@ -508,6 +520,7 @@ func NewIritaApp(
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
+		layer2.NewAppModule(appCodec, app.layer2Keeper),
 		nfttransferModule,
 		mttransferModule,
 		// evm
@@ -544,6 +557,7 @@ func NewIritaApp(
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		wasm.ModuleName,
+		layer2types.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -573,6 +587,7 @@ func NewIritaApp(
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		wasm.ModuleName,
+		layer2types.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -608,6 +623,7 @@ func NewIritaApp(
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		wasm.ModuleName,
+		layer2types.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -638,6 +654,7 @@ func NewIritaApp(
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		wasm.ModuleName,
+		layer2types.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -761,6 +778,15 @@ func NewIritaApp(
 			fromVM[feemarkettypes.ModuleName] = feemarket.AppModule{}.ConsensusVersion()
 			fromVM[evmtypes.ModuleName] = evm.AppModule{}.ConsensusVersion()
 
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		},
+	)
+
+	app.RegisterUpgradePlan(
+		"v3.4.0-wenchangchain-tianzhou", store.StoreUpgrades{
+			Added: []string{layer2types.StoreKey},
+		},
+		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
