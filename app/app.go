@@ -199,6 +199,7 @@ var (
 		opbtypes.PointTokenFeeCollectorName: nil,
 		tibcnfttypes.ModuleName:             nil,
 		tibcmttypes.ModuleName:              nil,
+		layer2types.ModuleName:              nil,
 
 		// evm
 		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
@@ -420,7 +421,7 @@ func NewIritaApp(
 	layer2NFTKeeper := layer2module.NewNftKeeper(appCodec, app.nftKeeper)
 	layer2PermKeeper := layer2module.NewPermKeeper(appCodec, app.permKeeper)
 	app.layer2Keeper = layer2keeper.NewKeeper(
-		appCodec, keys[layer2types.StoreKey],
+		appCodec, keys[layer2types.StoreKey], app.accountKeeper,
 		layer2PermKeeper, layer2NFTKeeper)
 
 	// evm
