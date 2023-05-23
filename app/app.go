@@ -418,9 +418,10 @@ func NewIritaApp(
 	)
 
 	layer2NFTKeeper := layer2module.NewNftKeeper(appCodec, app.nftKeeper)
+	layer2PermKeeper := layer2module.NewPermKeeper(appCodec, app.permKeeper)
 	app.layer2Keeper = layer2keeper.NewKeeper(
 		appCodec, keys[layer2types.StoreKey],
-		app.permKeeper, layer2NFTKeeper)
+		layer2PermKeeper, layer2NFTKeeper)
 
 	// evm
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))

@@ -4,9 +4,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
+
+	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
 )
 
 type (
+	PermKeeper struct {
+		cdc  codec.Codec
+		perm permkeeper.Keeper
+	}
+
 	NftKeeper struct {
 		cdc codec.Codec
 		nk  nftkeeper.Keeper
