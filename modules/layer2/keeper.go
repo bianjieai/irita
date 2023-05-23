@@ -3,6 +3,9 @@ package layer2
 import (
 	"errors"
 
+	"github.com/bianjieai/iritamod/modules/perm"
+	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
@@ -106,4 +109,18 @@ func (l2 NftKeeper) GetNFT(ctx sdk.Context,
 	return NftToken{
 		Owner: token.GetOwner(),
 	}, nil
+}
+
+func NewPermKeeper(cdc codec.Codec, pk permkeeper.Keeper) PermKeeper {
+	return PermKeeper{
+		cdc:  cdc,
+		perm: pk,
+	}
+}
+
+func (k PermKeeper) HasL2UserRole(ctx sdk.Context, addr sdk.AccAddress) bool {
+	if err := k.perm.Access(ctx, addr, perm.RoleLayer2User.Auth()); err != nil {
+		return false
+	}
+	return true
 }

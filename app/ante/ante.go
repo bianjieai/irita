@@ -8,14 +8,6 @@ import (
 
 	"github.com/bianjieai/irita/modules/gas"
 
-	evmmoduleante "github.com/bianjieai/irita/modules/evm"
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
-	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
-	"github.com/bianjieai/iritamod/modules/identity"
-	"github.com/bianjieai/iritamod/modules/node"
-	"github.com/bianjieai/iritamod/modules/params"
-	"github.com/bianjieai/iritamod/modules/perm"
-	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -32,6 +24,16 @@ import (
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
+	evmmoduleante "github.com/bianjieai/irita/modules/evm"
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
+	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
+	"github.com/bianjieai/iritamod/modules/identity"
+	layer2types "github.com/bianjieai/iritamod/modules/layer2/types"
+	"github.com/bianjieai/iritamod/modules/node"
+	"github.com/bianjieai/iritamod/modules/params"
+	"github.com/bianjieai/iritamod/modules/perm"
+	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 
 	ethermintante "github.com/tharsis/ethermint/app/ante"
 )
@@ -190,6 +192,17 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgRegisterRelayer{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgUpgradeClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgSetRoutingRules{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+
+	// layer2 auth
+	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateL2Space{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgTransferL2Space{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateL2BlockHeader{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateNFTs{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgUpdateNFTs{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgDeleteNFTs{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgUpdateClassesForNFT{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgWithdrawClassForNFT{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgWithdrawTokenForNFT{}, perm.RoleRootAdmin, perm.RoleLayer2User)
 
 	return permKeeper
 }
