@@ -197,12 +197,15 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateL2Space{}, perm.RoleRootAdmin, perm.RoleLayer2User)
 	permKeeper.RegisterMsgAuth(&layer2types.MsgTransferL2Space{}, perm.RoleRootAdmin, perm.RoleLayer2User)
 	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateL2BlockHeader{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateNFTs{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgUpdateNFTs{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgDeleteNFTs{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgUpdateClassesForNFT{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgWithdrawClassForNFT{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgWithdrawTokenForNFT{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	// NOTE： The following messages are currently closed to users.
+	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateNFTs{}, perm.RoleRootAdmin)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgUpdateNFTs{}, perm.RoleRootAdmin)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgDeleteNFTs{}, perm.RoleRootAdmin)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgUpdateClassesForNFT{}, perm.RoleRootAdmin)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgDepositClassForNFT{}, perm.RoleRootAdmin)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgWithdrawClassForNFT{}, perm.RoleRootAdmin)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgDepositTokenForNFT{}, perm.RoleRootAdmin)
+	permKeeper.RegisterMsgAuth(&layer2types.MsgWithdrawTokenForNFT{}, perm.RoleRootAdmin)
 
 	return permKeeper
 }
