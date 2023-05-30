@@ -8,7 +8,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
+	nfttypes "github.com/irisnet/irismod/modules/nft/types"
 
 	layer2nft "github.com/bianjieai/iritamod/modules/layer2/types"
 )
@@ -59,6 +61,11 @@ func (l2 NftKeeper) TransferNFT(ctx sdk.Context,
 		return err
 	}
 
+	denom, _ := l2.nk.GetDenom(ctx, classID)
+	if denom.UpdateRestricted {
+		return l2.nk.TransferOwner(ctx, classID, tokenID, nfttypes.DoNotModify, nfttypes.DoNotModify, nfttypes.DoNotModify, nfttypes.DoNotModify, srcOwner, dstOwner)
+	}
+
 	return l2.nk.TransferOwner(ctx, classID, tokenID, nft.GetName(), nft.GetURI(), nft.GetURIHash(), nft.GetData(), srcOwner, dstOwner)
 }
 
@@ -78,8 +85,11 @@ func (l2 NftKeeper) UpdateClassMintRestricted(ctx sdk.Context,
 		return errors.New("class not found")
 	}
 
+	if denom.Creator != owner.String() {
+		return errors.New("sender not the class owner")
+	}
+
 	denom.MintRestricted = mintRestricted
-	denom.Creator = owner.String()
 
 	return l2.nk.UpdateDenom(ctx, denom)
 }
@@ -119,6 +129,10 @@ func NewPermKeeper(cdc codec.Codec, pk permkeeper.Keeper) PermKeeper {
 }
 
 func (k PermKeeper) HasL2UserRole(ctx sdk.Context, addr sdk.AccAddress) bool {
+	if k.perm.IsRootAdmin(ctx, addr) {
+		return true
+	}
+
 	if err := k.perm.Access(ctx, addr, perm.RoleLayer2User.Auth()); err != nil {
 		return false
 	}
