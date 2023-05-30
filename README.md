@@ -12,6 +12,6 @@ Inter-Realm Industry Trust Alliance(**IRITA**) is **the 1st enterprise-level per
 
 4. **iService**: iService aims to deliver the entire life cycle of off-chain services from definition, binding (registration of service provider), invocation to governance (profiling and dispute resolution), to cross the gap between blockchain and traditional business application. The IRIS SDK supports service semantics through enhanced IBC processing logic to allow distributed business services to be available on the blockchain Internet.
 
-5. **Digital asset modeling and trading**: It supports a flexible modeling of the multiple structures of digital asset data, which is very suitable for implementing decentralized exchanges (DEX). IRITA is based on NFT (non-fungible token), and supports asset digitalization in various fields such as supply chain, intellectual property, medical treatment, and evidence storage.
+5. **Digital asset modeling and trading**: It supports a flexible modeling of the multiple structures of digital asset data. IRITA is based on NFT (non-fungible token), and supports asset digitalization in various fields such as supply chain, intellectual property, medical treatment, and evidence storage.
 
 6. **Big data support**: IRITA's built-in storage layer supports cloud storage and distributed storage, and supports efficient on-chain data life-cycle query through the combination of database and chain data.
