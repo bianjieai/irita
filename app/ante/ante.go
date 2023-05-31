@@ -26,10 +26,13 @@ import (
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	evmmoduleante "github.com/bianjieai/irita/modules/evm"
+	layer2 "github.com/bianjieai/irita/modules/layer2"
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 	"github.com/bianjieai/iritamod/modules/identity"
+	layer2keeper "github.com/bianjieai/iritamod/modules/layer2/keeper"
 	layer2types "github.com/bianjieai/iritamod/modules/layer2/types"
+
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/params"
 	"github.com/bianjieai/iritamod/modules/perm"
@@ -39,14 +42,16 @@ import (
 )
 
 type HandlerOptions struct {
-	PermKeeper      perm.Keeper
-	AccountKeeper   authkeeper.AccountKeeper
-	BankKeeper      bankkeeper.Keeper
-	FeegrantKeeper  feegrantkeeper.Keeper
-	TokenKeeper     tokenkeeper.Keeper
-	OpbKeeper       opbkeeper.Keeper
-	SigGasConsumer  ante.SignatureVerificationGasConsumer
-	SignModeHandler signing.SignModeHandler
+	PermKeeper       perm.Keeper
+	AccountKeeper    authkeeper.AccountKeeper
+	BankKeeper       bankkeeper.Keeper
+	FeegrantKeeper   feegrantkeeper.Keeper
+	TokenKeeper      tokenkeeper.Keeper
+	OpbKeeper        opbkeeper.Keeper
+	SigGasConsumer   ante.SignatureVerificationGasConsumer
+	SignModeHandler  signing.SignModeHandler
+	Layer2Keeper     layer2keeper.Keeper
+	Layer2PermKeeper layer2.PermKeeper
 
 	// evm config
 	EvmKeeper          evmmoduleante.EVMKeeper
@@ -120,6 +125,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				ante.NewTxTimeoutHeightDecorator(),
 				tokenkeeper.NewValidateTokenFeeDecorator(options.TokenKeeper, options.BankKeeper),
 				opbkeeper.NewValidateTokenTransferDecorator(options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
+				layer2keeper.NewValidateLayer2Decorator(options.Layer2Keeper, options.Layer2PermKeeper),
 			)
 		default:
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)

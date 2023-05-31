@@ -420,9 +420,7 @@ func NewIritaApp(
 
 	layer2NFTKeeper := layer2module.NewNftKeeper(appCodec, app.nftKeeper)
 	layer2PermKeeper := layer2module.NewPermKeeper(appCodec, app.permKeeper)
-	app.layer2Keeper = layer2keeper.NewKeeper(
-		appCodec, keys[layer2types.StoreKey], app.accountKeeper,
-		layer2PermKeeper, layer2NFTKeeper)
+	app.layer2Keeper = layer2keeper.NewKeeper(appCodec, keys[layer2types.StoreKey], app.accountKeeper, layer2NFTKeeper)
 
 	// evm
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
@@ -710,14 +708,16 @@ func NewIritaApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	anteHandler := appante.NewAnteHandler(
 		appante.HandlerOptions{
-			PermKeeper:      app.permKeeper,
-			AccountKeeper:   app.accountKeeper,
-			BankKeeper:      app.bankKeeper,
-			TokenKeeper:     app.tokenKeeper,
-			OpbKeeper:       app.opbKeeper,
-			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			FeegrantKeeper:  app.feeGrantKeeper,
-			SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
+			PermKeeper:       app.permKeeper,
+			AccountKeeper:    app.accountKeeper,
+			BankKeeper:       app.bankKeeper,
+			TokenKeeper:      app.tokenKeeper,
+			OpbKeeper:        app.opbKeeper,
+			SignModeHandler:  encodingConfig.TxConfig.SignModeHandler(),
+			FeegrantKeeper:   app.feeGrantKeeper,
+			SigGasConsumer:   ethermintante.DefaultSigVerificationGasConsumer,
+			Layer2Keeper:     app.layer2Keeper,
+			Layer2PermKeeper: layer2PermKeeper,
 
 			// evm
 			EvmFeeMarketKeeper: app.FeeMarketKeeper,
