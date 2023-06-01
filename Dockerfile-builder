@@ -1,0 +1,10 @@
+#
+# Build image: docker build -t bianjie/irita-builder:v3:${irita_version} .
+#
+FROM bianjie/go-builder:1.18 as builder
+
+WORKDIR /irita
+# Add source files
+COPY . .
+
+RUN go mod tidy && cd / && rm -rf /irita
