@@ -6,8 +6,9 @@ import (
 
 	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
 
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
+
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 
 	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
 

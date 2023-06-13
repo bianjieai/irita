@@ -6,22 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cosmos/cosmos-sdk/x/staking"
-
-	"github.com/cosmos/cosmos-sdk/x/capability"
-
-	"github.com/irisnet/irismod/modules/mt"
-
-	"github.com/CosmWasm/wasmd/x/wasm"
-
-	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
-
-	appante "github.com/bianjieai/irita/app/ante"
-	evmmodule "github.com/bianjieai/irita/modules/evm"
-	"github.com/bianjieai/irita/modules/evm/crypto"
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-	layer2module "github.com/bianjieai/irita/modules/layer2"
-
 	"github.com/spf13/cast"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -44,8 +28,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/cosmos-sdk/x/auth"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -54,11 +39,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/x/capability"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
@@ -70,11 +57,13 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	"github.com/irisnet/irismod/modules/mt"
 	mtkeeper "github.com/irisnet/irismod/modules/mt/keeper"
 	mttypes "github.com/irisnet/irismod/modules/mt/types"
 	"github.com/irisnet/irismod/modules/nft"
@@ -96,14 +85,16 @@ import (
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
+	appante "github.com/bianjieai/irita/app/ante"
+	evmmodule "github.com/bianjieai/irita/modules/evm"
+	"github.com/bianjieai/irita/modules/evm/crypto"
+	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+	sidechainmodule "github.com/bianjieai/irita/modules/side-chain"
 	"github.com/bianjieai/iritamod/modules/genutil"
 	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/identity"
 	identitykeeper "github.com/bianjieai/iritamod/modules/identity/keeper"
 	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
-	"github.com/bianjieai/iritamod/modules/layer2"
-	layer2keeper "github.com/bianjieai/iritamod/modules/layer2/keeper"
-	layer2types "github.com/bianjieai/iritamod/modules/layer2/types"
 	"github.com/bianjieai/iritamod/modules/node"
 	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
 	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
@@ -111,6 +102,9 @@ import (
 	"github.com/bianjieai/iritamod/modules/perm"
 	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
 	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
+	sidechain "github.com/bianjieai/iritamod/modules/side-chain"
+	sidechainkeeper "github.com/bianjieai/iritamod/modules/side-chain/keeper"
+	sidechaintypes "github.com/bianjieai/iritamod/modules/side-chain/types"
 	cslashing "github.com/bianjieai/iritamod/modules/slashing"
 	"github.com/bianjieai/iritamod/modules/upgrade"
 	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
@@ -184,7 +178,7 @@ var (
 		tibcnfttransfer.AppModuleBasic{},
 		tibcmttransfer.AppModuleBasic{},
 		wasm.AppModuleBasic{},
-		layer2.AppModuleBasic{},
+		sidechain.AppModuleBasic{},
 
 		// evm
 		evm.AppModuleBasic{},
@@ -199,7 +193,7 @@ var (
 		opbtypes.PointTokenFeeCollectorName: nil,
 		tibcnfttypes.ModuleName:             nil,
 		tibcmttypes.ModuleName:              nil,
-		layer2types.ModuleName:              nil,
+		sidechaintypes.ModuleName:           nil,
 
 		// evm
 		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
@@ -270,7 +264,7 @@ type IritaApp struct {
 	feeGrantKeeper   feegrantkeeper.Keeper
 	capabilityKeeper *capabilitykeeper.Keeper
 	wasmKeeper       wasm.Keeper
-	layer2Keeper     layer2keeper.Keeper
+	sidechainKeeper  sidechainkeeper.Keeper
 	// tibc
 	scopedTIBCKeeper     capabilitykeeper.ScopedKeeper
 	scopedTIBCMockKeeper capabilitykeeper.ScopedKeeper
@@ -333,7 +327,7 @@ func NewIritaApp(
 		tibcnfttypes.StoreKey,
 		tibcmttypes.StoreKey,
 		wasm.StoreKey,
-		layer2types.StoreKey,
+		sidechaintypes.StoreKey,
 		// evm
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 	)
@@ -418,9 +412,8 @@ func NewIritaApp(
 		app.GetSubspace(opbtypes.ModuleName),
 	)
 
-	layer2NFTKeeper := layer2module.NewNftKeeper(appCodec, app.nftKeeper)
-	layer2PermKeeper := layer2module.NewPermKeeper(appCodec, app.permKeeper)
-	app.layer2Keeper = layer2keeper.NewKeeper(appCodec, keys[layer2types.StoreKey], app.accountKeeper, layer2NFTKeeper)
+	sidechainPermKeeper := sidechainmodule.NewPermKeeper(appCodec, app.permKeeper)
+	app.sidechainKeeper = sidechainkeeper.NewKeeper(appCodec, keys[sidechaintypes.StoreKey], app.accountKeeper)
 
 	// evm
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
@@ -520,7 +513,7 @@ func NewIritaApp(
 		opb.NewAppModule(appCodec, app.opbKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.nodeKeeper),
-		layer2.NewAppModule(appCodec, app.layer2Keeper),
+		sidechain.NewAppModule(appCodec, app.sidechainKeeper),
 		nfttransferModule,
 		mttransferModule,
 		// evm
@@ -557,7 +550,7 @@ func NewIritaApp(
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		wasm.ModuleName,
-		layer2types.ModuleName,
+		sidechaintypes.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -587,7 +580,7 @@ func NewIritaApp(
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		wasm.ModuleName,
-		layer2types.ModuleName,
+		sidechaintypes.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -623,7 +616,7 @@ func NewIritaApp(
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		wasm.ModuleName,
-		layer2types.ModuleName,
+		sidechaintypes.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -654,7 +647,7 @@ func NewIritaApp(
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		wasm.ModuleName,
-		layer2types.ModuleName,
+		sidechaintypes.ModuleName,
 
 		// evm
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
@@ -708,16 +701,16 @@ func NewIritaApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	anteHandler := appante.NewAnteHandler(
 		appante.HandlerOptions{
-			PermKeeper:       app.permKeeper,
-			AccountKeeper:    app.accountKeeper,
-			BankKeeper:       app.bankKeeper,
-			TokenKeeper:      app.tokenKeeper,
-			OpbKeeper:        app.opbKeeper,
-			SignModeHandler:  encodingConfig.TxConfig.SignModeHandler(),
-			FeegrantKeeper:   app.feeGrantKeeper,
-			SigGasConsumer:   ethermintante.DefaultSigVerificationGasConsumer,
-			Layer2Keeper:     app.layer2Keeper,
-			Layer2PermKeeper: layer2PermKeeper,
+			PermKeeper:          app.permKeeper,
+			AccountKeeper:       app.accountKeeper,
+			BankKeeper:          app.bankKeeper,
+			TokenKeeper:         app.tokenKeeper,
+			OpbKeeper:           app.opbKeeper,
+			SignModeHandler:     encodingConfig.TxConfig.SignModeHandler(),
+			FeegrantKeeper:      app.feeGrantKeeper,
+			SigGasConsumer:      ethermintante.DefaultSigVerificationGasConsumer,
+			SideChainKeeper:     app.sidechainKeeper,
+			SideChainPermKeeper: sidechainPermKeeper,
 
 			// evm
 			EvmFeeMarketKeeper: app.FeeMarketKeeper,
@@ -786,7 +779,7 @@ func NewIritaApp(
 
 	app.RegisterUpgradePlan(
 		"v3.4.0-wenchangchain-tianzhou", store.StoreUpgrades{
-			Added: []string{layer2types.StoreKey},
+			Added: []string{sidechaintypes.StoreKey},
 		},
 		func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			fromVM[authtypes.ModuleName] = auth.AppModule{}.ConsensusVersion()
