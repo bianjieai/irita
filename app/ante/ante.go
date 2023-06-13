@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"runtime/debug"
 
+	sidechain "github.com/bianjieai/irita/modules/side-chain"
+	sidechaintypes "github.com/bianjieai/iritamod/modules/side-chain/types"
+
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 
 	"github.com/bianjieai/irita/modules/gas"
@@ -26,32 +29,29 @@ import (
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	evmmoduleante "github.com/bianjieai/irita/modules/evm"
-	layer2 "github.com/bianjieai/irita/modules/layer2"
 	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 	"github.com/bianjieai/iritamod/modules/identity"
-	layer2keeper "github.com/bianjieai/iritamod/modules/layer2/keeper"
-	layer2types "github.com/bianjieai/iritamod/modules/layer2/types"
-
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/modules/params"
 	"github.com/bianjieai/iritamod/modules/perm"
+	sidechainkeeper "github.com/bianjieai/iritamod/modules/side-chain/keeper"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 
 	ethermintante "github.com/tharsis/ethermint/app/ante"
 )
 
 type HandlerOptions struct {
-	PermKeeper       perm.Keeper
-	AccountKeeper    authkeeper.AccountKeeper
-	BankKeeper       bankkeeper.Keeper
-	FeegrantKeeper   feegrantkeeper.Keeper
-	TokenKeeper      tokenkeeper.Keeper
-	OpbKeeper        opbkeeper.Keeper
-	SigGasConsumer   ante.SignatureVerificationGasConsumer
-	SignModeHandler  signing.SignModeHandler
-	Layer2Keeper     layer2keeper.Keeper
-	Layer2PermKeeper layer2.PermKeeper
+	PermKeeper          perm.Keeper
+	AccountKeeper       authkeeper.AccountKeeper
+	BankKeeper          bankkeeper.Keeper
+	FeegrantKeeper      feegrantkeeper.Keeper
+	TokenKeeper         tokenkeeper.Keeper
+	OpbKeeper           opbkeeper.Keeper
+	SigGasConsumer      ante.SignatureVerificationGasConsumer
+	SignModeHandler     signing.SignModeHandler
+	SideChainKeeper     sidechainkeeper.Keeper
+	SideChainPermKeeper sidechain.PermKeeper
 
 	// evm config
 	EvmKeeper          evmmoduleante.EVMKeeper
@@ -125,7 +125,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				ante.NewTxTimeoutHeightDecorator(),
 				tokenkeeper.NewValidateTokenFeeDecorator(options.TokenKeeper, options.BankKeeper),
 				opbkeeper.NewValidateTokenTransferDecorator(options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
-				layer2keeper.NewValidateLayer2Decorator(options.Layer2Keeper, options.Layer2PermKeeper),
+				sidechainkeeper.NewValidateSideChainDecorator(options.SideChainKeeper, options.SideChainPermKeeper),
 			)
 		default:
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
@@ -199,19 +199,10 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgUpgradeClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgSetRoutingRules{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 
-	// layer2 auth
-	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateL2Space{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgTransferL2Space{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateL2BlockHeader{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	// NOTE： The following messages are currently closed to users.
-	permKeeper.RegisterMsgAuth(&layer2types.MsgCreateNFTs{}, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgUpdateNFTs{}, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgDeleteNFTs{}, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgUpdateClassesForNFT{}, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgDepositClassForNFT{}, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgWithdrawClassForNFT{}, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgDepositTokenForNFT{}, perm.RoleRootAdmin)
-	permKeeper.RegisterMsgAuth(&layer2types.MsgWithdrawTokenForNFT{}, perm.RoleRootAdmin)
+	// side-chain auth
+	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateSpace{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgTransferSpace{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateBlockHeader{}, perm.RoleRootAdmin, perm.RoleLayer2User)
 
 	return permKeeper
 }
