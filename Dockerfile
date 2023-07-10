@@ -1,8 +1,8 @@
 #
 # Build image: docker build -t bianjie/irita .
 #
-FROM golang:1.17.3-alpine3.14 as builder
-
+FROM golang:1.19-alpine as builder
+ENV GOPROXY https://goproxy.cn,direct
 # this comes from standard alpine nightly file
 #  https://github.com/rust-lang/docker-rust-nightly/blob/master/alpine3.12/Dockerfile
 # with some changes to support CosmWasm toolchain, etc
