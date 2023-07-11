@@ -925,7 +925,7 @@ func NewIritaApp(
 			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
-	app.AddPatch(700, func(ctx sdk.Context) error {
+	app.AddPatch(12568900, func(ctx sdk.Context) error {
 		app.mtKeeper.SetDenomSequence(ctx, uint64(2000))
 		app.mtKeeper.SetMTSequence(ctx, uint64(20000))
 		return nil
