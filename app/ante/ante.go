@@ -4,18 +4,6 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-
-	"github.com/bianjieai/irita/modules/gas"
-
-	evmmoduleante "github.com/bianjieai/irita/modules/evm"
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
-	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
-	"github.com/bianjieai/iritamod/modules/identity"
-	"github.com/bianjieai/iritamod/modules/node"
-	"github.com/bianjieai/iritamod/modules/params"
-	"github.com/bianjieai/iritamod/modules/perm"
-	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -23,6 +11,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	mttypes "github.com/irisnet/irismod/modules/mt/types"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
@@ -31,20 +20,34 @@ import (
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	tmlog "github.com/tendermint/tendermint/libs/log"
+	ethermintante "github.com/tharsis/ethermint/app/ante"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
-	ethermintante "github.com/tharsis/ethermint/app/ante"
+	evmmoduleante "github.com/bianjieai/irita/modules/evm"
+	"github.com/bianjieai/irita/modules/gas"
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
+	sidechain "github.com/bianjieai/irita/modules/side-chain"
+	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
+	"github.com/bianjieai/iritamod/modules/identity"
+	"github.com/bianjieai/iritamod/modules/node"
+	"github.com/bianjieai/iritamod/modules/params"
+	"github.com/bianjieai/iritamod/modules/perm"
+	sidechainkeeper "github.com/bianjieai/iritamod/modules/side-chain/keeper"
+	sidechaintypes "github.com/bianjieai/iritamod/modules/side-chain/types"
+	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
 )
 
 type HandlerOptions struct {
-	PermKeeper      perm.Keeper
-	AccountKeeper   authkeeper.AccountKeeper
-	BankKeeper      bankkeeper.Keeper
-	FeegrantKeeper  feegrantkeeper.Keeper
-	TokenKeeper     tokenkeeper.Keeper
-	OpbKeeper       opbkeeper.Keeper
-	SigGasConsumer  ante.SignatureVerificationGasConsumer
-	SignModeHandler signing.SignModeHandler
+	PermKeeper          perm.Keeper
+	AccountKeeper       authkeeper.AccountKeeper
+	BankKeeper          bankkeeper.Keeper
+	FeegrantKeeper      feegrantkeeper.Keeper
+	TokenKeeper         tokenkeeper.Keeper
+	OpbKeeper           opbkeeper.Keeper
+	SigGasConsumer      ante.SignatureVerificationGasConsumer
+	SignModeHandler     signing.SignModeHandler
+	SideChainKeeper     sidechainkeeper.Keeper
+	SideChainPermKeeper sidechain.PermKeeper
 
 	// evm config
 	EvmKeeper          evmmoduleante.EVMKeeper
@@ -118,6 +121,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				ante.NewTxTimeoutHeightDecorator(),
 				tokenkeeper.NewValidateTokenFeeDecorator(options.TokenKeeper, options.BankKeeper),
 				opbkeeper.NewValidateTokenTransferDecorator(options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
+				sidechainkeeper.NewValidateSideChainDecorator(options.SideChainKeeper, options.SideChainPermKeeper),
 			)
 		default:
 			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
@@ -190,6 +194,11 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgRegisterRelayer{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgUpgradeClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgSetRoutingRules{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+
+	// side-chain auth
+	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateSpace{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgTransferSpace{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateBlockHeader{}, perm.RoleRootAdmin, perm.RoleLayer2User)
 
 	return permKeeper
 }

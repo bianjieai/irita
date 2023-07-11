@@ -5,11 +5,11 @@ go 1.19
 require (
 	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
-	github.com/bianjieai/iritamod v1.3.0
+	github.com/bianjieai/iritamod v1.2.1-0.20230613082613-3fb58cc1f431
 	github.com/bianjieai/tibc-go v0.3.1-0.20220412124234-9b75094ff868
 	github.com/cosmos/cosmos-sdk v0.45.2
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/dvsekhvalnov/jose2go v1.5.0
+	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/ghodss/yaml v1.0.0
 	github.com/gogo/protobuf v1.3.3
@@ -65,7 +65,7 @@ require (
 	github.com/cosmos/ibc-go/v2 v2.0.1 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
 	github.com/cosmos/ledger-go v0.9.2 // indirect
-	github.com/danieljoos/wincred v1.1.2 // indirect
+	github.com/danieljoos/wincred v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/deckarep/golang-set v1.8.0 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
@@ -175,7 +175,7 @@ replace (
 	github.com/CosmWasm/wasmd => github.com/bianjieai/wasmd v0.19.1-0.20211215102105-45e28c7c896c
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816.0.20230711055722-509d1f240816
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
-	github.com/irisnet/irismod => github.com/bianjieai/irismod v1.6.1
+	github.com/irisnet/irismod => github.com/bianjieai/irismod v1.6.2-0.20230512022607-41a6e9a7ba6a
 	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20230711055156-46faf2ab867e
 	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.10.2-irita-20230315
 )

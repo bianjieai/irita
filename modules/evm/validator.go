@@ -8,8 +8,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
+
+	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
