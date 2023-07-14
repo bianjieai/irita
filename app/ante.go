@@ -20,6 +20,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	mttypes "github.com/irisnet/irismod/modules/mt/types"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
@@ -28,6 +29,7 @@ import (
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	tmlog "github.com/tendermint/tendermint/libs/log"
+	ethermintante "github.com/tharsis/ethermint/app/ante"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 )
 
@@ -35,7 +37,7 @@ type HandlerOptions struct {
 	permKeeper      perm.Keeper
 	accountKeeper   authkeeper.AccountKeeper
 	bankKeeper      bankkeeper.Keeper
-	feegrantKeeper  authante.FeegrantKeeper
+	feegrantKeeper  feegrantkeeper.Keeper
 	tokenKeeper     tokenkeeper.Keeper
 	opbKeeper       opbkeeper.Keeper
 	wserviceKeeper  wservicekeeper.IKeeper
@@ -65,18 +67,22 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
+						ethermintante.NewEthSetUpContextDecorator(options.evmKeeper), // outermost AnteDecorator. SetUpContext must be called first
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.accountKeeper),
 						appante.NewEthValidateBasicDecorator(options.evmKeeper),
 						appante.NewEthContractCallableDecorator(options.permKeeper),
-						appante.NewEthSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+						appante.NewEthFeeGrantValidator(options.evmKeeper, options.feegrantKeeper),
 						appante.NewEthSigVerificationDecorator(options.evmKeeper, options.accountKeeper, options.signModeHandler),
-						appante.NewEthAccountVerificationDecorator(options.accountKeeper, options.bankKeeper, options.evmKeeper),
-						appante.NewEthNonceVerificationDecorator(options.accountKeeper),
-						appante.NewEthGasConsumeDecorator(options.evmKeeper),
-						appante.NewCanTransferDecorator(options.evmKeeper, options.evmFeeMarketKeeper),
-						appante.NewEthIncrementSenderSequenceDecorator(options.accountKeeper), // innermost AnteDecorator.
+						appante.NewCanTransferDecorator(options.evmKeeper, options.opbKeeper, options.tokenKeeper, options.permKeeper),
+
+						ethermintante.NewEthAccountVerificationDecorator(options.accountKeeper, options.bankKeeper, options.evmKeeper),
+						ethermintante.NewEthGasConsumeDecorator(options.evmKeeper),
+						ethermintante.NewEthIncrementSenderSequenceDecorator(options.accountKeeper), // innermost AnteDecorator.
+						ethermintante.NewEthMempoolFeeDecorator(options.evmKeeper),                  // Check eth effective gas price against minimal-gas-prices
+						ethermintante.NewEthValidateBasicDecorator(options.evmKeeper),
+
 						perm.NewAuthDecorator(options.permKeeper),
 					)
 
