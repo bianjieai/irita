@@ -28,7 +28,18 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 		}
 	}()
 
-	app := NewIritaApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, MakeEncodingConfig(), simapp.EmptyAppOptions{}, interBlockCacheOpt())
+	app := NewIritaApp(
+		logger,
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		DefaultNodeHome,
+		simapp.FlagPeriodValue,
+		MakeEncodingConfig(),
+		simapp.EmptyAppOptions{},
+		interBlockCacheOpt(),
+	)
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
@@ -58,7 +69,10 @@ func BenchmarkFullAppSimulation(b *testing.B) {
 }
 
 func BenchmarkInvariants(b *testing.B) {
-	config, db, dir, logger, _, err := simapp.SetupSimulation("leveldb-app-invariant-bench", "Simulation")
+	config, db, dir, logger, _, err := simapp.SetupSimulation(
+		"leveldb-app-invariant-bench",
+		"Simulation",
+	)
 	if err != nil {
 		b.Fatalf("simulation setup failed: %s", err.Error())
 	}
@@ -72,7 +86,18 @@ func BenchmarkInvariants(b *testing.B) {
 		}
 	}()
 
-	app := NewIritaApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, MakeEncodingConfig(), simapp.EmptyAppOptions{}, interBlockCacheOpt())
+	app := NewIritaApp(
+		logger,
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		DefaultNodeHome,
+		simapp.FlagPeriodValue,
+		MakeEncodingConfig(),
+		simapp.EmptyAppOptions{},
+		interBlockCacheOpt(),
+	)
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
@@ -106,7 +131,7 @@ func BenchmarkInvariants(b *testing.B) {
 	//
 	// NOTE: We use the crisis keeper as it has all the invariants registered with
 	// their respective metadata which makes it useful for testing/benchmarking.
-	for _, cr := range app.crisisKeeper.Routes() {
+	for _, cr := range app.CrisisKeeper.Routes() {
 		cr := cr
 		b.Run(fmt.Sprintf("%s/%s", cr.ModuleName, cr.Route), func(b *testing.B) {
 			if res, stop := cr.Invar(ctx); stop {

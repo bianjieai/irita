@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"github.com/CosmWasm/wasmd/x/wasm"
-
 	"github.com/bianjieai/irita/modules/opb/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -31,7 +29,12 @@ func NewValidateTokenTransferDecorator(
 }
 
 // AnteHandle implements AnteHandler
-func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
+func (vtd ValidateTokenTransferDecorator) AnteHandle(
+	ctx sdk.Context,
+	tx sdk.Tx,
+	simulate bool,
+	next sdk.AnteHandler,
+) (newCtx sdk.Context, err error) {
 	restrictionEnabled := !vtd.keeper.UnrestrictedTokenTransfer(ctx)
 
 	// check only if the transfer restriction is enabled
@@ -48,16 +51,6 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 				if err != nil {
 					return ctx, err
 				}
-			case *wasm.MsgInstantiateContract:
-				err := vtd.validateMsgInstantiateContract(ctx, msg)
-				if err != nil {
-					return ctx, err
-				}
-			case *wasm.MsgExecuteContract:
-				err := vtd.validateMsgExecuteContract(ctx, msg)
-				if err != nil {
-					return ctx, err
-				}
 			}
 		}
 	}
@@ -66,7 +59,10 @@ func (vtd ValidateTokenTransferDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx,
 }
 
 // validateMsgSend validates the MsgSend msg
-func (vtd ValidateTokenTransferDecorator) validateMsgSend(ctx sdk.Context, msg *banktypes.MsgSend) error {
+func (vtd ValidateTokenTransferDecorator) validateMsgSend(
+	ctx sdk.Context,
+	msg *banktypes.MsgSend,
+) error {
 	for _, coin := range msg.Amount {
 		owner, err := vtd.getOwner(ctx, coin.Denom)
 		if err != nil {
@@ -103,7 +99,10 @@ func (vtd ValidateTokenTransferDecorator) validateMsgSend(ctx sdk.Context, msg *
 }
 
 // validateMsgMultiSend validates the MsgMultiSend msg
-func (vtd ValidateTokenTransferDecorator) validateMsgMultiSend(ctx sdk.Context, msg *banktypes.MsgMultiSend) error {
+func (vtd ValidateTokenTransferDecorator) validateMsgMultiSend(
+	ctx sdk.Context,
+	msg *banktypes.MsgMultiSend,
+) error {
 	inputMap := getInputMap(msg.Inputs)
 	outputMap := getOutputMap(msg.Outputs)
 
@@ -130,18 +129,11 @@ func (vtd ValidateTokenTransferDecorator) validateMsgMultiSend(ctx sdk.Context, 
 	return nil
 }
 
-// validateMsgInstantiateContract validates the MsgInstantiateContract msg
-func (vtd ValidateTokenTransferDecorator) validateMsgInstantiateContract(ctx sdk.Context, msg *wasm.MsgInstantiateContract) error {
-	return vtd.validateContractFunds(ctx, msg.Funds)
-}
-
-// validateMsgExecuteContract validates the MsgExecuteContract msg
-func (vtd ValidateTokenTransferDecorator) validateMsgExecuteContract(ctx sdk.Context, msg *wasm.MsgExecuteContract) error {
-	return vtd.validateContractFunds(ctx, msg.Funds)
-}
-
 // getOwner gets the owner of the specified denom
-func (vtd ValidateTokenTransferDecorator) getOwner(ctx sdk.Context, denom string) (owner string, err error) {
+func (vtd ValidateTokenTransferDecorator) getOwner(
+	ctx sdk.Context,
+	denom string,
+) (owner string, err error) {
 	baseTokenDenom := vtd.keeper.BaseTokenDenom(ctx)
 
 	if denom == baseTokenDenom {
@@ -157,7 +149,10 @@ func (vtd ValidateTokenTransferDecorator) getOwner(ctx sdk.Context, denom string
 }
 
 // validateContractFunds validates the funds in the contract transactions
-func (vtd ValidateTokenTransferDecorator) validateContractFunds(ctx sdk.Context, coins sdk.Coins) error {
+func (vtd ValidateTokenTransferDecorator) validateContractFunds(
+	ctx sdk.Context,
+	coins sdk.Coins,
+) error {
 	baseTokenDenom := vtd.keeper.BaseTokenDenom(ctx)
 
 	for _, coin := range coins {
@@ -174,7 +169,10 @@ func (vtd ValidateTokenTransferDecorator) validateContractFunds(ctx sdk.Context,
 }
 
 // hasPlatformUserPermFromArr determine whether the account is a platform user from addresses
-func (vtd ValidateTokenTransferDecorator) hasPlatformUserPermFromArr(ctx sdk.Context, addresses []string) bool {
+func (vtd ValidateTokenTransferDecorator) hasPlatformUserPermFromArr(
+	ctx sdk.Context,
+	addresses []string,
+) bool {
 	for _, addr := range addresses {
 		fromAddress, err := sdk.AccAddressFromBech32(addr)
 		if err != nil {
@@ -189,8 +187,12 @@ func (vtd ValidateTokenTransferDecorator) hasPlatformUserPermFromArr(ctx sdk.Con
 }
 
 // hasPlatformUserPerm determine whether the account is a platform user
-func (vtd ValidateTokenTransferDecorator) hasPlatformUserPerm(ctx sdk.Context, address sdk.AccAddress) bool {
-	return vtd.permKeeper.IsRootAdmin(ctx, address) || vtd.permKeeper.IsBaseM1Admin(ctx, address) || vtd.permKeeper.IsPlatformUser(ctx, address)
+func (vtd ValidateTokenTransferDecorator) hasPlatformUserPerm(
+	ctx sdk.Context,
+	address sdk.AccAddress,
+) bool {
+	return vtd.permKeeper.IsRootAdmin(ctx, address) || vtd.permKeeper.IsBaseM1Admin(ctx, address) ||
+		vtd.permKeeper.IsPlatformUser(ctx, address)
 }
 
 // owned returns false if any address is not the owner of the denom among the given non-empty addresses

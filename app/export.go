@@ -14,7 +14,10 @@ import (
 )
 
 // ExportAppStateAndValidators export the state of irita for a genesis file
-func (app *IritaApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowedAddrs []string) (servertypes.ExportedApp, error) {
+func (app *IritaApp) ExportAppStateAndValidators(
+	forZeroHeight bool,
+	jailAllowedAddrs []string,
+) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 
@@ -30,7 +33,7 @@ func (app *IritaApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowed
 		return servertypes.ExportedApp{}, err
 	}
 
-	validators := node.WriteValidators(ctx, app.nodeKeeper)
+	validators := node.WriteValidators(ctx, app.NodeKeeper)
 	return servertypes.ExportedApp{
 		AppState:        appState,
 		Validators:      validators,
@@ -46,7 +49,7 @@ func (app *IritaApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowed
 func (app *IritaApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
 
 	/* Just to be safe, assert the invariants on current state. */
-	app.crisisKeeper.AssertInvariants(ctx)
+	app.CrisisKeeper.AssertInvariants(ctx)
 
-	service.PrepForZeroHeightGenesis(ctx, app.serviceKeeper)
+	service.PrepForZeroHeightGenesis(ctx, app.ServiceKeeper)
 }

@@ -42,12 +42,34 @@ QAVleeE0pMY+MtENXcQ2wH0QRXs+wO0XCw==
 
 func TestIritaExport(t *testing.T) {
 	db := dbm.NewMemDB()
-	app := NewIritaApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, MakeEncodingConfig(), simapp.EmptyAppOptions{}, interBlockCacheOpt())
+	app := NewIritaApp(
+		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		DefaultNodeHome,
+		simapp.FlagPeriodValue,
+		MakeEncodingConfig(),
+		simapp.EmptyAppOptions{},
+		interBlockCacheOpt(),
+	)
 
 	_ = setGenesis(app)
 
 	// Making a new app object with the db, so that initchain hasn't been called
-	app2 := NewIritaApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, MakeEncodingConfig(), simapp.EmptyAppOptions{}, interBlockCacheOpt())
+	app2 := NewIritaApp(
+		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		DefaultNodeHome,
+		simapp.FlagPeriodValue,
+		MakeEncodingConfig(),
+		simapp.EmptyAppOptions{},
+		interBlockCacheOpt(),
+	)
 	_, err := app2.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }
@@ -55,16 +77,36 @@ func TestIritaExport(t *testing.T) {
 // ensure that black listed addresses are properly set in bank keeper
 func TestBlackListedAddrs(t *testing.T) {
 	db := dbm.NewMemDB()
-	app := NewIritaApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, MakeEncodingConfig(), simapp.EmptyAppOptions{}, interBlockCacheOpt())
+	app := NewIritaApp(
+		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		DefaultNodeHome,
+		simapp.FlagPeriodValue,
+		MakeEncodingConfig(),
+		simapp.EmptyAppOptions{},
+		interBlockCacheOpt(),
+	)
 
 	for acc := range maccPerms {
-		require.Equal(t, !allowedReceivingModAcc[acc], app.bankKeeper.BlockedAddr(app.accountKeeper.GetModuleAddress(acc)))
+		require.Equal(
+			t,
+			!allowedReceivingModAcc[acc],
+			app.BankKeeper.BlockedAddr(app.AccountKeeper.GetModuleAddress(acc)),
+		)
 	}
 }
 
 func TestGetMaccPerms(t *testing.T) {
 	dup := GetMaccPerms()
-	require.Equal(t, maccPerms, dup, "duplicated module account permissions differed from actual module account permissions")
+	require.Equal(
+		t,
+		maccPerms,
+		dup,
+		"duplicated module account permissions differed from actual module account permissions",
+	)
 }
 
 func setGenesis(iapp *IritaApp) error {

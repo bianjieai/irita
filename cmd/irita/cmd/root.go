@@ -41,8 +41,6 @@ import (
 
 	"github.com/bianjieai/irita/app"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-
 	"github.com/tharsis/ethermint/crypto/hd"
 	"github.com/tharsis/ethermint/encoding"
 	servercfg "github.com/tharsis/ethermint/server/config"
@@ -117,7 +115,12 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		//genutilcli.GenTxCmd(app.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, app.DefaultNodeHome),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome, app.DefaultNodeHome),
-		AddGenesisValidatorCmd(app.ModuleBasics, node.AppModuleBasic{}, app.DefaultNodeHome, app.DefaultNodeHome),
+		AddGenesisValidatorCmd(
+			app.ModuleBasics,
+			node.AppModuleBasic{},
+			app.DefaultNodeHome,
+			app.DefaultNodeHome,
+		),
 		genutilcli.GenKey(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		testnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
@@ -146,7 +149,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
-	wasm.AddModuleInitFlags(startCmd)
 }
 
 func queryCommand() *cobra.Command {
@@ -204,7 +206,12 @@ type appCreator struct {
 	encCfg params.EncodingConfig
 }
 
-func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, appOpts servertypes.AppOptions) servertypes.Application {
+func (ac appCreator) newApp(
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	appOpts servertypes.AppOptions,
+) servertypes.Application {
 	var cache sdk.MultiStorePersistentCache
 
 	if cast.ToBool(appOpts.Get(server.FlagInterBlockCache)) {
@@ -232,7 +239,11 @@ func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 	}
 
 	return app.NewIritaApp(
-		logger, db, traceStore, true, skipUpgradeHeights,
+		logger,
+		db,
+		traceStore,
+		true,
+		skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		ac.encCfg, // Ideally, we would reuse the one created by NewRootCmd.
@@ -245,8 +256,12 @@ func (ac appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, 
 		baseapp.SetTrace(cast.ToBool(appOpts.Get(server.FlagTrace))),
 		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(server.FlagIndexEvents))),
 		baseapp.SetSnapshotStore(snapshotStore),
-		baseapp.SetSnapshotInterval(cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval))),
-		baseapp.SetSnapshotKeepRecent(cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent))),
+		baseapp.SetSnapshotInterval(
+			cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval)),
+		),
+		baseapp.SetSnapshotKeepRecent(
+			cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent)),
+		),
 	)
 }
 
