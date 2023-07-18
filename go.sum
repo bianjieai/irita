@@ -647,10 +647,8 @@ github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816 h1:P6+9MxwW+sACE1/M7rJq7N
 github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816/go.mod h1:844fVGwl2JVfV8cxsr0+A0mtcYUkkPlEW3Q4skuEwaI=
 github.com/bianjieai/ethermint v0.10.2-irita-20230315 h1:OzTtBrRh42b6GqBY/0ec9NfYIH8TIh+sGb5N96hrQsQ=
 github.com/bianjieai/ethermint v0.10.2-irita-20230315/go.mod h1:wY1g0XkLenjcgfuok56QprJPZk8/1Z2DKiDsjqnZWso=
-github.com/bianjieai/irismod v1.6.2-0.20230512022607-41a6e9a7ba6a h1:X194E93U/8RIgpLTY/OlUZC53MUrHe5DzaNLkSnL4Kk=
-github.com/bianjieai/irismod v1.6.2-0.20230512022607-41a6e9a7ba6a/go.mod h1:fTZ5IAvcxJPtlPp9PFJi2+IePJ+BewrSwT40YJPoFq4=
-github.com/bianjieai/iritamod v1.2.1-0.20230613082613-3fb58cc1f431 h1:IvgtaLostSVc2FzaU8sdspbHiIV5VHZMGgq0DTp1oqQ=
-github.com/bianjieai/iritamod v1.2.1-0.20230613082613-3fb58cc1f431/go.mod h1:5woISMgARzwIysP3WFP5WZ2eod2dDcAGgRGVfpuT08Q=
+github.com/bianjieai/iritamod v1.4.0 h1:TokAq2ATs97HMS3moSo/zeUhUBvOSCT7CDA5Ev1VzzA=
+github.com/bianjieai/iritamod v1.4.0/go.mod h1:5woISMgARzwIysP3WFP5WZ2eod2dDcAGgRGVfpuT08Q=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3 h1:M4C+ilCPiP2c2yMdeYaZLwquEBfFa4Uvt1BDviSYD0E=
 github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3/go.mod h1:2u6xthTnwDYLhO38cDYp8CxzKq7hwJFvCXeK1pEErtM=
 github.com/bianjieai/tibc-go v0.3.1-0.20220412124234-9b75094ff868 h1:dPS+AcwCQsWTMXRgZwO+Yy2rY8y9G+X38MA7toAivok=
@@ -763,6 +761,8 @@ github.com/cosmos/iavl v0.15.3/go.mod h1:OLjQiAQ4fGD2KDZooyJG9yz+p2ao2IAYSbke8mV
 github.com/cosmos/iavl v0.17.2/go.mod h1:prJoErZFABYZGDHka1R6Oay4z9PrNeFFiMKHDAMOi4w=
 github.com/cosmos/iavl v0.17.3 h1:s2N819a2olOmiauVa0WAhoIJq9EhSXE9HDBAoR9k+8Y=
 github.com/cosmos/iavl v0.17.3/go.mod h1:prJoErZFABYZGDHka1R6Oay4z9PrNeFFiMKHDAMOi4w=
+github.com/cosmos/ibc-go v1.1.0 h1:qtiBbiFR1hbxQ0h66FbjTZnzUjZNpndHghl9gZcoZjY=
+github.com/cosmos/ibc-go v1.1.0/go.mod h1:1y0rXG5xsOIrmVGb0pv1poYbiTW+1cz4GX0VGDwJAgA=
 github.com/cosmos/ibc-go/v2 v2.0.1 h1:9UqlTV/3M3JO4x71Hm26yzzYnUryMecvvX+gXyAtXic=
 github.com/cosmos/ibc-go/v2 v2.0.1/go.mod h1:ZfePiHyAVzWvRafjDCI00huUnPjRgOn1FsOklO68AF0=
 github.com/cosmos/ledger-cosmos-go v0.11.1 h1:9JIYsGnXP613pb2vPjFeMMjBI5lEDsEaF6oYorTy6J4=
@@ -1208,6 +1208,9 @@ github.com/influxdata/promql/v2 v2.12.0/go.mod h1:fxOPu+DY0bqCTCECchSRtWfc+0X19y
 github.com/influxdata/roaring v0.4.13-0.20180809181101-fc520f41fab6/go.mod h1:bSgUQ7q5ZLSO+bKBGqJiCBGAl+9DxyW63zLTujjUlOE=
 github.com/influxdata/tdigest v0.0.0-20181121200506-bf2b5ad3c0a9/go.mod h1:Js0mqiSBE6Ffsg94weZZ2c+v/ciT8QRHFOap7EKDrR0=
 github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:Wbbw6tYNvwa5dlB6304Sd+82Z3f7PmVZHVKU637d4po=
+github.com/irisnet/irismod v1.5.2-alpha1.0.20220310091659-03a461a21657/go.mod h1:IrhKhC64ZkZ8gGkXS1+XXnZNLQWGocZv9W/gGmynEFA=
+github.com/irisnet/irismod v1.6.2 h1:8Fi5aIFMk/NaHBubO8reRVbKCx/7ggANk83zD4/5ZMI=
+github.com/irisnet/irismod v1.6.2/go.mod h1:fTZ5IAvcxJPtlPp9PFJi2+IePJ+BewrSwT40YJPoFq4=
 github.com/jackpal/go-nat-pmp v1.0.2-0.20160603034137-1fa385a6f458/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
 github.com/jackpal/go-nat-pmp v1.0.2 h1:KzKSgb7qkJvOUTqYl9/Hg/me3pWgBmERKrTGD7BdWus=
 github.com/jackpal/go-nat-pmp v1.0.2/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
@@ -1633,6 +1636,7 @@ github.com/spf13/cobra v0.0.3/go.mod h1:1l0Ry5zgKvJasoi3XT1TypsSe7PqH0Sj9dhYf7v3
 github.com/spf13/cobra v0.0.5/go.mod h1:3K3wKZymM7VvHMDS9+Akkh4K60UwM26emMESw8tLCHU=
 github.com/spf13/cobra v1.0.0/go.mod h1:/6GTrnGXV9HjY+aR4k0oJ5tcvakLuG6EuKReYlHNrgE=
 github.com/spf13/cobra v1.1.1/go.mod h1:WnodtKOvamDL/PwE2M4iKs8aMDBZ5Q5klgD3qfVJQMI=
+github.com/spf13/cobra v1.1.3/go.mod h1:pGADOWyqRD/YMrPZigI/zbliZ2wVD/23d+is3pSWzOo=
 github.com/spf13/cobra v1.2.1/go.mod h1:ExllRjgxM/piMAM+3tAZvg8fsklGAf3tPfi+i8t68Nk=
 github.com/spf13/cobra v1.3.0 h1:R7cSvGu+Vv+qX0gW5R/85dx2kmmJT5z5NM8ifdYjdn0=
 github.com/spf13/cobra v1.3.0/go.mod h1:BrRVncBjOJa/eUcVVm9CE+oC6as8k+VYr4NY7WCi9V4=
@@ -1647,6 +1651,7 @@ github.com/spf13/viper v1.3.2/go.mod h1:ZiWeW+zYFKm7srdB9IoDzzZXaJaI5eL9QjNiN/DM
 github.com/spf13/viper v1.4.0/go.mod h1:PTJ7Z/lr49W6bUbkmS1V3by4uWynFiR9p7+dSq/yZzE=
 github.com/spf13/viper v1.7.0/go.mod h1:8WkrPz2fc9jxqZNCJI/76HCieCp4Q8HaLFoCha5qpdg=
 github.com/spf13/viper v1.7.1/go.mod h1:8WkrPz2fc9jxqZNCJI/76HCieCp4Q8HaLFoCha5qpdg=
+github.com/spf13/viper v1.8.0/go.mod h1:o0Pch8wJ9BVSWGQMbra6iw0oQ5oktSIBaujf1rJH9Ns=
 github.com/spf13/viper v1.8.1/go.mod h1:o0Pch8wJ9BVSWGQMbra6iw0oQ5oktSIBaujf1rJH9Ns=
 github.com/spf13/viper v1.9.0/go.mod h1:+i6ajR7OX2XaiBkrcZJFK21htRk7eDeLg7+O6bhUPP4=
 github.com/spf13/viper v1.10.0/go.mod h1:SoyBPwAtKDzypXNDFKN5kzH7ppppbGZtls1UpIy5AsM=

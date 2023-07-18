@@ -2,12 +2,26 @@ module github.com/bianjieai/irita
 
 go 1.17
 
+replace (
+	github.com/CosmWasm/wasmd => github.com/bianjieai/wasmd v0.19.1-0.20211215102105-45e28c7c896c
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816
+	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
+	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
+	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.10.2-irita-20230315
+)
+
 require (
-	github.com/99designs/keyring v1.1.6
 	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
-	github.com/bianjieai/iritamod v1.2.1-0.20230613082613-3fb58cc1f431
+	github.com/bianjieai/iritamod v1.4.0
 	github.com/bianjieai/tibc-go v0.3.1-0.20220412124234-9b75094ff868
 	github.com/cosmos/cosmos-sdk v0.45.2
+	github.com/irisnet/irismod v1.6.2
+	github.com/tendermint/tendermint v0.34.23
+	github.com/tharsis/ethermint v0.8.1
+)
+
+require (
+	github.com/99designs/keyring v1.1.6
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/dvsekhvalnov/jose2go v0.0.0-20201001154944-b09cfaf05951
 	github.com/ethereum/go-ethereum v1.10.16
@@ -17,7 +31,6 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/improbable-eng/grpc-web v0.15.0
-	github.com/irisnet/irismod v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mtibben/percent v0.2.1
 	github.com/olebedev/config v0.0.0-20190528211619-364964f3a8e4
@@ -31,9 +44,7 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.8.1
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15
-	github.com/tendermint/tendermint v0.34.23
 	github.com/tendermint/tm-db v0.6.7
-	github.com/tharsis/ethermint v0.8.1
 	golang.org/x/crypto v0.7.0
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4
 	google.golang.org/grpc v1.53.0
@@ -161,14 +172,4 @@ require (
 	gopkg.in/olebedev/go-duktape.v3 v3.0.0-20200619000410-60c24ae608a6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
-)
-
-replace (
-	//github.com/CosmWasm/wasmd => github.com/provenance-io/wasmd v0.19.0
-	github.com/CosmWasm/wasmd => github.com/bianjieai/wasmd v0.19.1-0.20211215102105-45e28c7c896c
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.45.1-irita-20220816
-	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
-	github.com/irisnet/irismod => github.com/bianjieai/irismod v1.6.2-0.20230512022607-41a6e9a7ba6a
-	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.8-irita-210413.0.20211012090339-cee6e09e8ae3
-	github.com/tharsis/ethermint => github.com/bianjieai/ethermint v0.10.2-irita-20230315
 )

@@ -54,10 +54,10 @@ type HandlerOptions struct {
 	EvmFeeMarketKeeper evmtypes.FeeMarketKeeper
 }
 
-// NewAnteHandler returns an AnteHandler that checks and increments sequence
+// DefaultAnteHandler returns an AnteHandler that checks and increments sequence
 // numbers, checks signatures & account numbers, deducts fees from the first
 // signer, and performs other module-specific logic.
-func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
+func DefaultAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return func(
 		ctx sdk.Context, tx sdk.Tx, sim bool,
 	) (newCtx sdk.Context, err error) {
@@ -72,20 +72,42 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.evm.v1.ExtensionOptionsEthereumTx":
 					// handle as *evmtypes.MsgEthereumTx
 					anteHandler = sdk.ChainAnteDecorators(
-						ethermintante.NewEthSetUpContextDecorator(options.EvmKeeper), // outermost AnteDecorator. SetUpContext must be called first
+						ethermintante.NewEthSetUpContextDecorator(
+							options.EvmKeeper,
+						), // outermost AnteDecorator. SetUpContext must be called first
 						ante.NewMempoolFeeDecorator(),
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.AccountKeeper),
 						evmmoduleante.NewEthValidateBasicDecorator(options.EvmKeeper),
-						evmmoduleante.NewEthFeeGrantValidator(options.EvmKeeper, options.FeegrantKeeper),
+						evmmoduleante.NewEthFeeGrantValidator(
+							options.EvmKeeper,
+							options.FeegrantKeeper,
+						),
 						evmmoduleante.NewEthContractCallableDecorator(options.PermKeeper),
-						evmmoduleante.NewEthSigVerificationDecorator(options.EvmKeeper, options.AccountKeeper, options.SignModeHandler),
-						evmmoduleante.NewCanTransferDecorator(options.EvmKeeper, options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
+						evmmoduleante.NewEthSigVerificationDecorator(
+							options.EvmKeeper,
+							options.AccountKeeper,
+							options.SignModeHandler,
+						),
+						evmmoduleante.NewCanTransferDecorator(
+							options.EvmKeeper,
+							options.OpbKeeper,
+							options.TokenKeeper,
+							options.PermKeeper,
+						),
 
-						ethermintante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.BankKeeper, options.EvmKeeper),
+						ethermintante.NewEthAccountVerificationDecorator(
+							options.AccountKeeper,
+							options.BankKeeper,
+							options.EvmKeeper,
+						),
 						ethermintante.NewEthGasConsumeDecorator(options.EvmKeeper),
-						ethermintante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper), // innermost AnteDecorator.
-						ethermintante.NewEthMempoolFeeDecorator(options.EvmKeeper),                  // Check eth effective gas price against minimal-gas-prices
+						ethermintante.NewEthIncrementSenderSequenceDecorator(
+							options.AccountKeeper,
+						), // innermost AnteDecorator.
+						ethermintante.NewEthMempoolFeeDecorator(
+							options.EvmKeeper,
+						), // Check eth effective gas price against minimal-gas-prices
 						ethermintante.NewEthValidateBasicDecorator(options.EvmKeeper),
 
 						perm.NewAuthDecorator(options.PermKeeper),
@@ -153,14 +175,36 @@ func Recover(logger tmlog.Logger, err *error) {
 
 func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	// permission auth
-	permKeeper.RegisterMsgAuth(&perm.MsgAssignRoles{}, perm.RoleRootAdmin, perm.RolePermAdmin, perm.RolePowerUserAdmin)
-	permKeeper.RegisterMsgAuth(&perm.MsgUnassignRoles{}, perm.RoleRootAdmin, perm.RolePermAdmin, perm.RolePowerUserAdmin)
+	permKeeper.RegisterMsgAuth(
+		&perm.MsgAssignRoles{},
+		perm.RoleRootAdmin,
+		perm.RolePermAdmin,
+		perm.RolePowerUserAdmin,
+	)
+	permKeeper.RegisterMsgAuth(
+		&perm.MsgUnassignRoles{},
+		perm.RoleRootAdmin,
+		perm.RolePermAdmin,
+		perm.RolePowerUserAdmin,
+	)
 
 	// blacklist auth
 	permKeeper.RegisterMsgAuth(&perm.MsgBlockAccount{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
-	permKeeper.RegisterMsgAuth(&perm.MsgUnblockAccount{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
-	permKeeper.RegisterMsgAuth(&perm.MsgBlockContract{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
-	permKeeper.RegisterMsgAuth(&perm.MsgUnblockContract{}, perm.RoleRootAdmin, perm.RoleBlacklistAdmin)
+	permKeeper.RegisterMsgAuth(
+		&perm.MsgUnblockAccount{},
+		perm.RoleRootAdmin,
+		perm.RoleBlacklistAdmin,
+	)
+	permKeeper.RegisterMsgAuth(
+		&perm.MsgBlockContract{},
+		perm.RoleRootAdmin,
+		perm.RoleBlacklistAdmin,
+	)
+	permKeeper.RegisterMsgAuth(
+		&perm.MsgUnblockContract{},
+		perm.RoleRootAdmin,
+		perm.RoleBlacklistAdmin,
+	)
 
 	// node auth
 	permKeeper.RegisterModuleAuth(node.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
@@ -182,8 +226,16 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&tokentypes.MsgIssueToken{}, perm.RoleRootAdmin, perm.RolePowerUser)
 	permKeeper.RegisterMsgAuth(&nfttypes.MsgIssueDenom{}, perm.RoleRootAdmin, perm.RolePowerUser)
 	permKeeper.RegisterMsgAuth(&mttypes.MsgIssueDenom{}, perm.RoleRootAdmin, perm.RolePowerUser)
-	permKeeper.RegisterMsgAuth(&servicetypes.MsgDefineService{}, perm.RoleRootAdmin, perm.RolePowerUser)
-	permKeeper.RegisterMsgAuth(&servicetypes.MsgBindService{}, perm.RoleRootAdmin, perm.RolePowerUser)
+	permKeeper.RegisterMsgAuth(
+		&servicetypes.MsgDefineService{},
+		perm.RoleRootAdmin,
+		perm.RolePowerUser,
+	)
+	permKeeper.RegisterMsgAuth(
+		&servicetypes.MsgBindService{},
+		perm.RoleRootAdmin,
+		perm.RolePowerUser,
+	)
 
 	// upgrade auth
 	permKeeper.RegisterModuleAuth(upgradetypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
@@ -191,14 +243,38 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	// tibc auth
 	permKeeper.RegisterModuleAuth(tibctypes.ModuleName, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgCreateClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
-	permKeeper.RegisterMsgAuth(&tibctypes.MsgRegisterRelayer{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
-	permKeeper.RegisterMsgAuth(&tibctypes.MsgUpgradeClient{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
-	permKeeper.RegisterMsgAuth(&tibctypes.MsgSetRoutingRules{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
+	permKeeper.RegisterMsgAuth(
+		&tibctypes.MsgRegisterRelayer{},
+		perm.RoleRootAdmin,
+		perm.RoleNodeAdmin,
+	)
+	permKeeper.RegisterMsgAuth(
+		&tibctypes.MsgUpgradeClient{},
+		perm.RoleRootAdmin,
+		perm.RoleNodeAdmin,
+	)
+	permKeeper.RegisterMsgAuth(
+		&tibctypes.MsgSetRoutingRules{},
+		perm.RoleRootAdmin,
+		perm.RoleNodeAdmin,
+	)
 
 	// side-chain auth
-	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateSpace{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgTransferSpace{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateBlockHeader{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(
+		&sidechaintypes.MsgCreateSpace{},
+		perm.RoleRootAdmin,
+		perm.RoleLayer2User,
+	)
+	permKeeper.RegisterMsgAuth(
+		&sidechaintypes.MsgTransferSpace{},
+		perm.RoleRootAdmin,
+		perm.RoleLayer2User,
+	)
+	permKeeper.RegisterMsgAuth(
+		&sidechaintypes.MsgCreateBlockHeader{},
+		perm.RoleRootAdmin,
+		perm.RoleLayer2User,
+	)
 
 	return permKeeper
 }
