@@ -20,7 +20,7 @@ func (k PermKeeper) HasSideChainUserRole(ctx sdk.Context, addr sdk.AccAddress) b
 		return true
 	}
 
-	if err := k.perm.Access(ctx, addr, perm.RoleLayer2User.Auth()); err != nil {
+	if err := k.perm.Access(ctx, addr, perm.RoleSideChainUser.Auth()); err != nil {
 		return false
 	}
 	return true

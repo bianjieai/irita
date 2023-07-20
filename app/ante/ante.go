@@ -196,9 +196,9 @@ func RegisterAccessControl(permKeeper perm.Keeper) perm.Keeper {
 	permKeeper.RegisterMsgAuth(&tibctypes.MsgSetRoutingRules{}, perm.RoleRootAdmin, perm.RoleNodeAdmin)
 
 	// side-chain auth
-	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateSpace{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgTransferSpace{}, perm.RoleRootAdmin, perm.RoleLayer2User)
-	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateBlockHeader{}, perm.RoleRootAdmin, perm.RoleLayer2User)
+	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateSpace{}, perm.RoleRootAdmin, perm.RoleSideChainUser)
+	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgTransferSpace{}, perm.RoleRootAdmin, perm.RoleSideChainUser)
+	permKeeper.RegisterMsgAuth(&sidechaintypes.MsgCreateBlockHeader{}, perm.RoleRootAdmin, perm.RoleSideChainUser)
 
 	return permKeeper
 }
