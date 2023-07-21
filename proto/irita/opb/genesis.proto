@@ -1,7 +1,7 @@
 syntax = "proto3";
 package irita.opb;
 
-import "opb/opb.proto";
+import "irita/opb/opb.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/bianjieai/irita/modules/opb/types";

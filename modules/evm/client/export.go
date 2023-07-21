@@ -14,8 +14,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
-	"github.com/tharsis/ethermint/crypto/hd"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/ethermint/crypto/hd"
 )
 
 // UnsafeExportEthKeyCommand exports a key with the given name as a private key in hex format.
@@ -49,11 +49,14 @@ func UnsafeExportEthKeyCommand() *cobra.Command {
 			case keyring.BackendFile:
 				decryptPassword, err = input.GetPassword(
 					"**WARNING this is an unsafe way to export your unencrypted private key**\nEnter key password:",
-					inBuf)
+					inBuf,
+				)
 			case keyring.BackendOS:
 				conf, err = input.GetConfirmation(
 					"**WARNING** this is an unsafe way to export your unencrypted private key, are you sure?",
-					inBuf, cmd.ErrOrStderr())
+					inBuf,
+					cmd.ErrOrStderr(),
+				)
 			}
 			if err != nil || !conf {
 				return err
@@ -71,13 +74,21 @@ func UnsafeExportEthKeyCommand() *cobra.Command {
 			}
 
 			if algo != ethsecp256k1.KeyType {
-				return fmt.Errorf("invalid key algorithm, got %s, expected %s", algo, ethsecp256k1.KeyType)
+				return fmt.Errorf(
+					"invalid key algorithm, got %s, expected %s",
+					algo,
+					ethsecp256k1.KeyType,
+				)
 			}
 
 			// Converts key to Ethermint secp256k1 implementation
 			ethPrivKey, ok := privKey.(*ethsecp256k1.PrivKey)
 			if !ok {
-				return fmt.Errorf("invalid private key type %T, expected %T", privKey, &ethsecp256k1.PrivKey{})
+				return fmt.Errorf(
+					"invalid private key type %T, expected %T",
+					privKey,
+					&ethsecp256k1.PrivKey{},
+				)
 			}
 
 			key, err := ethPrivKey.ToECDSA()

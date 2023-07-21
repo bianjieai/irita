@@ -6,14 +6,14 @@ import (
 
 	"github.com/pkg/errors"
 
-	tmbcrypt "github.com/tendermint/crypto/bcrypt"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/armor"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	"github.com/tendermint/tendermint/crypto/xsalsa20symmetric"
+	"github.com/cometbft/cometbft/crypto"
+	"github.com/cometbft/cometbft/crypto/armor"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	"github.com/cometbft/cometbft/crypto/xsalsa20symmetric"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/bcrypt"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 )
 
@@ -57,7 +57,11 @@ func VerifyHash(srcHash, srcText string) bool {
 }
 
 // Encrypt and armor the private key.
-func EncryptArmorPrivKey(privKey cryptotypes.PrivKey, passphrase string, header map[string]string) string {
+func EncryptArmorPrivKey(
+	privKey cryptotypes.PrivKey,
+	passphrase string,
+	header map[string]string,
+) string {
 	saltBytes, encBytes := encryptPrivKey(privKey, passphrase)
 	if header == nil {
 		header = map[string]string{}
@@ -70,9 +74,16 @@ func EncryptArmorPrivKey(privKey cryptotypes.PrivKey, passphrase string, header 
 // encrypt the given privKey with the passphrase using a randomly
 // generated salt and the xsalsa20 cipher. returns the salt and the
 // encrypted priv key.
-func encryptPrivKey(privKey cryptotypes.PrivKey, passphrase string) (saltBytes []byte, encBytes []byte) {
+func encryptPrivKey(
+	privKey cryptotypes.PrivKey,
+	passphrase string,
+) (saltBytes []byte, encBytes []byte) {
 	saltBytes = crypto.CRandBytes(16)
-	key, err := tmbcrypt.GenerateFromPassword(saltBytes, []byte(passphrase), BcryptSecurityParameter)
+	key, err := bcrypt.GenerateFromPassword(
+		saltBytes,
+		[]byte(passphrase),
+		BcryptSecurityParameter,
+	)
 
 	if err != nil {
 		panic(errors.Wrap(err, "generating bcrypt key from passphrase"))

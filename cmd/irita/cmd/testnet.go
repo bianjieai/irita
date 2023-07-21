@@ -12,24 +12,24 @@ import (
 	"os"
 	"path/filepath"
 
-	evmhd "github.com/tharsis/ethermint/crypto/hd"
+	evmhd "github.com/evmos/ethermint/crypto/hd"
 
-	"github.com/tendermint/tendermint/crypto/algo"
+	"github.com/cometbft/cometbft/crypto/algo"
 
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	evmfmttypes "github.com/tharsis/ethermint/x/feemarket/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evmfmttypes "github.com/evmos/ethermint/x/feemarket/types"
 
-	ethermint "github.com/tharsis/ethermint/types"
+	ethermint "github.com/evmos/ethermint/types"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	tmconfig "github.com/tendermint/tendermint/config"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/libs/tempfile"
-	"github.com/tendermint/tendermint/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
+	tmconfig "github.com/cometbft/cometbft/config"
+	tmos "github.com/cometbft/cometbft/libs/os"
+	tmrand "github.com/cometbft/cometbft/libs/rand"
+	"github.com/cometbft/cometbft/libs/tempfile"
+	"github.com/cometbft/cometbft/types"
+	tmtime "github.com/cometbft/cometbft/types/time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -54,7 +54,7 @@ import (
 	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
 
-	evmosConfig "github.com/tharsis/ethermint/server/config"
+	evmosConfig "github.com/evmos/ethermint/server/config"
 
 	opbtypes "github.com/bianjieai/irita/modules/opb/types"
 )
@@ -79,7 +79,10 @@ var (
 )
 
 // get cmd to initialize all files for tendermint testnet and application
-func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalancesIterator) *cobra.Command {
+func testnetCmd(
+	mbm module.BasicManager,
+	genBalIterator banktypes.GenesisBalancesIterator,
+) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "testnet",
 		Short: "Initialize files for a irita testnet",
@@ -111,15 +114,24 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 	}
 
 	cmd.Flags().Int(flagNumValidators, 4, "Number of validators to initialize the testnet with")
-	cmd.Flags().StringP(flagOutputDir, "o", "./mytestnet", "Directory to store initialization data for the testnet")
-	cmd.Flags().String(flagNodeDirPrefix, "node", "Prefix the directory name for each node with (node results in node0, node1, ...)")
-	cmd.Flags().String(flagNodeDaemonHome, "irita", "Home directory of the node's daemon configuration")
-	cmd.Flags().String(flagNodeCLIHome, "iritacli", "Home directory of the node's cli configuration")
-	cmd.Flags().String(flagStartingIPAddress, "192.168.0.1", "Starting IP address (192.168.0.1 results in persistent peers list ID0@192.168.0.1:46656, ID1@192.168.0.2:46656, ...)")
-	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
-	cmd.Flags().String(server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
-	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
-	cmd.Flags().String(flags.FlagKeyAlgorithm, string(hd.Sm2Type), "Key signing algorithm to generate keys for")
+	cmd.Flags().
+		StringP(flagOutputDir, "o", "./mytestnet", "Directory to store initialization data for the testnet")
+	cmd.Flags().
+		String(flagNodeDirPrefix, "node", "Prefix the directory name for each node with (node results in node0, node1, ...)")
+	cmd.Flags().
+		String(flagNodeDaemonHome, "irita", "Home directory of the node's daemon configuration")
+	cmd.Flags().
+		String(flagNodeCLIHome, "iritacli", "Home directory of the node's cli configuration")
+	cmd.Flags().
+		String(flagStartingIPAddress, "192.168.0.1", "Starting IP address (192.168.0.1 results in persistent peers list ID0@192.168.0.1:46656, ID1@192.168.0.2:46656, ...)")
+	cmd.Flags().
+		String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
+	cmd.Flags().
+		String(server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
+	cmd.Flags().
+		String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
+	cmd.Flags().
+		String(flags.FlagKeyAlgorithm, string(hd.Sm2Type), "Key signing algorithm to generate keys for")
 	return cmd
 }
 
@@ -217,7 +229,11 @@ func InitTestnet(
 			return err
 		}
 
-		utils.GenCertRequest(keyPath, cerPath, fmt.Sprintf("/C=CN/ST=test/L=test/O=test/OU=test/CN=%s", nodeDirName))
+		utils.GenCertRequest(
+			keyPath,
+			cerPath,
+			fmt.Sprintf("/C=CN/ST=test/L=test/O=test/OU=test/CN=%s", nodeDirName),
+		)
 		utils.IssueCert(cerPath, rootCertPath, rootKeyPath, certPath)
 		valCerts[i] = certPath
 
@@ -270,7 +286,10 @@ func InitTestnet(
 			sdk.NewCoin(DefaultEvmMinUnit, accEvmTokens),
 		}
 
-		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
+		genBalances = append(
+			genBalances,
+			banktypes.Balance{Address: addr.String(), Coins: coins.Sort()},
+		)
 
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
@@ -431,7 +450,9 @@ func initGenFiles(
 	var serviceGenState servicetypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[servicetypes.ModuleName], &serviceGenState)
 
-	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(DefaultPointMinUnit, sdk.NewInt(5000)))
+	serviceGenState.Params.MinDeposit = sdk.NewCoins(
+		sdk.NewCoin(DefaultPointMinUnit, sdk.NewInt(5000)),
+	)
 	serviceGenState.Params.BaseDenom = DefaultPointMinUnit
 	appGenState[servicetypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&serviceGenState)
 
@@ -504,7 +525,13 @@ func collectGenFiles(
 			return err
 		}
 
-		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.Codec, clientCtx.TxConfig, config, initCfg, *genDoc)
+		nodeAppState, err := genutil.GenAppStateFromConfig(
+			clientCtx.Codec,
+			clientCtx.TxConfig,
+			config,
+			initCfg,
+			*genDoc,
+		)
 		if err != nil {
 			return err
 		}

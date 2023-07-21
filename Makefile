@@ -8,6 +8,7 @@ BINDIR ?= $(GOPATH)/bin
 LEDGER_ENABLED ?= true
 SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
 NetworkType := $(shell if [ -z ${NetworkType} ]; then echo "mainnet"; else echo ${NetworkType}; fi)
+DOCKER := $(shell which docker)
 
 export GO111MODULE = on
 
@@ -55,13 +56,13 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=irita \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
-		  -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2 \
+		  -X github.com/cometbft/cometbft/crypto/algo.Algo=sm2 \
 		  -X github.com/bianjieai/irita/address.Bech32ChainPrefix=i \
 		  -X github.com/bianjieai/irita/address.PrefixAcc=a \
 		  -X github.com/bianjieai/irita/address.PrefixAddress=a \
-		  -X github.com/tharsis/ethermint/types.EvmChainID=1223
+		  -X github.com/evmos/ethermint/types.EvmChainID=1223
 
-buildflags = -X github.com/tendermint/tendermint/crypto/algo.Algo=sm2
+buildflags = -X github.com/cometbft/cometbft/crypto/algo.Algo=sm2
 
 ifeq ($(WITH_CLEVELDB),yes)
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
@@ -130,13 +131,29 @@ clean:
 distclean: clean
 	rm -rf vendor/
 
-proto-all: proto-tools proto-gen proto-swagger-gen
+###############################################################################
+###                                Protobuf                                 ###
+###############################################################################
+
+protoVer=0.13.0
+protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+
+proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
-	@./scripts/protocgen.sh
+	@echo "Generating Protobuf files"
+	@$(protoImage) sh ./scripts/protocgen.sh
 
-proto-swagger-gen:
-	@./scripts/protoc-swagger-gen.sh
+proto-format:
+	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
+
+proto-lint:
+	@$(protoImage) buf lint --error-format=json
+
+proto-update-deps:
+	@echo "Updating Protobuf dependencies"
+	$(DOCKER) run --rm -v $(CURDIR)/proto:/workspace --workdir /workspace $(protoImageName) buf mod update
 
 ########################################
 ### Testing

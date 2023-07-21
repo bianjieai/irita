@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/bianjieai/irita/modules/evm/crypto"
 
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -22,22 +22,22 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/tharsis/ethermint/rpc/ethereum/backend"
-	"github.com/tharsis/ethermint/rpc/ethereum/types"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/evmos/ethermint/rpc/backend"
+	rpctypes "github.com/evmos/ethermint/rpc/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 )
 
 type EVMWBackend struct {
 	*backend.EVMBackend
 	ctx         *client.Context
-	queryClient *types.QueryClient
+	queryClient *rpctypes.QueryClient
 	logger      log.Logger
 }
 
 func NewEVMWBackend(ctx *server.Context, logger log.Logger, clientCtx client.Context) *EVMWBackend {
 	evmBackend := backend.NewEVMBackend(ctx, logger, clientCtx)
 
-	return &EVMWBackend{evmBackend, &clientCtx, types.NewQueryClient(clientCtx), logger}
+	return &EVMWBackend{evmBackend, &clientCtx, rpctypes.NewQueryClient(clientCtx), logger}
 }
 
 func (e *EVMWBackend) SendTransaction(args evmtypes.TransactionArgs) (common.Hash, error) {
@@ -82,12 +82,20 @@ func (e *EVMWBackend) SendTransaction(args evmtypes.TransactionArgs) (common.Has
 	// Assemble transaction from fields
 	builder, ok := e.ctx.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
 	if !ok {
-		e.logger.Error("clientCtx.TxConfig.NewTxBuilder returns unsupported builder", "error", err.Error())
+		e.logger.Error(
+			"clientCtx.TxConfig.NewTxBuilder returns unsupported builder",
+			"error",
+			err.Error(),
+		)
 	}
 
 	option, err := codectypes.NewAnyWithValue(&evmtypes.ExtensionOptionsEthereumTx{})
 	if err != nil {
-		e.logger.Error("codectypes.NewAnyWithValue failed to pack an obvious value", "error", err.Error())
+		e.logger.Error(
+			"codectypes.NewAnyWithValue failed to pack an obvious value",
+			"error",
+			err.Error(),
+		)
 		return common.Hash{}, err
 	}
 
@@ -97,7 +105,10 @@ func (e *EVMWBackend) SendTransaction(args evmtypes.TransactionArgs) (common.Has
 	}
 
 	// Query params to use the EVM denomination
-	res, err := e.queryClient.QueryClient.Params(context.Background(), &evmtypes.QueryParamsRequest{})
+	res, err := e.queryClient.QueryClient.Params(
+		context.Background(),
+		&evmtypes.QueryParamsRequest{},
+	)
 	if err != nil {
 		e.logger.Error("failed to query evm params", "error", err.Error())
 		return common.Hash{}, err

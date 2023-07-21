@@ -10,9 +10,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/cli"
-	clientkeys "github.com/tharsis/ethermint/client/keys"
-	etherminthd "github.com/tharsis/ethermint/crypto/hd"
+	"github.com/cometbft/cometbft/libs/cli"
+	clientkeys "github.com/evmos/ethermint/client/keys"
+	etherminthd "github.com/evmos/ethermint/crypto/hd"
 
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 )

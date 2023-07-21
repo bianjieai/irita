@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
-	tmstate "github.com/tendermint/tendermint/proto/tendermint/state"
-	"github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/store"
-	tmversion "github.com/tendermint/tendermint/version"
+	tmstate "github.com/cometbft/cometbft/proto/tendermint/state"
+	"github.com/cometbft/cometbft/proto/tendermint/version"
+	"github.com/cometbft/cometbft/state"
+	"github.com/cometbft/cometbft/store"
+	tmversion "github.com/cometbft/cometbft/version"
 )
 
 // Recover overwrites the current Tendermint state (height n) with the most
@@ -36,8 +36,11 @@ func Recover(bs store.BlockStore, ss state.Store) (int64, error) {
 	// If the state store isn't one below nor equal to the blockstore height than this violates the
 	// invariant
 	if height != invalidState.LastBlockHeight {
-		return -1, fmt.Errorf("statestore height (%d) is not one below or equal to blockstore height (%d)",
-			invalidState.LastBlockHeight, height)
+		return -1, fmt.Errorf(
+			"statestore height (%d) is not one below or equal to blockstore height (%d)",
+			invalidState.LastBlockHeight,
+			height,
+		)
 	}
 
 	// state store height is equal to blockstore height. We're good to proceed with rolling back state

@@ -7,17 +7,17 @@ import (
 
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 
-	ethermintclient "github.com/tharsis/ethermint/client"
-	ethermint "github.com/tharsis/ethermint/types"
+	ethermintclient "github.com/evmos/ethermint/client"
+	ethermint "github.com/evmos/ethermint/types"
 
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
-	tmcli "github.com/tendermint/tendermint/libs/cli"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
+	dbm "github.com/cometbft/cometbft-db"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -27,7 +27,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/cosmos/cosmos-sdk/snapshots"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,22 +40,21 @@ import (
 
 	"github.com/bianjieai/irita/app"
 
-	"github.com/tharsis/ethermint/crypto/hd"
-	"github.com/tharsis/ethermint/encoding"
-	servercfg "github.com/tharsis/ethermint/server/config"
+	"github.com/evmos/ethermint/crypto/hd"
+	servercfg "github.com/evmos/ethermint/server/config"
 
 	evmclient "github.com/bianjieai/irita/modules/evm/client"
 	evmserver "github.com/bianjieai/irita/modules/evm/server"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
-func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
+func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	//encodingConfig := app.MakeEncodingConfig()
 	evmutils.SetEthermintSupportedAlgorithms()
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	encodingConfig := app.MakeEncodingConfig()
 
 	initClientCtx := client.Context{}.
-		WithCodec(encodingConfig.Marshaler).
+		WithCodec(encodingConfig.Codec).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).
@@ -93,7 +91,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
 		},
 		PersistentPostRun: func(cmd *cobra.Command, _ []string) {
-			handleResponsePostRun(encodingConfig.Marshaler, cmd)
+			handleResponsePostRun(encodingConfig.Codec, cmd)
 		},
 	}
 	cfg := sdk.GetConfig()
@@ -103,7 +101,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	return rootCmd, encodingConfig
 }
 
-func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
+func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig) {
 	rootCmd.AddCommand(
 		ethermintclient.ValidateChainID(
 			genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
@@ -203,7 +201,7 @@ func txCommand() *cobra.Command {
 }
 
 type appCreator struct {
-	encCfg params.EncodingConfig
+	encCfg app.EncodingConfig
 }
 
 func (ac appCreator) newApp(

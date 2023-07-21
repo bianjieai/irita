@@ -9,9 +9,9 @@ import (
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmtypes "github.com/tendermint/tendermint/types"
+	cfg "github.com/cometbft/cometbft/config"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmtypes "github.com/cometbft/cometbft/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -28,14 +28,18 @@ import (
 
 // ValidatorMsgBuildingHelpers helpers for message building gen-tx command
 type ValidatorMsgBuildingHelpers interface {
-	CreateValidatorMsgHelpers(ipDefault string) (fs *flag.FlagSet, certFlag, powerFlag, defaultsDesc string)
+	CreateValidatorMsgHelpers(
+		ipDefault string,
+	) (fs *flag.FlagSet, certFlag, powerFlag, defaultsDesc string)
 	PrepareFlagsForTxCreateValidator(config *cfg.Config, nodeID, chainID string, cert string)
 	BuildCreateValidatorMsg(cliCtx client.Context, txBldr tx.Factory) (tx.Factory, sdk.Msg, error)
 }
 
 // AddGenesisValidatorCmd returns add-genesis-validator cobra Command.
 func AddGenesisValidatorCmd(
-	mbm module.BasicManager, smbh ValidatorMsgBuildingHelpers, defaultNodeHome, defaultCLIHome string,
+	mbm module.BasicManager,
+	smbh ValidatorMsgBuildingHelpers,
+	defaultNodeHome, defaultCLIHome string,
 ) *cobra.Command {
 	ipDefault, _ := server.ExternalIP()
 	fsCreateValidator, flagCert, _, defaultsDesc := smbh.CreateValidatorMsgHelpers(ipDefault)
@@ -83,7 +87,12 @@ func AddGenesisValidatorCmd(
 
 			// Set flags for creating gentx
 			viper.Set(flags.FlagHome, viper.GetString(flagClientHome))
-			smbh.PrepareFlagsForTxCreateValidator(config, nodeID, genDoc.ChainID, viper.GetString(flagCert))
+			smbh.PrepareFlagsForTxCreateValidator(
+				config,
+				nodeID,
+				genDoc.ChainID,
+				viper.GetString(flagCert),
+			)
 
 			//txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
 			//cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
@@ -119,7 +128,10 @@ func AddGenesisValidatorCmd(
 				}
 
 				if err = cert.VerifyCertFromRoot(rootCert); err != nil {
-					return errors.Wrap(err, "invalid certificate, cannot be verified by root certificate")
+					return errors.Wrap(
+						err,
+						"invalid certificate, cannot be verified by root certificate",
+					)
 				}
 
 				pk, err := cautil.GetPubkeyFromCert(cert)
@@ -173,10 +185,12 @@ func AddGenesisValidatorCmd(
 
 	cmd.Flags().String(flags.FlagHome, defaultNodeHome, "node's home directory")
 	cmd.Flags().String(flagClientHome, defaultCLIHome, "client's home directory")
-	cmd.Flags().String(flags.FlagOutputDocument, "", "write the genesis transaction JSON document to the given file instead of the default location")
+	cmd.Flags().
+		String(flags.FlagOutputDocument, "", "write the genesis transaction JSON document to the given file instead of the default location")
 	cmd.Flags().AddFlagSet(fsCreateValidator)
 	cmd.Flags().String(flags.FlagFrom, "", "Name or address of private key with which to sign")
-	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
+	cmd.Flags().
+		String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
 	_ = viper.BindPFlag(flags.FlagKeyringBackend, cmd.Flags().Lookup(flags.FlagKeyringBackend))
 
 	_ = cmd.MarkFlagRequired(flags.FlagName)

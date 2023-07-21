@@ -12,15 +12,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/types"
 	ethlog "github.com/ethereum/go-ethereum/log"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
-	"github.com/tharsis/ethermint/rpc"
+	"github.com/evmos/ethermint/rpc"
 
-	"github.com/tharsis/ethermint/server/config"
+	"github.com/evmos/ethermint/server/config"
 
 	iritaevmrpc "github.com/bianjieai/irita/modules/evm/rpc"
 )
 
 // StartJSONRPC starts the JSON-RPC server
-func StartJSONRPC(ctx *server.Context, clientCtx client.Context, tmRPCAddr, tmEndpoint string, config config.Config) (*http.Server, chan struct{}, error) {
+func StartJSONRPC(
+	ctx *server.Context,
+	clientCtx client.Context,
+	tmRPCAddr, tmEndpoint string,
+	config config.Config,
+) (*http.Server, chan struct{}, error) {
 	tmWsClient := ConnectTmWS(tmRPCAddr, tmEndpoint, ctx.Logger)
 
 	logger := ctx.Logger.With("module", "geth")
