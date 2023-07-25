@@ -3,13 +3,10 @@ package evm
 import (
 	"math/big"
 
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
-	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -26,18 +23,17 @@ var (
 	_ EVMKeeper = &Keeper{}
 )
 
+type CanTransferCreator func(ctx sdk.Context) vm.CanTransferFunc
+type TransferCreator func(ctx sdk.Context) vm.TransferFunc
+
 type Keeper struct {
 	*evmkeeper.Keeper
 
-	opbKeeper   opbkeeper.Keeper
-	tokenKeeper tokenkeeper.Keeper
-	permKeeper  permkeeper.Keeper
-
 	// custom stateless precompiled smart contracts
 	customPrecompiles evm.PrecompiledContracts
+	createCanTransfer CanTransferCreator
+	createTransfer    TransferCreator
 }
-
-type Option func(k *Keeper)
 
 func NewKeeper(
 	cdc codec.BinaryCodec,
@@ -51,9 +47,6 @@ func NewKeeper(
 	evmConstructor evm.Constructor,
 	tracer string,
 	ss paramstypes.Subspace,
-	opbKeeper opbkeeper.Keeper,
-	tokenKeeper tokenkeeper.Keeper,
-	permKeeper permkeeper.Keeper,
 ) *Keeper {
 	evmKeeper := evmkeeper.NewKeeper(
 		cdc,
@@ -71,10 +64,13 @@ func NewKeeper(
 	)
 	return &Keeper{
 		Keeper:            evmKeeper,
-		opbKeeper:         opbKeeper,
-		tokenKeeper:       tokenKeeper,
-		permKeeper:        permKeeper,
 		customPrecompiles: customPrecompiles,
+		createCanTransfer: func(ctx sdk.Context) vm.CanTransferFunc {
+			return core.CanTransfer
+		},
+		createTransfer: func(ctx sdk.Context) vm.TransferFunc {
+			return core.Transfer
+		},
 	}
 }
 
@@ -85,10 +81,9 @@ func (k *Keeper) NewEVM(
 	tracer vm.EVMLogger,
 	stateDB vm.StateDB,
 ) evm.EVM {
-	validator := k.NewEthOpbValidator(ctx)
 	blockCtx := vm.BlockContext{
-		CanTransfer: validator.CanTransfer,
-		Transfer:    validator.Transfer,
+		CanTransfer: k.createCanTransfer(ctx),
+		Transfer:    k.createTransfer(ctx),
 		GetHash:     k.GetHashFn(ctx),
 		Coinbase:    cfg.CoinBase,
 		GasLimit:    ethermint.BlockGasLimit(ctx),
@@ -109,11 +104,16 @@ func (k *Keeper) NewEVM(
 	}
 }
 
-func (k *Keeper) NewEthOpbValidator(ctx sdk.Context) *EthOpbValidator {
-	return NewEthOpbValidator(ctx,
-		k.opbKeeper,
-		k.tokenKeeper,
-		k,
-		k.permKeeper,
-	)
+func (k *Keeper) SetValidator(
+	canTransferCreator CanTransferCreator,
+	transferCreator TransferCreator,
+) *Keeper {
+	if canTransferCreator != nil {
+		k.createCanTransfer = canTransferCreator
+	}
+	if transferCreator != nil {
+		k.createTransfer = transferCreator
+	}
+
+	return k
 }

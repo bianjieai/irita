@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/spf13/cast"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -520,9 +521,24 @@ func NewIritaApp(
 		nil,
 		tracer,
 		app.GetSubspace(evmtypes.ModuleName),
+	)
+
+	opbValidator := appkeeper.NewEthOpbValidator(
 		app.OpbKeeper,
 		app.TokenKeeper,
+		app.EvmKeeper,
 		app.PermKeeper,
+	)
+
+	app.EvmKeeper.SetValidator(
+		func(ctx sdk.Context) vm.CanTransferFunc {
+			opbValidator.With(ctx)
+			return opbValidator.CanTransfer
+		},
+		func(ctx sdk.Context) vm.TransferFunc {
+			opbValidator.With(ctx)
+			return opbValidator.Transfer
+		},
 	)
 
 	app.TibcKeeper = tibckeeper.NewKeeper(tibccorekeeper.NewKeeper(
@@ -876,14 +892,6 @@ func (app *IritaApp) BeginBlocker(
 	ctx sdk.Context,
 	req abci.RequestBeginBlock,
 ) abci.ResponseBeginBlock {
-	//TODO
-	// chainID, _ := ethermint.ParseChainID(req.GetHeader().ChainID)
-	// if app.EvmKeeper.Signer == nil {
-	// 	app.EvmKeeper.Signer = crypto.NewSm2Signer(chainID)
-	// }
-	// validator := evmmodule.NewEthOpbValidator(
-	// 	ctx, app.OpbKeeper, app.TokenKeeper, app.EvmKeeper, app.PermKeeper)
-	// app.EvmKeeper.Transfer = validator.Transfer
 	return app.mm.BeginBlock(ctx, req)
 }
 
@@ -903,7 +911,6 @@ func (app *IritaApp) InitChainer(
 	// add system service at InitChainer, overwrite if it exists
 	var serviceGenState servicetypes.GenesisState
 	app.appCodec.MustUnmarshalJSON(genesisState[servicetypes.ModuleName], &serviceGenState)
-	//req.ChainId
 
 	serviceGenState.Definitions = append(
 		serviceGenState.Definitions,
@@ -919,6 +926,7 @@ func (app *IritaApp) InitChainer(
 	)
 	genesisState[servicetypes.ModuleName] = app.appCodec.MustMarshalJSON(&serviceGenState)
 
+	app.UpgradeKeeper.UpgradeKeeper().SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 

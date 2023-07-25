@@ -26,7 +26,6 @@ type EthOpbValidator struct {
 }
 
 func NewEthOpbValidator(
-	ctx sdk.Context,
 	opbKeeper opbkeeper.Keeper,
 	tokenKeeper tokenkeeper.Keeper,
 	evmKeeper EVMKeeper,
@@ -37,11 +36,18 @@ func NewEthOpbValidator(
 		tokenKeeper: tokenKeeper,
 		evmKeeper:   evmKeeper,
 		permKeeper:  permKeeper,
-		ctx:         ctx,
 	}
 }
 
-func (ov EthOpbValidator) Transfer(db vm.StateDB, sender, recipient common.Address, amount *big.Int) {
+func (ov *EthOpbValidator) With(ctx sdk.Context) {
+	ov.ctx = ctx
+}
+
+func (ov EthOpbValidator) Transfer(
+	db vm.StateDB,
+	sender, recipient common.Address,
+	amount *big.Int,
+) {
 
 	senderCosmosAddr := sdk.AccAddress(sender.Bytes())
 	recipientCosmosAddr := sdk.AccAddress(recipient.Bytes())
@@ -61,7 +67,11 @@ func (ov EthOpbValidator) Transfer(db vm.StateDB, sender, recipient common.Addre
 			return
 		}
 		if senderCosmosAddr.String() != owner && recipientCosmosAddr.String() != owner {
-			errMsg := fmt.Sprintf("either the sender or recipient must be the owner %s for token %s", owner, params.EvmDenom)
+			errMsg := fmt.Sprintf(
+				"either the sender or recipient must be the owner %s for token %s",
+				owner,
+				params.EvmDenom,
+			)
 			//ov.logger.Error("unauthorized operation", "err_msg", errMsg)
 			ov.opbKeeper.Logger(ov.ctx).Error(
 				"unauthorized operation",
@@ -76,7 +86,11 @@ func (ov EthOpbValidator) Transfer(db vm.StateDB, sender, recipient common.Addre
 	db.AddBalance(recipient, amount)
 }
 
-func (ov EthOpbValidator) CanTransfer(db vm.StateDB, userAddr common.Address, amount *big.Int) bool {
+func (ov EthOpbValidator) CanTransfer(
+	db vm.StateDB,
+	userAddr common.Address,
+	amount *big.Int,
+) bool {
 
 	userCosmosAddr := sdk.AccAddress(userAddr.Bytes())
 
@@ -132,5 +146,6 @@ func (ov EthOpbValidator) hasPlatformUserPermFromArr(ctx sdk.Context, addresses 
 
 // hasPlatformUserPerm determine whether the account is a platform user
 func (ov EthOpbValidator) hasPlatformUserPerm(ctx sdk.Context, address sdk.AccAddress) bool {
-	return ov.permKeeper.IsRootAdmin(ctx, address) || ov.permKeeper.IsBaseM1Admin(ctx, address) || ov.permKeeper.IsPlatformUser(ctx, address)
+	return ov.permKeeper.IsRootAdmin(ctx, address) || ov.permKeeper.IsBaseM1Admin(ctx, address) ||
+		ov.permKeeper.IsPlatformUser(ctx, address)
 }
