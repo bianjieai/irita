@@ -50,7 +50,11 @@ type Keystore struct {
 }
 
 // Init create a wallet instance and  produce a mnemonic
-func (ks Keystore) Init(algo cosmoskeyring.SignatureAlgo, r *bufio.Reader, w *bufio.Writer) (cosmoskeyring.Info, error) {
+func (ks Keystore) Init(
+	algo cosmoskeyring.SignatureAlgo,
+	r *bufio.Reader,
+	w *bufio.Writer,
+) (cosmoskeyring.LegacyInfo, error) {
 	if !ks.isSupportedSigningAlgo(algo) {
 		return nil, cosmoskeyring.ErrUnsupportedSigningAlgo
 	}
@@ -96,7 +100,10 @@ func (ks Keystore) HasInit() bool {
 }
 
 // Recover recover a wallet instance by a mnemonic
-func (ks Keystore) Recover(mnemonic string, algo cosmoskeyring.SignatureAlgo) (cosmoskeyring.Info, error) {
+func (ks Keystore) Recover(
+	mnemonic string,
+	algo cosmoskeyring.SignatureAlgo,
+) (cosmoskeyring.LegacyInfo, error) {
 	if !ks.isSupportedSigningAlgo(algo) {
 		return nil, cosmoskeyring.ErrUnsupportedSigningAlgo
 	}
@@ -158,7 +165,7 @@ func (ks Keystore) UpdateRoot(mnemonic, newPwd string) error {
 }
 
 // NewKey create a new key
-func (ks Keystore) NewKey(name string) (cosmoskeyring.Info, error) {
+func (ks Keystore) NewKey(name string) (cosmoskeyring.LegacyInfo, error) {
 	if ks.Has(name) {
 		return nil, fmt.Errorf("%s has exist", name)
 	}
@@ -194,7 +201,7 @@ func (ks Keystore) Has(uid string) bool {
 }
 
 // Key return a key information by key name
-func (ks Keystore) Key(uid string) (cosmoskeyring.Info, error) {
+func (ks Keystore) Key(uid string) (cosmoskeyring.LegacyInfo, error) {
 	key := infoKey(uid)
 
 	bs, err := ks.db.Get(string(key))
@@ -209,7 +216,7 @@ func (ks Keystore) Key(uid string) (cosmoskeyring.Info, error) {
 }
 
 // Key return a key information by the address
-func (ks Keystore) KeyByAddress(address sdk.Address) (cosmoskeyring.Info, error) {
+func (ks Keystore) KeyByAddress(address sdk.Address) (cosmoskeyring.LegacyInfo, error) {
 	ik, err := ks.db.Get(addrHexKeyAsString(address))
 	if err != nil {
 		return nil, err
@@ -228,8 +235,8 @@ func (ks Keystore) KeyByAddress(address sdk.Address) (cosmoskeyring.Info, error)
 }
 
 // Key return all the key information
-func (ks Keystore) List() ([]cosmoskeyring.Info, error) {
-	var res []cosmoskeyring.Info
+func (ks Keystore) List() ([]cosmoskeyring.LegacyInfo, error) {
+	var res []cosmoskeyring.LegacyInfo
 
 	keys, err := ks.db.Keys()
 	if err != nil { //nolint:unparam
@@ -262,7 +269,7 @@ func (ks Keystore) List() ([]cosmoskeyring.Info, error) {
 
 // Export export a key private by a random password
 func (ks Keystore) Export(key string) (armor, pwd string, err error) {
-	var info cosmoskeyring.Info
+	var info cosmoskeyring.LegacyInfo
 
 	addr, err := sdk.AccAddressFromBech32(key)
 	if err == nil {
@@ -308,7 +315,10 @@ func (ks Keystore) Export(key string) (armor, pwd string, err error) {
 	return EncryptArmorPrivKey(priv, passphrase, header), passphrase, nil
 }
 
-func (ks Keystore) addKey(uid, mnemonic, hdPath string, algo cosmoskeyring.SignatureAlgo) (cosmoskeyring.Info, error) {
+func (ks Keystore) addKey(
+	uid, mnemonic, hdPath string,
+	algo cosmoskeyring.SignatureAlgo,
+) (cosmoskeyring.LegacyInfo, error) {
 	// create master key and derive first key for keyring
 	derivedPriv, err := algo.Derive()(mnemonic, "", hdPath)
 	if err != nil {
@@ -320,7 +330,11 @@ func (ks Keystore) addKey(uid, mnemonic, hdPath string, algo cosmoskeyring.Signa
 	return ks.writeLocalKey(uid, hdPath, privKey, algo.Name())
 }
 
-func (ks Keystore) writeLocalKey(name, hdPath string, priv cryptotypes.PrivKey, algo hd.PubKeyType) (cosmoskeyring.Info, error) {
+func (ks Keystore) writeLocalKey(
+	name, hdPath string,
+	priv cryptotypes.PrivKey,
+	algo hd.PubKeyType,
+) (cosmoskeyring.LegacyInfo, error) {
 	// encrypt private key using keyring
 	pub := priv.PubKey()
 
@@ -357,7 +371,7 @@ func (ks Keystore) writeRoot(mnemonic string, addressIdx uint32, algo hd.PubKeyT
 	})
 }
 
-func (ks Keystore) writeInfo(info cosmoskeyring.Info) error {
+func (ks Keystore) writeInfo(info cosmoskeyring.LegacyInfo) error {
 	// write the info by key
 	key := infoKey(info.GetName())
 	serializedInfo := marshalInfo(info)
@@ -417,7 +431,7 @@ func (ks Keystore) getRoot() (rootInfo, error) {
 	return unmarshalRoot(ik.Data)
 }
 
-func (ks Keystore) existsInDb(info cosmoskeyring.Info) (bool, error) {
+func (ks Keystore) existsInDb(info cosmoskeyring.LegacyInfo) (bool, error) {
 	if _, err := ks.db.Get(addrHexKeyAsString(info.GetAddress())); err == nil {
 		return true, nil // address lookup succeeds - info exists
 	} else if err != keyring.ErrKeyNotFound {

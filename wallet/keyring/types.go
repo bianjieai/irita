@@ -53,7 +53,7 @@ func init() {
 }
 
 // encoding info
-func marshalInfo(i cosmoskeyring.Info) []byte {
+func marshalInfo(i cosmoskeyring.LegacyInfo) []byte {
 	return CryptoCdc.MustMarshalLengthPrefixed(i)
 }
 
@@ -62,7 +62,7 @@ func marshalRoot(root rootInfo) []byte {
 }
 
 // decoding info
-func unmarshalInfo(bz []byte) (info cosmoskeyring.Info, err error) {
+func unmarshalInfo(bz []byte) (info cosmoskeyring.LegacyInfo, err error) {
 	err = CryptoCdc.UnmarshalLengthPrefixed(bz, &info)
 	return
 }

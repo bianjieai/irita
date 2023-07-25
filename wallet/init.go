@@ -22,7 +22,8 @@ func InitCmd() *cobra.Command {
 		RunE:  runInitCmd,
 	}
 
-	cmd.PersistentFlags().String(FlagKeyAlgo, string(hd.Sm2Type), "Signature algorithm for generating keys")
+	cmd.PersistentFlags().
+		String(FlagKeyAlgo, string(hd.Sm2Type), "Signature algorithm for generating keys")
 	cmd.Flags().Bool(flagRecover, false, "Provide a seed to recover the wallet")
 
 	_ = viper.BindPFlag(flagRecover, cmd.Flags().Lookup(flagRecover))
@@ -39,7 +40,10 @@ func runInitCmd(cmd *cobra.Command, args []string) error {
 	inBuf := bufio.NewReader(cmd.InOrStdin())
 	outBuf := bufio.NewWriter(cmd.OutOrStdout())
 
-	algo, err := cosmoskeyring.NewSigningAlgoFromString(viper.GetString(FlagKeyAlgo), keyring.SigningAlgoList)
+	algo, err := cosmoskeyring.NewSigningAlgoFromString(
+		viper.GetString(FlagKeyAlgo),
+		keyring.SigningAlgoList,
+	)
 	if err != nil {
 		return err
 	}
@@ -54,7 +58,7 @@ func runInitCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	var mnemonic string
-	var info cosmoskeyring.Info
+	var info cosmoskeyring.LegacyInfo
 	if viper.GetBool(flagRecover) {
 		mnemonic, err = input.GetString("Enter your mnemonic:", inBuf)
 		if err != nil || len(mnemonic) == 0 {

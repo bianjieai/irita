@@ -3,7 +3,6 @@ package keyring
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	cosmoskeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
 )
 
@@ -19,7 +18,5 @@ func init() {
 
 // RegisterLegacyAminoCodec registers concrete types and interfaces on the given codec.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterInterface((*cosmoskeyring.Info)(nil), nil)
-	cdc.RegisterConcrete(hd.BIP44Params{}, "crypto/keys/hd/BIP44Params", nil)
-	cdc.RegisterConcrete(offlineInfo{}, "crypto/keys/offlineInfo", nil)
+	cosmoskeyring.RegisterLegacyAminoCodec(cdc)
 }

@@ -53,7 +53,11 @@ func (l offlineInfo) GetAlgo() hd.PubKeyType {
 	return l.Algo
 }
 
-func newOfflineInfo(name, hdPath string, pub cryptotypes.PubKey, algo hd.PubKeyType) cosmoskeyring.Info {
+func newOfflineInfo(
+	name, hdPath string,
+	pub cryptotypes.PubKey,
+	algo hd.PubKeyType,
+) cosmoskeyring.LegacyInfo {
 	return &offlineInfo{
 		Name:   name,
 		Path:   hdPath,
@@ -62,7 +66,7 @@ func newOfflineInfo(name, hdPath string, pub cryptotypes.PubKey, algo hd.PubKeyT
 	}
 }
 
-func PrintInfo(w io.Writer, keyInfo ...cosmoskeyring.Info) {
+func PrintInfo(w io.Writer, keyInfo ...cosmoskeyring.LegacyInfo) {
 	var output []KeyOutput
 	for _, info := range keyInfo {
 		ko, err := bech32KeyOutput(info)
@@ -85,7 +89,7 @@ func printTextInfos(w io.Writer, kos []KeyOutput) {
 // Bech32KeyOutput create a KeyOutput in with "acc" Bech32 prefixes. If the
 // public key is a multisig public key, then the threshold and constituent
 // public keys will be added.
-func bech32KeyOutput(keyInfo cosmoskeyring.Info) (KeyOutput, error) {
+func bech32KeyOutput(keyInfo cosmoskeyring.LegacyInfo) (KeyOutput, error) {
 
 	registry := codectypes.NewInterfaceRegistry()
 	cryptocodec.RegisterInterfaces(registry)
@@ -114,9 +118,9 @@ func bech32KeyOutput(keyInfo cosmoskeyring.Info) (KeyOutput, error) {
 // KeyOutput defines a structure wrapping around an Info object used for output
 // functionality.
 type KeyOutput struct {
-	Name       string `json:"name" yaml:"name"`
-	Type       string `json:"type" yaml:"type"`
-	Address    string `json:"address" yaml:"address"`
-	PubKey     string `json:"pub_key" yaml:"pub_key"`
+	Name       string `json:"name"        yaml:"name"`
+	Type       string `json:"type"        yaml:"type"`
+	Address    string `json:"address"     yaml:"address"`
+	PubKey     string `json:"pub_key"     yaml:"pub_key"`
 	AddressIdx uint32 `json:"address_idx" yaml:"address_idx"`
 }

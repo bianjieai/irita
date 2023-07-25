@@ -31,7 +31,7 @@ func runShowCmd(cmd *cobra.Command, args []string, generator KeybaseGenerator) e
 		return err
 	}
 
-	var info cosmoskeyring.Info
+	var info cosmoskeyring.LegacyInfo
 	if addr, err := sdk.AccAddressFromBech32(args[0]); err == nil {
 		if info, err = kb.KeyByAddress(addr); err != nil {
 			return err

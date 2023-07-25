@@ -10,7 +10,10 @@ import (
 	"github.com/bianjieai/irita/modules/tibc/types"
 )
 
-func (k Keeper) CreateClient(ctx context.Context, msg *types.MsgCreateClient) (*types.MsgCreateClientResponse, error) {
+func (k Keeper) CreateClient(
+	ctx context.Context,
+	msg *types.MsgCreateClient,
+) (*types.MsgCreateClientResponse, error) {
 	clientState, err := clienttypes.UnpackClientState(msg.ClientState)
 	if err != nil {
 		return &types.MsgCreateClientResponse{}, err
@@ -27,7 +30,10 @@ func (k Keeper) CreateClient(ctx context.Context, msg *types.MsgCreateClient) (*
 	)
 }
 
-func (k Keeper) UpgradeClient(ctx context.Context, msg *types.MsgUpgradeClient) (*types.MsgUpgradeClientResponse, error) {
+func (k Keeper) UpgradeClient(
+	ctx context.Context,
+	msg *types.MsgUpgradeClient,
+) (*types.MsgUpgradeClientResponse, error) {
 	clientState, err := clienttypes.UnpackClientState(msg.ClientState)
 	if err != nil {
 		return &types.MsgUpgradeClientResponse{}, err
@@ -45,8 +51,11 @@ func (k Keeper) UpgradeClient(ctx context.Context, msg *types.MsgUpgradeClient) 
 		consensusState,
 	)
 }
-func (k Keeper) RegisterRelayer(ctx context.Context, msg *types.MsgRegisterRelayer) (*types.MsgRegisterRelayerResponse, error) {
 
+func (k Keeper) RegisterRelayer(
+	ctx context.Context,
+	msg *types.MsgRegisterRelayer,
+) (*types.MsgRegisterRelayerResponse, error) {
 	k.ClientKeeper.RegisterRelayers(
 		sdk.UnwrapSDKContext(ctx),
 		msg.ChainName,
@@ -55,8 +64,10 @@ func (k Keeper) RegisterRelayer(ctx context.Context, msg *types.MsgRegisterRelay
 	return &types.MsgRegisterRelayerResponse{}, nil
 }
 
-func (k Keeper) SetRoutingRules(ctx context.Context, msg *types.MsgSetRoutingRules) (*types.MsgSetRoutingRulesResponse, error) {
-
+func (k Keeper) SetRoutingRules(
+	ctx context.Context,
+	msg *types.MsgSetRoutingRules,
+) (*types.MsgSetRoutingRulesResponse, error) {
 	err := k.RoutingKeeper.SetRoutingRules(
 		sdk.UnwrapSDKContext(ctx),
 		msg.Rules,

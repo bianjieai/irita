@@ -4,9 +4,11 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	servicekeeper "github.com/irisnet/irismod/modules/service/keeper"
+
 	"github.com/cometbft/cometbft/libs/log"
+	servicekeeper "github.com/irisnet/irismod/modules/service/keeper"
 
 	"github.com/bianjieai/irita/modules/wservice/types"
 )
@@ -23,13 +25,17 @@ type IKeeper interface {
 
 type Keeper struct {
 	cdc      codec.Codec
-	storeKey sdk.StoreKey
+	storeKey storetypes.StoreKey
 
 	serviceKeeper servicekeeper.Keeper
 }
 
 // NewKeeper returns a record keeper
-func NewKeeper(cdc codec.Codec, key sdk.StoreKey, serviceKeeper servicekeeper.Keeper) IKeeper {
+func NewKeeper(
+	cdc codec.Codec,
+	key storetypes.StoreKey,
+	serviceKeeper servicekeeper.Keeper,
+) IKeeper {
 	keeper := &Keeper{
 		storeKey:      key,
 		cdc:           cdc,

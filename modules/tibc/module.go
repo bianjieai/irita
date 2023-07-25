@@ -8,11 +8,9 @@ import (
 	tibc "github.com/bianjieai/tibc-go/modules/tibc/core"
 	clienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
 	packettypes "github.com/bianjieai/tibc-go/modules/tibc/core/04-packet/types"
-	host "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	"github.com/bianjieai/tibc-go/modules/tibc/core/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/spf13/cobra"
@@ -33,11 +31,6 @@ func (AppModule) GetTxCmd() *cobra.Command {
 	return cli.NewTxCmd()
 }
 
-// Route returns the message routing key for the tibc module.
-func (am AppModule) Route() sdk.Route {
-	return sdk.NewRoute(host.RouterKey, NewHandler(*am.k))
-}
-
 // RegisterInterfaces registers module concrete types into protobuf Any.
 func (am AppModule) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)
@@ -47,8 +40,8 @@ func (am AppModule) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	tibctypes.RegisterMsgServer(cfg.MsgServer(), am.k)
-	clienttypes.RegisterMsgServer(cfg.MsgServer(), am.k.Keeper)
-	packettypes.RegisterMsgServer(cfg.MsgServer(), am.k.Keeper)
+	clienttypes.RegisterMsgServer(cfg.MsgServer(), am.k.ClientMsgServer())
+	packettypes.RegisterMsgServer(cfg.MsgServer(), am.k.PacketMsgServer())
 	types.RegisterQueryService(cfg.QueryServer(), am.k.Keeper)
 }
 

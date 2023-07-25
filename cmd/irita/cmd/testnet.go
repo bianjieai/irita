@@ -12,10 +12,6 @@ import (
 	"os"
 	"path/filepath"
 
-	evmhd "github.com/evmos/ethermint/crypto/hd"
-
-	"github.com/cometbft/cometbft/crypto/algo"
-
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	evmfmttypes "github.com/evmos/ethermint/x/feemarket/types"
 
@@ -34,17 +30,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 
 	servicetypes "github.com/irisnet/irismod/modules/service/types"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
@@ -54,6 +48,7 @@ import (
 	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
 
+	evmhd "github.com/evmos/ethermint/crypto/hd"
 	evmosConfig "github.com/evmos/ethermint/server/config"
 
 	opbtypes "github.com/bianjieai/irita/modules/opb/types"
@@ -104,7 +99,7 @@ func testnetCmd(
 			nodeCLIHome := viper.GetString(flagNodeCLIHome)
 			startingIPAddress := viper.GetString(flagStartingIPAddress)
 			numValidators := viper.GetInt(flagNumValidators)
-			algo, _ := cmd.Flags().GetString(flags.FlagKeyAlgorithm)
+			algo, _ := cmd.Flags().GetString(flags.FlagKeyType)
 
 			return InitTestnet(
 				clientCtx, cmd, config, mbm, genBalIterator, outputDir, chainID, minGasPrices,
@@ -131,7 +126,7 @@ func testnetCmd(
 	cmd.Flags().
 		String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
 	cmd.Flags().
-		String(flags.FlagKeyAlgorithm, string(hd.Sm2Type), "Key signing algorithm to generate keys for")
+		String(flags.FlagKeyType, string(evmhd.EthSecp256k1Type), "Key signing algorithm to generate keys for")
 	return cmd
 }
 
@@ -144,12 +139,9 @@ func InitTestnet(
 	nodeDaemonHome, nodeCLIHome, startingIPAddress string,
 	numValidators int, algoStr string,
 ) error {
-	algo.Algo = algo.SM2
 	if chainID == "" {
 		chainID = fmt.Sprintf("chain_%d-1", tmrand.Int63n(9999999999999)+1)
 	}
-	evmutils.SetEthermintSupportedAlgorithms()
-
 	monikers := make([]string, numValidators)
 	nodeIDs := make([]string, numValidators)
 	valCerts := make([]string, numValidators)
@@ -245,6 +237,7 @@ func InitTestnet(
 			viper.GetString(flags.FlagKeyringBackend),
 			clientDir,
 			inBuf,
+			clientCtx.Codec,
 			evmhd.EthSecp256k1Option(),
 		)
 		if err != nil {
@@ -257,7 +250,7 @@ func InitTestnet(
 			return err
 		}
 
-		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, true, signAlgo)
+		addr, secret, err := testutil.GenerateSaveCoinKey(kb, nodeDirName, "", true, signAlgo)
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err
@@ -328,7 +321,7 @@ func InitTestnet(
 
 		customAppTemplate, customAppConfig := evmosConfig.AppConfig(ethermint.AttoPhoton)
 		srvconfig.SetConfigTemplate(customAppTemplate)
-		if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig); err != nil {
+		if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, tmconfig.DefaultConfig()); err != nil {
 			return err
 		}
 

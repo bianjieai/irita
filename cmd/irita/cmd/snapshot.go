@@ -80,8 +80,11 @@ func Snapshot(dataDir, targetDir string) error {
 	blockDB := loadDb(blockStoreDir, dataDir)
 	blockStore := store.NewBlockStore(blockDB)
 
+	storeOptions := state.StoreOptions{
+		DiscardABCIResponses: false,
+	}
 	stateDB := loadDb(stateStoreDir, dataDir)
-	ss := state.NewStore(stateDB)
+	ss := state.NewStore(stateDB, storeOptions)
 
 	defer func() {
 		blockDB.Close()
@@ -99,7 +102,7 @@ func Snapshot(dataDir, targetDir string) error {
 	//save local current block and flush disk
 	snapshotBlock(blockStore, targetDir, height)
 	//save local current block height state
-	snapshotState(stateDB, targetDir, height)
+	snapshotState(stateDB, targetDir, height, storeOptions)
 	//save local current block height consensus data
 	snapshotCsWAL(dataDir, targetDir, height)
 
@@ -119,12 +122,17 @@ func Snapshot(dataDir, targetDir string) error {
 	return copyDir(evidenceDir, evidenceTargetDir)
 }
 
-func snapshotState(tmDB *dbm.GoLevelDB, targetDir string, height int64) {
+func snapshotState(
+	tmDB *dbm.GoLevelDB,
+	targetDir string,
+	height int64,
+	options state.StoreOptions,
+) {
 	targetDb := loadDb(stateStoreDir, targetDir)
 	defer targetDb.Close()
 
-	newStore := state.NewStore(targetDb)
-	oldStore := state.NewStore(tmDB)
+	newStore := state.NewStore(targetDb, options)
+	oldStore := state.NewStore(tmDB, options)
 
 	state, err := oldStore.Load()
 	if err != nil {
@@ -162,18 +170,24 @@ func snapshotBlock(originStore *store.BlockStore, targetDir string, height int64
 
 	block := originStore.LoadBlock(height)
 	seenCommit := originStore.LoadSeenCommit(height)
-	partSet := block.MakePartSet(types.BlockPartSizeBytes)
+	partSet, err := block.MakePartSet(types.BlockPartSizeBytes)
+	if err != nil {
+		panic(err)
+	}
 	targetStore.SaveBlock(block, partSet, seenCommit)
 }
 
 func snapshotCsWAL(home, targetDir string, height int64) {
 	walTargetDir := filepath.Join(targetDir, csWalFile, "wal")
 	targetWAL, err := consensus.NewWAL(walTargetDir)
+	if err != nil {
+		panic(err)
+	}
 
 	walSourceDir := filepath.Join(home, csWalFile, "wal")
 	sourceWAL, err := consensus.NewWAL(walSourceDir)
 	if err != nil {
-		return
+		panic(err)
 	}
 
 	gr, found, err := sourceWAL.SearchForEndHeight(

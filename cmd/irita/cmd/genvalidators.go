@@ -104,8 +104,11 @@ func AddGenesisValidatorCmd(
 			// favor of a 'gentx' flag in the create-validator command.
 			viper.Set(flags.FlagGenerateOnly, true)
 
-			txf := tx.NewFactoryCLI(clientCtx, cmd.Flags()).
-				WithTxConfig(clientCtx.TxConfig).
+			txf, err := tx.NewFactoryCLI(clientCtx, cmd.Flags())
+			if err != nil {
+				return errors.Wrap(err, "failed to build create-validator message")
+			}
+			txf = txf.WithTxConfig(clientCtx.TxConfig).
 				WithAccountRetriever(clientCtx.AccountRetriever)
 
 			// create a 'create-validator' message

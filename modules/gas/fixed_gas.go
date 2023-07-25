@@ -54,12 +54,20 @@ func (fgm *FixedGasMeter) GasConsumed() uint64 {
 	return fgm.gasMeter.GasConsumed()
 }
 
+// GasRemaining returns the gas left in the GasMeter.
+func (fgm *FixedGasMeter) GasRemaining() uint64 {
+	if fgm.IsPastLimit() {
+		return 0
+	}
+	return fgm.Limit() - fgm.gasMeter.GasConsumed()
+}
+
 // GasConsumedToLimit implements types.GasMeter
 func (fgm *FixedGasMeter) GasConsumedToLimit() uint64 {
 	return fgm.gasMeter.GasConsumedToLimit()
 }
 
-// IsOutOfGas implements types.GasMeter
+// IsOutOfGas d implements types.GasMeter
 func (fgm *FixedGasMeter) IsOutOfGas() bool {
 	return fgm.gasMeter.IsOutOfGas()
 }

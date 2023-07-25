@@ -7,6 +7,7 @@ import (
 	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -18,7 +19,7 @@ import (
 // Keeper defines the OPB keeper
 type Keeper struct {
 	cdc      codec.Codec
-	storeKey sdk.StoreKey
+	storeKey storetypes.StoreKey
 
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
@@ -31,7 +32,7 @@ type Keeper struct {
 // NewKeeper creates a new Keeper instance
 func NewKeeper(
 	cdc codec.Codec,
-	storeKey sdk.StoreKey,
+	storeKey storetypes.StoreKey,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	tokenKeeper types.TokenKeeper,
@@ -70,7 +71,12 @@ func (k Keeper) Mint(ctx sdk.Context, amount uint64, recipient, operator sdk.Acc
 	baseTokenDenom := k.BaseTokenDenom(ctx)
 
 	if !k.hasBaseM1Perm(ctx, operator) {
-		return sdkerrors.Wrapf(types.ErrUnauthorized, "address %s has no permission to mint %s", operator, baseTokenDenom)
+		return sdkerrors.Wrapf(
+			types.ErrUnauthorized,
+			"address %s has no permission to mint %s",
+			operator,
+			baseTokenDenom,
+		)
 	}
 
 	// get the base token
@@ -96,7 +102,12 @@ func (k Keeper) Reclaim(ctx sdk.Context, denom string, recipient, operator sdk.A
 	switch denom {
 	case baseTokenDenom, "ugas":
 		if !k.hasBaseM1Perm(ctx, operator) {
-			return sdkerrors.Wrapf(types.ErrUnauthorized, "address %s has no permission to reclaim %s", operator, denom)
+			return sdkerrors.Wrapf(
+				types.ErrUnauthorized,
+				"address %s has no permission to reclaim %s",
+				operator,
+				denom,
+			)
 		}
 
 		moduleAccName = authtypes.FeeCollectorName
@@ -108,23 +119,42 @@ func (k Keeper) Reclaim(ctx sdk.Context, denom string, recipient, operator sdk.A
 		}
 
 		if !bytes.Equal(operator, owner) {
-			return sdkerrors.Wrapf(types.ErrUnauthorized, "only %s is allowed to reclaim %s", owner, denom)
+			return sdkerrors.Wrapf(
+				types.ErrUnauthorized,
+				"only %s is allowed to reclaim %s",
+				owner,
+				denom,
+			)
 		}
 
 		moduleAccName = types.PointTokenFeeCollectorName
 
 	default:
-		return sdkerrors.Wrapf(types.ErrInvalidDenom, "denom must be either %s or %s", baseTokenDenom, pointTokenDenom)
+		return sdkerrors.Wrapf(
+			types.ErrInvalidDenom,
+			"denom must be either %s or %s",
+			baseTokenDenom,
+			pointTokenDenom,
+		)
 	}
 
 	moduleAccAddr := k.accountKeeper.GetModuleAddress(moduleAccName)
 
 	balance := k.bankKeeper.GetBalance(ctx, moduleAccAddr, denom)
 	if balance.IsZero() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "no balance for %s in the module account", denom)
+		return sdkerrors.Wrapf(
+			sdkerrors.ErrInsufficientFunds,
+			"no balance for %s in the module account",
+			denom,
+		)
 	}
 
-	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, moduleAccName, recipient, sdk.NewCoins(balance))
+	return k.bankKeeper.SendCoinsFromModuleToAccount(
+		ctx,
+		moduleAccName,
+		recipient,
+		sdk.NewCoins(balance),
+	)
 }
 
 // HasToken checks if the given token exists

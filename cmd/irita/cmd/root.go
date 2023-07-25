@@ -5,17 +5,13 @@ import (
 	"os"
 	"path/filepath"
 
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-
-	ethermintclient "github.com/evmos/ethermint/client"
-	ethermint "github.com/evmos/ethermint/types"
-
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
 	dbm "github.com/cometbft/cometbft-db"
+	tmcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/cometbft/cometbft/libs/log"
 
@@ -26,8 +22,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
+	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/snapshots"
+	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
@@ -38,19 +36,19 @@ import (
 	genutilcli "github.com/bianjieai/iritamod/modules/genutil/client/cli"
 	"github.com/bianjieai/iritamod/modules/node"
 
-	"github.com/bianjieai/irita/app"
-
+	ethermintclient "github.com/evmos/ethermint/client"
+	evmclient "github.com/evmos/ethermint/client"
 	"github.com/evmos/ethermint/crypto/hd"
+	evmserver "github.com/evmos/ethermint/server"
 	servercfg "github.com/evmos/ethermint/server/config"
+	ethermint "github.com/evmos/ethermint/types"
 
-	evmclient "github.com/bianjieai/irita/modules/evm/client"
-	evmserver "github.com/bianjieai/irita/modules/evm/server"
+	"github.com/bianjieai/irita/app"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	//encodingConfig := app.MakeEncodingConfig()
-	evmutils.SetEthermintSupportedAlgorithms()
 	encodingConfig := app.MakeEncodingConfig()
 
 	initClientCtx := client.Context{}.
@@ -60,7 +58,7 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
-		WithBroadcastMode(flags.BroadcastBlock).
+		WithBroadcastMode(flags.BroadcastSync).
 		WithHomeDir(app.DefaultNodeHome).
 		WithKeyringOptions(hd.EthSecp256k1Option()).
 		WithViper("")
@@ -69,17 +67,20 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 		Use:   "irita",
 		Short: "Irita app command",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			// Open when debug
-			//algo.Algo = algo.SM2
+			// set the default command outputs
+			cmd.SetOut(cmd.OutOrStdout())
+			cmd.SetErr(cmd.ErrOrStderr())
 
-			clientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
-
-			//initClientCtx = client.ReadHomeFlag(initClientCtx, cmd)
-			clientCtx, err = config.ReadFromClientConfig(initClientCtx)
+			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
 			if err != nil {
 				return err
 			}
-			if err = client.SetCmdClientContextHandler(clientCtx, cmd); err != nil {
+
+			initClientCtx, err = config.ReadFromClientConfig(initClientCtx)
+			if err != nil {
+				return err
+			}
+			if err = client.SetCmdClientContextHandler(initClientCtx, cmd); err != nil {
 				return err
 			}
 
@@ -88,7 +89,12 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 
 			handleRequestPreRun(cmd, args)
 			handleResponsePreRun(cmd)
-			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig)
+			return server.InterceptConfigsPreRunHandler(
+				cmd,
+				customAppTemplate,
+				customAppConfig,
+				tmcfg.DefaultConfig(),
+			)
 		},
 		PersistentPostRun: func(cmd *cobra.Command, _ []string) {
 			handleResponsePostRun(encodingConfig.Codec, cmd)
@@ -128,18 +134,18 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig) {
 	)
 
 	ac := appCreator{encodingConfig}
-
-	//server.AddCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
-
-	//ethermintserver.AddCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
-	evmserver.AddCommands(rootCmd, app.DefaultNodeHome, ac.newApp, ac.appExport, addModuleInitFlags)
+	evmserver.AddCommands(
+		rootCmd,
+		evmserver.NewDefaultStartOptions(ac.newApp, app.DefaultNodeHome),
+		ac.appExport,
+		addModuleInitFlags,
+	)
 
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
 		queryCommand(),
 		txCommand(),
-		//keys.Commands(app.DefaultNodeHome),
 		evmclient.KeyCommands(app.DefaultNodeHome),
 	)
 
@@ -212,22 +218,26 @@ func (ac appCreator) newApp(
 ) servertypes.Application {
 	var cache sdk.MultiStorePersistentCache
 
-	if cast.ToBool(appOpts.Get(server.FlagInterBlockCache)) {
+	if cast.ToBool(appOpts.Get(sdkserver.FlagInterBlockCache)) {
 		cache = store.NewCommitKVStoreCacheManager()
 	}
 
 	skipUpgradeHeights := make(map[int64]bool)
-	for _, h := range cast.ToIntSlice(appOpts.Get(server.FlagUnsafeSkipUpgrades)) {
+	for _, h := range cast.ToIntSlice(appOpts.Get(sdkserver.FlagUnsafeSkipUpgrades)) {
 		skipUpgradeHeights[int64(h)] = true
 	}
 
-	pruningOpts, err := server.GetPruningOptionsFromFlags(appOpts)
+	pruningOpts, err := sdkserver.GetPruningOptionsFromFlags(appOpts)
 	if err != nil {
 		panic(err)
 	}
 
 	snapshotDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data", "snapshots")
-	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	if err = os.MkdirAll(snapshotDir, os.ModePerm); err != nil {
+		panic(err)
+	}
+
+	snapshotDB, err := dbm.NewDB("metadata", sdkserver.GetAppDBBackend(appOpts), snapshotDir)
 	if err != nil {
 		panic(err)
 	}
@@ -235,6 +245,11 @@ func (ac appCreator) newApp(
 	if err != nil {
 		panic(err)
 	}
+
+	snapshotOptions := snapshottypes.NewSnapshotOptions(
+		cast.ToUint64(appOpts.Get(sdkserver.FlagStateSyncSnapshotInterval)),
+		cast.ToUint32(appOpts.Get(sdkserver.FlagStateSyncSnapshotKeepRecent)),
+	)
 
 	return app.NewIritaApp(
 		logger,
@@ -250,16 +265,12 @@ func (ac appCreator) newApp(
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
 		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(server.FlagHaltHeight))),
 		baseapp.SetHaltTime(cast.ToUint64(appOpts.Get(server.FlagHaltTime))),
+		baseapp.SetMinRetainBlocks(cast.ToUint64(appOpts.Get(sdkserver.FlagMinRetainBlocks))),
 		baseapp.SetInterBlockCache(cache),
-		baseapp.SetTrace(cast.ToBool(appOpts.Get(server.FlagTrace))),
+		baseapp.SetTrace(cast.ToBool(appOpts.Get(sdkserver.FlagTrace))),
+		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(sdkserver.FlagIndexEvents))),
 		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(server.FlagIndexEvents))),
-		baseapp.SetSnapshotStore(snapshotStore),
-		baseapp.SetSnapshotInterval(
-			cast.ToUint64(appOpts.Get(server.FlagStateSyncSnapshotInterval)),
-		),
-		baseapp.SetSnapshotKeepRecent(
-			cast.ToUint32(appOpts.Get(server.FlagStateSyncSnapshotKeepRecent)),
-		),
+		baseapp.SetSnapshot(snapshotStore, snapshotOptions),
 	)
 }
 
@@ -272,6 +283,7 @@ func (ac appCreator) appExport(
 	forZeroHeight bool,
 	jailAllowedAddrs []string,
 	appOpts servertypes.AppOptions,
+	modulesToExport []string,
 ) (
 	servertypes.ExportedApp, error,
 ) {
@@ -303,5 +315,5 @@ func (ac appCreator) appExport(
 		}
 	}
 
-	return iritaApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)
+	return iritaApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }

@@ -48,10 +48,13 @@ type HandlerOptions struct {
 	SignModeHandler     signing.SignModeHandler
 	SideChainKeeper     sidechainkeeper.Keeper
 	SideChainPermKeeper sidechain.PermKeeper
+	TxFeeChecker        ante.TxFeeChecker
 
 	// evm config
 	EvmKeeper          evmmoduleante.EVMKeeper
 	EvmFeeMarketKeeper evmtypes.FeeMarketKeeper
+
+	MaxTxGasWanted uint64
 }
 
 // DefaultAnteHandler returns an AnteHandler that checks and increments sequence
@@ -75,7 +78,7 @@ func DefaultAnteHandler(options HandlerOptions) sdk.AnteHandler {
 						ethermintante.NewEthSetUpContextDecorator(
 							options.EvmKeeper,
 						), // outermost AnteDecorator. SetUpContext must be called first
-						ante.NewMempoolFeeDecorator(),
+						ethermintante.NewEthMempoolFeeDecorator(options.EvmKeeper),
 						ante.NewTxTimeoutHeightDecorator(),
 						ante.NewValidateMemoDecorator(options.AccountKeeper),
 						evmmoduleante.NewEthValidateBasicDecorator(options.EvmKeeper),
@@ -84,24 +87,21 @@ func DefaultAnteHandler(options HandlerOptions) sdk.AnteHandler {
 							options.FeegrantKeeper,
 						),
 						evmmoduleante.NewEthContractCallableDecorator(options.PermKeeper),
-						evmmoduleante.NewEthSigVerificationDecorator(
+						ethermintante.NewEthSigVerificationDecorator(
 							options.EvmKeeper,
-							options.AccountKeeper,
-							options.SignModeHandler,
 						),
-						evmmoduleante.NewCanTransferDecorator(
+						ethermintante.NewCanTransferDecorator(
 							options.EvmKeeper,
-							options.OpbKeeper,
-							options.TokenKeeper,
-							options.PermKeeper,
 						),
 
 						ethermintante.NewEthAccountVerificationDecorator(
 							options.AccountKeeper,
-							options.BankKeeper,
 							options.EvmKeeper,
 						),
-						ethermintante.NewEthGasConsumeDecorator(options.EvmKeeper),
+						ethermintante.NewEthGasConsumeDecorator(
+							options.EvmKeeper,
+							options.MaxTxGasWanted,
+						),
 						ethermintante.NewEthIncrementSenderSequenceDecorator(
 							options.AccountKeeper,
 						), // innermost AnteDecorator.
@@ -127,19 +127,18 @@ func DefaultAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		switch tx.(type) {
 		case sdk.Tx:
 			anteHandler = sdk.ChainAnteDecorators(
-				gas.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+				ethermintante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
+				gas.NewSetUpContextDecorator(),          // outermost AnteDecorator. SetUpContext must be called first
 				perm.NewAuthDecorator(options.PermKeeper),
-				ante.NewMempoolFeeDecorator(),
 				ante.NewValidateBasicDecorator(),
 				ante.NewValidateMemoDecorator(options.AccountKeeper),
 				ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 				ante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
 				ante.NewValidateSigCountDecorator(options.AccountKeeper),
-				ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper),
+				ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.TxFeeChecker),
 				ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 				ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 				ante.NewIncrementSequenceDecorator(options.AccountKeeper),
-				ante.NewRejectExtensionOptionsDecorator(),
 				ante.NewTxTimeoutHeightDecorator(),
 				tokenkeeper.NewValidateTokenFeeDecorator(options.TokenKeeper, options.BankKeeper),
 				opbkeeper.NewValidateTokenTransferDecorator(options.OpbKeeper, options.TokenKeeper, options.PermKeeper),

@@ -82,9 +82,9 @@ func Recover(bs store.BlockStore, ss state.Store) (int64, error) {
 		Version: tmstate.Version{
 			Consensus: version.Consensus{
 				Block: tmversion.BlockProtocol,
-				App:   previousParams.Version.AppVersion,
+				App:   previousParams.Version.App,
 			},
-			Software: tmversion.TMVersionDefault,
+			Software: tmversion.TMCoreSemVer,
 		},
 		// immutable fields
 		ChainID:       invalidState.ChainID,
