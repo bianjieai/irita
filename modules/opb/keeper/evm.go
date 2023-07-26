@@ -17,8 +17,6 @@ type EVMTransferCreator struct {
 	tokenKeeper types.TokenKeeper
 	evmKeeper   types.EVMKeeper
 	permKeeper  types.PermKeeper
-
-	ctx sdk.Context
 }
 
 func (k Keeper) NewEVMTransferCreator(
@@ -39,16 +37,16 @@ func (ov *EVMTransferCreator) CanTransfer(ctx sdk.Context) vm.CanTransferFunc {
 		userCosmosAddr := sdk.AccAddress(userAddr.Bytes())
 
 		// get opb params
-		params := ov.evmKeeper.GetParams(ov.ctx)
-		restrictionEnabled := !ov.opbKeeper.UnrestrictedTokenTransfer(ov.ctx)
+		params := ov.evmKeeper.GetParams(ctx)
+		restrictionEnabled := !ov.opbKeeper.UnrestrictedTokenTransfer(ctx)
 
 		// check only if the transfer restriction is enabled
 		if restrictionEnabled {
-			owner, err := ov.getOwner(ov.ctx, params.EvmDenom)
+			owner, err := ov.getOwner(ctx, params.EvmDenom)
 			if err != nil {
 				return false
 			}
-			if ov.hasPlatformUserPerm(ov.ctx, userCosmosAddr) {
+			if ov.hasPlatformUserPerm(ctx, userCosmosAddr) {
 				return false
 			}
 			if userCosmosAddr.String() != owner {
@@ -65,14 +63,14 @@ func (ov *EVMTransferCreator) Transfer(ctx sdk.Context) vm.TransferFunc {
 		senderCosmosAddr := sdk.AccAddress(sender.Bytes())
 		recipientCosmosAddr := sdk.AccAddress(recipient.Bytes())
 
-		params := ov.evmKeeper.GetParams(ov.ctx)
-		restrictionEnabled := !ov.opbKeeper.UnrestrictedTokenTransfer(ov.ctx)
+		params := ov.evmKeeper.GetParams(ctx)
+		restrictionEnabled := !ov.opbKeeper.UnrestrictedTokenTransfer(ctx)
 		// check only if the transfer restriction is enabled
 		if restrictionEnabled {
-			owner, err := ov.getOwner(ov.ctx, params.EvmDenom)
+			owner, err := ov.getOwner(ctx, params.EvmDenom)
 			if err != nil {
 				//ov.logger.Error("unauthorized operation", "err_msg", err.Error())
-				ov.opbKeeper.Logger(ov.ctx).Error(
+				ov.opbKeeper.Logger(ctx).Error(
 					"unauthorized operation",
 					"err_msg", err.Error(),
 					"amount", amount.Int64(),
@@ -86,7 +84,7 @@ func (ov *EVMTransferCreator) Transfer(ctx sdk.Context) vm.TransferFunc {
 					params.EvmDenom,
 				)
 				//ov.logger.Error("unauthorized operation", "err_msg", errMsg)
-				ov.opbKeeper.Logger(ov.ctx).Error(
+				ov.opbKeeper.Logger(ctx).Error(
 					"unauthorized operation",
 					"err_msg", errMsg,
 					"amount", amount.Int64(),
