@@ -19,9 +19,6 @@ replace (
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
-
-	github.com/bianjieai/iritamod  => /Users/zhangzhiqiang/workspace/github/bianjieai/iritamod
-
 )
 
 require (
