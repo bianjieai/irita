@@ -510,7 +510,7 @@ func NewIritaApp(
 		appCodec,
 		authtypes.NewModuleAddress(cparamstypes.ModuleName),
 		keys[feemarkettypes.StoreKey],
-		tkeys[feemarkettypes.StoreKey],
+		tkeys[feemarkettypes.TransientKey],
 		app.GetSubspace(feemarkettypes.ModuleName),
 	)
 	app.EvmKeeper = appkeeper.NewKeeper(
