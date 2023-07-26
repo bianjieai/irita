@@ -15,10 +15,12 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	grpcnode "github.com/cosmos/cosmos-sdk/client/grpc/node"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
@@ -78,6 +80,7 @@ import (
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
 	appante "github.com/bianjieai/irita/app/ante"
+	"github.com/bianjieai/irita/encoding"
 	sidechainmodule "github.com/bianjieai/irita/modules/side-chain"
 	"github.com/bianjieai/iritamod/modules/genutil"
 	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
@@ -233,8 +236,6 @@ type IritaApp struct {
 	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
 
-	invCheckPeriod uint
-
 	// keys to access the substores
 	keys    map[string]*storetypes.KVStoreKey
 	tkeys   map[string]*storetypes.TransientStoreKey
@@ -291,14 +292,10 @@ func NewIritaApp(
 	db dbm.DB,
 	traceStore io.Writer,
 	loadLatest bool,
-	skipUpgradeHeights map[int64]bool,
-	homePath string,
-	invCheckPeriod uint,
-	encodingConfig EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *IritaApp {
-	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
+	encodingConfig := encoding.MakeConfig(ModuleBasics)
 	appCodec := encodingConfig.Codec
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
@@ -314,6 +311,7 @@ func NewIritaApp(
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
 	keys := sdk.NewKVStoreKeys(
+		crisistypes.StoreKey,
 		authtypes.StoreKey,
 		banktypes.StoreKey,
 		slashingtypes.StoreKey,
@@ -343,7 +341,7 @@ func NewIritaApp(
 	tkeys := sdk.NewTransientStoreKeys(
 		paramstypes.TStoreKey,
 		evmtypes.TransientKey,
-		feemarkettypes.StoreKey,
+		feemarkettypes.TransientKey,
 	)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
@@ -352,7 +350,6 @@ func NewIritaApp(
 		legacyAmino:       legacyAmino,
 		appCodec:          appCodec,
 		interfaceRegistry: interfaceRegistry,
-		invCheckPeriod:    invCheckPeriod,
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
@@ -407,6 +404,7 @@ func NewIritaApp(
 		authtypes.NewModuleAddress(cparamstypes.ModuleName).String(),
 	)
 
+	invCheckPeriod := cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod))
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		appCodec,
 		keys[crisistypes.StoreKey],
@@ -422,6 +420,12 @@ func NewIritaApp(
 		app.AccountKeeper,
 	)
 
+	// get skipUpgradeHeights from the app options
+	skipUpgradeHeights := map[int64]bool{}
+	for _, h := range cast.ToIntSlice(appOpts.Get(server.FlagUnsafeSkipUpgrades)) {
+		skipUpgradeHeights[int64(h)] = true
+	}
+	homePath := cast.ToString(appOpts.Get(flags.FlagHome))
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(
 		skipUpgradeHeights,
 		keys[upgradetypes.StoreKey],
@@ -639,6 +643,7 @@ func NewIritaApp(
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
 		paramstypes.ModuleName,
+		cparams.ModuleName,
 		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
@@ -668,6 +673,7 @@ func NewIritaApp(
 	)
 	app.mm.SetOrderEndBlockers(
 		paramstypes.ModuleName,
+		cparams.ModuleName,
 		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
@@ -703,6 +709,7 @@ func NewIritaApp(
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
 		paramstypes.ModuleName,
+		cparams.ModuleName,
 		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,
@@ -733,6 +740,7 @@ func NewIritaApp(
 
 	app.mm.SetOrderMigrations(
 		paramstypes.ModuleName,
+		cparams.ModuleName,
 		upgradetypes.ModuleName,
 		permtypes.ModuleName,
 		authtypes.ModuleName,

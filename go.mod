@@ -19,6 +19,9 @@ replace (
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.8.1
 	// Downgraded to avoid bugs in following commits which caused simulations to fail.
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+
+	github.com/bianjieai/iritamod  => /Users/zhangzhiqiang/workspace/github/bianjieai/iritamod
+
 )
 
 require (
@@ -26,7 +29,7 @@ require (
 	github.com/bianjieai/tibc-go v0.4.4-0.20230724073601-a4934691c962
 	github.com/cometbft/cometbft v0.37.1
 	github.com/cosmos/cosmos-sdk v0.47.3
-	github.com/irisnet/irismod v1.6.3-0.20230724072826-7b10a08e2d2b
+	github.com/irisnet/irismod v1.6.3-0.20230726031438-511a39745c19
 )
 
 require (

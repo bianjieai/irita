@@ -3,11 +3,7 @@ package cmd
 import (
 	"io"
 	"os"
-	"path/filepath"
 
-	"github.com/pkg/errors"
-
-	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -15,18 +11,13 @@ import (
 	tmcli "github.com/cometbft/cometbft/libs/cli"
 	"github.com/cometbft/cometbft/libs/log"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
-	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/snapshots"
-	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
-	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -44,12 +35,12 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 
 	"github.com/bianjieai/irita/app"
+	"github.com/bianjieai/irita/encoding"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
-func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
-	//encodingConfig := app.MakeEncodingConfig()
-	encodingConfig := app.MakeEncodingConfig()
+func NewRootCmd() (*cobra.Command, encoding.Config) {
+	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 
 	initClientCtx := client.Context{}.
 		WithCodec(encodingConfig.Codec).
@@ -107,7 +98,7 @@ func NewRootCmd() (*cobra.Command, app.EncodingConfig) {
 	return rootCmd, encodingConfig
 }
 
-func initRootCmd(rootCmd *cobra.Command, encodingConfig app.EncodingConfig) {
+func initRootCmd(rootCmd *cobra.Command, encodingConfig encoding.Config) {
 	rootCmd.AddCommand(
 		ethermintclient.ValidateChainID(
 			genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
@@ -207,7 +198,7 @@ func txCommand() *cobra.Command {
 }
 
 type appCreator struct {
-	encCfg app.EncodingConfig
+	encCfg encoding.Config
 }
 
 func (ac appCreator) newApp(
@@ -216,61 +207,14 @@ func (ac appCreator) newApp(
 	traceStore io.Writer,
 	appOpts servertypes.AppOptions,
 ) servertypes.Application {
-	var cache sdk.MultiStorePersistentCache
-
-	if cast.ToBool(appOpts.Get(sdkserver.FlagInterBlockCache)) {
-		cache = store.NewCommitKVStoreCacheManager()
-	}
-
-	skipUpgradeHeights := make(map[int64]bool)
-	for _, h := range cast.ToIntSlice(appOpts.Get(sdkserver.FlagUnsafeSkipUpgrades)) {
-		skipUpgradeHeights[int64(h)] = true
-	}
-
-	pruningOpts, err := sdkserver.GetPruningOptionsFromFlags(appOpts)
-	if err != nil {
-		panic(err)
-	}
-
-	snapshotDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data", "snapshots")
-	if err = os.MkdirAll(snapshotDir, os.ModePerm); err != nil {
-		panic(err)
-	}
-
-	snapshotDB, err := dbm.NewDB("metadata", sdkserver.GetAppDBBackend(appOpts), snapshotDir)
-	if err != nil {
-		panic(err)
-	}
-	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
-	if err != nil {
-		panic(err)
-	}
-
-	snapshotOptions := snapshottypes.NewSnapshotOptions(
-		cast.ToUint64(appOpts.Get(sdkserver.FlagStateSyncSnapshotInterval)),
-		cast.ToUint32(appOpts.Get(sdkserver.FlagStateSyncSnapshotKeepRecent)),
-	)
-
+	baseappOptions := server.DefaultBaseappOptions(appOpts)
 	return app.NewIritaApp(
 		logger,
 		db,
 		traceStore,
 		true,
-		skipUpgradeHeights,
-		cast.ToString(appOpts.Get(flags.FlagHome)),
-		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
-		ac.encCfg, // Ideally, we would reuse the one created by NewRootCmd.
 		appOpts,
-		baseapp.SetPruning(pruningOpts),
-		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
-		baseapp.SetHaltHeight(cast.ToUint64(appOpts.Get(server.FlagHaltHeight))),
-		baseapp.SetHaltTime(cast.ToUint64(appOpts.Get(server.FlagHaltTime))),
-		baseapp.SetMinRetainBlocks(cast.ToUint64(appOpts.Get(sdkserver.FlagMinRetainBlocks))),
-		baseapp.SetInterBlockCache(cache),
-		baseapp.SetTrace(cast.ToBool(appOpts.Get(sdkserver.FlagTrace))),
-		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(sdkserver.FlagIndexEvents))),
-		baseapp.SetIndexEvents(cast.ToStringSlice(appOpts.Get(server.FlagIndexEvents))),
-		baseapp.SetSnapshot(snapshotStore, snapshotOptions),
+		baseappOptions...,
 	)
 }
 
@@ -287,26 +231,14 @@ func (ac appCreator) appExport(
 ) (
 	servertypes.ExportedApp, error,
 ) {
-	homePath, ok := appOpts.Get(flags.FlagHome).(string)
-	if !ok || homePath == "" {
-		return servertypes.ExportedApp{}, errors.New("application home is not set")
-	}
-
-	var loadLatest bool
-	if height == -1 {
-		loadLatest = true
-	}
-
+	baseappOptions := server.DefaultBaseappOptions(appOpts)
 	iritaApp := app.NewIritaApp(
 		logger,
 		db,
 		traceStore,
-		loadLatest,
-		map[int64]bool{},
-		homePath,
-		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
-		ac.encCfg,
+		true,
 		appOpts,
+		baseappOptions...,
 	)
 
 	if height != -1 {

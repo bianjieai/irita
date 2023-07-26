@@ -727,8 +727,8 @@ github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANyt
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/influxdata/influxdb1-client v0.0.0-20191209144304-8bf82d3c094d/go.mod h1:qj24IKcXYK6Iy9ceXlo3Tc+vtHo9lIhSX5JddghvEPo=
-github.com/irisnet/irismod v1.6.3-0.20230724072826-7b10a08e2d2b h1:CkqthU08/MxZNCh3SnLDorWSgpFVNKg6B1tIDZfp3xM=
-github.com/irisnet/irismod v1.6.3-0.20230724072826-7b10a08e2d2b/go.mod h1:wbGsTCFUsinBTS9/nUnaAYpGzCgI7eSFWIvscD2AZCA=
+github.com/irisnet/irismod v1.6.3-0.20230726031438-511a39745c19 h1:UZveNboiXs47WRgb/MOHHghWyvsU99x1QNPF4obNCBw=
+github.com/irisnet/irismod v1.6.3-0.20230726031438-511a39745c19/go.mod h1:wbGsTCFUsinBTS9/nUnaAYpGzCgI7eSFWIvscD2AZCA=
 github.com/jackpal/go-nat-pmp v1.0.2 h1:KzKSgb7qkJvOUTqYl9/Hg/me3pWgBmERKrTGD7BdWus=
 github.com/jackpal/go-nat-pmp v1.0.2/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
