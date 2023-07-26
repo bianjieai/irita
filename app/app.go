@@ -122,6 +122,7 @@ import (
 	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 
 	ethermintante "github.com/evmos/ethermint/app/ante"
+	"github.com/evmos/ethermint/ethereum/eip712"
 	srvflags "github.com/evmos/ethermint/server/flags"
 	ethermint "github.com/evmos/ethermint/types"
 	"github.com/evmos/ethermint/x/evm"
@@ -228,7 +229,7 @@ func init() {
 // capabilities aren't needed for testing.
 type IritaApp struct {
 	*baseapp.BaseApp
-	cdc               *codec.LegacyAmino
+	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
 
@@ -348,7 +349,7 @@ func NewIritaApp(
 
 	app := &IritaApp{
 		BaseApp:           bApp,
-		cdc:               legacyAmino,
+		legacyAmino:       legacyAmino,
 		appCodec:          appCodec,
 		interfaceRegistry: interfaceRegistry,
 		invCheckPeriod:    invCheckPeriod,
@@ -356,6 +357,7 @@ func NewIritaApp(
 		tkeys:             tkeys,
 		memKeys:           memKeys,
 	}
+	app.init()
 
 	app.ParamsKeeper = initParamsKeeper(
 		appCodec,
@@ -893,7 +895,7 @@ func (app *IritaApp) InitChainer(
 	req abci.RequestInitChain,
 ) abci.ResponseInitChain {
 	var genesisState GenesisState
-	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
+	app.legacyAmino.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
 
 	// add system service at InitChainer, overwrite if it exists
 	var serviceGenState servicetypes.GenesisState
@@ -953,7 +955,7 @@ func (app *IritaApp) ModuleAccountAddrs() map[string]bool {
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
 func (app *IritaApp) LegacyAmino() *codec.LegacyAmino {
-	return app.cdc
+	return app.legacyAmino
 }
 
 // AppCodec returns IritaApp's app codec.
@@ -1047,6 +1049,13 @@ func (app *IritaApp) RegisterUpgradePlan(planName string,
 		// configure store loader that checks if version+1 == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(sdkupgrade.UpgradeStoreLoader(upgradeInfo.Height, &upgrades))
 	}
+}
+
+func (app *IritaApp) init() {
+	eip712.InjectCodec(eip712.Codec{
+		InterfaceRegistry: app.interfaceRegistry,
+		Amino:             app.legacyAmino,
+	})
 }
 
 // GetMaccPerms returns a copy of the module account permissions

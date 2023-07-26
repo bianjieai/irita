@@ -65,6 +65,7 @@ func NewKeeper(
 	}
 }
 
+// NewEVM override the evmkeeper.NewEVM method
 func (k *Keeper) NewEVM(
 	ctx sdk.Context,
 	msg core.Message,
