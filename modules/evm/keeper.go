@@ -23,16 +23,12 @@ var (
 	_ EVMKeeper = &Keeper{}
 )
 
-type CanTransferCreator func(ctx sdk.Context) vm.CanTransferFunc
-type TransferCreator func(ctx sdk.Context) vm.TransferFunc
-
 type Keeper struct {
 	*evmkeeper.Keeper
 
 	// custom stateless precompiled smart contracts
 	customPrecompiles evm.PrecompiledContracts
-	createCanTransfer CanTransferCreator
-	createTransfer    TransferCreator
+	creator           Creator
 }
 
 func NewKeeper(
@@ -65,12 +61,7 @@ func NewKeeper(
 	return &Keeper{
 		Keeper:            evmKeeper,
 		customPrecompiles: customPrecompiles,
-		createCanTransfer: func(ctx sdk.Context) vm.CanTransferFunc {
-			return core.CanTransfer
-		},
-		createTransfer: func(ctx sdk.Context) vm.TransferFunc {
-			return core.Transfer
-		},
+		creator:           DefaultCreator{},
 	}
 }
 
@@ -82,8 +73,8 @@ func (k *Keeper) NewEVM(
 	stateDB vm.StateDB,
 ) evm.EVM {
 	blockCtx := vm.BlockContext{
-		CanTransfer: k.createCanTransfer(ctx),
-		Transfer:    k.createTransfer(ctx),
+		CanTransfer: k.creator.CanTransfer(ctx),
+		Transfer:    k.creator.Transfer(ctx),
 		GetHash:     k.GetHashFn(ctx),
 		Coinbase:    cfg.CoinBase,
 		GasLimit:    ethermint.BlockGasLimit(ctx),
@@ -104,16 +95,24 @@ func (k *Keeper) NewEVM(
 	}
 }
 
-func (k *Keeper) SetValidator(
-	canTransferCreator CanTransferCreator,
-	transferCreator TransferCreator,
-) *Keeper {
-	if canTransferCreator != nil {
-		k.createCanTransfer = canTransferCreator
+func (k *Keeper) SetCreator(creator Creator) *Keeper {
+	if creator != nil {
+		k.creator = creator
 	}
-	if transferCreator != nil {
-		k.createTransfer = transferCreator
-	}
-
 	return k
+}
+
+type Creator interface {
+	CanTransfer(ctx sdk.Context) vm.CanTransferFunc
+	Transfer(ctx sdk.Context) vm.TransferFunc
+}
+
+type DefaultCreator struct{}
+
+func (DefaultCreator) CanTransfer(_ sdk.Context) vm.CanTransferFunc {
+	return core.CanTransfer
+}
+
+func (DefaultCreator) Transfer(_ sdk.Context) vm.TransferFunc {
+	return core.Transfer
 }

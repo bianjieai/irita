@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/spf13/cast"
 
 	dbm "github.com/cometbft/cometbft-db"
@@ -521,24 +520,12 @@ func NewIritaApp(
 		nil,
 		tracer,
 		app.GetSubspace(evmtypes.ModuleName),
-	)
-
-	opbValidator := appkeeper.NewEthOpbValidator(
-		app.OpbKeeper,
-		app.TokenKeeper,
-		app.EvmKeeper,
-		app.PermKeeper,
-	)
-
-	app.EvmKeeper.SetValidator(
-		func(ctx sdk.Context) vm.CanTransferFunc {
-			opbValidator.With(ctx)
-			return opbValidator.CanTransfer
-		},
-		func(ctx sdk.Context) vm.TransferFunc {
-			opbValidator.With(ctx)
-			return opbValidator.Transfer
-		},
+	).SetCreator(
+		app.OpbKeeper.NewEVMTransferCreator(
+			app.TokenKeeper,
+			app.EvmKeeper,
+			app.PermKeeper,
+		),
 	)
 
 	app.TibcKeeper = tibckeeper.NewKeeper(tibccorekeeper.NewKeeper(
