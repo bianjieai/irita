@@ -55,7 +55,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	"github.com/irisnet/irismod/modules/mt"
 	mtkeeper "github.com/irisnet/irismod/modules/mt/keeper"
@@ -862,6 +861,7 @@ func NewIritaApp(
 	app.SetEndBlocker(app.EndBlocker)
 	// set peer filter by node ID
 	app.SetIDPeerFilter(app.NodeKeeper.FilterNodeByID)
+	app.RegisterUpgradePlans()
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -904,25 +904,6 @@ func (app *IritaApp) InitChainer(
 ) abci.ResponseInitChain {
 	var genesisState GenesisState
 	app.legacyAmino.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
-
-	// add system service at InitChainer, overwrite if it exists
-	var serviceGenState servicetypes.GenesisState
-	app.appCodec.MustUnmarshalJSON(genesisState[servicetypes.ModuleName], &serviceGenState)
-
-	serviceGenState.Definitions = append(
-		serviceGenState.Definitions,
-		servicetypes.GenOraclePriceSvcDefinition(),
-	)
-	serviceGenState.Bindings = append(
-		serviceGenState.Bindings,
-		servicetypes.GenOraclePriceSvcBinding(tokentypes.GetNativeToken().MinUnit),
-	)
-	serviceGenState.Definitions = append(
-		serviceGenState.Definitions,
-		randomtypes.GetSvcDefinition(),
-	)
-	genesisState[servicetypes.ModuleName] = app.appCodec.MustMarshalJSON(&serviceGenState)
-
 	app.UpgradeKeeper.UpgradeKeeper().SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
@@ -1040,23 +1021,6 @@ func (app *IritaApp) RegisterTxService(clientCtx client.Context) {
 		app.BaseApp.Simulate,
 		app.interfaceRegistry,
 	)
-}
-
-// RegisterUpgradePlan implements the upgrade execution logic of the upgrade module
-func (app *IritaApp) RegisterUpgradePlan(planName string,
-	upgrades storetypes.StoreUpgrades, upgradeHandler sdkupgrade.UpgradeHandler) {
-	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
-	if err != nil {
-		app.Logger().Info("not found upgrade plan", "planName", planName, "err", err.Error())
-		return
-	}
-
-	if upgradeInfo.Name == planName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		// this configures a no-op upgrade handler for the planName upgrade
-		app.UpgradeKeeper.SetUpgradeHandler(planName, upgradeHandler)
-		// configure store loader that checks if version+1 == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(sdkupgrade.UpgradeStoreLoader(upgradeInfo.Height, &upgrades))
-	}
 }
 
 func (app *IritaApp) init() {
