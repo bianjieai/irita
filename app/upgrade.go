@@ -3,18 +3,15 @@ package app
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/runtime"
 	store "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-var router = &upgradeRouter{
-	mu: make(map[string]Upgrade),
-}
-
 // RegisterUpgradePlans register a handler of upgrade plan
 func (app *IritaApp) Register(us ...Upgrade) {
-	router.registers(us...)
+	app.upgradeRouter.registers(us...)
 }
 
 // RegisterUpgradePlans register a handler of upgrade plan
@@ -37,13 +34,13 @@ func (app *IritaApp) setupUpgradeStoreLoaders() {
 	app.SetStoreLoader(
 		upgradetypes.UpgradeStoreLoader(
 			upgradeInfo.Height,
-			router.upgradeInfo(upgradeInfo.Name).StoreUpgrades,
+			app.upgradeRouter.upgradeInfo(upgradeInfo.Name).StoreUpgrades,
 		),
 	)
 }
 
 func (app *IritaApp) setupUpgradeHandlers() {
-	for upgradeName, upgrade := range router.routers() {
+	for upgradeName, upgrade := range app.upgradeRouter.routers() {
 		app.UpgradeKeeper.SetUpgradeHandler(
 			upgradeName,
 			upgrade.UpgradeHandlerConstructor(
@@ -90,7 +87,7 @@ type Upgrade struct {
 	UpgradeName string
 
 	// UpgradeHandlerConstructor defines the function that creates an upgrade handler
-	UpgradeHandlerConstructor func(*module.Manager, module.Configurator, *IritaApp) upgradetypes.UpgradeHandler
+	UpgradeHandlerConstructor func(*module.Manager, module.Configurator, runtime.AppI) upgradetypes.UpgradeHandler
 
 	// Store upgrades, should be used for any new modules introduced, new modules deleted, or store names renamed.
 	StoreUpgrades *store.StoreUpgrades

@@ -26,7 +26,7 @@ require (
 	github.com/bianjieai/tibc-go v0.4.4-0.20230724073601-a4934691c962
 	github.com/cometbft/cometbft v0.37.1
 	github.com/cosmos/cosmos-sdk v0.47.3
-	github.com/irisnet/irismod v1.6.3-0.20230726031438-511a39745c19
+	github.com/irisnet/irismod v1.6.3-0.20230728063140-3e68283e60fd
 )
 
 require (

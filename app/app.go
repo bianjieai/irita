@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
@@ -203,7 +204,10 @@ var (
 )
 
 // Verify app interface at compile time
-// var _ simapp.App = (*IritaApp)(nil)
+var (
+	_ runtime.AppI            = (*IritaApp)(nil)
+	_ servertypes.Application = (*IritaApp)(nil)
+)
 
 func init() {
 	userHomeDir, err := os.UserHomeDir()
@@ -282,7 +286,8 @@ type IritaApp struct {
 	sm *module.SimulationManager
 
 	// module configurator
-	configurator module.Configurator
+	configurator  module.Configurator
+	upgradeRouter *upgradeRouter
 }
 
 // NewIritaApp returns a reference to an initialized IritaApp.
@@ -352,6 +357,9 @@ func NewIritaApp(
 		keys:              keys,
 		tkeys:             tkeys,
 		memKeys:           memKeys,
+		upgradeRouter: &upgradeRouter{
+			mu: make(map[string]Upgrade),
+		},
 	}
 	app.init()
 
@@ -443,10 +451,9 @@ func NewIritaApp(
 	app.TokenKeeper = tokenkeeper.NewKeeper(
 		appCodec,
 		keys[tokentypes.StoreKey],
-		app.GetSubspace(tokentypes.ModuleName),
 		app.BankKeeper,
-		app.ModuleAccountAddrs(),
 		opbtypes.PointTokenFeeCollectorName,
+		authtypes.NewModuleAddress(cparamstypes.ModuleName).String(),
 	)
 
 	app.RecordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
@@ -458,11 +465,8 @@ func NewIritaApp(
 		keys[servicetypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.GetSubspace(
-			servicetypes.ModuleName,
-		),
-		app.ModuleAccountAddrs(),
 		opbtypes.PointTokenFeeCollectorName,
+		authtypes.NewModuleAddress(cparamstypes.ModuleName).String(),
 	)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
@@ -612,10 +616,22 @@ func NewIritaApp(
 		evidence.NewAppModule(*app.EvidenceKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		cparams.NewAppModule(appCodec, cparamsKeeper),
-		token.NewAppModule(appCodec, app.TokenKeeper, app.AccountKeeper, app.BankKeeper),
+		token.NewAppModule(
+			appCodec,
+			app.TokenKeeper,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.GetSubspace(tokentypes.ModuleName),
+		),
 		nft.NewAppModule(appCodec, app.NftKeeper, app.AccountKeeper, app.BankKeeper),
 		mt.NewAppModule(appCodec, app.MtKeeper, app.AccountKeeper, app.BankKeeper),
-		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
+		service.NewAppModule(
+			appCodec,
+			app.ServiceKeeper,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.GetSubspace(servicetypes.ModuleName),
+		),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
 		perm.NewAppModule(appCodec, app.PermKeeper),
@@ -809,10 +825,22 @@ func NewIritaApp(
 		params.NewAppModule(app.ParamsKeeper),
 		cparams.NewAppModule(appCodec, cparamsKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
-		token.NewAppModule(appCodec, app.TokenKeeper, app.AccountKeeper, app.BankKeeper),
+		token.NewAppModule(
+			appCodec,
+			app.TokenKeeper,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.GetSubspace(tokentypes.ModuleName),
+		),
 		nft.NewAppModule(appCodec, app.NftKeeper, app.AccountKeeper, app.BankKeeper),
 		mt.NewAppModule(appCodec, app.MtKeeper, app.AccountKeeper, app.BankKeeper),
-		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
+		service.NewAppModule(
+			appCodec,
+			app.ServiceKeeper,
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.GetSubspace(servicetypes.ModuleName),
+		),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
 		perm.NewAppModule(appCodec, app.PermKeeper),
