@@ -81,7 +81,7 @@ import (
 
 	appante "github.com/bianjieai/irita/app/ante"
 	"github.com/bianjieai/irita/encoding"
-	sidechainmodule "github.com/bianjieai/irita/modules/side-chain"
+	"github.com/bianjieai/irita/wrapper"
 	"github.com/bianjieai/iritamod/modules/genutil"
 	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/identity"
@@ -107,9 +107,9 @@ import (
 	"github.com/bianjieai/irita/address"
 	"github.com/bianjieai/irita/lite"
 	appkeeper "github.com/bianjieai/irita/modules/evm"
-	"github.com/bianjieai/irita/modules/opb"
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
-	opbtypes "github.com/bianjieai/irita/modules/opb/types"
+	"github.com/bianjieai/iritamod/modules/opb"
+	opbkeeper "github.com/bianjieai/iritamod/modules/opb/keeper"
+	opbtypes "github.com/bianjieai/iritamod/modules/opb/types"
 
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
@@ -493,12 +493,15 @@ func NewIritaApp(
 	app.IdentityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
 
 	app.OpbKeeper = opbkeeper.NewKeeper(
-		appCodec, keys[opbtypes.StoreKey], app.AccountKeeper,
-		app.BankKeeper, app.TokenKeeper, app.PermKeeper,
-		app.GetSubspace(opbtypes.ModuleName),
+		appCodec,
+		keys[opbtypes.StoreKey],
+		app.AccountKeeper,
+		app.BankKeeper,
+		wrapper.NewTokenKeeper(app.TokenKeeper),
+		app.PermKeeper,
 	)
 
-	sidechainPermKeeper := sidechainmodule.NewPermKeeper(appCodec, app.PermKeeper)
+	permKeeperWrapper := wrapper.NewPermKeeper(appCodec, app.PermKeeper)
 	app.SidechainKeeper = sidechainkeeper.NewKeeper(
 		appCodec,
 		keys[sidechaintypes.StoreKey],
@@ -530,11 +533,7 @@ func NewIritaApp(
 		tracer,
 		app.GetSubspace(evmtypes.ModuleName),
 	).SetCreator(
-		app.OpbKeeper.NewEVMTransferCreator(
-			app.TokenKeeper,
-			app.EvmKeeper,
-			app.PermKeeper,
-		),
+		app.OpbKeeper.NewEVMTransferCreator(app.EvmKeeper),
 	)
 
 	app.TibcKeeper = tibckeeper.NewKeeper(tibccorekeeper.NewKeeper(
@@ -638,7 +637,7 @@ func NewIritaApp(
 		identity.NewAppModule(app.IdentityKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper, app.GetSubspace(node.ModuleName)),
-		opb.NewAppModule(appCodec, app.OpbKeeper),
+		opb.NewAppModule(appCodec, app.OpbKeeper, app.GetSubspace(opbtypes.ModuleName)),
 		tibc.NewAppModule(app.TibcKeeper),
 		sidechain.NewAppModule(appCodec, app.SidechainKeeper),
 		nfttransferModule,
@@ -846,7 +845,7 @@ func NewIritaApp(
 		perm.NewAppModule(appCodec, app.PermKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper, app.GetSubspace(node.ModuleName)),
-		opb.NewAppModule(appCodec, app.OpbKeeper),
+		opb.NewAppModule(appCodec, app.OpbKeeper, app.GetSubspace(opbtypes.ModuleName)),
 		tibc.NewAppModule(app.TibcKeeper),
 		// evm
 		appkeeper.NewAppModule(
@@ -878,7 +877,7 @@ func NewIritaApp(
 			FeegrantKeeper:      app.FeeGrantKeeper,
 			SigGasConsumer:      ethermintante.DefaultSigVerificationGasConsumer,
 			SideChainKeeper:     app.SidechainKeeper,
-			SideChainPermKeeper: sidechainPermKeeper,
+			SideChainPermKeeper: permKeeperWrapper,
 
 			// evm
 			EvmFeeMarketKeeper: app.FeeMarketKeeper,

@@ -103,6 +103,10 @@ func (k *Keeper) SetCreator(creator Creator) *Keeper {
 	return k
 }
 
+func (k *Keeper) GetBaseDenom(ctx sdk.Context) string {
+	return k.GetParams(ctx).EvmDenom
+}
+
 type Creator interface {
 	CanTransfer(ctx sdk.Context) vm.CanTransferFunc
 	Transfer(ctx sdk.Context) vm.TransferFunc

@@ -51,7 +51,7 @@ import (
 	evmhd "github.com/evmos/ethermint/crypto/hd"
 	evmosConfig "github.com/evmos/ethermint/server/config"
 
-	opbtypes "github.com/bianjieai/irita/modules/opb/types"
+	opbtypes "github.com/bianjieai/iritamod/modules/opb/types"
 )
 
 const (

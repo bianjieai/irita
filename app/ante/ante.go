@@ -24,12 +24,11 @@ import (
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
 	evmmoduleante "github.com/bianjieai/irita/modules/evm"
-	"github.com/bianjieai/irita/modules/gas"
-	opbkeeper "github.com/bianjieai/irita/modules/opb/keeper"
-	sidechain "github.com/bianjieai/irita/modules/side-chain"
 	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
+	"github.com/bianjieai/irita/wrapper"
 	"github.com/bianjieai/iritamod/modules/identity"
 	"github.com/bianjieai/iritamod/modules/node"
+	opbkeeper "github.com/bianjieai/iritamod/modules/opb/keeper"
 	"github.com/bianjieai/iritamod/modules/params"
 	"github.com/bianjieai/iritamod/modules/perm"
 	sidechainkeeper "github.com/bianjieai/iritamod/modules/side-chain/keeper"
@@ -47,7 +46,7 @@ type HandlerOptions struct {
 	SigGasConsumer      ante.SignatureVerificationGasConsumer
 	SignModeHandler     signing.SignModeHandler
 	SideChainKeeper     sidechainkeeper.Keeper
-	SideChainPermKeeper sidechain.PermKeeper
+	SideChainPermKeeper wrapper.PermKeeper
 	TxFeeChecker        ante.TxFeeChecker
 
 	// evm config
@@ -128,7 +127,7 @@ func DefaultAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		case sdk.Tx:
 			anteHandler = sdk.ChainAnteDecorators(
 				ethermintante.RejectMessagesDecorator{}, // reject MsgEthereumTxs
-				gas.NewSetUpContextDecorator(),          // outermost AnteDecorator. SetUpContext must be called first
+				NewSetUpContextDecorator(),              // outermost AnteDecorator. SetUpContext must be called first
 				perm.NewAuthDecorator(options.PermKeeper),
 				ante.NewValidateBasicDecorator(),
 				ante.NewValidateMemoDecorator(options.AccountKeeper),
@@ -141,7 +140,7 @@ func DefaultAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 				ante.NewTxTimeoutHeightDecorator(),
 				tokenkeeper.NewValidateTokenFeeDecorator(options.TokenKeeper, options.BankKeeper),
-				opbkeeper.NewValidateTokenTransferDecorator(options.OpbKeeper, options.TokenKeeper, options.PermKeeper),
+				opbkeeper.NewValidateTokenTransferDecorator(options.OpbKeeper),
 				sidechainkeeper.NewValidateSideChainDecorator(options.SideChainKeeper, options.SideChainPermKeeper),
 			)
 		default:
