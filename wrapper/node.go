@@ -1,4 +1,4 @@
-package evm
+package wrapper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -8,16 +8,26 @@ import (
 	"github.com/bianjieai/iritamod/modules/node"
 )
 
-type WNodeKeeper struct {
-	node.Keeper
+type NodeKeeper struct {
+	nk node.Keeper
 }
 
-func (node WNodeKeeper) GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool) {
-	return node.Keeper.GetHistoricalInfo(ctx, height)
+func NewNodeKeeper(nk node.Keeper) NodeKeeper {
+	return NodeKeeper{nk}
 }
 
-func (node WNodeKeeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool) {
-	addr, found := node.Keeper.GetValidatorByConsAddr(ctx, consAddr)
+func (k NodeKeeper) GetHistoricalInfo(
+	ctx sdk.Context,
+	height int64,
+) (stakingtypes.HistoricalInfo, bool) {
+	return k.nk.GetHistoricalInfo(ctx, height)
+}
+
+func (k NodeKeeper) GetValidatorByConsAddr(
+	ctx sdk.Context,
+	consAddr sdk.ConsAddress,
+) (validator stakingtypes.Validator, found bool) {
+	addr, found := k.nk.GetValidatorByConsAddr(ctx, consAddr)
 	if !found {
 		return stakingtypes.Validator{}, false
 	}

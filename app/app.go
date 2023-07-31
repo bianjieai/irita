@@ -27,6 +27,7 @@ import (
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/mempool"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 
@@ -313,6 +314,9 @@ func NewIritaApp(
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
+	bApp.SetMempool(
+		mempool.NoOpMempool{},
+	) // Notice: SenderNonceMempool has a problem with evm transactions, no signature information
 
 	keys := sdk.NewKVStoreKeys(
 		crisistypes.StoreKey,
@@ -526,13 +530,14 @@ func NewIritaApp(
 		authtypes.NewModuleAddress(cparamstypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
-		appkeeper.WNodeKeeper{Keeper: app.NodeKeeper},
+		wrapper.NewNodeKeeper(app.NodeKeeper),
 		app.FeeMarketKeeper,
 		nil,
 		nil,
 		tracer,
 		app.GetSubspace(evmtypes.ModuleName),
-	).SetCreator(
+	)
+	app.EvmKeeper.SetCreator(
 		app.OpbKeeper.NewEVMTransferCreator(app.EvmKeeper),
 	)
 

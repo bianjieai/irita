@@ -1,8 +1,6 @@
 package evm
 
 import (
-	"math/big"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,10 +8,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/params"
 
-	ethermint "github.com/evmos/ethermint/types"
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
-	"github.com/evmos/ethermint/x/evm/statedb"
 	"github.com/evmos/ethermint/x/evm/types"
 	evm "github.com/evmos/ethermint/x/evm/vm"
 	"github.com/evmos/ethermint/x/evm/vm/geth"
@@ -40,11 +37,15 @@ func NewKeeper(
 	sk types.StakingKeeper,
 	fmk types.FeeMarketKeeper,
 	customPrecompiles evm.PrecompiledContracts,
-	evmConstructor evm.Constructor,
+	_ evm.Constructor,
 	tracer string,
 	ss paramstypes.Subspace,
 ) *Keeper {
-	evmKeeper := evmkeeper.NewKeeper(
+	k := &Keeper{
+		customPrecompiles: customPrecompiles,
+		creator:           DefaultCreator{},
+	}
+	k.Keeper = evmkeeper.NewKeeper(
 		cdc,
 		storeKey,
 		transientKey,
@@ -54,45 +55,29 @@ func NewKeeper(
 		sk,
 		fmk,
 		customPrecompiles,
-		evmConstructor,
+		k.evmCreator(),
 		tracer,
 		ss,
 	)
-	return &Keeper{
-		Keeper:            evmKeeper,
-		customPrecompiles: customPrecompiles,
-		creator:           DefaultCreator{},
-	}
+	return k
 }
 
 // NewEVM override the evmkeeper.NewEVM method
-func (k *Keeper) NewEVM(
-	ctx sdk.Context,
-	msg core.Message,
-	cfg *statedb.EVMConfig,
-	tracer vm.EVMLogger,
-	stateDB vm.StateDB,
-) evm.EVM {
-	blockCtx := vm.BlockContext{
-		CanTransfer: k.creator.CanTransfer(ctx),
-		Transfer:    k.creator.Transfer(ctx),
-		GetHash:     k.GetHashFn(ctx),
-		Coinbase:    cfg.CoinBase,
-		GasLimit:    ethermint.BlockGasLimit(ctx),
-		BlockNumber: big.NewInt(ctx.BlockHeight()),
-		Time:        big.NewInt(ctx.BlockHeader().Time.Unix()),
-		Difficulty:  big.NewInt(0), // unused. Only required in PoW context
-		BaseFee:     cfg.BaseFee,
-		Random:      nil, // not supported
-	}
-
-	txCtx := core.NewEVMTxContext(msg)
-	if tracer == nil {
-		tracer = k.Tracer(ctx, msg, cfg.ChainConfig)
-	}
-	vmConfig := k.VMConfig(ctx, msg, cfg, tracer)
-	return &geth.EVM{
-		EVM: vm.NewEVM(blockCtx, txCtx, stateDB, cfg.ChainConfig, vmConfig),
+func (k *Keeper) evmCreator() evm.Constructor {
+	return func(
+		ctx sdk.Context,
+		blockCtx vm.BlockContext,
+		txCtx vm.TxContext,
+		stateDB vm.StateDB,
+		chainConfig *params.ChainConfig,
+		config vm.Config,
+		_ evm.PrecompiledContracts,
+	) evm.EVM {
+		blockCtx.CanTransfer = k.creator.CanTransfer(ctx)
+		blockCtx.Transfer = k.creator.Transfer(ctx)
+		return &geth.EVM{
+			EVM: vm.NewEVM(blockCtx, txCtx, stateDB, chainConfig, config),
+		}
 	}
 }
 

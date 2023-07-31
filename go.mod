@@ -5,7 +5,8 @@ go 1.19
 replace (
 	github.com/cometbft/cometbft => github.com/bianjieai/cometbft v0.37.1-irita-230607
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.47.3-irita-230707
-	github.com/evmos/ethermint => github.com/bianjieai/ethermint v0.6.1-0.20230719054744-9a45f8c44959
+	github.com/evmos/ethermint => /Users/zhangzhiqiang/workspace/github/bianjieai/ethermint
+	github.com/bianjieai/iritamod => /Users/zhangzhiqiang/workspace/github/bianjieai/iritamod
 )
 
 replace (

@@ -78,21 +78,13 @@ func DefaultAnteHandler(options HandlerOptions) sdk.AnteHandler {
 							options.EvmKeeper,
 						), // outermost AnteDecorator. SetUpContext must be called first
 						ethermintante.NewEthMempoolFeeDecorator(options.EvmKeeper),
-						ante.NewTxTimeoutHeightDecorator(),
-						ante.NewValidateMemoDecorator(options.AccountKeeper),
-						evmmoduleante.NewEthValidateBasicDecorator(options.EvmKeeper),
-						evmmoduleante.NewEthFeeGrantValidator(
-							options.EvmKeeper,
-							options.FeegrantKeeper,
-						),
-						evmmoduleante.NewEthContractCallableDecorator(options.PermKeeper),
+						ethermintante.NewEthValidateBasicDecorator(options.EvmKeeper),
 						ethermintante.NewEthSigVerificationDecorator(
 							options.EvmKeeper,
 						),
 						ethermintante.NewCanTransferDecorator(
 							options.EvmKeeper,
 						),
-
 						ethermintante.NewEthAccountVerificationDecorator(
 							options.AccountKeeper,
 							options.EvmKeeper,
@@ -101,15 +93,15 @@ func DefaultAnteHandler(options HandlerOptions) sdk.AnteHandler {
 							options.EvmKeeper,
 							options.MaxTxGasWanted,
 						),
+						perm.NewAuthDecorator(options.PermKeeper),
+						evmmoduleante.NewEthFeeGrantValidator(
+							options.EvmKeeper,
+							options.FeegrantKeeper,
+						),
+						evmmoduleante.NewEthContractCallableDecorator(options.PermKeeper),
 						ethermintante.NewEthIncrementSenderSequenceDecorator(
 							options.AccountKeeper,
 						), // innermost AnteDecorator.
-						ethermintante.NewEthMempoolFeeDecorator(
-							options.EvmKeeper,
-						), // Check eth effective gas price against minimal-gas-prices
-						ethermintante.NewEthValidateBasicDecorator(options.EvmKeeper),
-
-						perm.NewAuthDecorator(options.PermKeeper),
 					)
 
 				default:
