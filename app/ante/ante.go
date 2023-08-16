@@ -105,6 +105,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		switch tx.(type) {
 		case sdk.Tx:
 			anteHandler = sdk.ChainAnteDecorators(
+				ethermintante.RejectMessagesDecorator{},
 				gas.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
 				perm.NewAuthDecorator(options.PermKeeper),
 				ante.NewMempoolFeeDecorator(),
