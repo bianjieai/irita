@@ -828,6 +828,7 @@ func NewIritaApp(
 		//ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
 		//app.capabilityKeeper.InitializeAndSeal(ctx)
 	}
+	// test
 	return app
 }
 
