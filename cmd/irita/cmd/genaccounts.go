@@ -6,9 +6,8 @@ import (
 	"errors"
 	"fmt"
 
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-
 	evmhd "github.com/tharsis/ethermint/crypto/hd"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

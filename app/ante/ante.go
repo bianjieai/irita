@@ -60,6 +60,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 						typeURL,
 					)
 				}
+
 				return anteHandler(ctx, tx, sim)
 			}
 		}
