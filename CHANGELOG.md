@@ -35,6 +35,20 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+## [v4.0.0]
+*June 05, 2024*
+
+### Application
+
+* [\#269](https://github.com/bianjieai/irita/pull/269) Restructuring structure
+* [\#240](https://github.com/bianjieai/irita/pull/240) Add mt-transfer module, fix cosmos-sdk page query
+* [iritamod \#101](https://github.com/bianjieai/iritamod/pull/101) Iritamod module definition
+
+### Deprecated
+
+* [\#240](https://github.com/bianjieai/irita/pull/240) Remove wasm
+
+
 ## [v3.0.0]
 *December 31, 2021*
 
@@ -44,18 +58,19 @@ Ref: https://keepachangelog.com/en/1.0.0/
 * (modules/perm) [\#33](https://github.com/bianjieai/iritamod/pull/33) Add EVM contract permission management
 * (modules/nft) [\#245](https://github.com/irisnet/irismod/pull/245) Improve nft module
 
+
 ## [v2.1.1]
 *December 8, 2021*
+
 ### Application
 
 * [iritamod \#32](https://github.com/bianjieai/iritamod/pull/32) (modules/identity) add `data` field, and the field length limit is only related to the block and transaction size limit.
 
-## [v2.1.0]
 
+## [v2.1.0]
 *November 1, 2021*
 
 ### Application
-
 
 * [\#135](https://github.com/bianjieai/irita/pull/135) Bump cosmos-sdk version to [v0.44.2](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.44.2)
 * [\#130](https://github.com/bianjieai/irita/pull/130) Integrated tibc protocol
@@ -79,6 +94,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 <!-- Release links -->
 
+[v4.0.0]: https://github.com/bianjieai/irita/releases/tag/v4.0.0
+[v3.0.0]: https://github.com/bianjieai/irita/releases/tag/v3.0.0
 [v2.1.1]: https://github.com/bianjieai/irita/releases/tag/v2.1.1
 [v2.1.0]: https://github.com/bianjieai/irita/releases/tag/v2.1.0
 [v2.0.0]: https://github.com/bianjieai/irita/releases/tag/v2.0.0
