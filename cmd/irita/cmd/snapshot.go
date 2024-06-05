@@ -2,9 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/bianjieai/irita/app"
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/iavl"
 	"io"
 	"os"
 	"path/filepath"
@@ -12,8 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/bianjieai/irita/app"
 
 	"github.com/tendermint/tendermint/consensus"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
@@ -24,6 +20,12 @@ import (
 	"github.com/tendermint/tendermint/store"
 	"github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
+
+	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/iavl"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -165,8 +167,8 @@ func snapshot(dataDir, targetDir string) error {
 
 	stateDB := loadDb(stateStoreDir, dataDir)
 	ss := state.NewStore(stateDB)
-
 	appDB := loadDb(applicationDBDir, dataDir)
+
 	defer func() {
 		blockDB.Close()
 		stateDB.Close()

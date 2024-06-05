@@ -49,7 +49,7 @@ type Keystore struct {
 	options cosmoskeyring.Options
 }
 
-//Init create a wallet instance and  produce a mnemonic
+// Init create a wallet instance and  produce a mnemonic
 func (ks Keystore) Init(algo cosmoskeyring.SignatureAlgo, r *bufio.Reader, w *bufio.Writer) (cosmoskeyring.Info, error) {
 	if !ks.isSupportedSigningAlgo(algo) {
 		return nil, cosmoskeyring.ErrUnsupportedSigningAlgo
@@ -85,7 +85,7 @@ func (ks Keystore) Init(algo cosmoskeyring.SignatureAlgo, r *bufio.Reader, w *bu
 	return info, err
 }
 
-//HasInit determine if the wallet has been initialized
+// HasInit determine if the wallet has been initialized
 func (ks Keystore) HasInit() bool {
 	key := rootKey()
 	bs, err := ks.db.Get(string(key))
@@ -95,7 +95,7 @@ func (ks Keystore) HasInit() bool {
 	return false
 }
 
-//Recover recover a wallet instance by a mnemonic
+// Recover recover a wallet instance by a mnemonic
 func (ks Keystore) Recover(mnemonic string, algo cosmoskeyring.SignatureAlgo) (cosmoskeyring.Info, error) {
 	if !ks.isSupportedSigningAlgo(algo) {
 		return nil, cosmoskeyring.ErrUnsupportedSigningAlgo
@@ -114,7 +114,7 @@ func (ks Keystore) Recover(mnemonic string, algo cosmoskeyring.SignatureAlgo) (c
 	return info, err
 }
 
-//UpdateRoot update a wallet root password by old password or mnemonic
+// UpdateRoot update a wallet root password by old password or mnemonic
 func (ks Keystore) UpdateRoot(mnemonic, newPwd string) error {
 	root, err := ks.getRoot()
 	if err != nil {
@@ -157,7 +157,7 @@ func (ks Keystore) UpdateRoot(mnemonic, newPwd string) error {
 	return ks.db.Reset(newPwd)
 }
 
-//NewKey create a new key
+// NewKey create a new key
 func (ks Keystore) NewKey(name string) (cosmoskeyring.Info, error) {
 	if ks.Has(name) {
 		return nil, fmt.Errorf("%s has exist", name)
@@ -182,7 +182,7 @@ func (ks Keystore) NewKey(name string) (cosmoskeyring.Info, error) {
 	return ks.addKey(name, root.Mnemonic, hdPath, algo)
 }
 
-//Has determine if a key exists
+// Has determine if a key exists
 func (ks Keystore) Has(uid string) bool {
 	key := infoKey(uid)
 
@@ -193,7 +193,7 @@ func (ks Keystore) Has(uid string) bool {
 	return false
 }
 
-//Key return a key information by key name
+// Key return a key information by key name
 func (ks Keystore) Key(uid string) (cosmoskeyring.Info, error) {
 	key := infoKey(uid)
 
@@ -208,7 +208,7 @@ func (ks Keystore) Key(uid string) (cosmoskeyring.Info, error) {
 	return unmarshalInfo(bs.Data)
 }
 
-//Key return a key information by the address
+// Key return a key information by the address
 func (ks Keystore) KeyByAddress(address sdk.Address) (cosmoskeyring.Info, error) {
 	ik, err := ks.db.Get(addrHexKeyAsString(address))
 	if err != nil {
@@ -227,7 +227,7 @@ func (ks Keystore) KeyByAddress(address sdk.Address) (cosmoskeyring.Info, error)
 	return unmarshalInfo(bs.Data)
 }
 
-//Key return all the key information
+// Key return all the key information
 func (ks Keystore) List() ([]cosmoskeyring.Info, error) {
 	var res []cosmoskeyring.Info
 
@@ -260,7 +260,7 @@ func (ks Keystore) List() ([]cosmoskeyring.Info, error) {
 	return res, nil
 }
 
-//Export export a key private by a random password
+// Export export a key private by a random password
 func (ks Keystore) Export(key string) (armor, pwd string, err error) {
 	var info cosmoskeyring.Info
 

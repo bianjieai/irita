@@ -6,7 +6,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"net"
 	"os"
@@ -36,6 +35,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -49,7 +49,6 @@ import (
 
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
-	"github.com/bianjieai/iritamod/modules/perm"
 	"github.com/bianjieai/iritamod/utils"
 
 	evmosConfig "github.com/tharsis/ethermint/server/config"
@@ -119,7 +118,7 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 	return cmd
 }
 
-// Initialize the testnet
+// InitTestnet Initialize the testnet
 func InitTestnet(
 	clientCtx client.Context, cmd *cobra.Command,
 	config *tmconfig.Config, mbm module.BasicManager,
@@ -236,7 +235,7 @@ func InitTestnet(
 			return err
 		}
 
-		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, true, signAlgo)
+		addr, secret, err := testutil.GenerateSaveCoinKey(kb, nodeDirName, "", true, signAlgo)
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err
@@ -269,7 +268,7 @@ func InitTestnet(
 
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
-		cert, err := ioutil.ReadFile(certPath)
+		cert, err := os.ReadFile(certPath)
 		if err != nil {
 			return err
 		}
@@ -334,7 +333,7 @@ func initGenFiles(
 	genFiles []string, numValidators int, monikers []string, nodeIDs []string,
 	rootCertPath string,
 ) error {
-	rootCertBz, err := ioutil.ReadFile(rootCertPath)
+	rootCertBz, err := os.ReadFile(rootCertPath)
 	if err != nil {
 		return fmt.Errorf("failed to read root certificate: %s", err.Error())
 	}
@@ -432,20 +431,6 @@ func initGenFiles(
 	clientCtx.Codec.MustUnmarshalJSON(appGenState[evmfmttypes.ModuleName], &fMKGenState)
 	fMKGenState.Params.NoBaseFee = true
 	appGenState[evmfmttypes.ModuleName] = clientCtx.Codec.MustMarshalJSON(&fMKGenState)
-
-	// add all genesis accounts as root admins
-	var permGenState perm.GenesisState
-	jsonMarshaler.MustUnmarshalJSON(appGenState[perm.ModuleName], &permGenState)
-	for _, account := range genAccounts {
-		permGenState.RoleAccounts = append(
-			permGenState.RoleAccounts,
-			perm.RoleAccount{
-				Address: account.GetAddress().String(),
-				Roles:   []perm.Role{perm.RoleRootAdmin},
-			},
-		)
-	}
-	appGenState[perm.ModuleName] = jsonMarshaler.MustMarshalJSON(&permGenState)
 
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
 	if err != nil {

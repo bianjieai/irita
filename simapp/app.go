@@ -83,9 +83,6 @@ import (
 	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
 	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
 	cparams "github.com/bianjieai/iritamod/modules/params"
-	"github.com/bianjieai/iritamod/modules/perm"
-	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
-	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
 	cslashing "github.com/bianjieai/iritamod/modules/slashing"
 	"github.com/bianjieai/iritamod/modules/upgrade"
 	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
@@ -132,7 +129,6 @@ var (
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
-		perm.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		node.AppModuleBasic{},
 		tibc.AppModule{},
@@ -185,7 +181,6 @@ type SimApp struct {
 	ServiceKeeper     servicekeeper.Keeper
 	OracleKeeper      oraclekeeper.Keeper
 	RandomKeeper      randomkeeper.Keeper
-	PermKeeper        permkeeper.Keeper
 	IdentityKeeper    identitykeeper.Keeper
 	NodeKeeper        nodekeeper.Keeper
 	FeeGrantKeeper    feegrantkeeper.Keeper
@@ -244,7 +239,6 @@ func NewSimApp(
 		servicetypes.StoreKey,
 		oracletypes.StoreKey,
 		randomtypes.StoreKey,
-		permtypes.StoreKey,
 		identitytypes.StoreKey,
 		nodetypes.StoreKey,
 
@@ -318,9 +312,6 @@ func NewSimApp(
 		stakingtypes.NewMultiStakingHooks(app.SlashingKeeper.Hooks()),
 	)
 
-	PermKeeper := permkeeper.NewKeeper(appCodec, keys[permtypes.StoreKey])
-	app.PermKeeper = PermKeeper
-
 	app.IdentityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
 
 	// set the BaseApp's parameter store
@@ -368,7 +359,6 @@ func NewSimApp(
 		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
-		perm.NewAppModule(appCodec, app.PermKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
@@ -400,7 +390,6 @@ func NewSimApp(
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	app.mm.SetOrderInitGenesis(
-		permtypes.ModuleName,
 		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
@@ -446,7 +435,6 @@ func NewSimApp(
 		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
-		perm.NewAppModule(appCodec, app.PermKeeper),
 		identity.NewAppModule(app.IdentityKeeper),
 		node.NewAppModule(appCodec, app.NodeKeeper),
 

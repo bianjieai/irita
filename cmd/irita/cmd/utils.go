@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -177,7 +177,7 @@ func handleResponsePostRun(cdc codec.JSONCodec, cmd *cobra.Command) {
 	if w != nil {
 		_ = w.Close()
 	}
-	out, _ := ioutil.ReadAll(r)
+	out, _ := io.ReadAll(r)
 	os.Stdout = rescueStdout
 	fmt.Println(parseYAML(cmd, out))
 }

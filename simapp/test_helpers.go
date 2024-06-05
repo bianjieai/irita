@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -34,7 +33,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bianjieai/iritamod/modules/node"
-	"github.com/bianjieai/iritamod/modules/perm"
 )
 
 const BondDenom = sdk.DefaultBondDenom
@@ -64,16 +62,6 @@ func Setup(isCheckTx bool) *SimApp {
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
 		genesisState := NewDefaultGenesisState()
-
-		// add root admin
-		permGenState := perm.GetGenesisStateFromAppState(app.appCodec, genesisState)
-		permGenState.RoleAccounts = append(permGenState.RoleAccounts,
-			perm.RoleAccount{
-				Address: sdk.AccAddress(tmhash.SumTruncated([]byte("rootAdmin"))).String(),
-				Roles:   []perm.Role{perm.RoleRootAdmin},
-			})
-		permGenStateBz := app.cdc.MustMarshalJSON(permGenState)
-		genesisState[perm.ModuleName] = permGenStateBz
 
 		// add root cert
 		validatorGenState := node.GetGenesisStateFromAppState(app.appCodec, genesisState)
