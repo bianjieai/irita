@@ -2,7 +2,6 @@ package ante
 
 import (
 	evmmoduleante "github.com/bianjieai/irita/modules/evm"
-	"github.com/bianjieai/iritamod/modules/perm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
@@ -13,8 +12,6 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ethermintante.NewEthSetUpContextDecorator(options.EvmKeeper), // outermost AnteDecorator. SetUpContext must be called first
 
-		perm.NewAuthDecorator(options.PermKeeper),
-		evmmoduleante.NewEthContractCallableDecorator(options.PermKeeper),
 		evmmoduleante.NewEthSigVerificationDecorator(options.EvmKeeper, options.AccountKeeper, options.SignModeHandler),
 
 		ethermintante.NewEthMempoolFeeDecorator(options.EvmKeeper), // Check eth effective gas price against minimal-gas-prices
@@ -30,7 +27,6 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-		perm.NewAuthDecorator(options.PermKeeper),
 		ante.NewMempoolFeeDecorator(),
 		ante.NewValidateBasicDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
@@ -53,8 +49,6 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ante.NewSetUpContextDecorator(),
 
 		// perm check
-		perm.NewAuthDecorator(options.PermKeeper),
-		evmmoduleante.NewEthContractCallableDecorator(options.PermKeeper),
 		evmmoduleante.NewEthSigVerificationDecorator(options.EvmKeeper, options.AccountKeeper, options.SignModeHandler),
 
 		// NOTE: extensions option decorator removed

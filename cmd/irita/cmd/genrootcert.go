@@ -3,7 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -29,7 +29,7 @@ func GenRootCert(defaultNodeHome string) *cobra.Command {
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
 
-			cert, err := ioutil.ReadFile(args[0])
+			cert, err := os.ReadFile(args[0])
 			if err != nil {
 				return err
 			}

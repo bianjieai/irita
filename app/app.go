@@ -92,9 +92,6 @@ import (
 	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
 	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
 	cparams "github.com/bianjieai/iritamod/modules/params"
-	"github.com/bianjieai/iritamod/modules/perm"
-	permkeeper "github.com/bianjieai/iritamod/modules/perm/keeper"
-	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
 	cslashing "github.com/bianjieai/iritamod/modules/slashing"
 	"github.com/bianjieai/iritamod/modules/upgrade"
 	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
@@ -146,7 +143,6 @@ var storeKeys = []string{
 	servicetypes.StoreKey,
 	oracletypes.StoreKey,
 	randomtypes.StoreKey,
-	permtypes.StoreKey,
 	identitytypes.StoreKey,
 	nodetypes.StoreKey,
 	tibchost.StoreKey,
@@ -181,7 +177,6 @@ var (
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
-		perm.AppModuleBasic{},
 		identity.AppModuleBasic{},
 		node.AppModuleBasic{},
 		tibc.AppModule{},
@@ -263,7 +258,6 @@ type IritaApp struct {
 	serviceKeeper    servicekeeper.Keeper
 	oracleKeeper     oraclekeeper.Keeper
 	randomKeeper     randomkeeper.Keeper
-	permKeeper       permkeeper.Keeper
 	identityKeeper   identitykeeper.Keeper
 	nodeKeeper       nodekeeper.Keeper
 	feeGrantKeeper   feegrantkeeper.Keeper
@@ -379,9 +373,6 @@ func NewIritaApp(
 		stakingtypes.NewMultiStakingHooks(app.slashingKeeper.Hooks()),
 	)
 
-	permKeeper := permkeeper.NewKeeper(appCodec, keys[permtypes.StoreKey])
-	app.permKeeper = appante.RegisterAccessControl(permKeeper)
-
 	app.identityKeeper = identitykeeper.NewKeeper(appCodec, keys[identitytypes.StoreKey])
 
 	// evm
@@ -448,7 +439,6 @@ func NewIritaApp(
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
-		perm.NewAppModule(appCodec, app.permKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
@@ -467,7 +457,6 @@ func NewIritaApp(
 	app.mm.SetOrderBeginBlockers(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		permtypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
 		banktypes.ModuleName,
@@ -494,7 +483,6 @@ func NewIritaApp(
 	app.mm.SetOrderEndBlockers(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		permtypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
 		banktypes.ModuleName,
@@ -527,7 +515,6 @@ func NewIritaApp(
 	app.mm.SetOrderInitGenesis(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		permtypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
 		banktypes.ModuleName,
@@ -555,7 +542,6 @@ func NewIritaApp(
 	app.mm.SetOrderMigrations(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
-		permtypes.ModuleName,
 		authtypes.ModuleName,
 		nodetypes.ModuleName,
 		banktypes.ModuleName,
@@ -603,7 +589,6 @@ func NewIritaApp(
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
 		random.NewAppModule(appCodec, app.randomKeeper, app.accountKeeper, app.bankKeeper),
-		perm.NewAppModule(appCodec, app.permKeeper),
 		identity.NewAppModule(app.identityKeeper),
 		node.NewAppModule(appCodec, app.nodeKeeper),
 		tibc.NewAppModule(app.tibcKeeper),
@@ -626,7 +611,6 @@ func NewIritaApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	anteHandler := appante.NewAnteHandler(
 		appante.HandlerOptions{
-			PermKeeper:      app.permKeeper,
 			AccountKeeper:   app.accountKeeper,
 			BankKeeper:      app.bankKeeper,
 			TokenKeeper:     app.tokenKeeper,

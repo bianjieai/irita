@@ -10,7 +10,6 @@ import (
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -22,8 +21,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-
-	"github.com/bianjieai/iritamod/modules/perm"
 )
 
 const (
@@ -126,7 +123,6 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 			}
 
 			authGenState := authtypes.GetGenesisStateFromAppState(cdc, appState)
-			permGenState := perm.GetGenesisStateFromAppState(cdc, appState)
 
 			accs, err := authtypes.UnpackAccounts(authGenState.Accounts)
 			if err != nil {
@@ -148,17 +144,6 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 			}
 			authGenState.Accounts = genAccs
 
-			// Add root admin
-			if viper.GetBool(flagRootAdmin) {
-				permGenState.RoleAccounts = append(
-					permGenState.RoleAccounts,
-					perm.RoleAccount{
-						Address: addr.String(),
-						Roles:   []perm.Role{perm.RoleRootAdmin},
-					},
-				)
-			}
-
 			authGenStateBz, err := cdc.MarshalJSON(&authGenState)
 			if err != nil {
 				return fmt.Errorf("failed to marshal auth genesis state: %w", err)
@@ -175,13 +160,7 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 				return fmt.Errorf("failed to marshal bank genesis state: %w", err)
 			}
 
-			permGenStateBz, err := cdc.MarshalJSON(&permGenState)
-			if err != nil {
-				return fmt.Errorf("failed to marshal perm genesis state: %w", err)
-			}
-
 			appState[banktypes.ModuleName] = bankGenStateBz
-			appState[perm.ModuleName] = permGenStateBz
 
 			//evm config
 			var evmGenState evmtypes.GenesisState

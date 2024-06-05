@@ -3,7 +3,7 @@ package keys
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -50,7 +50,7 @@ func runExportCmd(cmd *cobra.Command, args []string, generator KeybaseGenerator)
 		filename = path.Join("./", filename)
 	}
 
-	if err = ioutil.WriteFile(filename, []byte(armor), 0444); err != nil {
+	if err = os.WriteFile(filename, []byte(armor), 0444); err != nil {
 		return err
 	}
 

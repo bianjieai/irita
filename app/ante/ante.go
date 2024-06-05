@@ -5,7 +5,6 @@ import (
 	"runtime/debug"
 
 	evmmoduleante "github.com/bianjieai/irita/modules/evm"
-	"github.com/bianjieai/iritamod/modules/perm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -19,7 +18,6 @@ import (
 )
 
 type HandlerOptions struct {
-	PermKeeper      perm.Keeper
 	AccountKeeper   authkeeper.AccountKeeper
 	BankKeeper      bankkeeper.Keeper
 	FeegrantKeeper  authante.FeegrantKeeper

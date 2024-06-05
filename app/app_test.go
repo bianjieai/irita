@@ -9,7 +9,6 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
 
@@ -21,12 +20,10 @@ import (
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 
 	"github.com/bianjieai/iritamod/modules/node"
-	"github.com/bianjieai/iritamod/modules/perm"
 )
 
 var (
-	rootAdmin = sdk.AccAddress(tmhash.SumTruncated([]byte("rootAdmin")))
-	rootStr   = `-----BEGIN CERTIFICATE-----
+	rootStr = `-----BEGIN CERTIFICATE-----
 MIIBxTCCAXegAwIBAgIUHMPutrm+7FT7fIFf2fEgyQnIg8kwBQYDK2VwMFgxCzAJ
 BgNVBAYTAkNOMQ0wCwYDVQQIDARyb290MQ0wCwYDVQQHDARyb290MQ0wCwYDVQQK
 DARyb290MQ0wCwYDVQQLDARyb290MQ0wCwYDVQQDDARyb290MB4XDTIwMDYxOTA3
@@ -96,18 +93,6 @@ func setGenesis(iapp *IritaApp) error {
 
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
 	genesisState[tokentypes.ModuleName] = iapp.appCodec.MustMarshalJSON(&tokenGenState)
-
-	// add root admin
-	permGenState := perm.GetGenesisStateFromAppState(iapp.appCodec, genesisState)
-	permGenState.RoleAccounts = append(
-		permGenState.RoleAccounts,
-		perm.RoleAccount{
-			Address: rootAdmin.String(),
-			Roles:   []perm.Role{perm.RoleRootAdmin},
-		},
-	)
-	permGenStateBz := iapp.cdc.MustMarshalJSON(permGenState)
-	genesisState[perm.ModuleName] = permGenStateBz
 
 	stateBytes, err := codec.MarshalJSONIndent(iapp.cdc, genesisState)
 	if err != nil {

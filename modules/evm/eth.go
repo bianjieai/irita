@@ -3,8 +3,6 @@ package evm
 import (
 	"math/big"
 
-	permtypes "github.com/bianjieai/iritamod/modules/perm/types"
-
 	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -156,29 +154,4 @@ func (esvd EthSigVerificationDecorator) anteHandle(msgEthTx *evmtypes.MsgEthereu
 
 type ContractCallable interface {
 	GetBlockContract(sdk.Context, []byte) bool
-}
-
-type EthContractCallableDecorator struct {
-	contractCallable ContractCallable
-}
-
-func NewEthContractCallableDecorator(contractCallable ContractCallable) EthContractCallableDecorator {
-	return EthContractCallableDecorator{contractCallable: contractCallable}
-}
-
-func (e EthContractCallableDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	for _, msg := range tx.GetMsgs() {
-		msgEthTx, ok := msg.(*evmtypes.MsgEthereumTx)
-		if !ok {
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type %T, expected %T", tx, (*evmtypes.MsgEthereumTx)(nil))
-		}
-		ethTx := msgEthTx.AsTransaction()
-		if ethTx.To() != nil {
-			state := e.contractCallable.GetBlockContract(ctx, ethTx.To().Bytes())
-			if state {
-				return ctx, sdkerrors.Wrapf(permtypes.ErrContractDisable, "the contract %s is in contract deny list ! ", ethTx.To())
-			}
-		}
-	}
-	return next(ctx, tx, simulate)
 }
