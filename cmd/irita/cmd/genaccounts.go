@@ -6,11 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	evmhd "github.com/tharsis/ethermint/crypto/hd"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-
-	"github.com/spf13/cobra"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -21,6 +16,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	"github.com/spf13/cobra"
+	evmhd "github.com/tharsis/ethermint/crypto/hd"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
 )
 
 const (

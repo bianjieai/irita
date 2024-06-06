@@ -5,12 +5,11 @@ import (
 	"errors"
 	"io"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	cosmoskeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/bianjieai/irita/wallet/keyring"
 )

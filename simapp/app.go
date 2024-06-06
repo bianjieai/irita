@@ -5,6 +5,13 @@ import (
 	"os"
 	"path/filepath"
 
+	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
+	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
+	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
+	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
+	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
+	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
+	tibcmock "github.com/bianjieai/tibc-go/modules/tibc/testing/mock"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -49,12 +56,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-	"github.com/spf13/cast"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
@@ -73,7 +74,15 @@ import (
 	"github.com/irisnet/irismod/modules/token"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	"github.com/spf13/cast"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/libs/log"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	dbm "github.com/tendermint/tm-db"
 
+	"github.com/bianjieai/irita/lite"
+	tibc "github.com/bianjieai/irita/modules/tibc"
+	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
 	"github.com/bianjieai/iritamod/modules/genutil"
 	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/identity"
@@ -87,19 +96,6 @@ import (
 	"github.com/bianjieai/iritamod/modules/upgrade"
 	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
 	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
-
-	"github.com/bianjieai/irita/lite"
-
-	tibc "github.com/bianjieai/irita/modules/tibc"
-	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
-
-	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
-	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
-	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
-	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
-	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
-	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
-	tibcmock "github.com/bianjieai/tibc-go/modules/tibc/testing/mock"
 )
 
 const appName = "SimApp"

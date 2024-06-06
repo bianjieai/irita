@@ -15,11 +15,10 @@ import (
 	"time"
 
 	"github.com/99designs/keyring"
+	"github.com/cosmos/cosmos-sdk/client/input"
 	jose "github.com/dvsekhvalnov/jose2go"
 	"github.com/mitchellh/go-homedir"
 	"github.com/mtibben/percent"
-
-	"github.com/cosmos/cosmos-sdk/client/input"
 )
 
 var (

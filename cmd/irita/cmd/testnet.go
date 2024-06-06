@@ -11,23 +11,6 @@ import (
 	"os"
 	"path/filepath"
 
-	evmhd "github.com/tharsis/ethermint/crypto/hd"
-
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	evmfmttypes "github.com/tharsis/ethermint/x/feemarket/types"
-
-	ethermint "github.com/tharsis/ethermint/types"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
-	tmconfig "github.com/tendermint/tendermint/config"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/libs/tempfile"
-	"github.com/tendermint/tendermint/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -41,17 +24,26 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-
 	servicetypes "github.com/irisnet/irismod/modules/service/types"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	tmconfig "github.com/tendermint/tendermint/config"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
+	"github.com/tendermint/tendermint/libs/tempfile"
+	"github.com/tendermint/tendermint/types"
+	tmtime "github.com/tendermint/tendermint/types/time"
+	evmhd "github.com/tharsis/ethermint/crypto/hd"
+	evmosConfig "github.com/tharsis/ethermint/server/config"
+	ethermint "github.com/tharsis/ethermint/types"
+	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	evmfmttypes "github.com/tharsis/ethermint/x/feemarket/types"
 
+	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 	"github.com/bianjieai/iritamod/modules/genutil"
 	"github.com/bianjieai/iritamod/modules/node"
 	"github.com/bianjieai/iritamod/utils"
-
-	evmosConfig "github.com/tharsis/ethermint/server/config"
 )
 
 const (

@@ -5,11 +5,10 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"go.dedis.ch/kyber/v3"
-
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/utils"
 	bm "gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/utils/big_math"
+	"go.dedis.ch/kyber/v3"
 )
 
 // This file contains golang re-implementations of functions on the VRF solidity

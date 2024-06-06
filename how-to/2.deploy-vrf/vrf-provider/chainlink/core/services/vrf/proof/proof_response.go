@@ -6,14 +6,12 @@ package proof
 import (
 	"math/big"
 
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/gethwrappers/generated/vrf_coordinator_v2"
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
-
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/gethwrappers/generated/vrf_coordinator_v2"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore/keys/vrfkey"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/utils"
 )
 

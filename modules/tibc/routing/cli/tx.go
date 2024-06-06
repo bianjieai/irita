@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
+	tibctypes "github.com/bianjieai/irita/modules/tibc/types"
 )
 
 // NewSetRoutingRulesCmd implements a command handler for submitting a setting rules proposal transaction.

@@ -11,6 +11,7 @@ import (
 )
 
 const RetryTimeout = 10 * time.Second
+
 const RetryTimes = 20
 
 type IChannel interface {

@@ -2,7 +2,6 @@ package initialization
 
 import (
 	log "github.com/sirupsen/logrus"
-
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/pkg/configs"
 )
 

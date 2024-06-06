@@ -6,14 +6,12 @@ import (
 	"os"
 	"path"
 
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/tools"
-
 	log "github.com/sirupsen/logrus"
-
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/app/client/repostitory"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/app/client/services/channels"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/pkg/configs"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/pkg/types/cache"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/tools"
 )
 
 const TypSource = "source"

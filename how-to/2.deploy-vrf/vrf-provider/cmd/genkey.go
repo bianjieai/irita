@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore"
 )
 

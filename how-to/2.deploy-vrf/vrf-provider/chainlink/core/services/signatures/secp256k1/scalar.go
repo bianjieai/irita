@@ -21,12 +21,12 @@ import (
 
 	secp256k1BTCD "github.com/btcsuite/btcd/btcec"
 	"github.com/ethereum/go-ethereum/common"
-
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/util/random"
 )
 
 var GroupOrder = secp256k1BTCD.S256().N
+
 var FieldSize = secp256k1BTCD.S256().P
 
 type secp256k1Scalar big.Int

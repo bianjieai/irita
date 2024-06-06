@@ -1,10 +1,9 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
 	tibckeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irismod/modules/nft/exported"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"

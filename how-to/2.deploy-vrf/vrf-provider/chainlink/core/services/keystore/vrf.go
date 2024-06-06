@@ -5,7 +5,6 @@ import (
 	"math/big"
 
 	"github.com/pkg/errors"
-
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore/keys/vrfkey"
 )
 

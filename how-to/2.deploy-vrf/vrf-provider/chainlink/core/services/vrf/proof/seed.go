@@ -6,7 +6,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/require"
-
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/utils"
 )
 

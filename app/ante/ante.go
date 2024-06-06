@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	evmmoduleante "github.com/bianjieai/irita/modules/evm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -15,6 +14,8 @@ import (
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+
+	evmmoduleante "github.com/bianjieai/irita/modules/evm"
 )
 
 type HandlerOptions struct {

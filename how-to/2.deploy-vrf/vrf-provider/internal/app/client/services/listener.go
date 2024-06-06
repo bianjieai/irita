@@ -5,9 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/app/client/services/channels"
-
 	log "github.com/sirupsen/logrus"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/app/client/services/channels"
 )
 
 const DefaultTimeout = 10
