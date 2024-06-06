@@ -1,11 +1,12 @@
 package ante
 
 import (
-	evmmoduleante "github.com/bianjieai/irita/modules/evm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	ethermintante "github.com/tharsis/ethermint/app/ante"
+
+	evmmoduleante "github.com/bianjieai/irita/modules/evm"
 )
 
 func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {

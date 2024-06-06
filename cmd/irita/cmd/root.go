@@ -5,20 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-
-	ethermintclient "github.com/tharsis/ethermint/client"
-	ethermint "github.com/tharsis/ethermint/types"
-
-	"github.com/pkg/errors"
-
-	"github.com/spf13/cast"
-	"github.com/spf13/cobra"
-
-	tmcli "github.com/tendermint/tendermint/libs/cli"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -35,18 +21,24 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
-
-	genutilcli "github.com/bianjieai/iritamod/modules/genutil/client/cli"
-	"github.com/bianjieai/iritamod/modules/node"
-
-	"github.com/bianjieai/irita/app"
-
+	"github.com/pkg/errors"
+	"github.com/spf13/cast"
+	"github.com/spf13/cobra"
+	tmcli "github.com/tendermint/tendermint/libs/cli"
+	"github.com/tendermint/tendermint/libs/log"
+	dbm "github.com/tendermint/tm-db"
+	ethermintclient "github.com/tharsis/ethermint/client"
 	"github.com/tharsis/ethermint/crypto/hd"
 	"github.com/tharsis/ethermint/encoding"
 	servercfg "github.com/tharsis/ethermint/server/config"
+	ethermint "github.com/tharsis/ethermint/types"
 
+	"github.com/bianjieai/irita/app"
 	evmclient "github.com/bianjieai/irita/modules/evm/client"
 	evmserver "github.com/bianjieai/irita/modules/evm/server"
+	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+	genutilcli "github.com/bianjieai/iritamod/modules/genutil/client/cli"
+	"github.com/bianjieai/iritamod/modules/node"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.

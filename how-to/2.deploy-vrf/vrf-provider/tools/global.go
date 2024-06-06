@@ -6,8 +6,11 @@ import (
 )
 
 const DefaultHomeDirName = ".vrf-provider"
+
 const DefaultConfigDirName = "configs"
+
 const DefaultConfigName = "config.toml"
+
 const DefaultCacheDirName = "cache"
 
 var (

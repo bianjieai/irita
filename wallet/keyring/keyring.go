@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/99designs/keyring"
-
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	cosmoskeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"

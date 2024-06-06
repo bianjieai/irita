@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/robfig/cron/v3"
 	"io"
 	"math/big"
 	mrand "math/rand"
@@ -17,18 +16,18 @@ import (
 	"sync"
 	"time"
 
-	cryptop2p "github.com/libp2p/go-libp2p-core/crypto"
-	"golang.org/x/exp/constraints"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/jpillora/backoff"
+	cryptop2p "github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/pkg/errors"
+	"github.com/robfig/cron/v3"
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/atomic"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/sha3"
+	"golang.org/x/exp/constraints"
 )
 
 const (

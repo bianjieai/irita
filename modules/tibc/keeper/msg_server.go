@@ -3,9 +3,8 @@ package keeper
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	clienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bianjieai/irita/modules/tibc/types"
 )
@@ -45,6 +44,7 @@ func (k Keeper) UpgradeClient(ctx context.Context, msg *types.MsgUpgradeClient) 
 		consensusState,
 	)
 }
+
 func (k Keeper) RegisterRelayer(ctx context.Context, msg *types.MsgRegisterRelayer) (*types.MsgRegisterRelayerResponse, error) {
 
 	k.ClientKeeper.RegisterRelayers(

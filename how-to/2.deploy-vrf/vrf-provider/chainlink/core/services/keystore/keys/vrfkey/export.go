@@ -7,7 +7,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/utils"
 )

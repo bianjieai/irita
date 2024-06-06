@@ -4,15 +4,12 @@ import (
 	"math/big"
 	"testing"
 
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
-
-	"github.com/ethereum/go-ethereum/core/types"
-
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/gethwrappers/generated/vrf_coordinator_v2"
-
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/require"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/gethwrappers/generated/vrf_coordinator_v2"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/vrf/proof"
 )
 

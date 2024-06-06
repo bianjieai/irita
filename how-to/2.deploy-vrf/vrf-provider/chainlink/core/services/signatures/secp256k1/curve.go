@@ -13,7 +13,6 @@ import (
 	"math/big"
 
 	secp256k1BTCD "github.com/btcsuite/btcd/btcec"
-
 	"go.dedis.ch/kyber/v3"
 )
 
@@ -29,6 +28,7 @@ var s256 *secp256k1BTCD.KoblitzCurve = secp256k1BTCD.S256()
 func (*Secp256k1) String() string { return "Secp256k1" }
 
 var egScalar kyber.Scalar = newScalar(big.NewInt(0))
+
 var egPoint kyber.Point = &secp256k1Point{newFieldZero(), newFieldZero()}
 
 // ScalarLen returns the length of a marshalled Scalar

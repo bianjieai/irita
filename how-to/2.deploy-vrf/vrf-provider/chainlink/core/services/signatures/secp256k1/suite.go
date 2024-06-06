@@ -15,12 +15,11 @@ import (
 	"io"
 	"reflect"
 
-	"golang.org/x/crypto/sha3"
-
 	"go.dedis.ch/fixbuf"
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/util/random"
 	"go.dedis.ch/kyber/v3/xof/blake2xb"
+	"golang.org/x/crypto/sha3"
 )
 
 // SuiteSecp256k1 implements some basic functionalities such as Group, HashFactory,
@@ -58,8 +57,11 @@ func (s *SuiteSecp256k1) Write(w io.Writer, objs ...interface{}) error {
 }
 
 var aScalar kyber.Scalar
+
 var tScalar = reflect.TypeOf(aScalar)
+
 var aPoint kyber.Point
+
 var tPoint = reflect.TypeOf(aPoint)
 
 // New implements the kyber.Encoding interface, and returns a new element of

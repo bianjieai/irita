@@ -4,13 +4,11 @@ import (
 	"database/sql/driver"
 	"fmt"
 
-	"github.com/pkg/errors"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"go.dedis.ch/kyber/v3"
-
+	"github.com/pkg/errors"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/utils"
+	"go.dedis.ch/kyber/v3"
 )
 
 // PublicKey is a secp256k1 point in compressed format

@@ -4,14 +4,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
-	"github.com/improbable-eng/grpc-web/go/grpcweb"
-	"github.com/spf13/cobra"
-
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/version"
-
+	"github.com/gorilla/mux"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
+	"github.com/spf13/cobra"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 )

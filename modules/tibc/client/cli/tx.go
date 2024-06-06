@@ -4,18 +4,15 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/spf13/cobra"
-
-	"github.com/pkg/errors"
-
+	"github.com/bianjieai/tibc-go/modules/tibc/core/02-client/client/cli"
+	packet "github.com/bianjieai/tibc-go/modules/tibc/core/04-packet"
+	"github.com/bianjieai/tibc-go/modules/tibc/core/exported"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
-
-	"github.com/bianjieai/tibc-go/modules/tibc/core/02-client/client/cli"
-	packet "github.com/bianjieai/tibc-go/modules/tibc/core/04-packet"
-	"github.com/bianjieai/tibc-go/modules/tibc/core/exported"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 
 	tibcrouting "github.com/bianjieai/irita/modules/tibc/routing/cli"
 	"github.com/bianjieai/irita/modules/tibc/types"

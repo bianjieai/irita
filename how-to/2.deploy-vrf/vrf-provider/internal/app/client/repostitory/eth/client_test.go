@@ -3,18 +3,13 @@ package eth
 import (
 	"testing"
 
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
-
 	"github.com/ethereum/go-ethereum/common"
-
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/app/client/repostitory/eth/contracts"
-
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/vrf/proof"
-
 	"github.com/ethereum/go-ethereum/common/hexutil"
-
 	"github.com/stretchr/testify/require"
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/vrf/proof"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/app/client/repostitory/eth/contracts"
 )
 
 const (

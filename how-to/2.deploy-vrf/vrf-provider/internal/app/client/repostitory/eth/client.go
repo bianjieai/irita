@@ -6,27 +6,23 @@ import (
 	"math/big"
 	"time"
 
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
-
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore"
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore/keys/vrfkey"
-
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/vrf/proof"
-	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/app/client/repostitory/eth/contracts"
-
 	"github.com/ethereum/go-ethereum"
-
 	"github.com/ethereum/go-ethereum/common"
 	gethcmn "github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	gethcrypto "github.com/ethereum/go-ethereum/crypto"
-
 	gethethclient "github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	gethrpc "github.com/ethereum/go-ethereum/rpc"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/keystore/keys/vrfkey"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/vrf/proof"
+	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/app/client/repostitory/eth/contracts"
 )
 
 const CtxTimeout = 10 * time.Second
+
 const TryGetGasPriceTimeInterval = 10 * time.Second
 
 type Eth struct {

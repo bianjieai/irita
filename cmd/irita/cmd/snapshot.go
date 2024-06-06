@@ -9,8 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bianjieai/irita/app"
-
+	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/iavl"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/consensus"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	tmmath "github.com/tendermint/tendermint/libs/math"
@@ -21,11 +23,7 @@ import (
 	"github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/cosmos/iavl"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/bianjieai/irita/app"
 )
 
 const (

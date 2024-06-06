@@ -8,19 +8,16 @@ import (
 	"os"
 	"strings"
 
-	"github.com/olebedev/config"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-
-	"github.com/tendermint/tendermint/libs/cli"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	"github.com/olebedev/config"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"github.com/tendermint/tendermint/libs/cli"
 )
 
 const (

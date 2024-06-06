@@ -7,9 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"go.dedis.ch/kyber/v3"
-
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/chainlink/core/services/signatures/secp256k1"
+	"go.dedis.ch/kyber/v3"
 )
 
 // PrivateKey represents the secret used to construct a VRF proof.

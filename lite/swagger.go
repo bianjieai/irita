@@ -3,10 +3,9 @@ package lite
 import (
 	"net/http"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
-
-	"github.com/cosmos/cosmos-sdk/client"
 
 	_ "github.com/bianjieai/irita/lite/statik"
 )

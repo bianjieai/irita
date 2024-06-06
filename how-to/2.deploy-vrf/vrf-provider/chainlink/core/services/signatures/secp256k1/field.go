@@ -53,6 +53,7 @@ func fieldEltFromInt(v int64) *fieldElt {
 }
 
 var fieldZero = fieldEltFromInt(0)
+
 var bigZero = big.NewInt(0)
 
 // String returns the string representation of f
@@ -156,6 +157,7 @@ func maybeSqrtInField(v *fieldElt) *fieldElt {
 }
 
 var three = big.NewInt(3)
+
 var seven = fieldEltFromInt(7)
 
 // rightHandSide returns the RHS of the secp256k1 equation, x³+7 mod q, given x

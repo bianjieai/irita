@@ -4,16 +4,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	ethlog "github.com/ethereum/go-ethereum/log"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"github.com/tharsis/ethermint/rpc"
-
 	"github.com/tharsis/ethermint/server/config"
 
 	iritaevmrpc "github.com/bianjieai/irita/modules/evm/rpc"

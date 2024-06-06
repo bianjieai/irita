@@ -3,10 +3,9 @@ package keys
 import (
 	"bufio"
 
-	"github.com/spf13/cobra"
-
 	cosmoskeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/spf13/cobra"
 
 	"github.com/bianjieai/irita/wallet/keyring"
 )

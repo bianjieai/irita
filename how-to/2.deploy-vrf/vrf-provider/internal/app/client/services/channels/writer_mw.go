@@ -2,7 +2,6 @@ package channels
 
 import (
 	log "github.com/sirupsen/logrus"
-
 	"gitlab.bianjie.ai/avata/contracts/vrf-provider/internal/app/client/domain"
 )
 
