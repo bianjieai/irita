@@ -200,6 +200,18 @@ var (
 // Verify app interface at compile time
 var _ simapp.App = (*IritaApp)(nil)
 
+var AddModule AddModuleFun
+
+var AnteHandler AnteHandlerFun
+
+var UpgradePlan RegisterUpgradePlanFun
+
+type AddModuleFun func(app *IritaApp, mm *module.Manager, keys map[string]*sdk.KVStoreKey)
+
+type AnteHandlerFun func(app *IritaApp, handlerOptions appante.HandlerOptions) sdk.AnteHandler
+
+type RegisterUpgradePlanFun func(app *IritaApp, configurator module.Configurator, mm *module.Manager)
+
 func init() {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -533,6 +545,11 @@ func NewIritaApp(
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 	)
 
+	// extend Modules
+	if AddModule != nil {
+		AddModule(app, app.mm, app.keys)
+	}
+
 	app.mm.SetOrderMigrations(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
@@ -603,21 +620,7 @@ func NewIritaApp(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	anteHandler := appante.NewAnteHandler(
-		appante.HandlerOptions{
-			AccountKeeper:   app.accountKeeper,
-			BankKeeper:      app.bankKeeper,
-			TokenKeeper:     app.tokenKeeper,
-			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			FeegrantKeeper:  app.feeGrantKeeper,
-			SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
-
-			// evm
-			EvmFeeMarketKeeper: app.FeeMarketKeeper,
-			EvmKeeper:          app.EvmKeeper,
-		},
-	)
-	app.SetAnteHandler(anteHandler)
+	app.SetAnteHandler(app.BuildAnteHandler(encodingConfig))
 	app.SetEndBlocker(app.EndBlocker)
 
 	// Set software upgrade execution logic
@@ -627,6 +630,9 @@ func NewIritaApp(
 	// 	},
 	// 	func(ctx sdk.Context, plan sdkupgrade.Plan) {},
 	// )
+	if UpgradePlan != nil {
+		UpgradePlan(app, app.configurator, app.mm)
+	}
 
 	// set peer filter by node ID
 	app.SetIDPeerFilter(app.nodeKeeper.FilterNodeByID)
@@ -805,6 +811,27 @@ func (app *IritaApp) RegisterUpgradePlan(planName string,
 		// configure store loader that checks if version+1 == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(sdkupgrade.UpgradeStoreLoader(upgradeInfo.Height, &upgrades))
 	}
+}
+
+// BuildAnteHandler constructs the ante handler for App
+func (app *IritaApp) BuildAnteHandler(encodingConfig simappparams.EncodingConfig) sdk.AnteHandler {
+	handlerOptions := appante.HandlerOptions{
+		AccountKeeper:   app.accountKeeper,
+		BankKeeper:      app.bankKeeper,
+		TokenKeeper:     app.tokenKeeper,
+		FeegrantKeeper:  app.feeGrantKeeper,
+		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+		SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
+
+		// evm
+		EvmFeeMarketKeeper: app.FeeMarketKeeper,
+		EvmKeeper:          app.EvmKeeper,
+	}
+
+	if AnteHandler != nil {
+		return AnteHandler(app, handlerOptions)
+	}
+	return appante.NewAnteHandler(handlerOptions)
 }
 
 // GetMaccPerms returns a copy of the module account permissions
