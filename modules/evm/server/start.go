@@ -20,9 +20,14 @@ import (
 
 	abciserver "github.com/tendermint/tendermint/abci/server"
 	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
+	cfg "github.com/tendermint/tendermint/config"
+	talgo "github.com/tendermint/tendermint/crypto/algo"
+	ed25519util "github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/tendermint/tendermint/crypto/sm2"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
+	"github.com/tendermint/tendermint/privval"
 	pvm "github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/proxy"
 	"github.com/tendermint/tendermint/rpc/client/local"
@@ -90,6 +95,12 @@ which accepts a path for the resulting pprof file.
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			serverConfig := serverCtx.Config
+
+			err = determineNodeAlgorithm(serverConfig)
 			if err != nil {
 				return err
 			}
@@ -488,4 +499,18 @@ func openTraceWriter(traceWriterFile string) (w io.Writer, err error) {
 		os.O_WRONLY|os.O_APPEND|os.O_CREATE,
 		0o600,
 	)
+}
+
+// Determine the node algorithm
+func determineNodeAlgorithm(serverConfig *cfg.Config) error {
+	pk := privval.LoadFilePV(serverConfig.PrivValidatorKeyFile(), serverConfig.PrivValidatorStateFile()).Key.PrivKey
+	switch pk.(type) {
+	case sm2.PrivKeySm2:
+		talgo.Algo = talgo.SM2
+	case ed25519util.PrivKey:
+		talgo.Algo = talgo.ED25519
+	default:
+		return fmt.Errorf("unsupported algorithm type: %s", pk.Type())
+	}
+	return nil
 }
