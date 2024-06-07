@@ -1,10 +1,13 @@
 package app
 
 import (
+	appante "github.com/bianjieai/irita/app/ante"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
-	appante "github.com/bianjieai/irita/app/ante"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 )
 
 type AddModuleFun func(app *IritaApp, mm *module.Manager, keys map[string]*sdk.KVStoreKey)
@@ -26,4 +29,16 @@ func NewAppOptions(addModule AddModuleFun, anteHandler AnteHandlerFun, registerU
 		anteHandler: anteHandler,
 		upgradePlan: registerUpgradePlan,
 	}
+}
+
+func (app *IritaApp) GetAccountKeeper() authkeeper.AccountKeeper {
+	return app.accountKeeper
+}
+
+func (app *IritaApp) GetBankKeeper() bankkeeper.Keeper {
+	return app.bankKeeper
+}
+
+func (app *IritaApp) GetTokenKeeper() tokenkeeper.Keeper {
+	return app.tokenKeeper
 }
