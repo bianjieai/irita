@@ -195,6 +195,8 @@ var (
 	}
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{}
+	// app options
+	appOptions = IritaAppOptions{}
 )
 
 // Verify app interface at compile time
@@ -533,6 +535,11 @@ func NewIritaApp(
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 	)
 
+	// extend Modules
+	if appOptions.addModule != nil {
+		appOptions.addModule(app, app.mm, app.keys)
+	}
+
 	app.mm.SetOrderMigrations(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
@@ -603,21 +610,7 @@ func NewIritaApp(
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	anteHandler := appante.NewAnteHandler(
-		appante.HandlerOptions{
-			AccountKeeper:   app.accountKeeper,
-			BankKeeper:      app.bankKeeper,
-			TokenKeeper:     app.tokenKeeper,
-			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			FeegrantKeeper:  app.feeGrantKeeper,
-			SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
-
-			// evm
-			EvmFeeMarketKeeper: app.FeeMarketKeeper,
-			EvmKeeper:          app.EvmKeeper,
-		},
-	)
-	app.SetAnteHandler(anteHandler)
+	app.SetAnteHandler(app.BuildAnteHandler(encodingConfig))
 	app.SetEndBlocker(app.EndBlocker)
 
 	// Set software upgrade execution logic
@@ -627,6 +620,9 @@ func NewIritaApp(
 	// 	},
 	// 	func(ctx sdk.Context, plan sdkupgrade.Plan) {},
 	// )
+	if appOptions.upgradePlan != nil {
+		appOptions.upgradePlan(app, app.configurator, app.mm)
+	}
 
 	// set peer filter by node ID
 	app.SetIDPeerFilter(app.nodeKeeper.FilterNodeByID)
@@ -805,6 +801,27 @@ func (app *IritaApp) RegisterUpgradePlan(planName string,
 		// configure store loader that checks if version+1 == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(sdkupgrade.UpgradeStoreLoader(upgradeInfo.Height, &upgrades))
 	}
+}
+
+// BuildAnteHandler constructs the ante handler for App
+func (app *IritaApp) BuildAnteHandler(encodingConfig simappparams.EncodingConfig) sdk.AnteHandler {
+	handlerOptions := appante.HandlerOptions{
+		AccountKeeper:   app.accountKeeper,
+		BankKeeper:      app.bankKeeper,
+		TokenKeeper:     app.tokenKeeper,
+		FeegrantKeeper:  app.feeGrantKeeper,
+		SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
+		SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
+
+		// evm
+		EvmFeeMarketKeeper: app.FeeMarketKeeper,
+		EvmKeeper:          app.EvmKeeper,
+	}
+
+	if appOptions.anteHandler != nil {
+		return appOptions.anteHandler(app, handlerOptions)
+	}
+	return appante.NewAnteHandler(handlerOptions)
 }
 
 // GetMaccPerms returns a copy of the module account permissions
