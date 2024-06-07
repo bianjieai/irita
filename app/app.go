@@ -195,22 +195,12 @@ var (
 	}
 	// module accounts that are allowed to receive tokens
 	allowedReceivingModAcc = map[string]bool{}
+	// app options
+	appOptions = IritaAppOptions{}
 )
 
 // Verify app interface at compile time
 var _ simapp.App = (*IritaApp)(nil)
-
-var AddModule AddModuleFun
-
-var AnteHandler AnteHandlerFun
-
-var UpgradePlan RegisterUpgradePlanFun
-
-type AddModuleFun func(app *IritaApp, mm *module.Manager, keys map[string]*sdk.KVStoreKey)
-
-type AnteHandlerFun func(app *IritaApp, handlerOptions appante.HandlerOptions) sdk.AnteHandler
-
-type RegisterUpgradePlanFun func(app *IritaApp, configurator module.Configurator, mm *module.Manager)
 
 func init() {
 	userHomeDir, err := os.UserHomeDir()
@@ -546,8 +536,8 @@ func NewIritaApp(
 	)
 
 	// extend Modules
-	if AddModule != nil {
-		AddModule(app, app.mm, app.keys)
+	if appOptions.addModule != nil {
+		appOptions.addModule(app, app.mm, app.keys)
 	}
 
 	app.mm.SetOrderMigrations(
@@ -630,8 +620,8 @@ func NewIritaApp(
 	// 	},
 	// 	func(ctx sdk.Context, plan sdkupgrade.Plan) {},
 	// )
-	if UpgradePlan != nil {
-		UpgradePlan(app, app.configurator, app.mm)
+	if appOptions.upgradePlan != nil {
+		appOptions.upgradePlan(app, app.configurator, app.mm)
 	}
 
 	// set peer filter by node ID
@@ -828,8 +818,8 @@ func (app *IritaApp) BuildAnteHandler(encodingConfig simappparams.EncodingConfig
 		EvmKeeper:          app.EvmKeeper,
 	}
 
-	if AnteHandler != nil {
-		return AnteHandler(app, handlerOptions)
+	if appOptions.anteHandler != nil {
+		return appOptions.anteHandler(app, handlerOptions)
 	}
 	return appante.NewAnteHandler(handlerOptions)
 }
