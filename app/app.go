@@ -833,6 +833,13 @@ func GetMaccPerms() map[string][]string {
 	return dupMaccPerms
 }
 
+// SetMaccPerms set module account permissions
+func SetMaccPerms(perms map[string][]string) {
+	for k, v := range perms {
+		maccPerms[k] = v
+	}
+}
+
 // GetStoreKeys return app store keys list
 func GetStoreKeys() []string {
 	return storeKeys
