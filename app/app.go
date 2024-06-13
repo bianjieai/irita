@@ -535,11 +535,6 @@ func NewIritaApp(
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 	)
 
-	// extend Modules
-	if appOptions.addModule != nil {
-		appOptions.addModule(app, app.mm, app.keys)
-	}
-
 	app.mm.SetOrderMigrations(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
@@ -612,6 +607,11 @@ func NewIritaApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(app.BuildAnteHandler(encodingConfig))
 	app.SetEndBlocker(app.EndBlocker)
+
+	// extend Modules
+	if appOptions.addModule != nil {
+		appOptions.addModule(app, app.mm, app.keys)
+	}
 
 	// Set software upgrade execution logic
 	// app.RegisterUpgradePlan("add-record-module",
