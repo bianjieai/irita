@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 )
 
@@ -41,4 +42,8 @@ func (app *IritaApp) GetBankKeeper() bankkeeper.Keeper {
 
 func (app *IritaApp) GetTokenKeeper() tokenkeeper.Keeper {
 	return app.tokenKeeper
+}
+
+func (app *IritaApp) GetParamsKeeper() paramskeeper.Keeper {
+	return app.paramsKeeper
 }
