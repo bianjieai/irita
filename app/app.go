@@ -594,6 +594,10 @@ func NewIritaApp(
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 	)
+	// extend Modules
+	if appOptions.addModule != nil {
+		appOptions.addModule(app, app.mm, app.keys)
+	}
 
 	app.sm.RegisterStoreDecoders()
 
@@ -607,11 +611,6 @@ func NewIritaApp(
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(app.BuildAnteHandler(encodingConfig))
 	app.SetEndBlocker(app.EndBlocker)
-
-	// extend Modules
-	if appOptions.addModule != nil {
-		appOptions.addModule(app, app.mm, app.keys)
-	}
 
 	// Set software upgrade execution logic
 	// app.RegisterUpgradePlan("add-record-module",
