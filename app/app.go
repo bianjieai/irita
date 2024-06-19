@@ -730,10 +730,6 @@ func (app *IritaApp) GetKey(storeKey string) *sdk.KVStoreKey {
 	return app.keys[storeKey]
 }
 
-func (app *IritaApp) SetKey(storeKey *sdk.KVStoreKey) {
-	app.keys[storeKey.Name()] = storeKey
-}
-
 // GetTKey returns the TransientStoreKey for the provided store key.
 //
 // NOTE: This is solely to be used for testing purposes.
