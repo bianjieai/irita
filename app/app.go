@@ -562,6 +562,11 @@ func NewIritaApp(
 		evmtypes.ModuleName, feemarkettypes.ModuleName,
 	)
 
+	// extend Modules
+	if appOptions.addModule != nil {
+		appOptions.addModule(app, app.mm, app.keys)
+	}
+
 	app.mm.RegisterInvariants(&app.crisisKeeper)
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
 	app.configurator = module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter())
@@ -594,10 +599,6 @@ func NewIritaApp(
 		evm.NewAppModule(app.EvmKeeper, app.accountKeeper),
 		feemarket.NewAppModule(app.FeeMarketKeeper),
 	)
-	// extend Modules
-	if appOptions.addModule != nil {
-		appOptions.addModule(app, app.mm, app.keys)
-	}
 
 	app.sm.RegisterStoreDecoders()
 
