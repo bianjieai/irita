@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bianjieai/iritamod/modules/node"
+	"iritamod.bianjie.ai/modules/node"
 )
 
 type WNodeKeeper struct {

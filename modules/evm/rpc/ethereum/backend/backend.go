@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -15,24 +16,29 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tharsis/ethermint/crypto/ethsecp256k1"
-	"github.com/tharsis/ethermint/rpc/ethereum/backend"
-	"github.com/tharsis/ethermint/rpc/ethereum/types"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
+	"github.com/evmos/ethermint/crypto/ethsecp256k1"
+	"github.com/evmos/ethermint/rpc/backend"
+	"github.com/evmos/ethermint/rpc/types"
+	ethermint "github.com/evmos/ethermint/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
 	"github.com/bianjieai/irita/modules/evm/crypto"
 )
 
 type EVMWBackend struct {
-	*backend.EVMBackend
+	*backend.Backend
 	ctx         *client.Context
 	queryClient *types.QueryClient
 	logger      log.Logger
 }
 
-func NewEVMWBackend(ctx *server.Context, logger log.Logger, clientCtx client.Context) *EVMWBackend {
-	evmBackend := backend.NewEVMBackend(ctx, logger, clientCtx)
+func NewEVMWBackend(ctx *server.Context,
+	logger log.Logger,
+	clientCtx client.Context,
+	allowUnprotectedTxs bool,
+	indexer ethermint.EVMTxIndexer,
+) *EVMWBackend {
+	evmBackend := backend.NewBackend(ctx, logger, clientCtx, allowUnprotectedTxs, indexer)
 
 	return &EVMWBackend{evmBackend, &clientCtx, types.NewQueryClient(clientCtx), logger}
 }
@@ -59,9 +65,13 @@ func (e *EVMWBackend) SendTransaction(args evmtypes.TransactionArgs) (common.Has
 	}
 
 	signer := crypto.NewSm2Signer(e.ChainConfig().ChainID)
-	if info.GetAlgo() == ethsecp256k1.KeyType {
-		// eth
-		fmt.Println("SendTransaction", info.GetAlgo())
+	pubkey, err := info.GetPubKey()
+	if err != nil {
+		e.logger.Debug("failed to get pubkey", "error", err.Error())
+		return common.Hash{}, err
+	}
+
+	if pubkey.Type() == ethsecp256k1.KeyType {
 		bn, err := e.BlockNumber()
 		if err != nil {
 			e.logger.Debug("failed to fetch latest block number", "error", err.Error())

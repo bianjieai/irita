@@ -3,12 +3,12 @@ package app
 import (
 	"encoding/json"
 
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/irisnet/irismod/modules/service"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/bianjieai/iritamod/modules/node"
+	"iritamod.bianjie.ai/modules/node"
 )
 
 // ExportAppStateAndValidators export the state of irita for a genesis file

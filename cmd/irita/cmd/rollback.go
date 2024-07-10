@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 
+	dbm "github.com/cometbft/cometbft-db"
+	tmstate "github.com/cometbft/cometbft/proto/tendermint/state"
+	"github.com/cometbft/cometbft/proto/tendermint/version"
+	"github.com/cometbft/cometbft/state"
+	"github.com/cometbft/cometbft/store"
+	tmversion "github.com/cometbft/cometbft/version"
 	gogotypes "github.com/gogo/protobuf/types"
-	tmstate "github.com/tendermint/tendermint/proto/tendermint/state"
-	"github.com/tendermint/tendermint/proto/tendermint/version"
-	"github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/store"
-	tmversion "github.com/tendermint/tendermint/version"
-	dbm "github.com/tendermint/tm-db"
 )
 
 const (
@@ -88,9 +88,9 @@ func Recover(bs *store.BlockStore, ss state.Store, as dbm.GoLevelDB) (int64, err
 		Version: tmstate.Version{
 			Consensus: version.Consensus{
 				Block: tmversion.BlockProtocol,
-				App:   previousParams.Version.AppVersion,
+				App:   previousParams.Version.App,
 			},
-			Software: tmversion.TMVersionDefault,
+			Software: tmversion.TMCoreSemVer,
 		},
 		// immutable fields
 		ChainID:       invalidState.ChainID,

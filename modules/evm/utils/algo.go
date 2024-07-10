@@ -3,7 +3,7 @@ package utils
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	etherminthd "github.com/tharsis/ethermint/crypto/hd"
+	etherminthd "github.com/evmos/ethermint/crypto/hd"
 )
 
 func SetEthermintSupportedAlgorithms() {

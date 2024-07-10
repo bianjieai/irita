@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"cosmossdk.io/simapp"
+	simappparams "cosmossdk.io/simapp/params"
 	tibcnfttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer"
 	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
@@ -12,6 +14,9 @@ import (
 	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
 	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 	tibcmock "github.com/bianjieai/tibc-go/modules/tibc/testing/mock"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmos "github.com/cometbft/cometbft/libs/os"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -20,15 +25,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
-	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
+
+	// authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -56,8 +60,8 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
+	nftmodule "github.com/irisnet/irismod/modules/nft/module"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
 	"github.com/irisnet/irismod/modules/oracle"
 	oraclekeeper "github.com/irisnet/irismod/modules/oracle/keeper"
@@ -75,27 +79,24 @@ import (
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	"github.com/spf13/cast"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bianjieai/irita/lite"
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
-	"github.com/bianjieai/iritamod/modules/genutil"
-	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
-	"github.com/bianjieai/iritamod/modules/identity"
-	identitykeeper "github.com/bianjieai/iritamod/modules/identity/keeper"
-	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
-	"github.com/bianjieai/iritamod/modules/node"
-	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
-	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
-	cparams "github.com/bianjieai/iritamod/modules/params"
-	cslashing "github.com/bianjieai/iritamod/modules/slashing"
-	"github.com/bianjieai/iritamod/modules/upgrade"
-	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
-	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
+	"iritamod.bianjie.ai/modules/genutil"
+	genutiltypes "iritamod.bianjie.ai/modules/genutil"
+	"iritamod.bianjie.ai/modules/identity"
+	identitykeeper "iritamod.bianjie.ai/modules/identity/keeper"
+	identitytypes "iritamod.bianjie.ai/modules/identity/types"
+	"iritamod.bianjie.ai/modules/node"
+	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
+	nodetypes "iritamod.bianjie.ai/modules/node/types"
+	cparams "iritamod.bianjie.ai/modules/params"
+	cslashing "iritamod.bianjie.ai/modules/slashing"
+	"iritamod.bianjie.ai/modules/upgrade"
+	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
+	upgradetypes "iritamod.bianjie.ai/modules/upgrade/types"
 )
 
 const appName = "SimApp"
@@ -121,7 +122,7 @@ var (
 		evidence.AppModuleBasic{},
 		record.AppModuleBasic{},
 		token.AppModuleBasic{},
-		nft.AppModuleBasic{},
+		nftmodule.AppModuleBasic{},
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		random.AppModuleBasic{},
@@ -317,7 +318,7 @@ func NewSimApp(
 	// Create Transfer Keepers
 	app.NftTransferKeeper = tibcnfttransferkeeper.NewKeeper(
 		appCodec, keys[tibcnfttypes.StoreKey], app.GetSubspace(tibcnfttypes.ModuleName),
-		app.AccountKeeper, tibckeeper.WrapNftKeeper(app.NFTKeeper),
+		app.AccountKeeper, nftkeeper.NewLegacyKeeper(app.NFTKeeper),
 		app.TIBCKeeper.PacketKeeper, app.TIBCKeeper.ClientKeeper,
 	)
 	nfttransferModule := tibcnfttransfer.NewAppModule(app.NftTransferKeeper)
@@ -351,7 +352,7 @@ func NewSimApp(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		token.NewAppModule(appCodec, app.TokenKeeper, app.AccountKeeper, app.BankKeeper),
-		nft.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper),
+		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper),
 		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
@@ -427,7 +428,7 @@ func NewSimApp(
 		cparams.NewAppModule(appCodec, app.ParamsKeeper),
 		record.NewAppModule(appCodec, app.RecordKeeper, app.AccountKeeper, app.BankKeeper),
 		token.NewAppModule(appCodec, app.TokenKeeper, app.AccountKeeper, app.BankKeeper),
-		nft.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper),
+		nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper),
 		service.NewAppModule(appCodec, app.ServiceKeeper, app.AccountKeeper, app.BankKeeper),
 		oracle.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
 		random.NewAppModule(appCodec, app.RandomKeeper, app.AccountKeeper, app.BankKeeper),
@@ -596,7 +597,7 @@ func (app *SimApp) SimulationManager() *module.SimulationManager {
 func (app *SimApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
-	authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
+	// authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
 	ModuleBasics.RegisterRESTRoutes(clientCtx, apiSvr.Router)
 	ModuleBasics.RegisterGRPCGatewayRoutes(apiSvr.ClientCtx, apiSvr.GRPCGatewayRouter)
 

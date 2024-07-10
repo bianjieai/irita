@@ -2,10 +2,10 @@ package app
 
 import (
 	"io"
-	"math"
 	"os"
 	"path/filepath"
 
+	simappparams "cosmossdk.io/simapp/params"
 	tibcmttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer"
 	tibcmttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/keeper"
 	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
@@ -15,6 +15,9 @@ import (
 	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
 	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/libs/log"
+	tmos "github.com/cometbft/cometbft/libs/os"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -24,14 +27,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/api"
 	"github.com/cosmos/cosmos-sdk/server/config"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	store "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
+
+	"github.com/cosmos/cosmos-sdk/client/grpc/node"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -59,11 +62,23 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ethermintante "github.com/evmos/ethermint/app/ante"
+	srvflags "github.com/evmos/ethermint/server/flags"
+	ethermint "github.com/evmos/ethermint/types"
+	"github.com/evmos/ethermint/x/evm"
+
+	// evmrest "github.com/evmos/ethermint/x/evm/client/rest"
+	dbm "github.com/cometbft/cometbft-db"
+	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	"github.com/evmos/ethermint/x/feemarket"
+	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/irisnet/irismod/modules/mt"
 	mtkeeper "github.com/irisnet/irismod/modules/mt/keeper"
 	mttypes "github.com/irisnet/irismod/modules/mt/types"
-	"github.com/irisnet/irismod/modules/nft"
 	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
+	nftmodule "github.com/irisnet/irismod/modules/nft/module"
 	nfttypes "github.com/irisnet/irismod/modules/nft/types"
 	"github.com/irisnet/irismod/modules/oracle"
 	oraclekeeper "github.com/irisnet/irismod/modules/oracle/keeper"
@@ -81,20 +96,6 @@ import (
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 	tokentypes "github.com/irisnet/irismod/modules/token/types"
 	"github.com/spf13/cast"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	dbm "github.com/tendermint/tm-db"
-	ethermintante "github.com/tharsis/ethermint/app/ante"
-	srvflags "github.com/tharsis/ethermint/server/flags"
-	ethermint "github.com/tharsis/ethermint/types"
-	"github.com/tharsis/ethermint/x/evm"
-	evmrest "github.com/tharsis/ethermint/x/evm/client/rest"
-	evmkeeper "github.com/tharsis/ethermint/x/evm/keeper"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	"github.com/tharsis/ethermint/x/feemarket"
-	feemarketkeeper "github.com/tharsis/ethermint/x/feemarket/keeper"
-	feemarkettypes "github.com/tharsis/ethermint/x/feemarket/types"
 
 	"github.com/bianjieai/irita/address"
 	appante "github.com/bianjieai/irita/app/ante"
@@ -104,19 +105,19 @@ import (
 	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
-	"github.com/bianjieai/iritamod/modules/genutil"
-	genutiltypes "github.com/bianjieai/iritamod/modules/genutil"
-	"github.com/bianjieai/iritamod/modules/identity"
-	identitykeeper "github.com/bianjieai/iritamod/modules/identity/keeper"
-	identitytypes "github.com/bianjieai/iritamod/modules/identity/types"
-	"github.com/bianjieai/iritamod/modules/node"
-	nodekeeper "github.com/bianjieai/iritamod/modules/node/keeper"
-	nodetypes "github.com/bianjieai/iritamod/modules/node/types"
-	cparams "github.com/bianjieai/iritamod/modules/params"
-	cslashing "github.com/bianjieai/iritamod/modules/slashing"
-	"github.com/bianjieai/iritamod/modules/upgrade"
-	upgradekeeper "github.com/bianjieai/iritamod/modules/upgrade/keeper"
-	upgradetypes "github.com/bianjieai/iritamod/modules/upgrade/types"
+	"iritamod.bianjie.ai/modules/genutil"
+	genutiltypes "iritamod.bianjie.ai/modules/genutil"
+	"iritamod.bianjie.ai/modules/identity"
+	identitykeeper "iritamod.bianjie.ai/modules/identity/keeper"
+	identitytypes "iritamod.bianjie.ai/modules/identity/types"
+	"iritamod.bianjie.ai/modules/node"
+	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
+	nodetypes "iritamod.bianjie.ai/modules/node/types"
+	cparams "iritamod.bianjie.ai/modules/params"
+	cslashing "iritamod.bianjie.ai/modules/slashing"
+	"iritamod.bianjie.ai/modules/upgrade"
+	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
+	upgradetypes "iritamod.bianjie.ai/modules/upgrade/types"
 )
 
 const appName = "IritaApp"
@@ -166,7 +167,7 @@ var (
 		evidence.AppModuleBasic{},
 		record.AppModuleBasic{},
 		token.AppModuleBasic{},
-		nft.AppModuleBasic{},
+		nftmodule.AppModuleBasic{},
 		mt.AppModuleBasic{},
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
@@ -199,9 +200,6 @@ var (
 	appOptions = IritaAppOptions{}
 )
 
-// Verify app interface at compile time
-var _ simapp.App = (*IritaApp)(nil)
-
 func init() {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -211,17 +209,20 @@ func init() {
 	DefaultNodeHome = filepath.Join(userHomeDir, ".irita")
 
 	address.ConfigureBech32Prefix()
-	tokentypes.SetNativeToken(
-		"irita",
-		"Irita base native token",
-		"uirita",
-		6,
-		1000000000,
-		math.MaxUint64,
-		true,
-		sdk.AccAddress{},
-	)
+	//TODO
+	// tokentypes.SetNativeToken(
+	// 	"irita",
+	// 	"Irita base native token",
+	// 	"uirita",
+	// 	6,
+	// 	1000000000,
+	// 	math.MaxUint64,
+	// 	true,
+	// 	sdk.AccAddress{},
+	// )
 }
+
+var _ servertypes.Application = (*IritaApp)(nil)
 
 // IritaApp extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
@@ -235,9 +236,9 @@ type IritaApp struct {
 	invCheckPeriod uint
 
 	// keys to access the substores
-	keys    map[string]*sdk.KVStoreKey
-	tkeys   map[string]*sdk.TransientStoreKey
-	memKeys map[string]*sdk.MemoryStoreKey
+	keys    map[string]*storetypes.KVStoreKey
+	tkeys   map[string]*storetypes.TransientStoreKey
+	memKeys map[string]*storetypes.MemoryStoreKey
 
 	// keepers
 	accountKeeper    authkeeper.AccountKeeper
@@ -279,6 +280,9 @@ type IritaApp struct {
 	configurator module.Configurator
 }
 
+
+
+
 // NewIritaApp returns a reference to an initialized IritaApp.
 func NewIritaApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
@@ -288,7 +292,7 @@ func NewIritaApp(
 
 	evmutils.SetEthermintSupportedAlgorithms()
 
-	appCodec := encodingConfig.Marshaler
+	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
@@ -393,7 +397,7 @@ func NewIritaApp(
 	app.tibcKeeper = tibckeeper.NewKeeper(tibccorekeeper)
 	app.nftTransferKeeper = tibcnfttransferkeeper.NewKeeper(
 		appCodec, keys[tibcnfttypes.StoreKey], app.GetSubspace(tibcnfttypes.ModuleName),
-		app.accountKeeper, tibckeeper.WrapNftKeeper(app.nftKeeper),
+		app.accountKeeper, nftkeeper.NewLegacyKeeper(app.nftKeeper),
 		app.tibcKeeper.PacketKeeper, app.tibcKeeper.ClientKeeper,
 	)
 	app.mtTransferKeeper = tibcmttransferkeeper.NewKeeper(
@@ -430,7 +434,7 @@ func NewIritaApp(
 		params.NewAppModule(app.paramsKeeper),
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
-		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		nftmodule.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
 		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
@@ -585,7 +589,7 @@ func NewIritaApp(
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper),
-		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		nftmodule.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
 		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
@@ -762,10 +766,10 @@ func (app *IritaApp) SimulationManager() *module.SimulationManager {
 func (app *IritaApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig) {
 	clientCtx := apiSvr.ClientCtx
 	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
-	authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
+	// authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
 
 	// evm
-	evmrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
+	// evmrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
 
 	// Register new tendermint queries routes from grpc-gateway.
 	tmservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
@@ -784,6 +788,11 @@ func (app *IritaApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIC
 // RegisterTxService implements the Application.RegisterTxService method.
 func (app *IritaApp) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
+}
+
+// RegisterNodeService implements types.Application.
+func (app *IritaApp) RegisterNodeService(clientCtx client.Context) {
+	node.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
 }
 
 // RegisterUpgradePlan implements the upgrade execution logic of the upgrade module

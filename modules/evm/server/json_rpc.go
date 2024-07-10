@@ -9,16 +9,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/server/types"
 	ethlog "github.com/ethereum/go-ethereum/log"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
+	"github.com/evmos/ethermint/rpc"
+	"github.com/evmos/ethermint/server/config"
+	ethermint "github.com/evmos/ethermint/types"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
-	"github.com/tharsis/ethermint/rpc"
-	"github.com/tharsis/ethermint/server/config"
 
 	iritaevmrpc "github.com/bianjieai/irita/modules/evm/rpc"
 )
 
 // StartJSONRPC starts the JSON-RPC server
-func StartJSONRPC(ctx *server.Context, clientCtx client.Context, tmRPCAddr, tmEndpoint string, config config.Config) (*http.Server, chan struct{}, error) {
+func StartJSONRPC(ctx *server.Context, 
+	clientCtx client.Context, 
+	tmRPCAddr, tmEndpoint string, 
+	config *config.Config,
+	indexer ethermint.EVMTxIndexer,
+	) (*http.Server, chan struct{}, error) {
 	tmWsClient := ConnectTmWS(tmRPCAddr, tmEndpoint, ctx.Logger)
 
 	logger := ctx.Logger.With("module", "geth")
@@ -36,8 +42,9 @@ func StartJSONRPC(ctx *server.Context, clientCtx client.Context, tmRPCAddr, tmEn
 
 	rpcServer := ethrpc.NewServer()
 
+	allowUnprotectedTxs := config.JSONRPC.AllowUnprotectedTxs
 	rpcAPIArr := config.JSONRPC.API
-	apis := iritaevmrpc.GetRPCAPIs(ctx, clientCtx, tmWsClient, rpcAPIArr)
+	apis := iritaevmrpc.GetRPCAPIs(ctx, clientCtx, tmWsClient,  allowUnprotectedTxs, indexer, rpcAPIArr)
 
 	for _, api := range apis {
 		if err := rpcServer.RegisterName(api.Namespace, api.Service); err != nil {

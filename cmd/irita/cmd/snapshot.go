@@ -9,19 +9,19 @@ import (
 	"sync"
 	"time"
 
+	dbm "github.com/cometbft/cometbft-db"
+	"github.com/cometbft/cometbft/consensus"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
+	tmmath "github.com/cometbft/cometbft/libs/math"
+	tmos "github.com/cometbft/cometbft/libs/os"
+	tmstate "github.com/cometbft/cometbft/proto/tendermint/state"
+	"github.com/cometbft/cometbft/state"
+	"github.com/cometbft/cometbft/store"
+	"github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/iavl"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/tendermint/tendermint/consensus"
-	tmcli "github.com/tendermint/tendermint/libs/cli"
-	tmmath "github.com/tendermint/tendermint/libs/math"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmstate "github.com/tendermint/tendermint/proto/tendermint/state"
-	"github.com/tendermint/tendermint/state"
-	"github.com/tendermint/tendermint/store"
-	"github.com/tendermint/tendermint/types"
-	dbm "github.com/tendermint/tm-db"
 
 	"github.com/bianjieai/irita/app"
 )
@@ -164,7 +164,7 @@ func snapshot(dataDir, targetDir string) error {
 	blockStore := store.NewBlockStore(blockDB)
 
 	stateDB := loadDb(stateStoreDir, dataDir)
-	ss := state.NewStore(stateDB)
+	ss := state.NewStore(stateDB,state.StoreOptions{})
 	appDB := loadDb(applicationDBDir, dataDir)
 
 	defer func() {
@@ -238,8 +238,8 @@ func snapshotState(tmDB *dbm.GoLevelDB, targetDir string, height int64) {
 	targetDb := loadDb(stateStoreDir, targetDir)
 	defer targetDb.Close()
 
-	newStore := state.NewStore(targetDb)
-	oldStore := state.NewStore(tmDB)
+	newStore := state.NewStore(targetDb,state.StoreOptions{})
+	oldStore := state.NewStore(tmDB,state.StoreOptions{})
 
 	state, err := oldStore.Load()
 	if err != nil {
@@ -277,7 +277,10 @@ func snapshotBlock(originStore *store.BlockStore, targetDir string, height int64
 
 	block := originStore.LoadBlock(height)
 	seenCommit := originStore.LoadSeenCommit(height)
-	partSet := block.MakePartSet(types.BlockPartSizeBytes)
+	partSet,err  := block.MakePartSet(types.BlockPartSizeBytes)
+	if err != nil {
+		panic(err)
+	}
 	targetStore.SaveBlock(block, partSet, seenCommit)
 }
 
@@ -560,7 +563,7 @@ func readTree(db dbm.DB, latestVersion int64, store string) (*iavl.MutableTree, 
 	prefix := fmt.Sprintf(moduleKeyFmt, store)
 	prefixDB := dbm.NewPrefixDB(db, []byte(prefix))
 
-	tree, err := iavl.NewMutableTree(prefixDB, DefaultCacheSize)
+	tree, err := iavl.NewMutableTree(prefixDB, DefaultCacheSize,true)
 	if err != nil {
 		return nil, err
 	}
