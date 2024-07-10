@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/bianjieai/irita/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -14,7 +15,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/evmos/ethermint/crypto/hd"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/spf13/cobra"
 )
@@ -40,7 +40,7 @@ func AddGenesisAccountCmd(defaultNodeHome string, defaultCliHome string) *cobra.
 			"contain valid denominations. Accounts may optionally be supplied with vesting parameters.",
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.EthSecp256k1Option())
+			clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.KeyringOption())
 			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err

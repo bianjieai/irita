@@ -99,10 +99,10 @@ import (
 
 	"github.com/bianjieai/irita/address"
 	appante "github.com/bianjieai/irita/app/ante"
+	"github.com/bianjieai/irita/crypto/hd"
 	"github.com/bianjieai/irita/lite"
 	appkeeper "github.com/bianjieai/irita/modules/evm"
 	"github.com/bianjieai/irita/modules/evm/crypto"
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
 	"iritamod.bianjie.ai/modules/genutil"
@@ -290,7 +290,7 @@ func NewIritaApp(
 ) *IritaApp {
 	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
 
-	evmutils.SetEthermintSupportedAlgorithms()
+	hd.SetSupportedAlgorithms()
 
 	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino

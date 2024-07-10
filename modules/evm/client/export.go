@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/bianjieai/irita/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto"
@@ -12,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ func UnsafeExportEthKeyCommand() *cobra.Command {
 		Long:  `**UNSAFE** Export an Ethereum private key unencrypted to use in dev tooling`,
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.EthSecp256k1Option())
+			clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.KeyringOption())
 			clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
 			if err != nil {
 				return err

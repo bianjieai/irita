@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"cosmossdk.io/simapp/params"
+	"github.com/bianjieai/irita/crypto/hd"
 	dbm "github.com/cometbft/cometbft-db"
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
@@ -27,7 +28,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	ethermintclient "github.com/evmos/ethermint/client"
-	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/evmos/ethermint/encoding"
 	servercfg "github.com/evmos/ethermint/server/config"
 	ethermint "github.com/evmos/ethermint/types"
@@ -38,7 +38,6 @@ import (
 	"github.com/bianjieai/irita/app"
 	evmclient "github.com/bianjieai/irita/modules/evm/client"
 	evmserver "github.com/bianjieai/irita/modules/evm/server"
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
 	genutilcli "iritamod.bianjie.ai/modules/genutil/client/cli"
 	"iritamod.bianjie.ai/modules/node"
 )
@@ -46,7 +45,7 @@ import (
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 	//encodingConfig := app.MakeEncodingConfig()
-	evmutils.SetEthermintSupportedAlgorithms()
+	hd.SetSupportedAlgorithms()
 	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
 
 	initClientCtx := client.Context{}.
@@ -58,7 +57,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastSync).
 		WithHomeDir(app.DefaultNodeHome).
-		WithKeyringOptions(hd.EthSecp256k1Option()).
+		WithKeyringOptions(hd.KeyringOption()).
 		WithViper("")
 
 	rootCmd := &cobra.Command{

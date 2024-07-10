@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 
+	tmcfg "github.com/cometbft/cometbft/config"
 	tmconfig "github.com/cometbft/cometbft/config"
 	tmos "github.com/cometbft/cometbft/libs/os"
 	tmrand "github.com/cometbft/cometbft/libs/rand"
@@ -20,7 +21,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
@@ -35,11 +35,12 @@ import (
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	evmfmttypes "github.com/evmos/ethermint/x/feemarket/types"
 	servicetypes "github.com/irisnet/irismod/modules/service/types"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	tokentypesv1beta "github.com/irisnet/irismod/modules/token/types"
+	tokentypes "github.com/irisnet/irismod/modules/token/types/v1"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+	"github.com/bianjieai/irita/crypto/hd"
 	"iritamod.bianjie.ai/modules/genutil"
 	"iritamod.bianjie.ai/modules/node"
 	"iritamod.bianjie.ai/modules/node/utils"
@@ -121,7 +122,7 @@ func InitTestnet(
 	if chainID == "" {
 		chainID = fmt.Sprintf("chain_%d-1", tmrand.Int63n(9999999999999)+1)
 	}
-	evmutils.SetEthermintSupportedAlgorithms()
+	hd.SetSupportedAlgorithms()
 
 	monikers := make([]string, numValidators)
 	nodeIDs := make([]string, numValidators)
@@ -214,7 +215,8 @@ func InitTestnet(
 			viper.GetString(flags.FlagKeyringBackend),
 			clientDir,
 			inBuf,
-			hd.EthSecp256k1Option(),
+			clientCtx.Codec,
+			hd.KeyringOption(),
 		)
 		if err != nil {
 			return err
@@ -294,7 +296,7 @@ func InitTestnet(
 
 		customAppTemplate, customAppConfig := evmosConfig.AppConfig(ethermint.AttoPhoton)
 		srvconfig.SetConfigTemplate(customAppTemplate)
-		if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig); err != nil {
+		if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig,tmcfg.DefaultConfig()); err != nil {
 			return err
 		}
 
@@ -368,7 +370,7 @@ func initGenFiles(
 
 	// set the point token in the genesis state
 	var tokenGenState tokentypes.GenesisState
-	jsonMarshaler.MustUnmarshalJSON(appGenState[tokentypes.ModuleName], &tokenGenState)
+	jsonMarshaler.MustUnmarshalJSON(appGenState[tokentypesv1beta.ModuleName], &tokenGenState)
 
 	pointToken := tokentypes.Token{
 		Symbol:        DefaultPointDenom,
@@ -395,7 +397,7 @@ func initGenFiles(
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
 	tokenGenState.Tokens = append(tokenGenState.Tokens, gasToken)
 	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(DefaultPointDenom, sdk.NewInt(60000))
-	appGenState[tokentypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
+	appGenState[tokentypesv1beta.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
 
 	// modify the constant fee denoms in the crisis genesis
 	var crisisGenState crisistypes.GenesisState

@@ -13,7 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	tokentypesv1beta "github.com/irisnet/irismod/modules/token/types"
+	tokentypes "github.com/irisnet/irismod/modules/token/types/v1"
 	"github.com/olebedev/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -297,7 +298,7 @@ func queryToken(cmd *cobra.Command, denom string) (ft tokentypes.TokenI, err err
 		return nil, err
 	}
 
-	if err := tokentypes.ValidateSymbol(denom); err != nil {
+	if err := tokentypesv1beta.ValidateSymbol(denom); err != nil {
 		return nil, err
 	}
 

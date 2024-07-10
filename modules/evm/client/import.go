@@ -3,12 +3,12 @@ package client
 import (
 	"bufio"
 
+	"github.com/bianjieai/irita/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
-	"github.com/evmos/ethermint/crypto/hd"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ func UnsafeImportKeyCommand() *cobra.Command {
 }
 
 func runImportCmd(cmd *cobra.Command, args []string) error {
-	clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.EthSecp256k1Option())
+	clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.KeyringOption())
 	clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
 	if err != nil {
 		return err
