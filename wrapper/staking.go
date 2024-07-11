@@ -1,0 +1,129 @@
+package wrapper
+
+import (
+	"cosmossdk.io/math"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	"github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
+)
+
+var (
+	_ slashingtypes.StakingKeeper = (*StakingKeeper)(nil)
+	_ evidencetypes.StakingKeeper = (*StakingKeeper)(nil)
+)
+
+// StakingKeeper implements the staking keeper interface.
+type StakingKeeper struct {
+	nk nodekeeper.Keeper
+}
+
+// NewStakingKeeper creates a new instance of the stakingKeeper struct.
+//
+// It takes a nodekeeper.Keeper as a parameter and returns a pointer to the stakingKeeper struct.
+func NewStakingKeeper(nk nodekeeper.Keeper) *StakingKeeper {
+	return &StakingKeeper{
+		nk: nk,
+	}
+}
+
+// Delegation implements types.StakingKeeper.
+func (s *StakingKeeper) Delegation(ctx sdk.Context, delegator sdk.AccAddress, validator sdk.ValAddress) types.DelegationI {
+	return s.nk.Delegation(ctx, delegator, validator)
+}
+
+// GetAllValidators implements types.StakingKeeper.
+func (s *StakingKeeper) GetAllValidators(ctx sdk.Context) (validators []types.Validator) {
+	vs := s.nk.GetAllValidators(ctx)
+
+	for _, v := range vs {
+		pubKey, err := v.ConsPubKey()
+		if err != nil {
+			panic(err)
+		}
+
+		pkAny, err := codectypes.NewAnyWithValue(pubKey)
+		if err != nil {
+			panic(err)
+		}
+
+		validators = append(validators, types.Validator{
+			OperatorAddress: v.GetOperator().String(),
+			ConsensusPubkey: pkAny,
+			Jailed:          v.IsJailed(),
+			Status:          v.GetStatus(),
+			Tokens:          v.GetTokens(),
+			DelegatorShares: v.GetDelegatorShares(),
+			Description: types.Description{
+				Moniker:  v.GetMoniker(),
+				Details:  v.Description,
+				Identity: v.Certificate,
+			},
+			MinSelfDelegation: math.ZeroInt(),
+		})
+	}
+	return validators
+}
+
+// IsValidatorJailed implements types.StakingKeeper.
+func (s *StakingKeeper) IsValidatorJailed(ctx sdk.Context, addr sdk.ConsAddress) bool {
+	v, ok := s.nk.GetValidatorByConsAddr(ctx, addr)
+	if !ok {
+		return false
+	}
+	return v.Jailed
+}
+
+// IterateValidators implements types.StakingKeeper.
+func (s *StakingKeeper) IterateValidators(ctx sdk.Context, fn func(index int64, validator types.ValidatorI) (stop bool)) {
+	s.nk.IterateValidators(ctx, fn)
+}
+
+// Jail implements types.StakingKeeper.
+func (s *StakingKeeper) Jail(ctx sdk.Context, consAddr sdk.ConsAddress) {
+	s.nk.Jail(ctx, consAddr)
+}
+
+// MaxValidators implements types.StakingKeeper.
+func (s *StakingKeeper) MaxValidators(ctx sdk.Context) uint32 {
+	return s.nk.MaxValidators(ctx)
+}
+
+// Slash implements types.StakingKeeper.
+func (s *StakingKeeper) Slash(ctx sdk.Context, consAddr sdk.ConsAddress, i int64, i2 int64, dec sdk.Dec) math.Int {
+	s.nk.Slash(ctx, consAddr, i, i2, dec)
+	return math.NewInt(0)
+}
+
+// SlashWithInfractionReason implements types.StakingKeeper.
+func (s *StakingKeeper) SlashWithInfractionReason(ctx sdk.Context, consAddr sdk.ConsAddress, infractionHeight int64, power int64, slashFactor sdk.Dec, _ types.Infraction) math.Int {
+	return s.Slash(ctx, consAddr, infractionHeight, power, slashFactor)
+}
+
+// Unjail implements types.StakingKeeper.
+func (s *StakingKeeper) Unjail(ctx sdk.Context, consAddr sdk.ConsAddress) {
+	s.nk.Unjail(ctx, consAddr)
+}
+
+// Validator implements types.StakingKeeper.
+func (s *StakingKeeper) Validator(ctx sdk.Context, valAddr sdk.ValAddress) types.ValidatorI {
+	return s.nk.Validator(ctx, valAddr)
+}
+
+// ValidatorByConsAddr implements types.StakingKeeper.
+func (s *StakingKeeper) ValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) types.ValidatorI {
+	return s.nk.ValidatorByConsAddr(ctx, consAddr)
+}
+
+// GetParams implements types.StakingKeeper.
+func (s *StakingKeeper) GetParams(ctx sdk.Context) types.Params {
+	params := s.nk.GetParams(ctx)
+	return types.Params{
+		MaxEntries:        10,
+		HistoricalEntries: params.HistoricalEntries,
+		MinCommissionRate: math.LegacyZeroDec(),
+	}
+}

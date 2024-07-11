@@ -15,6 +15,7 @@ import (
 	"github.com/bianjieai/irita/modules/evm/crypto"
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
+	"github.com/bianjieai/irita/wrapper"
 	tibcmttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer"
 	tibcmttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/keeper"
 	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
@@ -347,11 +348,13 @@ func NewIritaApp(
 		authtypes.NewModuleAddress("gov").String(),
 	)
 	app.nodeKeeper = node.NewKeeper(appCodec, keys[nodetypes.StoreKey], app.GetSubspace(node.ModuleName))
+
+	stakingKeeper := wrapper.NewStakingKeeper(app.nodeKeeper)
 	app.slashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, 
 		cdc,
 		keys[slashingtypes.StoreKey], 
-		&app.nodeKeeper, 
+		stakingKeeper, 
 		authtypes.NewModuleAddress("gov").String(),
 	)
 	app.crisisKeeper = crisiskeeper.NewKeeper(
@@ -364,12 +367,22 @@ func NewIritaApp(
 	)
 	app.feeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.accountKeeper)
 
-	sdkUpgradeKeeper := sdkupgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp)
+	sdkUpgradeKeeper := sdkupgradekeeper.NewKeeper(
+		skipUpgradeHeights, 
+		keys[upgradetypes.StoreKey], 
+		appCodec, 
+		homePath, 
+		app.BaseApp,
+		authtypes.NewModuleAddress("gov").String(),
+	)
 	app.upgradeKeeper = upgradekeeper.NewKeeper(sdkUpgradeKeeper)
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
-		appCodec, keys[evidencetypes.StoreKey], &app.nodeKeeper, app.slashingKeeper,
+		appCodec, 
+		keys[evidencetypes.StoreKey], 
+		stakingKeeper, 
+		app.slashingKeeper,
 	)
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.evidenceKeeper = *evidenceKeeper
@@ -379,7 +392,7 @@ func NewIritaApp(
 		keys[tokentypes.StoreKey], 
 		app.bankKeeper, 
 		app.accountKeeper, 
-		app.EvmKeeper, 
+		wrapper.NewEVMKeeper(app.EvmKeeper),
 		nil,
 		authtypes.FeeCollectorName,
 		authtypes.NewModuleAddress("gov").String(),
@@ -484,7 +497,7 @@ func NewIritaApp(
 		bank.NewAppModule(appCodec, app.bankKeeper, app.accountKeeper,app.GetSubspace(banktypes.ModuleName),),
 		crisis.NewAppModule(app.crisisKeeper, skipGenesisInvariants,app.GetSubspace(crisistypes.ModuleName)),
 		feegrantmodule.NewAppModule(appCodec, app.accountKeeper, app.bankKeeper, app.feeGrantKeeper, app.interfaceRegistry),
-		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.nodeKeeper), app.accountKeeper, app.bankKeeper, app.nodeKeeper),
+		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.nodeKeeper), app.accountKeeper, app.bankKeeper, stakingKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
 		evidence.NewAppModule(app.evidenceKeeper),
 		params.NewAppModule(app.paramsKeeper),
@@ -639,7 +652,7 @@ func NewIritaApp(
 		auth.NewAppModule(appCodec, app.accountKeeper, authsims.RandomGenesisAccounts,app.GetSubspace(authtypes.ModuleName),),
 		bank.NewAppModule(appCodec, app.bankKeeper, app.accountKeeper,app.GetSubspace(banktypes.ModuleName),),
 		feegrantmodule.NewAppModule(appCodec, app.accountKeeper, app.bankKeeper, app.feeGrantKeeper, app.interfaceRegistry),
-		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.nodeKeeper), app.accountKeeper, app.bankKeeper, app.nodeKeeper),
+		cslashing.NewAppModule(appCodec, cslashing.NewKeeper(app.slashingKeeper, app.nodeKeeper), app.accountKeeper, app.bankKeeper, stakingKeeper),
 		params.NewAppModule(app.paramsKeeper),
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
