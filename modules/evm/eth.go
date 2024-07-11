@@ -9,6 +9,7 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethante "github.com/evmos/ethermint/app/ante"
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	ethermint "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
@@ -20,11 +21,11 @@ import (
 type EthSigVerificationDecorator struct {
 	accountKeeper   authante.AccountKeeper
 	signModeHandler authsigning.SignModeHandler
-	evmKeeper       EVMKeeper
+	evmKeeper       ethante.EVMKeeper
 }
 
 // NewEthSigVerificationDecorator creates a new EthSigVerificationDecorator
-func NewEthSigVerificationDecorator(ek EVMKeeper, ak authante.AccountKeeper, signModeHandler authsigning.SignModeHandler) EthSigVerificationDecorator {
+func NewEthSigVerificationDecorator(ek ethante.EVMKeeper, ak authante.AccountKeeper, signModeHandler authsigning.SignModeHandler) EthSigVerificationDecorator {
 	return EthSigVerificationDecorator{
 		evmKeeper:       ek,
 		accountKeeper:   ak,

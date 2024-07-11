@@ -1,10 +1,7 @@
 package ante
 
 import (
-	"fmt"
-	"runtime/debug"
-
-	tmlog "github.com/cometbft/cometbft/libs/log"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -15,7 +12,7 @@ import (
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 
-	evmmoduleante "github.com/bianjieai/irita/modules/evm"
+	ethante "github.com/evmos/ethermint/app/ante"
 )
 
 type HandlerOptions struct {
@@ -27,8 +24,9 @@ type HandlerOptions struct {
 	SignModeHandler signing.SignModeHandler
 
 	// evm config
-	EvmKeeper          evmmoduleante.EVMKeeper
+	EvmKeeper          ethante.EVMKeeper
 	EvmFeeMarketKeeper evmtypes.FeeMarketKeeper
+	MaxTxGasWanted       uint64
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -40,7 +38,8 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	) (newCtx sdk.Context, err error) {
 		var anteHandler sdk.AnteHandler
 
-		//defer Recover(ctx.Logger(), &err)
+		defer ethante.Recover(ctx.Logger(), &err)
+
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if ok {
 			opts := txWithExtensions.GetExtensionOptions()
@@ -53,7 +52,7 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 					// handle as normal Cosmos SDK tx, except signature is checked for EIP712 representation
 					anteHandler = newCosmosAnteHandlerEip712(options)
 				default:
-					return ctx, sdkerrors.Wrapf(
+					return ctx, errorsmod.Wrapf(
 						sdkerrors.ErrUnknownExtensionOptions,
 						"rejecting tx with unsupported extension option: %s",
 						typeURL,
@@ -67,29 +66,10 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		case sdk.Tx:
 			anteHandler = newCosmosAnteHandler(options)
 		default:
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
+			return ctx, errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
 		}
 
 		return anteHandler(ctx, tx, sim)
 
-	}
-}
-
-func Recover(logger tmlog.Logger, err *error) {
-	if r := recover(); r != nil {
-		*err = sdkerrors.Wrapf(sdkerrors.ErrPanic, "%v", r)
-
-		if e, ok := r.(error); ok {
-			logger.Error(
-				"ante handler panicked",
-				"error", e,
-				"stack trace", string(debug.Stack()),
-			)
-		} else {
-			logger.Error(
-				"ante handler panicked",
-				"recover", fmt.Sprintf("%v", r),
-			)
-		}
 	}
 }
