@@ -8,6 +8,7 @@ BINDIR ?= $(GOPATH)/bin
 LEDGER_ENABLED ?= true
 SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
 NetworkType := $(shell if [ -z ${NetworkType} ]; then echo "mainnet"; else echo ${NetworkType}; fi)
+DOCKER := $(shell which docker)
 
 export GO111MODULE = on
 
@@ -130,13 +131,29 @@ clean:
 distclean: clean
 	rm -rf vendor/
 
-proto-all: proto-tools proto-gen proto-swagger-gen
+###############################################################################
+###                                Protobuf                                 ###
+###############################################################################
+
+protoVer=0.11.6
+protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+
+proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
-	@./scripts/protocgen.sh
+	@echo "Generating Protobuf files"
+	@$(protoImage) sh ./scripts/protocgen.sh
 
 proto-swagger-gen:
-	@./scripts/protoc-swagger-gen.sh
+	@echo "Generating Protobuf Swagger"
+	@$(protoImage) sh ./scripts/protoc-swagger-gen.sh
+
+proto-format:
+	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
+
+proto-lint:
+	@$(protoImage) buf lint --error-format=json
 
 ########################################
 ### Testing

@@ -5,8 +5,9 @@ go 1.19
 replace (
 	github.com/cometbft/cometbft => github.com/bianjieai/cometbft v0.37.5-irita-240628
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.47.12-irita-20240701
-	github.com/evmos/ethermint => github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240712085443-2969630954af
-	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
+	github.com/evmos/ethermint => github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240712094450-08ece3cc0349
+	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
 )
 
 require (
@@ -15,12 +16,12 @@ require (
 	github.com/bianjieai/tibc-go v0.5.0
 	github.com/cosmos/cosmos-sdk v0.47.12
 	github.com/irisnet/irismod v1.9.0
-	iritamod.bianjie.ai/modules/genutil v0.0.0-20240709034624-0cce404a9d09
-	iritamod.bianjie.ai/modules/identity v0.0.0-20240709034624-0cce404a9d09
-	iritamod.bianjie.ai/modules/node v0.0.0-20240709034624-0cce404a9d09
-	iritamod.bianjie.ai/modules/params v0.0.0-20240709034624-0cce404a9d09
-	iritamod.bianjie.ai/modules/slashing v0.0.0-20240709034624-0cce404a9d09
-	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240709034624-0cce404a9d09
+	iritamod.bianjie.ai/modules/genutil v0.0.0-20240715030433-96110b2d4699
+	iritamod.bianjie.ai/modules/identity v0.0.0-20240715030433-96110b2d4699
+	iritamod.bianjie.ai/modules/node v0.0.0-20240715030433-96110b2d4699
+	iritamod.bianjie.ai/modules/params v0.0.0-20240715030433-96110b2d4699
+	iritamod.bianjie.ai/modules/slashing v0.0.0-20240715030433-96110b2d4699
+	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240715030433-96110b2d4699
 )
 
 require (
@@ -28,10 +29,12 @@ require (
 	cosmossdk.io/math v1.3.0
 	github.com/cometbft/cometbft v0.37.5
 	github.com/cometbft/cometbft-db v0.7.0
+	github.com/cosmos/cosmos-proto v1.0.0-beta.5
+	github.com/cosmos/gogoproto v1.4.10
 	github.com/cosmos/iavl v0.20.1
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/evmos/ethermint v0.8.1
-	github.com/gogo/protobuf v1.3.3
+	github.com/gogo/protobuf v1.3.2
 	github.com/gorilla/mux v1.8.0
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/olebedev/config v0.0.0-20190528211619-364964f3a8e4
@@ -84,10 +87,8 @@ require (
 	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
-	github.com/cosmos/cosmos-proto v1.0.0-beta.5 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
-	github.com/cosmos/gogoproto v1.4.10 // indirect
 	github.com/cosmos/ibc-go/v7 v7.0.0 // indirect
 	github.com/cosmos/ics23/go v0.10.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.12.4 // indirect

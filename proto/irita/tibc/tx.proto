@@ -3,6 +3,8 @@ package irita.tibc;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/bianjieai/irita/modules/tibc/types";
 option (gogoproto.goproto_getters_all)  = false;
@@ -20,7 +22,8 @@ service Msg {
 
 // MsgMint defines a message to mint the base native token.
 message MsgCreateClient {
-  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "signer";
 
   string chainName = 1;
   google.protobuf.Any  clientState = 2 ;
@@ -33,7 +36,8 @@ message MsgCreateClientResponse {}
 
 // MsgReclaim defines a message to reclaim the specified native token.
 message MsgUpgradeClient {
-  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "signer";
 
   string chainName = 1;
   google.protobuf.Any  clientState = 2 ;
@@ -46,7 +50,8 @@ message MsgUpgradeClientResponse {}
 
 
 message MsgRegisterRelayer {
-  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "signer";
 
   string chain_name = 1;
   repeated string relayers = 2;
@@ -56,7 +61,8 @@ message MsgRegisterRelayer {
 message MsgRegisterRelayerResponse {}
 
 message MsgSetRoutingRules {
-  option (gogoproto.equal) = true;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "signer";
 
   repeated string rules = 1;
   string signer = 2;
