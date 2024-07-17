@@ -32,6 +32,7 @@ import (
 
 	"github.com/bianjieai/irita/app"
 
+	evmclient "github.com/bianjieai/irita/modules/evm/client"
 	genutilcli "iritamod.bianjie.ai/modules/genutil/client/cli"
 	"iritamod.bianjie.ai/modules/node"
 )
@@ -122,13 +123,13 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		rpc.StatusCommand(),
 		queryCommand(),
 		txCommand(),
-		ethermintclient.KeyCommands(app.DefaultNodeHome),
+		evmclient.KeyCommands(app.DefaultNodeHome),
 	)
-
 }
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
+	app.AddStartFlags(startCmd)
 }
 
 func queryCommand() *cobra.Command {

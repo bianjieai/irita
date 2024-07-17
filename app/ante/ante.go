@@ -9,7 +9,6 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
 
 	ethante "github.com/evmos/ethermint/app/ante"
@@ -24,9 +23,9 @@ type HandlerOptions struct {
 	SignModeHandler signing.SignModeHandler
 
 	// evm config
-	EvmKeeper          ethante.EVMKeeper
-	EvmFeeMarketKeeper evmtypes.FeeMarketKeeper
-	MaxTxGasWanted       uint64
+	EvmKeeper       ethante.EVMKeeper
+	FeeMarketKeeper ethante.FeeMarketKeeper
+	MaxTxGasWanted  uint64
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -51,6 +50,9 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":
 					// handle as normal Cosmos SDK tx, except signature is checked for EIP712 representation
 					anteHandler = newCosmosAnteHandlerEip712(options)
+				case "/ethermint.types.v1.ExtensionOptionDynamicFeeTx":
+					// cosmos-sdk tx with dynamic fee extension
+					anteHandler = newCosmosAnteHandler(options)
 				default:
 					return ctx, errorsmod.Wrapf(
 						sdkerrors.ErrUnknownExtensionOptions,
@@ -70,6 +72,5 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		}
 
 		return anteHandler(ctx, tx, sim)
-
 	}
 }

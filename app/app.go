@@ -122,7 +122,9 @@ import (
 	upgradetypes "iritamod.bianjie.ai/modules/upgrade/types"
 )
 
-const appName = "IritaApp"
+const (
+	appName = "IritaApp"
+)
 
 var storeKeys = []string{
 	authtypes.StoreKey,
@@ -321,11 +323,14 @@ func NewIritaApp(
 		memKeys:           memKeys,
 	}
 
+	authority := cast.ToString(appOpts.Get(flagAuthority))
+	authorityAddr := sdk.MustAccAddressFromBech32(authority)
+
 	app.paramsKeeper = initParamsKeeper(appCodec, cdc, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
 	app.ConsensusParamsKeeper = consensuskeeper.NewKeeper(
 		appCodec,
 		app.keys[consensustypes.StoreKey],
-		authtypes.NewModuleAddress("gov").String(),
+		authority,
 	)
 
 	// set the BaseApp's parameter store
@@ -338,14 +343,14 @@ func NewIritaApp(
 		authtypes.ProtoBaseAccount,
 		maccPerms,
 		address.Bech32PrefixAccAddr,
-		authtypes.NewModuleAddress("gov").String(),
+		authority,
 	)
 	app.bankKeeper = bankkeeper.NewBaseKeeper(
 		appCodec,
 		keys[banktypes.StoreKey],
 		app.accountKeeper,
 		app.ModuleAccountAddrs(),
-		authtypes.NewModuleAddress("gov").String(),
+		authority,
 	)
 	app.nodeKeeper = node.NewKeeper(appCodec, keys[nodetypes.StoreKey], app.GetSubspace(node.ModuleName))
 
@@ -355,7 +360,7 @@ func NewIritaApp(
 		cdc,
 		keys[slashingtypes.StoreKey],
 		stakingKeeper,
-		authtypes.NewModuleAddress("gov").String(),
+		authority,
 	)
 	app.crisisKeeper = crisiskeeper.NewKeeper(
 		appCodec,
@@ -363,7 +368,7 @@ func NewIritaApp(
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
 		app.bankKeeper,
 		authtypes.FeeCollectorName,
-		authtypes.NewModuleAddress("gov").String(),
+		authority,
 	)
 	app.feeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.accountKeeper)
 
@@ -378,7 +383,7 @@ func NewIritaApp(
 		appCodec,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		app.BaseApp,
-		authtypes.NewModuleAddress("gov").String(),
+		authority,
 	)
 	app.upgradeKeeper = upgradekeeper.NewKeeper(sdkUpgradeKeeper)
 
@@ -400,7 +405,7 @@ func NewIritaApp(
 		wrapper.NewEVMKeeper(app.EvmKeeper),
 		nil,
 		authtypes.FeeCollectorName,
-		authtypes.NewModuleAddress("gov").String(),
+		authority,
 	)
 
 	app.recordKeeper = recordkeeper.NewKeeper(appCodec, keys[recordtypes.StoreKey])
@@ -418,7 +423,7 @@ func NewIritaApp(
 		app.accountKeeper,
 		app.bankKeeper,
 		servicetypes.FeeCollectorName,
-		authtypes.NewModuleAddress("gov").String(),
+		authority,
 	)
 
 	app.oracleKeeper = oraclekeeper.NewKeeper(
@@ -441,7 +446,7 @@ func NewIritaApp(
 	// Create Ethermint  keepers
 	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		appCodec,
-		authtypes.NewModuleAddress("gov"),
+		authorityAddr,
 		keys[feemarkettypes.StoreKey],
 		tkeys[feemarkettypes.TransientKey],
 		app.GetSubspace(feemarkettypes.ModuleName),
@@ -450,7 +455,7 @@ func NewIritaApp(
 		appCodec,
 		keys[evmtypes.StoreKey],
 		tkeys[evmtypes.TransientKey],
-		authtypes.NewModuleAddress("gov"),
+		authorityAddr,
 		app.accountKeeper,
 		app.bankKeeper,
 		appkeeper.WNodeKeeper{Keeper: app.nodeKeeper},
@@ -466,7 +471,7 @@ func NewIritaApp(
 		appCodec,
 		keys[tibchost.StoreKey],
 		app.nodeKeeper,
-		authtypes.NewModuleAddress("gov").String(),
+		authority,
 	)
 	app.tibcKeeper = tibckeeper.NewKeeper(tibccorekeeper)
 	app.nftTransferKeeper = tibcnfttransferkeeper.NewKeeper(
@@ -749,6 +754,7 @@ func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	serviceGenState.Definitions = append(serviceGenState.Definitions, randomtypes.GetSvcDefinition())
 	genesisState[servicetypes.ModuleName] = app.appCodec.MustMarshalJSON(&serviceGenState)
 
+	app.upgradeKeeper.UpgradeKeeper().SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
@@ -890,7 +896,7 @@ func (app *IritaApp) BuildAnteHandler(encodingConfig simappparams.EncodingConfig
 		SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
 
 		// evm
-		EvmFeeMarketKeeper: app.FeeMarketKeeper,
+		FeeMarketKeeper: app.FeeMarketKeeper,
 		EvmKeeper:          app.EvmKeeper,
 	}
 

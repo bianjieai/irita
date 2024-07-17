@@ -1,5 +1,10 @@
 package app
 
+import (
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/spf13/cobra"
+)
+
 // Simulation parameter constants
 const (
 	StakePerAccount                        = "stake_per_account"
@@ -22,3 +27,14 @@ const (
 	OpWeightMsgBeginRedelegate             = "op_weight_msg_begin_redelegate"
 	OpWeightMsgUnjail                      = "op_weight_msg_unjail"
 )
+
+const (
+	flagAuthority = "authority"
+	defaultAuthority = "gov"
+)
+
+// AddStartFlags defines flags for the start of the application
+func AddStartFlags(startCmd *cobra.Command) {
+	authority := authtypes.NewModuleAddress(defaultAuthority).String()
+	startCmd.Flags().String(flagAuthority, authority, "authority of the module")
+}
