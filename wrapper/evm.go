@@ -14,8 +14,7 @@ import (
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
-	irismodtypes "github.com/irisnet/irismod/types"
+	tokentypes "mods.irisnet.org/modules/token/types"
 )
 
 var (
@@ -35,12 +34,12 @@ type evmKeeper struct {
 }
 
 // ApplyMessage implements types.EVMKeeper.
-func (e *evmKeeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*irismodtypes.Result, error) {
+func (e *evmKeeper) ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*tokentypes.Result, error) {
 	res, err := e.ek.ApplyMessage(ctx, msg, tracer, commit)
 	if err != nil {
 		return nil, err
 	}
-	return &irismodtypes.Result{
+	return &tokentypes.Result{
 		Hash:    res.Hash,
 		Logs:    evmtypes.LogsToEthereum(res.Logs),
 		Ret:     res.Ret,
@@ -55,7 +54,7 @@ func (e *evmKeeper) ChainID() *big.Int {
 }
 
 // EstimateGas implements types.EVMKeeper.
-func (e *evmKeeper) EstimateGas(ctx context.Context, req *irismodtypes.EthCallRequest) (uint64, error) {
+func (e *evmKeeper) EstimateGas(ctx context.Context, req *tokentypes.EthCallRequest) (uint64, error) {
 	res, err := e.ek.EstimateGas(ctx, &evmtypes.EthCallRequest{
 		Args:            req.Args,
 		GasCap:          req.GasCap,

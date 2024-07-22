@@ -73,7 +73,6 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	sdkupgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ethermintante "github.com/evmos/ethermint/app/ante"
 	srvflags "github.com/evmos/ethermint/server/flags"
@@ -84,28 +83,6 @@ import (
 	"github.com/evmos/ethermint/x/feemarket"
 	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
-	"github.com/irisnet/irismod/modules/mt"
-	mtkeeper "github.com/irisnet/irismod/modules/mt/keeper"
-	mttypes "github.com/irisnet/irismod/modules/mt/types"
-	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
-	nftmodule "github.com/irisnet/irismod/modules/nft/module"
-	nfttypes "github.com/irisnet/irismod/modules/nft/types"
-	"github.com/irisnet/irismod/modules/oracle"
-	oraclekeeper "github.com/irisnet/irismod/modules/oracle/keeper"
-	oracletypes "github.com/irisnet/irismod/modules/oracle/types"
-	"github.com/irisnet/irismod/modules/random"
-	randomkeeper "github.com/irisnet/irismod/modules/random/keeper"
-	randomtypes "github.com/irisnet/irismod/modules/random/types"
-	"github.com/irisnet/irismod/modules/record"
-	recordkeeper "github.com/irisnet/irismod/modules/record/keeper"
-	recordtypes "github.com/irisnet/irismod/modules/record/types"
-	"github.com/irisnet/irismod/modules/service"
-	servicekeeper "github.com/irisnet/irismod/modules/service/keeper"
-	servicetypes "github.com/irisnet/irismod/modules/service/types"
-	"github.com/irisnet/irismod/modules/token"
-	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
-	tokentypesv1 "github.com/irisnet/irismod/modules/token/types/v1"
 	"github.com/spf13/cast"
 	"iritamod.bianjie.ai/modules/genutil"
 	genutiltypes "iritamod.bianjie.ai/modules/genutil"
@@ -120,6 +97,28 @@ import (
 	"iritamod.bianjie.ai/modules/upgrade"
 	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
 	upgradetypes "iritamod.bianjie.ai/modules/upgrade/types"
+	"mods.irisnet.org/modules/mt"
+	mtkeeper "mods.irisnet.org/modules/mt/keeper"
+	mttypes "mods.irisnet.org/modules/mt/types"
+	"mods.irisnet.org/modules/nft"
+	nftkeeper "mods.irisnet.org/modules/nft/keeper"
+	nfttypes "mods.irisnet.org/modules/nft/types"
+	"mods.irisnet.org/modules/oracle"
+	oraclekeeper "mods.irisnet.org/modules/oracle/keeper"
+	oracletypes "mods.irisnet.org/modules/oracle/types"
+	"mods.irisnet.org/modules/random"
+	randomkeeper "mods.irisnet.org/modules/random/keeper"
+	randomtypes "mods.irisnet.org/modules/random/types"
+	"mods.irisnet.org/modules/record"
+	recordkeeper "mods.irisnet.org/modules/record/keeper"
+	recordtypes "mods.irisnet.org/modules/record/types"
+	"mods.irisnet.org/modules/service"
+	servicekeeper "mods.irisnet.org/modules/service/keeper"
+	servicetypes "mods.irisnet.org/modules/service/types"
+	"mods.irisnet.org/modules/token"
+	tokenkeeper "mods.irisnet.org/modules/token/keeper"
+	tokentypes "mods.irisnet.org/modules/token/types"
+	tokentypesv1 "mods.irisnet.org/modules/token/types/v1"
 )
 
 const (
@@ -174,7 +173,7 @@ var (
 		evidence.AppModuleBasic{},
 		record.AppModuleBasic{},
 		token.AppModuleBasic{},
-		nftmodule.AppModuleBasic{},
+		nft.AppModuleBasic{},
 		mt.AppModuleBasic{},
 		service.AppModuleBasic{},
 		oracle.AppModuleBasic{},
@@ -377,7 +376,7 @@ func NewIritaApp(
 	for _, h := range cast.ToIntSlice(appOpts.Get(server.FlagUnsafeSkipUpgrades)) {
 		skipUpgradeHeights[int64(h)] = true
 	}
-	sdkUpgradeKeeper := sdkupgradekeeper.NewKeeper(
+	app.upgradeKeeper = upgradekeeper.NewKeeper(
 		skipUpgradeHeights,
 		keys[upgradetypes.StoreKey],
 		appCodec,
@@ -385,7 +384,6 @@ func NewIritaApp(
 		app.BaseApp,
 		authority,
 	)
-	app.upgradeKeeper = upgradekeeper.NewKeeper(sdkUpgradeKeeper)
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -475,12 +473,12 @@ func NewIritaApp(
 	)
 	app.tibcKeeper = tibckeeper.NewKeeper(tibccorekeeper)
 	app.nftTransferKeeper = tibcnfttransferkeeper.NewKeeper(
-		appCodec, keys[tibcnfttypes.StoreKey], app.GetSubspace(tibcnfttypes.ModuleName),
+		appCodec, keys[tibcnfttypes.StoreKey],
 		app.accountKeeper, nftkeeper.NewLegacyKeeper(app.nftKeeper),
 		app.tibcKeeper.PacketKeeper, app.tibcKeeper.ClientKeeper,
 	)
 	app.mtTransferKeeper = tibcmttransferkeeper.NewKeeper(
-		appCodec, keys[tibcmttypes.StoreKey], app.GetSubspace(tibcmttypes.ModuleName),
+		appCodec, keys[tibcmttypes.StoreKey],
 		app.accountKeeper, app.mtKeeper,
 		app.tibcKeeper.PacketKeeper, app.tibcKeeper.ClientKeeper,
 	)
@@ -513,7 +511,7 @@ func NewIritaApp(
 		params.NewAppModule(app.paramsKeeper),
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper, app.GetSubspace(tokentypes.ModuleName)),
-		nftmodule.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
 		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper, app.GetSubspace(servicetypes.ModuleName)),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
@@ -667,7 +665,7 @@ func NewIritaApp(
 		cparams.NewAppModule(appCodec, app.paramsKeeper),
 		record.NewAppModule(appCodec, app.recordKeeper, app.accountKeeper, app.bankKeeper),
 		token.NewAppModule(appCodec, app.tokenKeeper, app.accountKeeper, app.bankKeeper, app.GetSubspace(tokentypes.ModuleName)),
-		nftmodule.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
+		nft.NewAppModule(appCodec, app.nftKeeper, app.accountKeeper, app.bankKeeper),
 		mt.NewAppModule(appCodec, app.mtKeeper, app.accountKeeper, app.bankKeeper),
 		service.NewAppModule(appCodec, app.serviceKeeper, app.accountKeeper, app.bankKeeper, app.GetSubspace(servicetypes.ModuleName)),
 		oracle.NewAppModule(appCodec, app.oracleKeeper, app.accountKeeper, app.bankKeeper),
@@ -751,10 +749,10 @@ func (app *IritaApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abc
 	app.appCodec.MustUnmarshalJSON(genesisState[servicetypes.ModuleName], &serviceGenState)
 	serviceGenState.Definitions = append(serviceGenState.Definitions, servicetypes.GenOraclePriceSvcDefinition())
 	serviceGenState.Bindings = append(serviceGenState.Bindings, servicetypes.GenOraclePriceSvcBinding(tokentypesv1.GetNativeToken().MinUnit))
-	serviceGenState.Definitions = append(serviceGenState.Definitions, randomtypes.GetSvcDefinition())
+	serviceGenState.Definitions = append(serviceGenState.Definitions, servicetypes.GetRandomSvcDefinition())
 	genesisState[servicetypes.ModuleName] = app.appCodec.MustMarshalJSON(&serviceGenState)
 
-	app.upgradeKeeper.UpgradeKeeper().SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+	app.upgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 

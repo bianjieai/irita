@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	ethante "github.com/evmos/ethermint/app/ante"
-	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
+	tokenkeeper "mods.irisnet.org/modules/token/keeper"
 
 	evmmoduleante "github.com/bianjieai/irita/modules/evm"
 )

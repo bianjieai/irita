@@ -6,7 +6,7 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/irisnet/irismod/modules/service"
+	"mods.irisnet.org/modules/service"
 
 	"iritamod.bianjie.ai/modules/node"
 )

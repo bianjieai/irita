@@ -194,12 +194,12 @@ func (ac appCreator) newApp(
 	appOpts servertypes.AppOptions,
 	) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
-	return app.NewIritaApp(
+	return app.NewIritaAppV2(
 		logger, 
 		db, 
 		traceStore, 
 		true,
-		ac.encCfg, // Ideally, we would reuse the one created by NewRootCmd.
+		app.DefaultDepinjectOptions(),
 		appOpts,
 		baseappOptions...,
 	)

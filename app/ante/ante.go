@@ -9,7 +9,7 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
+	tokenkeeper "mods.irisnet.org/modules/token/keeper"
 
 	ethante "github.com/evmos/ethermint/app/ante"
 )

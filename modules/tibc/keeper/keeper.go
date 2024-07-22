@@ -2,7 +2,7 @@ package keeper
 
 import (
 	tibckeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
-	nftkeeper "github.com/irisnet/irismod/modules/nft/keeper"
+	nftkeeper "mods.irisnet.org/modules/nft/keeper"
 )
 
 // Keeper defines each TICS keeper for TIBC

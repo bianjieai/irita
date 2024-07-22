@@ -5,7 +5,7 @@ go 1.19
 replace (
 	github.com/cometbft/cometbft => github.com/bianjieai/cometbft v0.37.5-irita-240628
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.47.12-irita-20240701
-	github.com/evmos/ethermint => github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240712094450-08ece3cc0349
+	github.com/evmos/ethermint => github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240722070835-b3635f161021
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
 )
@@ -13,18 +13,28 @@ replace (
 require (
 	cosmossdk.io/simapp v0.0.0-20230608160436-666c345ad23d
 	cosmossdk.io/tools/rosetta v0.2.1
-	github.com/bianjieai/tibc-go v0.5.0
+	github.com/bianjieai/tibc-go v0.5.1-0.20240710015305-5ebf9ca08920
 	github.com/cosmos/cosmos-sdk v0.47.12
-	github.com/irisnet/irismod v1.9.0
-	iritamod.bianjie.ai/modules/genutil v0.0.0-20240715030433-96110b2d4699
-	iritamod.bianjie.ai/modules/identity v0.0.0-20240715030433-96110b2d4699
-	iritamod.bianjie.ai/modules/node v0.0.0-20240715030433-96110b2d4699
-	iritamod.bianjie.ai/modules/params v0.0.0-20240715030433-96110b2d4699
-	iritamod.bianjie.ai/modules/slashing v0.0.0-20240715030433-96110b2d4699
-	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240715030433-96110b2d4699
+	iritamod.bianjie.ai/api v0.0.0-20240722082141-08d88a40c224
+	iritamod.bianjie.ai/modules/genutil v0.0.0-20240722082141-08d88a40c224
+	iritamod.bianjie.ai/modules/identity v0.0.0-20240722082141-08d88a40c224
+	iritamod.bianjie.ai/modules/node v0.0.0-20240722082141-08d88a40c224
+	iritamod.bianjie.ai/modules/params v0.0.0-20240722082141-08d88a40c224
+	iritamod.bianjie.ai/modules/slashing v0.0.0-20240722082141-08d88a40c224
+	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240722082141-08d88a40c224
+	mods.irisnet.org/modules/mt v0.0.0-20240705013837-55f906fb239e
+	mods.irisnet.org/modules/nft v0.0.0-20240705013837-55f906fb239e
+	mods.irisnet.org/modules/oracle v0.0.0-20240705013837-55f906fb239e
+	mods.irisnet.org/modules/random v0.0.0-20240705013837-55f906fb239e
+	mods.irisnet.org/modules/record v0.0.0-20240705013837-55f906fb239e
+	mods.irisnet.org/modules/service v0.0.0-20240705013837-55f906fb239e
+	mods.irisnet.org/modules/token v0.0.0-20240705013837-55f906fb239e
 )
 
 require (
+	cosmossdk.io/api v0.3.1
+	cosmossdk.io/core v0.5.1
+	cosmossdk.io/depinject v1.0.0-alpha.4
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/math v1.3.0
 	github.com/cometbft/cometbft v0.37.5
@@ -48,6 +58,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	golang.org/x/crypto v0.22.0
 	google.golang.org/grpc v1.62.1
+	mods.irisnet.org/api v0.0.0-20240628054110-4cb043e0238a
 )
 
 require (
@@ -56,9 +67,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v1.1.5 // indirect
 	cloud.google.com/go/storage v1.36.0 // indirect
-	cosmossdk.io/api v0.3.1 // indirect
-	cosmossdk.io/core v0.5.1 // indirect
-	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
 	cosmossdk.io/log v1.3.1 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -246,7 +254,7 @@ require (
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	iritamod.bianjie.ai/api v0.0.0-20240709020459-b21710d38ee1 // indirect
+	mods.irisnet.org/simapp v0.0.0-20240628054110-4cb043e0238a // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
