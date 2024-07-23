@@ -13,6 +13,8 @@ import (
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evm "github.com/evmos/ethermint/x/evm/vm"
+	"github.com/evmos/ethermint/x/evm/vm/geth"
 
 	tokentypes "mods.irisnet.org/modules/token/types"
 )
@@ -20,6 +22,14 @@ import (
 var (
 	_ tokentypes.EVMKeeper   = (*evmKeeper)(nil)
 )
+
+func ProvideEvmConstructor() evm.Constructor {
+	return geth.NewEVM
+}
+
+func ProvideEVMKeeper(evmKeeper *evmkeeper.Keeper) tokentypes.EVMKeeper {
+	return NewEVMKeeper(evmKeeper)
+}
 
 // NewEVMKeeper wraps the given evmkeeper.Keeper and returns a new evmKeeper.
 //

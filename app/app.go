@@ -11,7 +11,7 @@ import (
 	appante "github.com/bianjieai/irita/app/ante"
 	"github.com/bianjieai/irita/crypto/hd"
 	"github.com/bianjieai/irita/lite"
-	appkeeper "github.com/bianjieai/irita/modules/evm"
+	appevm "github.com/bianjieai/irita/modules/evm"
 	tibc "github.com/bianjieai/irita/modules/tibc"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
 	"github.com/bianjieai/irita/wrapper"
@@ -353,7 +353,7 @@ func NewIritaApp(
 	)
 	app.nodeKeeper = node.NewKeeper(appCodec, keys[nodetypes.StoreKey], app.GetSubspace(node.ModuleName))
 
-	stakingKeeper := wrapper.NewStakingKeeper(app.nodeKeeper)
+	stakingKeeper := wrapper.NewStakingKeeper(&app.nodeKeeper)
 	app.slashingKeeper = slashingkeeper.NewKeeper(
 		appCodec,
 		cdc,
@@ -456,7 +456,7 @@ func NewIritaApp(
 		authorityAddr,
 		app.accountKeeper,
 		app.bankKeeper,
-		appkeeper.WNodeKeeper{Keeper: app.nodeKeeper},
+		appevm.NewStakingKeeper(app.nodeKeeper),
 		app.FeeMarketKeeper,
 		nil,
 		geth.NewEVM,

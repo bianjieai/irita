@@ -5,7 +5,8 @@ go 1.19
 replace (
 	github.com/cometbft/cometbft => github.com/bianjieai/cometbft v0.37.5-irita-240628
 	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.47.12-irita-20240701
-	github.com/evmos/ethermint => github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240722070835-b3635f161021
+	github.com/evmos/ethermint => /Users/dreamer/workspace/github/bianjieai/ethermint
+	// github.com/evmos/ethermint => github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240723082239-bd28be056dc7
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
 )
@@ -15,13 +16,13 @@ require (
 	cosmossdk.io/tools/rosetta v0.2.1
 	github.com/bianjieai/tibc-go v0.5.1-0.20240710015305-5ebf9ca08920
 	github.com/cosmos/cosmos-sdk v0.47.12
-	iritamod.bianjie.ai/api v0.0.0-20240722082141-08d88a40c224
-	iritamod.bianjie.ai/modules/genutil v0.0.0-20240722082141-08d88a40c224
-	iritamod.bianjie.ai/modules/identity v0.0.0-20240722082141-08d88a40c224
-	iritamod.bianjie.ai/modules/node v0.0.0-20240722082141-08d88a40c224
-	iritamod.bianjie.ai/modules/params v0.0.0-20240722082141-08d88a40c224
-	iritamod.bianjie.ai/modules/slashing v0.0.0-20240722082141-08d88a40c224
-	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240722082141-08d88a40c224
+	iritamod.bianjie.ai/api v0.0.0-20240723085042-0822c26e608e
+	iritamod.bianjie.ai/modules/genutil v0.0.0-20240723085042-0822c26e608e
+	iritamod.bianjie.ai/modules/identity v0.0.0-20240723085042-0822c26e608e
+	iritamod.bianjie.ai/modules/node v0.0.0-20240723085042-0822c26e608e
+	iritamod.bianjie.ai/modules/params v0.0.0-20240723085042-0822c26e608e
+	iritamod.bianjie.ai/modules/slashing v0.0.0-20240723085042-0822c26e608e
+	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240723085042-0822c26e608e
 	mods.irisnet.org/modules/mt v0.0.0-20240705013837-55f906fb239e
 	mods.irisnet.org/modules/nft v0.0.0-20240705013837-55f906fb239e
 	mods.irisnet.org/modules/oracle v0.0.0-20240705013837-55f906fb239e

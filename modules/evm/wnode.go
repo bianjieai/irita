@@ -4,19 +4,27 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 
 	"iritamod.bianjie.ai/modules/node"
 )
 
-type WNodeKeeper struct {
+type stakingKeeper struct {
 	node.Keeper
 }
 
-func (node WNodeKeeper) GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool) {
+// NewStakingKeeper creates a new instance of the stakingKeeper struct.
+//
+// It takes a `node.Keeper` as a parameter and returns a `evmtypes.StakingKeeper`.
+func NewStakingKeeper(k node.Keeper) evmtypes.StakingKeeper {
+	return stakingKeeper{k}
+}
+
+func (node stakingKeeper) GetHistoricalInfo(ctx sdk.Context, height int64) (stakingtypes.HistoricalInfo, bool) {
 	return node.Keeper.GetHistoricalInfo(ctx, height)
 }
 
-func (node WNodeKeeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool) {
+func (node stakingKeeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator stakingtypes.Validator, found bool) {
 	addr, found := node.Keeper.GetValidatorByConsAddr(ctx, consAddr)
 	if !found {
 		return stakingtypes.Validator{}, false

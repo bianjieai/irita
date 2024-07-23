@@ -4,27 +4,48 @@ import (
 	"cosmossdk.io/math"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
+
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 )
 
 var (
 	_ slashingtypes.StakingKeeper = (*StakingKeeper)(nil)
 	_ evidencetypes.StakingKeeper = (*StakingKeeper)(nil)
+	_ evmtypes.StakingKeeper = (*StakingKeeper)(nil)
 )
+
+type StakingKeeperI interface {
+	slashingtypes.StakingKeeper
+	evidencetypes.StakingKeeper
+	evmtypes.StakingKeeper
+}
+
+func ProvideSlashingStakingKeeper(nodeKeeper *nodekeeper.Keeper) slashingtypes.StakingKeeper {
+	return NewStakingKeeper(nodeKeeper)
+}
+
+func ProvideEvidenceStakingKeeper(nodeKeeper *nodekeeper.Keeper) evidencetypes.StakingKeeper {
+	return NewStakingKeeper(nodeKeeper)
+}
+
+func ProvideEvmStakingKeeper(nodeKeeper *nodekeeper.Keeper) evmtypes.StakingKeeper {
+	return NewStakingKeeper(nodeKeeper)
+}
 
 // StakingKeeper implements the staking keeper interface.
 type StakingKeeper struct {
-	nk nodekeeper.Keeper
+	nk *nodekeeper.Keeper
 }
 
 // NewStakingKeeper creates a new instance of the stakingKeeper struct.
 //
 // It takes a nodekeeper.Keeper as a parameter and returns a pointer to the stakingKeeper struct.
-func NewStakingKeeper(nk nodekeeper.Keeper) *StakingKeeper {
+func NewStakingKeeper(nk *nodekeeper.Keeper) StakingKeeperI {
 	return &StakingKeeper{
 		nk: nk,
 	}
@@ -126,4 +147,26 @@ func (s *StakingKeeper) GetParams(ctx sdk.Context) types.Params {
 		HistoricalEntries: params.HistoricalEntries,
 		MinCommissionRate: math.LegacyZeroDec(),
 	}
+}
+
+// GetHistoricalInfo implements types.StakingKeeper.
+func (s *StakingKeeper) GetHistoricalInfo(ctx sdk.Context, height int64) (types.HistoricalInfo, bool) {
+	return s.nk.GetHistoricalInfo(ctx, height)
+}
+
+// GetValidatorByConsAddr implements types.StakingKeeper.
+func (s *StakingKeeper) GetValidatorByConsAddr(ctx sdk.Context, consAddr sdk.ConsAddress) (validator types.Validator, found bool) {
+	addr, found := s.nk.GetValidatorByConsAddr(ctx, consAddr)
+	if !found {
+		return types.Validator{}, false
+	}
+	validator.Jailed = addr.Jailed
+
+	_, i, err := bech32.DecodeAndConvert(addr.Operator)
+	if err != nil {
+		return types.Validator{}, false
+	}
+	validator.OperatorAddress = sdk.ValAddress(i).String()
+
+	return validator, found
 }

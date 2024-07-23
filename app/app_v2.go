@@ -5,10 +5,7 @@ import (
 	"os"
 
 	"cosmossdk.io/depinject"
-	"github.com/bianjieai/irita/crypto/hd"
-	appkeeper "github.com/bianjieai/irita/modules/evm"
-	"github.com/bianjieai/irita/wrapper"
-	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
+
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -25,35 +22,32 @@ import (
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	cosmosparamstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+
+	identitykeeper "iritamod.bianjie.ai/modules/identity/keeper"
+	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
+	paramskeeper "iritamod.bianjie.ai/modules/params/keeper"
+	slashingkeeper "iritamod.bianjie.ai/modules/slashing/keeper"
+	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
+
 	mtkeeper "mods.irisnet.org/modules/mt/keeper"
 	nftkeeper "mods.irisnet.org/modules/nft/keeper"
 	oraclekeeper "mods.irisnet.org/modules/oracle/keeper"
 	randomkeeper "mods.irisnet.org/modules/random/keeper"
 	recordkeeper "mods.irisnet.org/modules/record/keeper"
-	recordtypes "mods.irisnet.org/modules/record/types"
 	servicekeeper "mods.irisnet.org/modules/service/keeper"
-	servicetypes "mods.irisnet.org/modules/service/types"
 	tokenkeeper "mods.irisnet.org/modules/token/keeper"
-	tokentypes "mods.irisnet.org/modules/token/types"
-	identitykeeper "iritamod.bianjie.ai/modules/identity/keeper"
-	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
-	nodetypes "iritamod.bianjie.ai/modules/node/types"
-	slashingkeeper "iritamod.bianjie.ai/modules/slashing/keeper"
-	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
+
+	"github.com/bianjieai/irita/crypto/hd"
+	"github.com/bianjieai/irita/wrapper"
 )
 
 var _ servertypes.Application = (*IritaAppV2)(nil)
@@ -84,7 +78,7 @@ type IritaAppV2 struct {
 	OracleKeeper          oraclekeeper.Keeper
 	RandomKeeper          randomkeeper.Keeper
 	IdentityKeeper        identitykeeper.Keeper
-	NodeKeeper            nodekeeper.Keeper
+	NodeKeeper            *nodekeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	CapabilityKeeper      *capabilitykeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
@@ -123,21 +117,18 @@ func NewIritaAppV2(
 
 		providers = append(depInjectOptions.Providers,
 			appOpts,
-			func(nodeKeeper nodekeeper.Keeper) *wrapper.StakingKeeper {
-				return wrapper.NewStakingKeeper(nodeKeeper)
-			},
-
-			func(evmKeeper *evmkeeper.Keeper) tokentypes.EVMKeeper {
-				return wrapper.NewEVMKeeper(evmKeeper)
-			},
-			
-			func(nodeKeeper nodekeeper.Keeper) evmtypes.StakingKeeper {
-				return appkeeper.WNodeKeeper{Keeper: nodeKeeper}
-			},
 		)
 		// merge the AppConfig and other configuration in one config
 		appConfig = depinject.Configs(
 			depInjectOptions.Config,
+			depinject.Provide(
+				wrapper.ProvideSlashingStakingKeeper, 
+				wrapper.ProvideEvidenceStakingKeeper,
+				wrapper.ProvideEvmStakingKeeper,
+				wrapper.ProvideEVMKeeper, 
+				wrapper.ProvideICS20Keeper, 
+				wrapper.ProvideEvmConstructor,
+			),
 			depinject.Supply(
 				providers...,
 
@@ -237,7 +228,7 @@ func NewIritaAppV2(
 		os.Exit(1)
 	}
 
-	app.initParamsKeeper()
+	// app.initParamsKeeper()
 
 	/****  Module Options ****/
 
@@ -295,22 +286,7 @@ func (app *IritaAppV2) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 // getSubspace returns a param subspace for a given module name.
 //
 // NOTE: This is solely to be used for testing purposes.
-func (app *IritaAppV2) getSubspace(moduleName string) paramstypes.Subspace {
+func (app *IritaAppV2) getSubspace(moduleName string) cosmosparamstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
-}
-
-// initParamsKeeper init params keeper and its subspaces
-func (app *IritaAppV2) initParamsKeeper() {
-	app.ParamsKeeper.Subspace(authtypes.ModuleName)
-	app.ParamsKeeper.Subspace(banktypes.ModuleName)
-	app.ParamsKeeper.Subspace(nodetypes.ModuleName)
-	app.ParamsKeeper.Subspace(slashingtypes.ModuleName)
-	app.ParamsKeeper.Subspace(crisistypes.ModuleName)
-	app.ParamsKeeper.Subspace(tokentypes.ModuleName)
-	app.ParamsKeeper.Subspace(recordtypes.ModuleName)
-	app.ParamsKeeper.Subspace(servicetypes.ModuleName)
-	app.ParamsKeeper.Subspace(tibchost.ModuleName)
-	app.ParamsKeeper.Subspace(evmtypes.ModuleName)
-	app.ParamsKeeper.Subspace(feemarkettypes.ModuleName)
 }

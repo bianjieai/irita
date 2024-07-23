@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/cometbft/cometbft/crypto/algo"
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
@@ -11,6 +12,7 @@ import (
 )
 
 func main() {
+	algo.Algo = algo.SM2
 	rootCmd, _ := cmd.NewRootCmd()
 	if err := svrcmd.Execute(rootCmd,"", app.DefaultNodeHome); err != nil {
 		switch e := err.(type) {
