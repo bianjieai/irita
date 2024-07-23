@@ -132,7 +132,6 @@ var storeKeys = []string{
 	crisistypes.StoreKey,
 	paramstypes.StoreKey,
 	consensustypes.StoreKey,
-	upgradetypes.StoreKey,
 	feegrant.StoreKey,
 	evidencetypes.StoreKey,
 	recordtypes.StoreKey,
@@ -287,12 +286,12 @@ type IritaApp struct {
 
 // NewIritaApp returns a reference to an initialized IritaApp.
 func NewIritaApp(
-	logger log.Logger, 
-	db dbm.DB, 
-	traceStore io.Writer, 
-	loadLatest bool, 
-	encodingConfig simappparams.EncodingConfig, 
-	appOpts servertypes.AppOptions, 
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	loadLatest bool,
+	encodingConfig simappparams.EncodingConfig,
+	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *IritaApp {
 	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
@@ -895,7 +894,7 @@ func (app *IritaApp) BuildAnteHandler(encodingConfig simappparams.EncodingConfig
 
 		// evm
 		FeeMarketKeeper: app.FeeMarketKeeper,
-		EvmKeeper:          app.EvmKeeper,
+		EvmKeeper:       app.EvmKeeper,
 	}
 
 	if appOptions.anteHandler != nil {

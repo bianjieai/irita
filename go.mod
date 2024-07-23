@@ -18,9 +18,9 @@ require (
 	iritamod.bianjie.ai/api v0.0.0-20240722082141-08d88a40c224
 	iritamod.bianjie.ai/modules/genutil v0.0.0-20240722082141-08d88a40c224
 	iritamod.bianjie.ai/modules/identity v0.0.0-20240722082141-08d88a40c224
-	iritamod.bianjie.ai/modules/node v0.0.0-20240722082141-08d88a40c224
+	iritamod.bianjie.ai/modules/node v0.0.0-20240723054119-0cfdc4351765
 	iritamod.bianjie.ai/modules/params v0.0.0-20240722082141-08d88a40c224
-	iritamod.bianjie.ai/modules/slashing v0.0.0-20240722082141-08d88a40c224
+	iritamod.bianjie.ai/modules/slashing v0.0.0-20240723054119-0cfdc4351765
 	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240722082141-08d88a40c224
 	mods.irisnet.org/modules/mt v0.0.0-20240705013837-55f906fb239e
 	mods.irisnet.org/modules/nft v0.0.0-20240705013837-55f906fb239e

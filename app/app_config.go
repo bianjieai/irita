@@ -10,6 +10,7 @@ import (
 	crisismodulev1 "cosmossdk.io/api/cosmos/crisis/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
+	stakingmodulev1 "cosmossdk.io/api/cosmos/staking/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
 	"cosmossdk.io/core/appconfig"
 	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
@@ -26,6 +27,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/group"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmmodulev1 "github.com/evmos/ethermint/api/ethermint/evm/module/v1"
 	feemarketmodulev1 "github.com/evmos/ethermint/api/ethermint/feemarket/module/v1"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
@@ -56,16 +58,20 @@ import (
 	upgradetypes "iritamod.bianjie.ai/modules/upgrade/types"
 
 	_ "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer" // import for side-effects
-	_ "iritamod.bianjie.ai/modules/genutil"                        // import for side-effects
-	_ "iritamod.bianjie.ai/modules/identity"                       // import for side-effects
-	_ "iritamod.bianjie.ai/modules/node"                           // import for side-effects
-	_ "iritamod.bianjie.ai/modules/upgrade"                        // import for side-effects
-	_ "mods.irisnet.org/modules/mt"                                // import for side-effects
-	_ "mods.irisnet.org/modules/oracle"                            // import for side-effects
-	_ "mods.irisnet.org/modules/random"                            // import for side-effects
-	_ "mods.irisnet.org/modules/record"                            // import for side-effects
-	_ "mods.irisnet.org/modules/service"                           // import for side-effects
-	_ "mods.irisnet.org/modules/token"                             // import for side-effects
+	_ "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
+	_ "github.com/cosmos/cosmos-sdk/x/capability"
+	_ "github.com/cosmos/cosmos-sdk/x/slashing"
+	_ "github.com/cosmos/cosmos-sdk/x/staking"
+	_ "iritamod.bianjie.ai/modules/genutil"  // import for side-effects
+	_ "iritamod.bianjie.ai/modules/identity" // import for side-effects
+	_ "iritamod.bianjie.ai/modules/node"     // import for side-effects
+	_ "iritamod.bianjie.ai/modules/upgrade"  // import for side-effects
+	_ "mods.irisnet.org/modules/mt"          // import for side-effects
+	_ "mods.irisnet.org/modules/oracle"      // import for side-effects
+	_ "mods.irisnet.org/modules/random"      // import for side-effects
+	_ "mods.irisnet.org/modules/record"      // import for side-effects
+	_ "mods.irisnet.org/modules/service"     // import for side-effects
+	_ "mods.irisnet.org/modules/token"       // import for side-effects
 )
 
 var (
@@ -78,20 +84,20 @@ var (
 	// can do so safely.
 	genesisModuleOrder = []string{
 		capabilitytypes.ModuleName,
-		authtypes.ModuleName, 
+		authtypes.ModuleName,
 		banktypes.ModuleName,
-		nodetypes.ModuleName, 
+		nodetypes.ModuleName,
 		slashingtypes.ModuleName,
-		crisistypes.ModuleName, 
-		genutiltypes.ModuleName, 
+		crisistypes.ModuleName,
+		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
-		feegrant.ModuleName, 
-		paramstypes.ModuleName, 
+		feegrant.ModuleName,
+		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		consensustypes.ModuleName,
 		mttypes.ModuleName,
 		nfttypes.ModuleName,
-		servicetypes.ModuleName, 
+		servicetypes.ModuleName,
 		oracletypes.ModuleName,
 		randomtypes.ModuleName,
 		recordtypes.ModuleName,
@@ -99,8 +105,8 @@ var (
 		tokentypes.ModuleName,
 		tibchost.ModuleName,
 		tibcnfttypes.ModuleName,
-	    tibcmttypes.ModuleName,
-		evmtypes.ModuleName, 
+		tibcmttypes.ModuleName,
+		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
 	}
 
@@ -113,6 +119,8 @@ var (
 		{Account: servicetypes.RequestAccName},
 		{Account: servicetypes.FeeCollectorName, Permissions: []string{authtypes.Burner}},
 		{Account: tokentypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: stakingtypes.BondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
+		{Account: stakingtypes.NotBondedPoolName, Permissions: []string{authtypes.Burner, stakingtypes.ModuleName}},
 	}
 
 	// blocked account addresses
@@ -122,7 +130,7 @@ var (
 		servicetypes.RequestAccName,
 		servicetypes.FeeCollectorName,
 		tokentypes.ModuleName,
-		evmtypes.ModuleName, 
+		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
 		// We allow the following module accounts to receive funds:
 		// govtypes.ModuleName
@@ -160,7 +168,7 @@ var (
 						recordtypes.ModuleName,
 						tokentypes.ModuleName,
 						consensustypes.ModuleName,
-						evmtypes.ModuleName, 
+						evmtypes.ModuleName,
 						feemarkettypes.ModuleName,
 					},
 					EndBlockers: []string{
@@ -185,7 +193,7 @@ var (
 						randomtypes.ModuleName,
 						recordtypes.ModuleName,
 						tokentypes.ModuleName,
-						evmtypes.ModuleName, 
+						evmtypes.ModuleName,
 						feemarkettypes.ModuleName,
 					},
 					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
@@ -303,9 +311,12 @@ var (
 				}),
 			},
 			{
-				Name: feemarkettypes.ModuleName,
-				Config: appconfig.WrapAny(&feemarketmodulev1.Module{
-				}),
+				Name:   feemarkettypes.ModuleName,
+				Config: appconfig.WrapAny(&feemarketmodulev1.Module{}),
+			},
+			{
+				Name:   stakingtypes.ModuleName,
+				Config: appconfig.WrapAny(&stakingmodulev1.Module{}),
 			},
 		},
 	})

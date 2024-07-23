@@ -32,13 +32,18 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	identitykeeper "iritamod.bianjie.ai/modules/identity/keeper"
+	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
+	nodetypes "iritamod.bianjie.ai/modules/node/types"
+	paramskeeper "iritamod.bianjie.ai/modules/params/keeper"
+	slashingkeeper "iritamod.bianjie.ai/modules/slashing/keeper"
+	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
 	mtkeeper "mods.irisnet.org/modules/mt/keeper"
 	nftkeeper "mods.irisnet.org/modules/nft/keeper"
 	oraclekeeper "mods.irisnet.org/modules/oracle/keeper"
@@ -49,11 +54,6 @@ import (
 	servicetypes "mods.irisnet.org/modules/service/types"
 	tokenkeeper "mods.irisnet.org/modules/token/keeper"
 	tokentypes "mods.irisnet.org/modules/token/types"
-	identitykeeper "iritamod.bianjie.ai/modules/identity/keeper"
-	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
-	nodetypes "iritamod.bianjie.ai/modules/node/types"
-	slashingkeeper "iritamod.bianjie.ai/modules/slashing/keeper"
-	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
 )
 
 var _ servertypes.Application = (*IritaAppV2)(nil)
@@ -130,7 +130,7 @@ func NewIritaAppV2(
 			func(evmKeeper *evmkeeper.Keeper) tokentypes.EVMKeeper {
 				return wrapper.NewEVMKeeper(evmKeeper)
 			},
-			
+
 			func(nodeKeeper nodekeeper.Keeper) evmtypes.StakingKeeper {
 				return appkeeper.WNodeKeeper{Keeper: nodeKeeper}
 			},

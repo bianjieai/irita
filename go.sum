@@ -1965,12 +1965,12 @@ iritamod.bianjie.ai/modules/genutil v0.0.0-20240722082141-08d88a40c224 h1:RZsUM8
 iritamod.bianjie.ai/modules/genutil v0.0.0-20240722082141-08d88a40c224/go.mod h1:ybc3W8i7yqzvJBcWZ7FchKPfCqrz9IPX3R5VAnsu4ZA=
 iritamod.bianjie.ai/modules/identity v0.0.0-20240722082141-08d88a40c224 h1:ZPFQM2p8ZxYMeomsIS+frouqeN6v9GLpLXRC5SHc1XA=
 iritamod.bianjie.ai/modules/identity v0.0.0-20240722082141-08d88a40c224/go.mod h1:mbQHytjd/re1E/TyHb8Tl6ILhDBdPQtrxpey0g6gmto=
-iritamod.bianjie.ai/modules/node v0.0.0-20240722082141-08d88a40c224 h1:kScAvTCa5XfH1+XJiPZ0vBxMVhxH/OKpP0RO4YmqR98=
-iritamod.bianjie.ai/modules/node v0.0.0-20240722082141-08d88a40c224/go.mod h1:TtNdcDwQjuTujovq3jpJNZ2WGxFtTx4GtC+YJL1iOxQ=
+iritamod.bianjie.ai/modules/node v0.0.0-20240723054119-0cfdc4351765 h1:P8Ad6oF/UdERvZf2Ui6Y93hcW2gdrWHjsvWjaF6gwZE=
+iritamod.bianjie.ai/modules/node v0.0.0-20240723054119-0cfdc4351765/go.mod h1:kYET+nPDZqcAaABGwWbJopV1+eckv3itaYIchTw4cCk=
 iritamod.bianjie.ai/modules/params v0.0.0-20240722082141-08d88a40c224 h1:yeooQQXIIb4Kgz+cOXvwzBEl2N3k1nhztrat7hWYpSE=
 iritamod.bianjie.ai/modules/params v0.0.0-20240722082141-08d88a40c224/go.mod h1:RaDtlzfFZ31tPm/Tc90zH5hJb3uNWI3LRMLpSTk5o5k=
-iritamod.bianjie.ai/modules/slashing v0.0.0-20240722082141-08d88a40c224 h1:Q6gAxy6trX7bdRMqaU3z/paf3bCYx9P937/mVGfDWiM=
-iritamod.bianjie.ai/modules/slashing v0.0.0-20240722082141-08d88a40c224/go.mod h1:OHndMemQbMIZZqpT92X03WAJ3De/zlHKSYGas6Yw6nI=
+iritamod.bianjie.ai/modules/slashing v0.0.0-20240723054119-0cfdc4351765 h1:HuxiR9lcmmbsxk6pXVjbi3hNImIn5nyTjm0OpRJ+NAc=
+iritamod.bianjie.ai/modules/slashing v0.0.0-20240723054119-0cfdc4351765/go.mod h1:11d6JtU57ky+IpMTjPZGd7CQe6rM9FmIG7ejNHt2N5E=
 iritamod.bianjie.ai/modules/upgrade v0.0.0-20240722082141-08d88a40c224 h1:yZfir6D8s/HXBULkk7Edgwpwb4VvO96SmyN3Xc0XSKA=
 iritamod.bianjie.ai/modules/upgrade v0.0.0-20240722082141-08d88a40c224/go.mod h1:qSTvq4DthUf6rvtBGjC4/ui9KyiQN2bdfEd0cLywx8g=
 iritamod.bianjie.ai/simapp v0.0.0-20240715024259-c9745cbb9d78 h1:IgLToAIqLiWHOvpVuV4JSRWWLKVs6P+fvVnB73sdglg=
