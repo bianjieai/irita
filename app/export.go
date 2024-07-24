@@ -28,7 +28,7 @@ func (app *IritaApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowed
 		return servertypes.ExportedApp{}, err
 	}
 
-	validators := node.WriteValidators(ctx, app.nodeKeeper)
+	validators := node.WriteValidators(ctx, *app.nodeKeeper)
 	return servertypes.ExportedApp{
 		AppState:        appState,
 		Validators:      validators,

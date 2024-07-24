@@ -260,7 +260,7 @@ type IritaApp struct {
 	oracleKeeper          oraclekeeper.Keeper
 	randomKeeper          randomkeeper.Keeper
 	identityKeeper        identitykeeper.Keeper
-	nodeKeeper            nodekeeper.Keeper
+	nodeKeeper            *nodekeeper.Keeper
 	feeGrantKeeper        feegrantkeeper.Keeper
 	capabilityKeeper      *capabilitykeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
@@ -353,7 +353,7 @@ func NewIritaApp(
 	)
 	app.nodeKeeper = node.NewKeeper(appCodec, keys[nodetypes.StoreKey], app.GetSubspace(node.ModuleName))
 
-	stakingKeeper := wrapper.NewStakingKeeper(&app.nodeKeeper)
+	stakingKeeper := wrapper.NewStakingKeeper(app.nodeKeeper)
 	app.slashingKeeper = slashingkeeper.NewKeeper(
 		appCodec,
 		cdc,
@@ -432,7 +432,7 @@ func NewIritaApp(
 
 	app.randomKeeper = randomkeeper.NewKeeper(appCodec, keys[randomtypes.StoreKey], app.bankKeeper, app.serviceKeeper)
 
-	app.nodeKeeper = *app.nodeKeeper.SetHooks(
+	app.nodeKeeper = app.nodeKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(app.slashingKeeper.Hooks()),
 	)
 
@@ -456,7 +456,7 @@ func NewIritaApp(
 		authorityAddr,
 		app.accountKeeper,
 		app.bankKeeper,
-		appevm.NewStakingKeeper(app.nodeKeeper),
+		appevm.NewStakingKeeper(*app.nodeKeeper),
 		app.FeeMarketKeeper,
 		nil,
 		geth.NewEVM,

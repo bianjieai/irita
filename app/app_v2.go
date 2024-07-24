@@ -122,12 +122,13 @@ func NewIritaAppV2(
 		appConfig = depinject.Configs(
 			depInjectOptions.Config,
 			depinject.Provide(
-				wrapper.ProvideSlashingStakingKeeper, 
+				wrapper.ProvideSlashingStakingKeeper,
 				wrapper.ProvideEvidenceStakingKeeper,
 				wrapper.ProvideEvmStakingKeeper,
-				wrapper.ProvideEVMKeeper, 
-				wrapper.ProvideICS20Keeper, 
+				wrapper.ProvideEVMKeeper,
+				wrapper.ProvideICS20Keeper,
 				wrapper.ProvideEvmConstructor,
+				wrapper.ProvideStakingHooks,
 			),
 			depinject.Supply(
 				providers...,
