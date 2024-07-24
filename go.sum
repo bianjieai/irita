@@ -290,6 +290,8 @@ github.com/bianjieai/cometbft v0.37.5-irita-240628 h1:ztIGnCj1zQ+H4zbEwmjzaEnXcP
 github.com/bianjieai/cometbft v0.37.5-irita-240628/go.mod h1:IBMt2O+RVs6kVJQ4/2QYdAmHQtMSX5ynfRrTu9ghCeA=
 github.com/bianjieai/cosmos-sdk v0.47.12-irita-20240701 h1:P01Cf16brUHKfRCkTlyn1ufM8Fr0a8YCYtoPNKHBQ2E=
 github.com/bianjieai/cosmos-sdk v0.47.12-irita-20240701/go.mod h1:Gd3PnQWerNtAZEJT6FbdOfxILK68AT8L9zZSRb9WMok=
+github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240723100932-1e8e8edcb552 h1:cXV2906eVv5iii2ekRNwyplRwDYg8c57SJU8BPi2HSc=
+github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240723100932-1e8e8edcb552/go.mod h1:04OAz7IUzWNLtDLJWiGQMPLwmdQ1XjlWJUb/993+QHo=
 github.com/bianjieai/tibc-go v0.5.1-0.20240710015305-5ebf9ca08920 h1:HGL+3poZobbtkjwAP0JwtlUxD4QUtyQlzXqZ/zbDLKE=
 github.com/bianjieai/tibc-go v0.5.1-0.20240710015305-5ebf9ca08920/go.mod h1:pAl6C6Fu4Rq4eWLkkMELMvPE8gJplv2ksvbYr6mPmt4=
 github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40/go.mod h1:8rLXio+WjiTceGBHIoTvn60HIbs7Hm7bcHjyrSqYB9c=
