@@ -6,9 +6,8 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"mods.irisnet.org/modules/service"
-
 	"iritamod.bianjie.ai/modules/node"
+	"mods.irisnet.org/modules/service"
 )
 
 // ExportAppStateAndValidators export the state of irita for a genesis file

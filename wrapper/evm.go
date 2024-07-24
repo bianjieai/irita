@@ -6,21 +6,18 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
-
 	"github.com/evmos/ethermint/crypto/ethsecp256k1"
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	evm "github.com/evmos/ethermint/x/evm/vm"
 	"github.com/evmos/ethermint/x/evm/vm/geth"
-
 	tokentypes "mods.irisnet.org/modules/token/types"
 )
 
 var (
-	_ tokentypes.EVMKeeper   = (*evmKeeper)(nil)
+	_ tokentypes.EVMKeeper = (*evmKeeper)(nil)
 )
 
 func ProvideEvmConstructor() evm.Constructor {

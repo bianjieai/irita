@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
-
 	"iritamod.bianjie.ai/modules/genutil"
 	"iritamod.bianjie.ai/modules/node"
 )

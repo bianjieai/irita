@@ -9,9 +9,8 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	tokenkeeper "mods.irisnet.org/modules/token/keeper"
-
 	ethante "github.com/evmos/ethermint/app/ante"
+	tokenkeeper "mods.irisnet.org/modules/token/keeper"
 )
 
 type HandlerOptions struct {

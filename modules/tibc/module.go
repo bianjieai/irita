@@ -30,7 +30,6 @@ func (AppModule) GetTxCmd() *cobra.Command {
 	return cli.NewTxCmd()
 }
 
-
 // RegisterInterfaces registers module concrete types into protobuf Any.
 func (am AppModule) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)

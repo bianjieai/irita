@@ -18,7 +18,6 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
 	"iritamod.bianjie.ai/modules/genutil"
 	"iritamod.bianjie.ai/modules/node"
 	cautil "iritamod.bianjie.ai/modules/node/utils/ca"

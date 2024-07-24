@@ -3,7 +3,6 @@ package hd
 import (
 	cosmoshd "github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-
 	ethd "github.com/evmos/ethermint/crypto/hd"
 )
 

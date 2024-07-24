@@ -10,7 +10,9 @@ import (
 )
 
 type AddModuleFun func(app *IritaApp, mm *module.Manager, keys map[string]*storetypes.KVStoreKey)
+
 type AnteHandlerFun func(app *IritaApp, handlerOptions appante.HandlerOptions) sdk.AnteHandler
+
 type RegisterUpgradePlanFun func(app *IritaApp, configurator module.Configurator, mm *module.Manager)
 
 type IritaAppOptions struct {
@@ -30,7 +32,7 @@ func NewAppOptions(addModule AddModuleFun, anteHandler AnteHandlerFun, registerU
 	}
 }
 
-// DepinjectOptions are passed to the app on creation 
+// DepinjectOptions are passed to the app on creation
 type DepinjectOptions struct {
 	Config    depinject.Config
 	Providers []interface{}

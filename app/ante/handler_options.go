@@ -16,7 +16,7 @@ func newEthAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ethante.NewEthMempoolFeeDecorator(options.EvmKeeper), // Check eth effective gas price against minimal-gas-prices
 		ethante.NewEthValidateBasicDecorator(options.EvmKeeper),
 		ethante.NewEthAccountVerificationDecorator(options.AccountKeeper, options.EvmKeeper),
-		ethante.NewEthGasConsumeDecorator(options.EvmKeeper,options.MaxTxGasWanted),
+		ethante.NewEthGasConsumeDecorator(options.EvmKeeper, options.MaxTxGasWanted),
 		ethante.NewCanTransferDecorator(options.EvmKeeper),
 		ethante.NewEthIncrementSenderSequenceDecorator(options.AccountKeeper), // innermost AnteDecorator.
 
@@ -33,7 +33,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
 		ante.NewSetPubKeyDecorator(options.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper,nil),
+		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, nil),
 		ante.NewSigGasConsumeDecorator(options.AccountKeeper, options.SigGasConsumer),
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
@@ -58,7 +58,7 @@ func newCosmosAnteHandlerEip712(options HandlerOptions) sdk.AnteHandler {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper,nil),
+		ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, nil),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),

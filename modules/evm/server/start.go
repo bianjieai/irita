@@ -419,9 +419,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, opts StartOpt
 		}
 	}
 
-
-	
-	if config.API.Enable || config.JSONRPC.Enable{
+	if config.API.Enable || config.JSONRPC.Enable {
 		genDoc, err := genDocProvider()
 		if err != nil {
 			return err
@@ -521,8 +519,6 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, opts StartOpt
 		}
 	}
 
-	
-
 	var (
 		httpSrv     *http.Server
 		httpSrvDone chan struct{}
@@ -538,7 +534,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, opts StartOpt
 
 		tmEndpoint := "/websocket"
 		tmRPCAddr := cfg.RPC.ListenAddress
-		httpSrv, httpSrvDone, err = StartJSONRPC(ctx, clientCtx, tmRPCAddr, tmEndpoint, &config,idxer)
+		httpSrv, httpSrvDone, err = StartJSONRPC(ctx, clientCtx, tmRPCAddr, tmEndpoint, &config, idxer)
 		if err != nil {
 			return err
 		}

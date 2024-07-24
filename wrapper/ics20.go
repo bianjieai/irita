@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	tokentypes "mods.irisnet.org/modules/token/types"
 )
+
 type MockICS20 struct{}
 
 // HasTrace implements types.ICS20Keeper.

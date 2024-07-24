@@ -29,7 +29,7 @@ const (
 )
 
 const (
-	flagAuthority = "authority"
+	flagAuthority    = "authority"
 	defaultAuthority = "gov"
 )
 

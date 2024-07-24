@@ -164,7 +164,7 @@ func snapshot(dataDir, targetDir string) error {
 	blockStore := store.NewBlockStore(blockDB)
 
 	stateDB := loadDb(stateStoreDir, dataDir)
-	ss := state.NewStore(stateDB,state.StoreOptions{})
+	ss := state.NewStore(stateDB, state.StoreOptions{})
 	appDB := loadDb(applicationDBDir, dataDir)
 
 	defer func() {
@@ -238,8 +238,8 @@ func snapshotState(tmDB *dbm.GoLevelDB, targetDir string, height int64) {
 	targetDb := loadDb(stateStoreDir, targetDir)
 	defer targetDb.Close()
 
-	newStore := state.NewStore(targetDb,state.StoreOptions{})
-	oldStore := state.NewStore(tmDB,state.StoreOptions{})
+	newStore := state.NewStore(targetDb, state.StoreOptions{})
+	oldStore := state.NewStore(tmDB, state.StoreOptions{})
 
 	state, err := oldStore.Load()
 	if err != nil {
@@ -277,7 +277,7 @@ func snapshotBlock(originStore *store.BlockStore, targetDir string, height int64
 
 	block := originStore.LoadBlock(height)
 	seenCommit := originStore.LoadSeenCommit(height)
-	partSet,err  := block.MakePartSet(types.BlockPartSizeBytes)
+	partSet, err := block.MakePartSet(types.BlockPartSizeBytes)
 	if err != nil {
 		panic(err)
 	}
@@ -563,7 +563,7 @@ func readTree(db dbm.DB, latestVersion int64, store string) (*iavl.MutableTree, 
 	prefix := fmt.Sprintf(moduleKeyFmt, store)
 	prefixDB := dbm.NewPrefixDB(db, []byte(prefix))
 
-	tree, err := iavl.NewMutableTree(prefixDB, DefaultCacheSize,true)
+	tree, err := iavl.NewMutableTree(prefixDB, DefaultCacheSize, true)
 	if err != nil {
 		return nil, err
 	}

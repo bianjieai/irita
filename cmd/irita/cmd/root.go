@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"cosmossdk.io/simapp/params"
-	"github.com/bianjieai/irita/crypto/hd"
 	dbm "github.com/cometbft/cometbft-db"
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
@@ -29,12 +28,12 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
-	"github.com/bianjieai/irita/app"
-
-	evmclient "github.com/bianjieai/irita/modules/evm/client"
 	genutilcli "iritamod.bianjie.ai/modules/genutil/client/cli"
 	"iritamod.bianjie.ai/modules/node"
+
+	"github.com/bianjieai/irita/app"
+	"github.com/bianjieai/irita/crypto/hd"
+	evmclient "github.com/bianjieai/irita/modules/evm/client"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the main function.
@@ -188,16 +187,16 @@ type appCreator struct {
 }
 
 func (ac appCreator) newApp(
-	logger log.Logger, 
-	db dbm.DB, 
-	traceStore io.Writer, 
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
 	appOpts servertypes.AppOptions,
-	) servertypes.Application {
+) servertypes.Application {
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 	return app.NewIritaAppV2(
-		logger, 
-		db, 
-		traceStore, 
+		logger,
+		db,
+		traceStore,
 		true,
 		app.DefaultDepinjectOptions(),
 		appOpts,

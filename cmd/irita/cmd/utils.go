@@ -13,12 +13,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	tokentypesv1beta "mods.irisnet.org/modules/token/types"
-	tokentypes "mods.irisnet.org/modules/token/types/v1"
 	"github.com/olebedev/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	tokentypesv1beta "mods.irisnet.org/modules/token/types"
+	tokentypes "mods.irisnet.org/modules/token/types/v1"
 )
 
 const (

@@ -34,16 +34,16 @@ import (
 	ethermint "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	evmfmttypes "github.com/evmos/ethermint/x/feemarket/types"
-	servicetypes "mods.irisnet.org/modules/service/types"
-	tokentypesv1beta "mods.irisnet.org/modules/token/types"
-	tokentypes "mods.irisnet.org/modules/token/types/v1"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/bianjieai/irita/crypto/hd"
 	"iritamod.bianjie.ai/modules/genutil"
 	"iritamod.bianjie.ai/modules/node"
 	"iritamod.bianjie.ai/modules/node/utils"
+	servicetypes "mods.irisnet.org/modules/service/types"
+	tokentypesv1beta "mods.irisnet.org/modules/token/types"
+	tokentypes "mods.irisnet.org/modules/token/types/v1"
+
+	"github.com/bianjieai/irita/crypto/hd"
 )
 
 const (
@@ -296,7 +296,7 @@ func InitTestnet(
 
 		customAppTemplate, customAppConfig := evmosConfig.AppConfig(ethermint.AttoPhoton)
 		srvconfig.SetConfigTemplate(customAppTemplate)
-		if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig,tmcfg.DefaultConfig()); err != nil {
+		if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, tmcfg.DefaultConfig()); err != nil {
 			return err
 		}
 

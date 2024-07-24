@@ -60,7 +60,7 @@ func GetRPCAPIs(ctx *server.Context,
 				rpc.API{
 					Namespace: EthNamespace,
 					Version:   apiVersion,
-					Service:   filters.NewPublicAPI(ctx.Logger, clientCtx,tmWSClient, evmBackend),
+					Service:   filters.NewPublicAPI(ctx.Logger, clientCtx, tmWSClient, evmBackend),
 					Public:    true,
 				},
 			)
@@ -114,7 +114,7 @@ func GetRPCAPIs(ctx *server.Context,
 				rpc.API{
 					Namespace: MinerNamespace,
 					Version:   apiVersion,
-					Service:   miner.NewPrivateAPI(ctx,evmBackend),
+					Service:   miner.NewPrivateAPI(ctx, evmBackend),
 					Public:    false,
 				},
 			)

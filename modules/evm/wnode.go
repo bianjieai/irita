@@ -5,7 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
-
 	"iritamod.bianjie.ai/modules/node"
 )
 

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/bianjieai/irita/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -17,6 +16,8 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"github.com/spf13/cobra"
+
+	"github.com/bianjieai/irita/crypto/hd"
 )
 
 const (

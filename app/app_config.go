@@ -12,6 +12,7 @@ import (
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
 	"cosmossdk.io/core/appconfig"
+	_ "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer" // import for side-effects
 	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
 	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
@@ -28,6 +29,24 @@ import (
 	feemarketmodulev1 "github.com/evmos/ethermint/api/ethermint/feemarket/module/v1"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	feemarkettypes "github.com/evmos/ethermint/x/feemarket/types"
+	genutilmodulev1 "iritamod.bianjie.ai/api/iritamod/genutil/module/v1"
+	identitymodulev1 "iritamod.bianjie.ai/api/iritamod/identity/module/v1"
+	nodemodulev1 "iritamod.bianjie.ai/api/iritamod/node/module/v1"
+	paramsmodulev1 "iritamod.bianjie.ai/api/iritamod/params/module/v1"
+	slashingmodulev1 "iritamod.bianjie.ai/api/iritamod/slashing/module/v1"
+	upgrademodulev1 "iritamod.bianjie.ai/api/iritamod/upgrade/module/v1"
+	_ "iritamod.bianjie.ai/modules/genutil" // import for side-effects
+	genutiltypes "iritamod.bianjie.ai/modules/genutil"
+	_ "iritamod.bianjie.ai/modules/identity" // import for side-effects
+	identitytypes "iritamod.bianjie.ai/modules/identity/types"
+	_ "iritamod.bianjie.ai/modules/node" // import for side-effects
+	nodetypes "iritamod.bianjie.ai/modules/node/types"
+	_ "iritamod.bianjie.ai/modules/params" // import for side-effects
+	paramstypes "iritamod.bianjie.ai/modules/params/types"
+	_ "iritamod.bianjie.ai/modules/slashing" // import for side-effects
+	slashingtypes "iritamod.bianjie.ai/modules/slashing/types"
+	_ "iritamod.bianjie.ai/modules/upgrade" // import for side-effects
+	upgradetypes "iritamod.bianjie.ai/modules/upgrade/types"
 	mtmodule "mods.irisnet.org/api/irismod/mt/module/v1"
 	nftmodule "mods.irisnet.org/api/irismod/nft/module/v1"
 	oraclemodule "mods.irisnet.org/api/irismod/oracle/module/v1"
@@ -35,40 +54,19 @@ import (
 	recordmodule "mods.irisnet.org/api/irismod/record/module/v1"
 	servicemodule "mods.irisnet.org/api/irismod/service/module/v1"
 	tokenmodule "mods.irisnet.org/api/irismod/token/module/v1"
+	_ "mods.irisnet.org/modules/mt" // import for side-effects
 	mttypes "mods.irisnet.org/modules/mt/types"
 	nfttypes "mods.irisnet.org/modules/nft/types"
+	_ "mods.irisnet.org/modules/oracle" // import for side-effects
 	oracletypes "mods.irisnet.org/modules/oracle/types"
+	_ "mods.irisnet.org/modules/random" // import for side-effects
 	randomtypes "mods.irisnet.org/modules/random/types"
+	_ "mods.irisnet.org/modules/record" // import for side-effects
 	recordtypes "mods.irisnet.org/modules/record/types"
+	_ "mods.irisnet.org/modules/service" // import for side-effects
 	servicetypes "mods.irisnet.org/modules/service/types"
+	_ "mods.irisnet.org/modules/token" // import for side-effects
 	tokentypes "mods.irisnet.org/modules/token/types"
-
-	genutilmodulev1 "iritamod.bianjie.ai/api/iritamod/genutil/module/v1"
-	identitymodulev1 "iritamod.bianjie.ai/api/iritamod/identity/module/v1"
-	nodemodulev1 "iritamod.bianjie.ai/api/iritamod/node/module/v1"
-	paramsmodulev1 "iritamod.bianjie.ai/api/iritamod/params/module/v1"
-	slashingmodulev1 "iritamod.bianjie.ai/api/iritamod/slashing/module/v1"
-	upgrademodulev1 "iritamod.bianjie.ai/api/iritamod/upgrade/module/v1"
-	genutiltypes "iritamod.bianjie.ai/modules/genutil"
-	identitytypes "iritamod.bianjie.ai/modules/identity/types"
-	nodetypes "iritamod.bianjie.ai/modules/node/types"
-	paramstypes "iritamod.bianjie.ai/modules/params/types"
-	slashingtypes "iritamod.bianjie.ai/modules/slashing/types"
-	upgradetypes "iritamod.bianjie.ai/modules/upgrade/types"
-
-	_ "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer" // import for side-effects
-	_ "iritamod.bianjie.ai/modules/genutil"                        // import for side-effects
-	_ "iritamod.bianjie.ai/modules/identity"                       // import for side-effects
-	_ "iritamod.bianjie.ai/modules/node"                           // import for side-effects
-	_ "iritamod.bianjie.ai/modules/params"                         // import for side-effects
-	_ "iritamod.bianjie.ai/modules/slashing"                       // import for side-effects
-	_ "iritamod.bianjie.ai/modules/upgrade"                        // import for side-effects
-	_ "mods.irisnet.org/modules/mt"                                // import for side-effects
-	_ "mods.irisnet.org/modules/oracle"                            // import for side-effects
-	_ "mods.irisnet.org/modules/random"                            // import for side-effects
-	_ "mods.irisnet.org/modules/record"                            // import for side-effects
-	_ "mods.irisnet.org/modules/service"                           // import for side-effects
-	_ "mods.irisnet.org/modules/token"                             // import for side-effects
 )
 
 var (

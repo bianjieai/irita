@@ -7,14 +7,6 @@ import (
 	"path/filepath"
 
 	simappparams "cosmossdk.io/simapp/params"
-	"github.com/bianjieai/irita/address"
-	appante "github.com/bianjieai/irita/app/ante"
-	"github.com/bianjieai/irita/crypto/hd"
-	"github.com/bianjieai/irita/lite"
-	appevm "github.com/bianjieai/irita/modules/evm"
-	tibc "github.com/bianjieai/irita/modules/tibc"
-	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
-	"github.com/bianjieai/irita/wrapper"
 	tibcmttransfer "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer"
 	tibcmttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/keeper"
 	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
@@ -24,7 +16,6 @@ import (
 	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
 	tibccorekeeper "github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
-
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
@@ -119,6 +110,14 @@ import (
 	tokenkeeper "mods.irisnet.org/modules/token/keeper"
 	tokentypes "mods.irisnet.org/modules/token/types"
 	tokentypesv1 "mods.irisnet.org/modules/token/types/v1"
+
+	"github.com/bianjieai/irita/address"
+	appante "github.com/bianjieai/irita/app/ante"
+	"github.com/bianjieai/irita/crypto/hd"
+	appevm "github.com/bianjieai/irita/modules/evm"
+	tibc "github.com/bianjieai/irita/modules/tibc"
+	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
+	"github.com/bianjieai/irita/wrapper"
 )
 
 const (
@@ -287,12 +286,12 @@ type IritaApp struct {
 
 // NewIritaApp returns a reference to an initialized IritaApp.
 func NewIritaApp(
-	logger log.Logger, 
-	db dbm.DB, 
-	traceStore io.Writer, 
-	loadLatest bool, 
-	encodingConfig simappparams.EncodingConfig, 
-	appOpts servertypes.AppOptions, 
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	loadLatest bool,
+	encodingConfig simappparams.EncodingConfig,
+	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *IritaApp {
 	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
@@ -849,10 +848,6 @@ func (app *IritaApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIC
 	authtx.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 	// Register legacy and grpc-gateway routes for all modules.
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
-
-	if apiConfig.Swagger {
-		lite.RegisterSwaggerAPI(clientCtx, apiSvr.Router)
-	}
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
@@ -895,7 +890,7 @@ func (app *IritaApp) BuildAnteHandler(encodingConfig simappparams.EncodingConfig
 
 		// evm
 		FeeMarketKeeper: app.FeeMarketKeeper,
-		EvmKeeper:          app.EvmKeeper,
+		EvmKeeper:       app.EvmKeeper,
 	}
 
 	if appOptions.anteHandler != nil {

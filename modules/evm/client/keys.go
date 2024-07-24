@@ -3,7 +3,6 @@ package client
 import (
 	"bufio"
 
-	"github.com/bianjieai/irita/crypto/hd"
 	"github.com/cometbft/cometbft/libs/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -12,6 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	clientkeys "github.com/evmos/ethermint/client/keys"
 	"github.com/spf13/cobra"
+
+	"github.com/bianjieai/irita/crypto/hd"
 )
 
 // KeyCommands registers a sub-tree of commands to interact with

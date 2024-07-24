@@ -9,11 +9,9 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
 	slashingkeeper "iritamod.bianjie.ai/modules/slashing/keeper"
-
-	evmtypes "github.com/evmos/ethermint/x/evm/types"
 )
 
 var (

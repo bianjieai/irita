@@ -19,12 +19,12 @@ import (
 )
 
 // StartJSONRPC starts the JSON-RPC server
-func StartJSONRPC(ctx *server.Context, 
-	clientCtx client.Context, 
-	tmRPCAddr, tmEndpoint string, 
+func StartJSONRPC(ctx *server.Context,
+	clientCtx client.Context,
+	tmRPCAddr, tmEndpoint string,
 	config *config.Config,
 	indexer ethermint.EVMTxIndexer,
-	) (*http.Server, chan struct{}, error) {
+) (*http.Server, chan struct{}, error) {
 	tmWsClient := ConnectTmWS(tmRPCAddr, tmEndpoint, ctx.Logger)
 
 	logger := ctx.Logger.With("module", "geth")
@@ -44,7 +44,7 @@ func StartJSONRPC(ctx *server.Context,
 
 	allowUnprotectedTxs := config.JSONRPC.AllowUnprotectedTxs
 	rpcAPIArr := config.JSONRPC.API
-	apis := iritaevmrpc.GetRPCAPIs(ctx, clientCtx, tmWsClient,  allowUnprotectedTxs, indexer, rpcAPIArr)
+	apis := iritaevmrpc.GetRPCAPIs(ctx, clientCtx, tmWsClient, allowUnprotectedTxs, indexer, rpcAPIArr)
 
 	for _, api := range apis {
 		if err := rpcServer.RegisterName(api.Namespace, api.Service); err != nil {

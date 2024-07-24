@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"cosmossdk.io/depinject"
-
 	dbm "github.com/cometbft/cometbft-db"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -28,16 +27,13 @@ import (
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	cosmosparamstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
-
 	identitykeeper "iritamod.bianjie.ai/modules/identity/keeper"
 	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
 	paramskeeper "iritamod.bianjie.ai/modules/params/keeper"
 	slashingkeeper "iritamod.bianjie.ai/modules/slashing/keeper"
 	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
-
 	mtkeeper "mods.irisnet.org/modules/mt/keeper"
 	nftkeeper "mods.irisnet.org/modules/nft/keeper"
 	oraclekeeper "mods.irisnet.org/modules/oracle/keeper"
