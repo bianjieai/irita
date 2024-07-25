@@ -7,7 +7,8 @@ import (
 	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
 	capabilitymodulev1 "cosmossdk.io/api/cosmos/capability/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
-	crisismodulev1 "cosmossdk.io/api/cosmos/crisis/module/v1"
+
+	// crisismodulev1 "cosmossdk.io/api/cosmos/crisis/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
@@ -21,7 +22,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+
+	// crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	"github.com/cosmos/cosmos-sdk/x/group"
@@ -83,7 +85,7 @@ var (
 		banktypes.ModuleName,
 		nodetypes.ModuleName,
 		slashingtypes.ModuleName,
-		crisistypes.ModuleName,
+		// crisistypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		feegrant.ModuleName,
@@ -150,7 +152,7 @@ var (
 						nodetypes.ModuleName,
 						authtypes.ModuleName,
 						banktypes.ModuleName,
-						crisistypes.ModuleName,
+						// crisistypes.ModuleName,
 						genutiltypes.ModuleName,
 						feegrant.ModuleName,
 						paramstypes.ModuleName,
@@ -167,7 +169,7 @@ var (
 						feemarkettypes.ModuleName,
 					},
 					EndBlockers: []string{
-						crisistypes.ModuleName,
+						// crisistypes.ModuleName,
 						nodetypes.ModuleName,
 						capabilitytypes.ModuleName,
 						authtypes.ModuleName,
@@ -260,10 +262,10 @@ var (
 				Name:   feegrant.ModuleName,
 				Config: appconfig.WrapAny(&feegrantmodulev1.Module{}),
 			},
-			{
-				Name:   crisistypes.ModuleName,
-				Config: appconfig.WrapAny(&crisismodulev1.Module{}),
-			},
+			// {
+			// 	Name:   crisistypes.ModuleName,
+			// 	Config: appconfig.WrapAny(&crisismodulev1.Module{}),
+			// },
 			{
 				Name:   consensustypes.ModuleName,
 				Config: appconfig.WrapAny(&consensusmodulev1.Module{}),

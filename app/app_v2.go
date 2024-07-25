@@ -23,7 +23,8 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
-	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
+
+	// crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	cosmosparamstypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -62,7 +63,7 @@ type IritaAppV2 struct {
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
-	CrisisKeeper          *crisiskeeper.Keeper
+	//CrisisKeeper          *crisiskeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
 	ParamsKeeper          paramskeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
@@ -165,11 +166,10 @@ func NewIritaAppV2(
 		&app.interfaceRegistry,
 		&app.AccountKeeper,
 		&app.BankKeeper,
-		&app.CrisisKeeper,
 		&app.CapabilityKeeper,
 		&app.NodeKeeper,
 		&app.SlashingKeeper,
-		&app.CrisisKeeper,
+		//&app.CrisisKeeper,
 		&app.UpgradeKeeper,
 		&app.ParamsKeeper,
 		&app.EvidenceKeeper,
@@ -229,7 +229,7 @@ func NewIritaAppV2(
 
 	/****  Module Options ****/
 
-	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
+	// app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	// app.RegisterUpgradeHandlers()
