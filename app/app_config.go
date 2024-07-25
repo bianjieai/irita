@@ -5,10 +5,7 @@ import (
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
 	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
-	capabilitymodulev1 "cosmossdk.io/api/cosmos/capability/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
-
-	// crisismodulev1 "cosmossdk.io/api/cosmos/crisis/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
@@ -20,10 +17,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
-
-	// crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	"github.com/cosmos/cosmos-sdk/x/group"
@@ -80,12 +74,10 @@ var (
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	genesisModuleOrder = []string{
-		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		nodetypes.ModuleName,
 		slashingtypes.ModuleName,
-		// crisistypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		feegrant.ModuleName,
@@ -146,13 +138,11 @@ var (
 					// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 					BeginBlockers: []string{
 						upgradetypes.ModuleName,
-						capabilitytypes.ModuleName,
 						slashingtypes.ModuleName,
 						evidencetypes.ModuleName,
 						nodetypes.ModuleName,
 						authtypes.ModuleName,
 						banktypes.ModuleName,
-						// crisistypes.ModuleName,
 						genutiltypes.ModuleName,
 						feegrant.ModuleName,
 						paramstypes.ModuleName,
@@ -169,9 +159,7 @@ var (
 						feemarkettypes.ModuleName,
 					},
 					EndBlockers: []string{
-						// crisistypes.ModuleName,
 						nodetypes.ModuleName,
-						capabilitytypes.ModuleName,
 						authtypes.ModuleName,
 						banktypes.ModuleName,
 						slashingtypes.ModuleName,
@@ -213,9 +201,6 @@ var (
 				Config: appconfig.WrapAny(&authmodulev1.Module{
 					Bech32Prefix:             "iaa",
 					ModuleAccountPermissions: moduleAccPerms,
-					// By default modules authority is the governance module. This is configurable with the following:
-					// Authority: "group", // A custom module authority can be set using a module name
-					// Authority: "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv", // or a specific address
 				}),
 			},
 			{
@@ -249,12 +234,6 @@ var (
 				Config: appconfig.WrapAny(&upgrademodulev1.Module{}),
 			},
 			{
-				Name: capabilitytypes.ModuleName,
-				Config: appconfig.WrapAny(&capabilitymodulev1.Module{
-					SealKeeper: true,
-				}),
-			},
-			{
 				Name:   evidencetypes.ModuleName,
 				Config: appconfig.WrapAny(&evidencemodulev1.Module{}),
 			},
@@ -262,10 +241,6 @@ var (
 				Name:   feegrant.ModuleName,
 				Config: appconfig.WrapAny(&feegrantmodulev1.Module{}),
 			},
-			// {
-			// 	Name:   crisistypes.ModuleName,
-			// 	Config: appconfig.WrapAny(&crisismodulev1.Module{}),
-			// },
 			{
 				Name:   consensustypes.ModuleName,
 				Config: appconfig.WrapAny(&consensusmodulev1.Module{}),
@@ -320,6 +295,7 @@ var (
 	})
 )
 
+// DefaultDepinjectOptions returns the default depinject options
 func DefaultDepinjectOptions() DepinjectOptions {
 	return DepinjectOptions{
 		Config:    AppConfig,

@@ -21,10 +21,7 @@ import (
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
-
-	// crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	cosmosparamstypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -63,7 +60,6 @@ type IritaAppV2 struct {
 	AccountKeeper         authkeeper.AccountKeeper
 	BankKeeper            bankkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
-	//CrisisKeeper          *crisiskeeper.Keeper
 	UpgradeKeeper         *upgradekeeper.Keeper
 	ParamsKeeper          paramskeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
@@ -77,7 +73,6 @@ type IritaAppV2 struct {
 	IdentityKeeper        identitykeeper.Keeper
 	NodeKeeper            *nodekeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
-	CapabilityKeeper      *capabilitykeeper.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	EvmKeeper             *evmkeeper.Keeper
 	FeeMarketKeeper       feemarketkeeper.Keeper
@@ -166,10 +161,8 @@ func NewIritaAppV2(
 		&app.interfaceRegistry,
 		&app.AccountKeeper,
 		&app.BankKeeper,
-		&app.CapabilityKeeper,
 		&app.NodeKeeper,
 		&app.SlashingKeeper,
-		//&app.CrisisKeeper,
 		&app.UpgradeKeeper,
 		&app.ParamsKeeper,
 		&app.EvidenceKeeper,
