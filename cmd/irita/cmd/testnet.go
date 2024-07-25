@@ -47,14 +47,14 @@ import (
 )
 
 const (
-	nodeDirPerm         = 0755
-	DefaultPointDenom   = "point"
-	DefaultPointMinUnit = "upoint"
-	NewEvmDenom         = "gas"
-	DefaultEvmMinUnit   = "ugas"
+	nodeDirPerm         = 0o755
+	defaultPointDenom   = "point"
+	defaultPointMinUnit = "upoint"
+	evmDenom            = "gas"
+	defaultEvmMinUnit   = "ugas"
 )
 
-var PowerReduction = sdk.NewIntFromUint64(1000000000000000000)
+var powerReduction = sdk.NewIntFromUint64(1000000000000000000)
 
 var (
 	flagNodeDirPrefix     = "node-dir-prefix"
@@ -199,7 +199,7 @@ func InitTestnet(
 		keyPath := filepath.Join(nodeDir, "config", "key.pem")
 		cerPath := filepath.Join(nodeDir, "config", "cer.pem")
 		certPath := filepath.Join(nodeDir, "config", "cert.pem")
-		if err = tempfile.WriteFileAtomic(keyPath, key, 0600); err != nil {
+		if err = tempfile.WriteFileAtomic(keyPath, key, 0o600); err != nil {
 			return err
 		}
 
@@ -249,12 +249,12 @@ func InitTestnet(
 		accTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
 		accPointTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
 		accNativeTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
-		accEvmTokens := sdk.TokensFromConsensusPower(5000, PowerReduction)
+		accEvmTokens := sdk.TokensFromConsensusPower(5000, powerReduction)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(DefaultPointMinUnit, accPointTokens),
+			sdk.NewCoin(defaultPointMinUnit, accPointTokens),
 			sdk.NewCoin(tokentypes.GetNativeToken().MinUnit, accNativeTokens),
-			sdk.NewCoin(DefaultEvmMinUnit, accEvmTokens),
+			sdk.NewCoin(defaultEvmMinUnit, accEvmTokens),
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
@@ -304,7 +304,7 @@ func InitTestnet(
 		srvconfig.WriteConfigFile(iritaConfigFilePath, iritaConfig)
 	}
 
-	if err := initGenFiles(DefaultEvmMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
+	if err := initGenFiles(defaultEvmMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
 		monikers, nodeIDs, rootCertPath); err != nil {
 		return err
 	}
@@ -373,10 +373,10 @@ func initGenFiles(
 	jsonMarshaler.MustUnmarshalJSON(appGenState[tokentypesv1beta.ModuleName], &tokenGenState)
 
 	pointToken := tokentypes.Token{
-		Symbol:        DefaultPointDenom,
+		Symbol:        defaultPointDenom,
 		Name:          "Irita point token",
 		Scale:         6,
-		MinUnit:       DefaultPointMinUnit,
+		MinUnit:       defaultPointMinUnit,
 		InitialSupply: 1000000000,
 		MaxSupply:     math.MaxUint64,
 		Mintable:      true,
@@ -384,10 +384,10 @@ func initGenFiles(
 	}
 
 	gasToken := tokentypes.Token{
-		Symbol:        NewEvmDenom,
+		Symbol:        evmDenom,
 		Name:          "IRITA Fee Token",
 		Scale:         18,
-		MinUnit:       DefaultEvmMinUnit,
+		MinUnit:       defaultEvmMinUnit,
 		InitialSupply: 1000000000,
 		MaxSupply:     math.MaxUint64,
 		Mintable:      true,
@@ -396,7 +396,7 @@ func initGenFiles(
 
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
 	tokenGenState.Tokens = append(tokenGenState.Tokens, gasToken)
-	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(DefaultPointDenom, sdk.NewInt(60000))
+	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(defaultPointDenom, sdk.NewInt(60000))
 	appGenState[tokentypesv1beta.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
 
 	// modify the constant fee denoms in the crisis genesis
@@ -410,8 +410,8 @@ func initGenFiles(
 	var serviceGenState servicetypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[servicetypes.ModuleName], &serviceGenState)
 
-	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(DefaultPointMinUnit, sdk.NewInt(5000)))
-	serviceGenState.Params.BaseDenom = DefaultPointMinUnit
+	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(defaultPointMinUnit, sdk.NewInt(5000)))
+	serviceGenState.Params.BaseDenom = defaultPointMinUnit
 	appGenState[servicetypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&serviceGenState)
 
 	var evmGenState evmtypes.GenesisState
@@ -446,9 +446,16 @@ func initGenFiles(
 }
 
 func collectGenFiles(
-	clientCtx client.Context, config *tmconfig.Config, chainID string,
-	monikers, nodeIDs []string, valCerts []string,
-	numValidators int, outputDir, nodeDirPrefix, nodeDaemonHome string,
+	clientCtx client.Context,
+	config *tmconfig.Config,
+	chainID string,
+	monikers,
+	nodeIDs []string,
+	_ []string,
+	numValidators int,
+	outputDir,
+	nodeDirPrefix,
+	nodeDaemonHome string,
 ) error {
 	var appState json.RawMessage
 	genTime := tmtime.Now()
@@ -518,9 +525,9 @@ func writeFile(name string, dir string, contents []byte) error {
 	writePath := filepath.Join(dir)
 	file := filepath.Join(writePath, name)
 
-	if err := tmos.EnsureDir(writePath, 0700); err != nil {
+	if err := tmos.EnsureDir(writePath, 0o700); err != nil {
 		return err
 	}
 
-	return tmos.WriteFile(file, contents, 0600)
+	return tmos.WriteFile(file, contents, 0o600)
 }

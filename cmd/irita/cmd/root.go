@@ -65,8 +65,6 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 			cmd.SetErr(cmd.ErrOrStderr())
 
 			initClientCtx, err := client.ReadPersistentCommandFlags(initClientCtx, cmd.Flags())
-
-			//initClientCtx = client.ReadHomeFlag(initClientCtx, cmd)
 			initClientCtx, err = config.ReadFromClientConfig(initClientCtx)
 			if err != nil {
 				return err
@@ -77,13 +75,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 			// TODO: define our own token
 			customAppTemplate, customAppConfig := servercfg.AppConfig(ethermint.AttoPhoton)
-
-			handleRequestPreRun(cmd, args)
-			handleResponsePreRun(cmd)
 			return server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, tmcfg.DefaultConfig())
-		},
-		PersistentPostRun: func(cmd *cobra.Command, _ []string) {
-			handleResponsePostRun(encodingConfig.Codec, cmd)
 		},
 	}
 	cfg := sdk.GetConfig()

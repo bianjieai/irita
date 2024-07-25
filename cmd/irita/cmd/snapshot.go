@@ -41,7 +41,7 @@ const (
 	privValidatorStateFile   = "priv_validator_state.json"
 	upgradeInfoFile          = "upgrade-info.json"
 	valSetCheckpointInterval = 100000
-	DefaultCacheSize         = 10000
+	defaultCacheSize         = 10000
 	moduleKeyFmt             = "s/k:%s/"
 )
 
@@ -53,6 +53,7 @@ var privValidatorState = `{
 
 var storeKeys = app.GetStoreKeys()
 
+// NewSnapshotCmd creates a root command for snapshot
 func NewSnapshotCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "snapshot",
@@ -96,7 +97,7 @@ func SnapshotCmd() *cobra.Command {
 			dataDir := filepath.Join(home, dataDir)
 
 			if err := snapshot(dataDir, targetDir); err != nil {
-				fmt.Errorf("snapshot err: %s", err.Error())
+				_ = fmt.Errorf("snapshot err: %s", err.Error())
 				_ = os.RemoveAll(targetDir)
 				return err
 			}
@@ -139,7 +140,7 @@ func PruneCmd() *cobra.Command {
 			}
 
 			if err := pruningVersions(targetDir, batchNum); err != nil {
-				fmt.Errorf("prune err: %s", err.Error())
+				_ = fmt.Errorf("prune err: %s", err.Error())
 				return err
 			}
 			fmt.Println("prune completed!")
@@ -563,7 +564,7 @@ func readTree(db dbm.DB, latestVersion int64, store string) (*iavl.MutableTree, 
 	prefix := fmt.Sprintf(moduleKeyFmt, store)
 	prefixDB := dbm.NewPrefixDB(db, []byte(prefix))
 
-	tree, err := iavl.NewMutableTree(prefixDB, DefaultCacheSize, true)
+	tree, err := iavl.NewMutableTree(prefixDB, defaultCacheSize, true)
 	if err != nil {
 		return nil, err
 	}

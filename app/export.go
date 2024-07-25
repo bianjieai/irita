@@ -40,7 +40,7 @@ func (app *IritaApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowed
 // NOTE zero height genesis is a temporary feature which will be deprecated
 //
 //	in favour of export at a block height
-func (app *IritaApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+func (app *IritaApp) prepForZeroHeightGenesis(ctx sdk.Context, _ []string) {
 
 	/* Just to be safe, assert the invariants on current state. */
 	app.crisisKeeper.AssertInvariants(ctx)
