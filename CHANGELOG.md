@@ -56,7 +56,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 * [\#161](https://github.com/bianjieai/irita/pull/161) Add EVM Support
 * (modules/perm) [\#33](https://github.com/bianjieai/iritamod/pull/33) Add EVM contract permission management
-* (modules/nft) [\#245](https://mods.irisnet.org/pull/245) Improve nft module
+* (modules/nft) [\#245](https://github.com/irisnet/irismod/pull/245) Improve nft module
 
 
 ## [v2.1.1]
@@ -74,7 +74,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 * [\#135](https://github.com/bianjieai/irita/pull/135) Bump cosmos-sdk version to [v0.44.2](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.44.2)
 * [\#130](https://github.com/bianjieai/irita/pull/130) Integrated tibc protocol
-* [irismod \#189](https://mods.irisnet.org/pull/189) Enhance nft module
+* [irismod \#189](https://github.com/irisnet/irismod/pull/189) Enhance nft module
 
 ### Breaking Changes
 
@@ -89,7 +89,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
   * [cosmos-sdk v0.42.3](https://github.com/bianjieai/cosmos-sdk/releases/tag/v0.42.3-irita-210413)
   * [tendermint v0.34.8](https://github.com/bianjieai/tendermint/releases/tag/v0.34.8-irita-210413)
   * [iritamod v1.0.0](https://github.com/bianjieai/iritamod/releases/tag/v1.0.0)
-  * [irismod v1.4.0](https://mods.irisnet.org/releases/tag/v1.4.0)
+  * [irismod v1.4.0](https://github.com/irisnet/irismod/releases/tag/v1.4.0)
   * [wasmd v0.15.1](https://github.com/CosmWasm/wasmd/releases/tag/v0.15.1)
 
 <!-- Release links -->
