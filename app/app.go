@@ -248,7 +248,7 @@ type IritaApp struct {
 	bankKeeper            bankkeeper.Keeper
 	slashingKeeper        slashingkeeper.Keeper
 	crisisKeeper          *crisiskeeper.Keeper
-	upgradeKeeper         upgradekeeper.Keeper
+	upgradeKeeper         *upgradekeeper.Keeper
 	paramsKeeper          paramskeeper.Keeper
 	evidenceKeeper        evidencekeeper.Keeper
 	recordKeeper          recordkeeper.Keeper

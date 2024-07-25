@@ -63,7 +63,7 @@ type IritaAppV2 struct {
 	BankKeeper            bankkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
 	CrisisKeeper          *crisiskeeper.Keeper
-	UpgradeKeeper         upgradekeeper.Keeper
+	UpgradeKeeper         *upgradekeeper.Keeper
 	ParamsKeeper          paramskeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 	RecordKeeper          recordkeeper.Keeper

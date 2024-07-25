@@ -15,13 +15,13 @@ require (
 	cosmossdk.io/tools/rosetta v0.2.1
 	github.com/bianjieai/tibc-go v0.5.1-0.20240710015305-5ebf9ca08920
 	github.com/cosmos/cosmos-sdk v0.47.12
-	iritamod.bianjie.ai/api v0.0.0-20240724102139-9674aa58da68
-	iritamod.bianjie.ai/modules/genutil v0.0.0-20240724102139-9674aa58da68
-	iritamod.bianjie.ai/modules/identity v0.0.0-20240724102139-9674aa58da68
-	iritamod.bianjie.ai/modules/node v0.0.0-20240724102139-9674aa58da68
-	iritamod.bianjie.ai/modules/params v0.0.0-20240724102139-9674aa58da68
-	iritamod.bianjie.ai/modules/slashing v0.0.0-20240724102139-9674aa58da68
-	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240724102139-9674aa58da68
+	iritamod.bianjie.ai/api v0.0.0-20240725020316-2fe96dcb32a4
+	iritamod.bianjie.ai/modules/genutil v0.0.0-20240725020316-2fe96dcb32a4
+	iritamod.bianjie.ai/modules/identity v0.0.0-20240725020316-2fe96dcb32a4
+	iritamod.bianjie.ai/modules/node v0.0.0-20240725020316-2fe96dcb32a4
+	iritamod.bianjie.ai/modules/params v0.0.0-20240725020316-2fe96dcb32a4
+	iritamod.bianjie.ai/modules/slashing v0.0.0-20240725020316-2fe96dcb32a4
+	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240725020316-2fe96dcb32a4
 	mods.irisnet.org/modules/mt v0.0.0-20240705013837-55f906fb239e
 	mods.irisnet.org/modules/nft v0.0.0-20240705013837-55f906fb239e
 	mods.irisnet.org/modules/oracle v0.0.0-20240705013837-55f906fb239e
