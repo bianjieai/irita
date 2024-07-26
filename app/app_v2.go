@@ -22,16 +22,19 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
+	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
 	cosmosparamstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
+
 	identitykeeper "iritamod.bianjie.ai/modules/identity/keeper"
 	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
 	paramskeeper "iritamod.bianjie.ai/modules/params/keeper"
 	slashingkeeper "iritamod.bianjie.ai/modules/slashing/keeper"
 	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
+
 	mtkeeper "mods.irisnet.org/modules/mt/keeper"
 	nftkeeper "mods.irisnet.org/modules/nft/keeper"
 	oraclekeeper "mods.irisnet.org/modules/oracle/keeper"
@@ -39,6 +42,10 @@ import (
 	recordkeeper "mods.irisnet.org/modules/record/keeper"
 	servicekeeper "mods.irisnet.org/modules/service/keeper"
 	tokenkeeper "mods.irisnet.org/modules/token/keeper"
+
+	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
+	tibcmttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/keeper"
+	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
 
 	"github.com/bianjieai/irita/crypto/hd"
 	"github.com/bianjieai/irita/wrapper"
@@ -57,25 +64,29 @@ type IritaAppV2 struct {
 	interfaceRegistry codectypes.InterfaceRegistry
 
 	// keepers
-	AccountKeeper         authkeeper.AccountKeeper
-	BankKeeper            bankkeeper.Keeper
-	SlashingKeeper        slashingkeeper.Keeper
-	UpgradeKeeper         *upgradekeeper.Keeper
-	ParamsKeeper          paramskeeper.Keeper
-	EvidenceKeeper        evidencekeeper.Keeper
-	RecordKeeper          recordkeeper.Keeper
-	TokenKeeper           tokenkeeper.Keeper
-	NftKeeper             nftkeeper.Keeper
-	MtKeeper              mtkeeper.Keeper
-	ServiceKeeper         servicekeeper.Keeper
-	OracleKeeper          oraclekeeper.Keeper
-	RandomKeeper          randomkeeper.Keeper
-	IdentityKeeper        identitykeeper.Keeper
-	NodeKeeper            *nodekeeper.Keeper
-	FeeGrantKeeper        feegrantkeeper.Keeper
-	ConsensusParamsKeeper consensuskeeper.Keeper
-	EvmKeeper             *evmkeeper.Keeper
-	FeeMarketKeeper       feemarketkeeper.Keeper
+	AccountKeeper     authkeeper.AccountKeeper
+	BankKeeper        bankkeeper.Keeper
+	SlashingKeeper    slashingkeeper.Keeper
+	CrisisKeeper      *crisiskeeper.Keeper
+	UpgradeKeeper     *upgradekeeper.Keeper
+	ParamsKeeper      paramskeeper.Keeper
+	EvidenceKeeper    evidencekeeper.Keeper
+	RecordKeeper      recordkeeper.Keeper
+	TokenKeeper       tokenkeeper.Keeper
+	NftKeeper         nftkeeper.Keeper
+	MtKeeper          mtkeeper.Keeper
+	ServiceKeeper     servicekeeper.Keeper
+	OracleKeeper      oraclekeeper.Keeper
+	RandomKeeper      randomkeeper.Keeper
+	IdentityKeeper    identitykeeper.Keeper
+	NodeKeeper        *nodekeeper.Keeper
+	FeeGrantKeeper    feegrantkeeper.Keeper
+	ConsensusKeeper   consensuskeeper.Keeper
+	EvmKeeper         *evmkeeper.Keeper
+	FeeMarketKeeper   feemarketkeeper.Keeper
+	TibcKeeper        *tibckeeper.Keeper
+	NftTransferKeeper tibcnfttransferkeeper.Keeper
+	MtTransferKeeper  tibcmttransferkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -121,6 +132,7 @@ func NewIritaAppV2(
 				wrapper.ProvideICS20Keeper,
 				wrapper.ProvideEvmConstructor,
 				wrapper.ProvideStakingHooks,
+				wrapper.ProvideTibcNftKeeper,
 			),
 			depinject.Supply(
 				providers...,
@@ -161,6 +173,7 @@ func NewIritaAppV2(
 		&app.interfaceRegistry,
 		&app.AccountKeeper,
 		&app.BankKeeper,
+		&app.CrisisKeeper,
 		&app.NodeKeeper,
 		&app.SlashingKeeper,
 		&app.UpgradeKeeper,
@@ -175,9 +188,12 @@ func NewIritaAppV2(
 		&app.OracleKeeper,
 		&app.RandomKeeper,
 		&app.IdentityKeeper,
-		&app.ConsensusParamsKeeper,
+		&app.ConsensusKeeper,
 		&app.EvmKeeper,
 		&app.FeeMarketKeeper,
+		&app.TibcKeeper,
+		&app.NftTransferKeeper,
+		&app.MtTransferKeeper,
 	)
 
 	if err := depinject.Inject(appConfig, consumer...); err != nil {

@@ -36,3 +36,5 @@ cd ..
 # move proto files to the right places
 cp -r github.com/bianjieai/irita/* ./
 rm -rf github.com
+
+./scripts/protocgen-pulsar.sh

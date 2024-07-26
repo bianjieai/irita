@@ -8,10 +8,8 @@ import (
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
-	slashingkeeper "iritamod.bianjie.ai/modules/slashing/keeper"
 )
 
 var (
@@ -20,26 +18,11 @@ var (
 	_ evmtypes.StakingKeeper      = (*StakingKeeper)(nil)
 )
 
+// StakingKeeperI is an interface that is implemented by the staking keeper struct.
 type StakingKeeperI interface {
 	slashingtypes.StakingKeeper
 	evidencetypes.StakingKeeper
 	evmtypes.StakingKeeper
-}
-
-func ProvideSlashingStakingKeeper(nodeKeeper *nodekeeper.Keeper) slashingtypes.StakingKeeper {
-	return NewStakingKeeper(nodeKeeper)
-}
-
-func ProvideEvidenceStakingKeeper(nodeKeeper *nodekeeper.Keeper) evidencetypes.StakingKeeper {
-	return NewStakingKeeper(nodeKeeper)
-}
-
-func ProvideEvmStakingKeeper(nodeKeeper *nodekeeper.Keeper) evmtypes.StakingKeeper {
-	return NewStakingKeeper(nodeKeeper)
-}
-
-func ProvideStakingHooks(slashingKeeper slashingkeeper.Keeper) []stakingtypes.StakingHooks {
-	return []stakingtypes.StakingHooks{slashingKeeper.Hooks()}
 }
 
 // StakingKeeper implements the staking keeper interface.

@@ -13,7 +13,7 @@ replace (
 require (
 	cosmossdk.io/simapp v0.0.0-20230608160436-666c345ad23d
 	cosmossdk.io/tools/rosetta v0.2.1
-	github.com/bianjieai/tibc-go v0.5.1-0.20240710015305-5ebf9ca08920
+	github.com/bianjieai/tibc-go v0.5.1-0.20240726020438-210099137d0b
 	github.com/cosmos/cosmos-sdk v0.47.12
 	iritamod.bianjie.ai/api v0.0.0-20240725020316-2fe96dcb32a4
 	iritamod.bianjie.ai/modules/genutil v0.0.0-20240725020316-2fe96dcb32a4
@@ -55,7 +55,9 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.18.2
 	golang.org/x/crypto v0.22.0
+	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 	google.golang.org/grpc v1.62.1
+	google.golang.org/protobuf v1.33.0
 	mods.irisnet.org/api v0.0.0-20240628054110-4cb043e0238a
 )
 
@@ -234,7 +236,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/oauth2 v0.16.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
@@ -248,7 +249,6 @@ require (
 	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

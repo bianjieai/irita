@@ -6,18 +6,26 @@ import (
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
 	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
+	crisismodulev1 "cosmossdk.io/api/cosmos/crisis/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
 	"cosmossdk.io/core/appconfig"
+
+	tibmodulev1 "github.com/bianjieai/irita/api/irita/tibc/module/v1"
+	_ "github.com/bianjieai/irita/modules/tibc"               // import for side-effects
+	tibctypes "github.com/bianjieai/irita/modules/tibc/types" // import for side-effects
+	tibcmtmodulev1 "github.com/bianjieai/tibc-go/api/tibc/apps/mt_transfer/module/v1"
+	tibcnftmodulev1 "github.com/bianjieai/tibc-go/api/tibc/apps/nft_transfer/module/v1"
 	_ "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer" // import for side-effects
 	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
+	_ "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer" // import for side-effects
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
-	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	"github.com/cosmos/cosmos-sdk/x/group"
@@ -78,6 +86,7 @@ var (
 		banktypes.ModuleName,
 		nodetypes.ModuleName,
 		slashingtypes.ModuleName,
+		crisistypes.ModuleName,
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		feegrant.ModuleName,
@@ -92,7 +101,7 @@ var (
 		recordtypes.ModuleName,
 		identitytypes.ModuleName,
 		tokentypes.ModuleName,
-		tibchost.ModuleName,
+		tibctypes.ModuleName,
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		evmtypes.ModuleName,
@@ -108,7 +117,9 @@ var (
 		{Account: servicetypes.RequestAccName},
 		{Account: servicetypes.FeeCollectorName, Permissions: []string{authtypes.Burner}},
 		{Account: tokentypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
-		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}}, // used for secure addition and subtraction of balance using module account
+		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
+		{Account: tibcnfttypes.ModuleName},
+		{Account: tibcmttypes.ModuleName},
 	}
 
 	// blocked account addresses
@@ -143,6 +154,7 @@ var (
 						nodetypes.ModuleName,
 						authtypes.ModuleName,
 						banktypes.ModuleName,
+						crisistypes.ModuleName,
 						genutiltypes.ModuleName,
 						feegrant.ModuleName,
 						paramstypes.ModuleName,
@@ -157,8 +169,12 @@ var (
 						consensustypes.ModuleName,
 						evmtypes.ModuleName,
 						feemarkettypes.ModuleName,
+						tibctypes.ModuleName,
+						tibcnfttypes.ModuleName,
+						tibcmttypes.ModuleName,
 					},
 					EndBlockers: []string{
+						crisistypes.ModuleName,
 						nodetypes.ModuleName,
 						authtypes.ModuleName,
 						banktypes.ModuleName,
@@ -181,6 +197,9 @@ var (
 						tokentypes.ModuleName,
 						evmtypes.ModuleName,
 						feemarkettypes.ModuleName,
+						tibctypes.ModuleName,
+						tibcnfttypes.ModuleName,
+						tibcmttypes.ModuleName,
 					},
 					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
 						{
@@ -242,6 +261,10 @@ var (
 				Config: appconfig.WrapAny(&feegrantmodulev1.Module{}),
 			},
 			{
+				Name:   crisistypes.ModuleName,
+				Config: appconfig.WrapAny(&crisismodulev1.Module{}),
+			},
+			{
 				Name:   consensustypes.ModuleName,
 				Config: appconfig.WrapAny(&consensusmodulev1.Module{}),
 			},
@@ -290,6 +313,18 @@ var (
 			{
 				Name:   feemarkettypes.ModuleName,
 				Config: appconfig.WrapAny(&feemarketmodulev1.Module{}),
+			},
+			{
+				Name:   tibctypes.ModuleName,
+				Config: appconfig.WrapAny(&tibmodulev1.Module{}),
+			},
+			{
+				Name:   tibcnfttypes.ModuleName,
+				Config: appconfig.WrapAny(&tibcnftmodulev1.Module{}),
+			},
+			{
+				Name:   tibcmttypes.ModuleName,
+				Config: appconfig.WrapAny(&tibcmtmodulev1.Module{}),
 			},
 		},
 	})
