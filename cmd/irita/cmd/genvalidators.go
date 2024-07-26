@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	cfg "github.com/cometbft/cometbft/config"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -15,13 +18,9 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	cfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmtypes "github.com/tendermint/tendermint/types"
-
-	"github.com/bianjieai/iritamod/modules/genutil"
-	"github.com/bianjieai/iritamod/modules/node"
-	cautil "github.com/bianjieai/iritamod/utils/ca"
+	"iritamod.bianjie.ai/modules/genutil"
+	"iritamod.bianjie.ai/modules/node"
+	cautil "iritamod.bianjie.ai/modules/node/utils/ca"
 )
 
 // ValidatorMsgBuildingHelpers helpers for message building gen-tx command
@@ -83,8 +82,8 @@ func AddGenesisValidatorCmd(
 			viper.Set(flags.FlagHome, viper.GetString(flagClientHome))
 			smbh.PrepareFlagsForTxCreateValidator(config, nodeID, genDoc.ChainID, viper.GetString(flagCert))
 
-			//txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
-			//cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
+			// txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(authclient.GetTxEncoder(cdc))
+			// cliCtx := context.NewCLIContextWithInput(inBuf).WithCodec(cdc)
 
 			// Set the generate-only flag here after the CLI context has
 			// been created. This allows the from name/key to be correctly populated.
@@ -93,7 +92,11 @@ func AddGenesisValidatorCmd(
 			// favor of a 'gentx' flag in the create-validator command.
 			viper.Set(flags.FlagGenerateOnly, true)
 
-			txf := tx.NewFactoryCLI(clientCtx, cmd.Flags()).
+			txf, err := tx.NewFactoryCLI(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+			txf = txf.
 				WithTxConfig(clientCtx.TxConfig).
 				WithAccountRetriever(clientCtx.AccountRetriever)
 

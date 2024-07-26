@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cometbft/cometbft/libs/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/cli"
-
-	"github.com/bianjieai/iritamod/modules/genutil"
-	"github.com/bianjieai/iritamod/modules/node"
+	"iritamod.bianjie.ai/modules/genutil"
+	"iritamod.bianjie.ai/modules/node"
 )
 
 // GenRootCert returns a command that sets the root cert.

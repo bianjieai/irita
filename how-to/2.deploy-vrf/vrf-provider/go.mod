@@ -115,7 +115,7 @@ replace github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.1
 
 replace (
 	github.com/irisnet/core-sdk-go => github.com/irisnet/core-sdk-go v0.0.0-20211019075829-8bb6cca8d315
-	github.com/tendermint/tendermint => github.com/bianjieai/tendermint v0.34.1-irita-210113
+	github.com/cometbft/cometbft => github.com/bianjieai/tendermint v0.34.1-irita-210113
 )
 
 replace github.com/ethereum/go-ethereum => github.com/smartcontractkit/go-ethereum v1.10.9-0.20221031124550-ea38079ea107

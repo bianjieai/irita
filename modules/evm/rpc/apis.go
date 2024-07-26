@@ -3,19 +3,19 @@
 package rpc
 
 import (
+	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/ethereum/go-ethereum/rpc"
-	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
-	"github.com/tharsis/ethermint/rpc/ethereum/namespaces/debug"
-	"github.com/tharsis/ethermint/rpc/ethereum/namespaces/eth"
-	"github.com/tharsis/ethermint/rpc/ethereum/namespaces/eth/filters"
-	"github.com/tharsis/ethermint/rpc/ethereum/namespaces/miner"
-	"github.com/tharsis/ethermint/rpc/ethereum/namespaces/net"
-	"github.com/tharsis/ethermint/rpc/ethereum/namespaces/personal"
-	"github.com/tharsis/ethermint/rpc/ethereum/namespaces/txpool"
-	"github.com/tharsis/ethermint/rpc/ethereum/namespaces/web3"
-	"github.com/tharsis/ethermint/rpc/ethereum/types"
+	"github.com/evmos/ethermint/rpc/namespaces/ethereum/debug"
+	"github.com/evmos/ethermint/rpc/namespaces/ethereum/eth"
+	"github.com/evmos/ethermint/rpc/namespaces/ethereum/eth/filters"
+	"github.com/evmos/ethermint/rpc/namespaces/ethereum/miner"
+	"github.com/evmos/ethermint/rpc/namespaces/ethereum/net"
+	"github.com/evmos/ethermint/rpc/namespaces/ethereum/personal"
+	"github.com/evmos/ethermint/rpc/namespaces/ethereum/txpool"
+	"github.com/evmos/ethermint/rpc/namespaces/ethereum/web3"
+	ethermint "github.com/evmos/ethermint/types"
 
 	"github.com/bianjieai/irita/modules/evm/rpc/ethereum/backend"
 )
@@ -34,9 +34,14 @@ const (
 )
 
 // GetRPCAPIs returns the list of all APIs
-func GetRPCAPIs(ctx *server.Context, clientCtx client.Context, tmWSClient *rpcclient.WSClient, selectedAPIs []string) []rpc.API {
-	nonceLock := new(types.AddrLocker)
-	evmBackend := backend.NewEVMWBackend(ctx, ctx.Logger, clientCtx)
+func GetRPCAPIs(ctx *server.Context,
+	clientCtx client.Context,
+	tmWSClient *rpcclient.WSClient,
+	allowUnprotectedTxs bool,
+	indexer ethermint.EVMTxIndexer,
+	selectedAPIs []string,
+) []rpc.API {
+	evmBackend := backend.NewEVMWBackend(ctx, ctx.Logger, clientCtx, allowUnprotectedTxs, indexer)
 
 	var apis []rpc.API
 	// remove duplicates
@@ -49,13 +54,13 @@ func GetRPCAPIs(ctx *server.Context, clientCtx client.Context, tmWSClient *rpccl
 				rpc.API{
 					Namespace: EthNamespace,
 					Version:   apiVersion,
-					Service:   eth.NewPublicAPI(ctx.Logger, clientCtx, evmBackend, nonceLock),
+					Service:   eth.NewPublicAPI(ctx.Logger, evmBackend),
 					Public:    true,
 				},
 				rpc.API{
 					Namespace: EthNamespace,
 					Version:   apiVersion,
-					Service:   filters.NewPublicAPI(ctx.Logger, tmWSClient, evmBackend),
+					Service:   filters.NewPublicAPI(ctx.Logger, clientCtx, tmWSClient, evmBackend),
 					Public:    true,
 				},
 			)
@@ -82,7 +87,7 @@ func GetRPCAPIs(ctx *server.Context, clientCtx client.Context, tmWSClient *rpccl
 				rpc.API{
 					Namespace: PersonalNamespace,
 					Version:   apiVersion,
-					Service:   personal.NewAPI(ctx.Logger, clientCtx, evmBackend),
+					Service:   personal.NewAPI(ctx.Logger, evmBackend),
 					Public:    false,
 				},
 			)
@@ -100,7 +105,7 @@ func GetRPCAPIs(ctx *server.Context, clientCtx client.Context, tmWSClient *rpccl
 				rpc.API{
 					Namespace: DebugNamespace,
 					Version:   apiVersion,
-					Service:   debug.NewAPI(ctx, evmBackend, clientCtx),
+					Service:   debug.NewAPI(ctx, evmBackend),
 					Public:    true,
 				},
 			)
@@ -109,7 +114,7 @@ func GetRPCAPIs(ctx *server.Context, clientCtx client.Context, tmWSClient *rpccl
 				rpc.API{
 					Namespace: MinerNamespace,
 					Version:   apiVersion,
-					Service:   miner.NewPrivateAPI(ctx, clientCtx, evmBackend),
+					Service:   miner.NewPrivateAPI(ctx, evmBackend),
 					Public:    false,
 				},
 			)

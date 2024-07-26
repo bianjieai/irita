@@ -4,18 +4,24 @@ import (
 	"net/http"
 	"time"
 
+	tmcmd "github.com/cometbft/cometbft/cmd/cometbft/commands"
+	tmlog "github.com/cometbft/cometbft/libs/log"
+	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 	sdkserver "github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/gorilla/mux"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/spf13/cobra"
-	tmlog "github.com/tendermint/tendermint/libs/log"
-	rpcclient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 )
 
-// add server commands
-func AddCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreator types.AppCreator, appExport types.AppExporter, addStartFlags types.ModuleInitFlags) {
+// AddCommands adds server commands
+func AddCommands(
+	rootCmd *cobra.Command,
+	opts StartOptions,
+	appExport types.AppExporter,
+	addStartFlags types.ModuleInitFlags,
+) {
 	tendermintCmd := &cobra.Command{
 		Use:   "tendermint",
 		Short: "Tendermint subcommands",
@@ -26,17 +32,19 @@ func AddCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreator type
 		sdkserver.ShowValidatorCmd(),
 		sdkserver.ShowAddressCmd(),
 		sdkserver.VersionCmd(),
+		tmcmd.ResetAllCmd,
+		tmcmd.ResetStateCmd,
 	)
 
-	startCmd := StartCmd(appCreator, defaultNodeHome)
+	startCmd := StartCmd(opts)
 	addStartFlags(startCmd)
 
 	rootCmd.AddCommand(
 		startCmd,
-		sdkserver.UnsafeResetAllCmd(),
 		tendermintCmd,
-		sdkserver.ExportCmd(appExport, defaultNodeHome),
+		sdkserver.ExportCmd(appExport, opts.DefaultNodeHome),
 		version.NewVersionCommand(),
+		sdkserver.NewRollbackCmd(opts.AppCreator, opts.DefaultNodeHome),
 	)
 }
 

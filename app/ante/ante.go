@@ -1,9 +1,7 @@
 package ante
 
 import (
-	"fmt"
-	"runtime/debug"
-
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -11,11 +9,8 @@ import (
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	tokenkeeper "github.com/irisnet/irismod/modules/token/keeper"
-	tmlog "github.com/tendermint/tendermint/libs/log"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-
-	evmmoduleante "github.com/bianjieai/irita/modules/evm"
+	ethante "github.com/evmos/ethermint/app/ante"
+	tokenkeeper "mods.irisnet.org/modules/token/keeper"
 )
 
 type HandlerOptions struct {
@@ -27,8 +22,9 @@ type HandlerOptions struct {
 	SignModeHandler signing.SignModeHandler
 
 	// evm config
-	EvmKeeper          evmmoduleante.EVMKeeper
-	EvmFeeMarketKeeper evmtypes.FeeMarketKeeper
+	EvmKeeper       ethante.EVMKeeper
+	FeeMarketKeeper ethante.FeeMarketKeeper
+	MaxTxGasWanted  uint64
 }
 
 // NewAnteHandler returns an AnteHandler that checks and increments sequence
@@ -40,7 +36,8 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	) (newCtx sdk.Context, err error) {
 		var anteHandler sdk.AnteHandler
 
-		//defer Recover(ctx.Logger(), &err)
+		defer ethante.Recover(ctx.Logger(), &err)
+
 		txWithExtensions, ok := tx.(authante.HasExtensionOptionsTx)
 		if ok {
 			opts := txWithExtensions.GetExtensionOptions()
@@ -52,8 +49,11 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 				case "/ethermint.types.v1.ExtensionOptionsWeb3Tx":
 					// handle as normal Cosmos SDK tx, except signature is checked for EIP712 representation
 					anteHandler = newCosmosAnteHandlerEip712(options)
+				case "/ethermint.types.v1.ExtensionOptionDynamicFeeTx":
+					// cosmos-sdk tx with dynamic fee extension
+					anteHandler = newCosmosAnteHandler(options)
 				default:
-					return ctx, sdkerrors.Wrapf(
+					return ctx, errorsmod.Wrapf(
 						sdkerrors.ErrUnknownExtensionOptions,
 						"rejecting tx with unsupported extension option: %s",
 						typeURL,
@@ -67,29 +67,9 @@ func NewAnteHandler(options HandlerOptions) sdk.AnteHandler {
 		case sdk.Tx:
 			anteHandler = newCosmosAnteHandler(options)
 		default:
-			return ctx, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
+			return ctx, errorsmod.Wrapf(sdkerrors.ErrUnknownRequest, "invalid transaction type: %T", tx)
 		}
 
 		return anteHandler(ctx, tx, sim)
-
-	}
-}
-
-func Recover(logger tmlog.Logger, err *error) {
-	if r := recover(); r != nil {
-		*err = sdkerrors.Wrapf(sdkerrors.ErrPanic, "%v", r)
-
-		if e, ok := r.(error); ok {
-			logger.Error(
-				"ante handler panicked",
-				"error", e,
-				"stack trace", string(debug.Stack()),
-			)
-		} else {
-			logger.Error(
-				"ante handler panicked",
-				"recover", fmt.Sprintf("%v", r),
-			)
-		}
 	}
 }

@@ -3,18 +3,16 @@ package client
 import (
 	"bufio"
 
+	"github.com/cometbft/cometbft/libs/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	cosmoshd "github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	clientkeys "github.com/evmos/ethermint/client/keys"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/cli"
-	clientkeys "github.com/tharsis/ethermint/client/keys"
-	etherminthd "github.com/tharsis/ethermint/crypto/hd"
 
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
+	"github.com/bianjieai/irita/crypto/hd"
 )
 
 // KeyCommands registers a sub-tree of commands to interact with
@@ -46,7 +44,7 @@ information:
 The pass backend requires GnuPG: https://gnupg.org/
 `,
 	}
-	evmutils.SetEthermintSupportedAlgorithms()
+	hd.SetSupportedAlgorithms()
 	// support adding Ethereum supported keys
 	addCmd := keys.AddKeyCommand()
 
@@ -84,23 +82,11 @@ The pass backend requires GnuPG: https://gnupg.org/
 }
 
 func runAddCmd(cmd *cobra.Command, args []string) error {
-	buf := bufio.NewReader(cmd.InOrStdin())
-	clientCtx := client.GetClientContextFromCmd(cmd)
-
-	var (
-		kr  keyring.Keyring
-		err error
-	)
-
-	dryRun, _ := cmd.Flags().GetBool(flags.FlagDryRun)
-	if dryRun {
-		kr, err = keyring.New(sdk.KeyringServiceName(), keyring.BackendMemory, clientCtx.KeyringDir, buf, etherminthd.EthSecp256k1Option())
-		clientCtx = clientCtx.WithKeyring(kr)
-	}
-
+	clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.KeyringOption())
+	clientCtx, err := client.ReadPersistentCommandFlags(clientCtx, cmd.Flags())
 	if err != nil {
 		return err
 	}
-
+	buf := bufio.NewReader(clientCtx.Input)
 	return clientkeys.RunAddCmd(clientCtx, cmd, args, buf)
 }

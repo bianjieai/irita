@@ -11,10 +11,16 @@ import (
 	"os"
 	"path/filepath"
 
+	tmcfg "github.com/cometbft/cometbft/config"
+	tmconfig "github.com/cometbft/cometbft/config"
+	tmos "github.com/cometbft/cometbft/libs/os"
+	tmrand "github.com/cometbft/cometbft/libs/rand"
+	"github.com/cometbft/cometbft/libs/tempfile"
+	"github.com/cometbft/cometbft/types"
+	tmtime "github.com/cometbft/cometbft/types/time"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
@@ -24,37 +30,31 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
-	servicetypes "github.com/irisnet/irismod/modules/service/types"
-	tokentypes "github.com/irisnet/irismod/modules/token/types"
+	evmosConfig "github.com/evmos/ethermint/server/config"
+	ethermint "github.com/evmos/ethermint/types"
+	evmtypes "github.com/evmos/ethermint/x/evm/types"
+	evmfmttypes "github.com/evmos/ethermint/x/feemarket/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	tmconfig "github.com/tendermint/tendermint/config"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/libs/tempfile"
-	"github.com/tendermint/tendermint/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
-	evmhd "github.com/tharsis/ethermint/crypto/hd"
-	evmosConfig "github.com/tharsis/ethermint/server/config"
-	ethermint "github.com/tharsis/ethermint/types"
-	evmtypes "github.com/tharsis/ethermint/x/evm/types"
-	evmfmttypes "github.com/tharsis/ethermint/x/feemarket/types"
+	"iritamod.bianjie.ai/modules/genutil"
+	"iritamod.bianjie.ai/modules/node"
+	"iritamod.bianjie.ai/modules/node/utils"
+	servicetypes "mods.irisnet.org/modules/service/types"
+	tokentypesv1beta "mods.irisnet.org/modules/token/types"
+	tokentypes "mods.irisnet.org/modules/token/types/v1"
 
-	evmutils "github.com/bianjieai/irita/modules/evm/utils"
-	"github.com/bianjieai/iritamod/modules/genutil"
-	"github.com/bianjieai/iritamod/modules/node"
-	"github.com/bianjieai/iritamod/utils"
+	"github.com/bianjieai/irita/crypto/hd"
 )
 
 const (
-	nodeDirPerm         = 0755
-	DefaultPointDenom   = "point"
-	DefaultPointMinUnit = "upoint"
-	NewEvmDenom         = "gas"
-	DefaultEvmMinUnit   = "ugas"
+	nodeDirPerm         = 0o755
+	defaultPointDenom   = "point"
+	defaultPointMinUnit = "upoint"
+	evmDenom            = "gas"
+	defaultEvmMinUnit   = "ugas"
 )
 
-var PowerReduction = sdk.NewIntFromUint64(1000000000000000000)
+var powerReduction = sdk.NewIntFromUint64(1000000000000000000)
 
 var (
 	flagNodeDirPrefix     = "node-dir-prefix"
@@ -88,7 +88,7 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 			nodeCLIHome := viper.GetString(flagNodeCLIHome)
 			startingIPAddress := viper.GetString(flagStartingIPAddress)
 			numValidators := viper.GetInt(flagNumValidators)
-			algo, _ := cmd.Flags().GetString(flags.FlagKeyAlgorithm)
+			algo, _ := cmd.Flags().GetString(flags.FlagKeyType)
 
 			return InitTestnet(
 				clientCtx, cmd, config, mbm, genBalIterator, outputDir, chainID, minGasPrices,
@@ -106,7 +106,7 @@ func testnetCmd(mbm module.BasicManager, genBalIterator banktypes.GenesisBalance
 	cmd.Flags().String(flags.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(server.FlagMinGasPrices, fmt.Sprintf("0.000006%s", sdk.DefaultBondDenom), "Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum (e.g. 0.01photino,0.001stake)")
 	cmd.Flags().String(flags.FlagKeyringBackend, flags.DefaultKeyringBackend, "Select keyring's backend (os|file|test)")
-	cmd.Flags().String(flags.FlagKeyAlgorithm, string(hd.Sm2Type), "Key signing algorithm to generate keys for")
+	cmd.Flags().String(flags.FlagKeyType, string(hd.Sm2Type), "Key signing algorithm to generate keys for")
 	return cmd
 }
 
@@ -122,7 +122,7 @@ func InitTestnet(
 	if chainID == "" {
 		chainID = fmt.Sprintf("chain_%d-1", tmrand.Int63n(9999999999999)+1)
 	}
-	evmutils.SetEthermintSupportedAlgorithms()
+	hd.SetSupportedAlgorithms()
 
 	monikers := make([]string, numValidators)
 	nodeIDs := make([]string, numValidators)
@@ -199,7 +199,7 @@ func InitTestnet(
 		keyPath := filepath.Join(nodeDir, "config", "key.pem")
 		cerPath := filepath.Join(nodeDir, "config", "cer.pem")
 		certPath := filepath.Join(nodeDir, "config", "cert.pem")
-		if err = tempfile.WriteFileAtomic(keyPath, key, 0600); err != nil {
+		if err = tempfile.WriteFileAtomic(keyPath, key, 0o600); err != nil {
 			return err
 		}
 
@@ -215,7 +215,8 @@ func InitTestnet(
 			viper.GetString(flags.FlagKeyringBackend),
 			clientDir,
 			inBuf,
-			evmhd.EthSecp256k1Option(),
+			clientCtx.Codec,
+			hd.KeyringOption(),
 		)
 		if err != nil {
 			return err
@@ -248,12 +249,12 @@ func InitTestnet(
 		accTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
 		accPointTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
 		accNativeTokens := sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)
-		accEvmTokens := sdk.TokensFromConsensusPower(5000, PowerReduction)
+		accEvmTokens := sdk.TokensFromConsensusPower(5000, powerReduction)
 		coins := sdk.Coins{
 			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(DefaultPointMinUnit, accPointTokens),
+			sdk.NewCoin(defaultPointMinUnit, accPointTokens),
 			sdk.NewCoin(tokentypes.GetNativeToken().MinUnit, accNativeTokens),
-			sdk.NewCoin(DefaultEvmMinUnit, accEvmTokens),
+			sdk.NewCoin(defaultEvmMinUnit, accEvmTokens),
 		}
 
 		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
@@ -295,7 +296,7 @@ func InitTestnet(
 
 		customAppTemplate, customAppConfig := evmosConfig.AppConfig(ethermint.AttoPhoton)
 		srvconfig.SetConfigTemplate(customAppTemplate)
-		if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig); err != nil {
+		if err := server.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, tmcfg.DefaultConfig()); err != nil {
 			return err
 		}
 
@@ -303,7 +304,7 @@ func InitTestnet(
 		srvconfig.WriteConfigFile(iritaConfigFilePath, iritaConfig)
 	}
 
-	if err := initGenFiles(DefaultEvmMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
+	if err := initGenFiles(defaultEvmMinUnit, clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators,
 		monikers, nodeIDs, rootCertPath); err != nil {
 		return err
 	}
@@ -369,13 +370,13 @@ func initGenFiles(
 
 	// set the point token in the genesis state
 	var tokenGenState tokentypes.GenesisState
-	jsonMarshaler.MustUnmarshalJSON(appGenState[tokentypes.ModuleName], &tokenGenState)
+	jsonMarshaler.MustUnmarshalJSON(appGenState[tokentypesv1beta.ModuleName], &tokenGenState)
 
 	pointToken := tokentypes.Token{
-		Symbol:        DefaultPointDenom,
+		Symbol:        defaultPointDenom,
 		Name:          "Irita point token",
 		Scale:         6,
-		MinUnit:       DefaultPointMinUnit,
+		MinUnit:       defaultPointMinUnit,
 		InitialSupply: 1000000000,
 		MaxSupply:     math.MaxUint64,
 		Mintable:      true,
@@ -383,10 +384,10 @@ func initGenFiles(
 	}
 
 	gasToken := tokentypes.Token{
-		Symbol:        NewEvmDenom,
+		Symbol:        evmDenom,
 		Name:          "IRITA Fee Token",
 		Scale:         18,
-		MinUnit:       DefaultEvmMinUnit,
+		MinUnit:       defaultEvmMinUnit,
 		InitialSupply: 1000000000,
 		MaxSupply:     math.MaxUint64,
 		Mintable:      true,
@@ -395,8 +396,8 @@ func initGenFiles(
 
 	tokenGenState.Tokens = append(tokenGenState.Tokens, pointToken)
 	tokenGenState.Tokens = append(tokenGenState.Tokens, gasToken)
-	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(DefaultPointDenom, sdk.NewInt(60000))
-	appGenState[tokentypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
+	tokenGenState.Params.IssueTokenBaseFee = sdk.NewCoin(defaultPointDenom, sdk.NewInt(60000))
+	appGenState[tokentypesv1beta.ModuleName] = jsonMarshaler.MustMarshalJSON(&tokenGenState)
 
 	// modify the constant fee denoms in the crisis genesis
 	var crisisGenState crisistypes.GenesisState
@@ -409,8 +410,8 @@ func initGenFiles(
 	var serviceGenState servicetypes.GenesisState
 	jsonMarshaler.MustUnmarshalJSON(appGenState[servicetypes.ModuleName], &serviceGenState)
 
-	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(DefaultPointMinUnit, sdk.NewInt(5000)))
-	serviceGenState.Params.BaseDenom = DefaultPointMinUnit
+	serviceGenState.Params.MinDeposit = sdk.NewCoins(sdk.NewCoin(defaultPointMinUnit, sdk.NewInt(5000)))
+	serviceGenState.Params.BaseDenom = defaultPointMinUnit
 	appGenState[servicetypes.ModuleName] = jsonMarshaler.MustMarshalJSON(&serviceGenState)
 
 	var evmGenState evmtypes.GenesisState
@@ -445,9 +446,16 @@ func initGenFiles(
 }
 
 func collectGenFiles(
-	clientCtx client.Context, config *tmconfig.Config, chainID string,
-	monikers, nodeIDs []string, valCerts []string,
-	numValidators int, outputDir, nodeDirPrefix, nodeDaemonHome string,
+	clientCtx client.Context,
+	config *tmconfig.Config,
+	chainID string,
+	monikers,
+	nodeIDs []string,
+	_ []string,
+	numValidators int,
+	outputDir,
+	nodeDirPrefix,
+	nodeDaemonHome string,
 ) error {
 	var appState json.RawMessage
 	genTime := tmtime.Now()
@@ -517,9 +525,9 @@ func writeFile(name string, dir string, contents []byte) error {
 	writePath := filepath.Join(dir)
 	file := filepath.Join(writePath, name)
 
-	if err := tmos.EnsureDir(writePath, 0700); err != nil {
+	if err := tmos.EnsureDir(writePath, 0o700); err != nil {
 		return err
 	}
 
-	return tmos.WriteFile(file, contents, 0600)
+	return tmos.WriteFile(file, contents, 0o600)
 }

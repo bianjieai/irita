@@ -3,12 +3,11 @@ package app
 import (
 	"encoding/json"
 
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/irisnet/irismod/modules/service"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-
-	"github.com/bianjieai/iritamod/modules/node"
+	"iritamod.bianjie.ai/modules/node"
+	"mods.irisnet.org/modules/service"
 )
 
 // ExportAppStateAndValidators export the state of irita for a genesis file
@@ -28,7 +27,7 @@ func (app *IritaApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowed
 		return servertypes.ExportedApp{}, err
 	}
 
-	validators := node.WriteValidators(ctx, app.nodeKeeper)
+	validators := node.WriteValidators(ctx, *app.nodeKeeper)
 	return servertypes.ExportedApp{
 		AppState:        appState,
 		Validators:      validators,
@@ -41,7 +40,7 @@ func (app *IritaApp) ExportAppStateAndValidators(forZeroHeight bool, jailAllowed
 // NOTE zero height genesis is a temporary feature which will be deprecated
 //
 //	in favour of export at a block height
-func (app *IritaApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []string) {
+func (app *IritaApp) prepForZeroHeightGenesis(ctx sdk.Context, _ []string) {
 
 	/* Just to be safe, assert the invariants on current state. */
 	app.crisisKeeper.AssertInvariants(ctx)

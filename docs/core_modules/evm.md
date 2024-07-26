@@ -10,7 +10,7 @@ Smart Contract，是一种旨在以信息化方式传播、验证或执行合同
 
 主要特征包括：
 
-- 默认的 `EVM` 的 `chain-id` 为 `1223`；如果想要修改此端口，请在编译前修改 makefile 中的 `github.com/tharsis/ethermint/types.EvmChainID=<your_chain_id>`
+- 默认的 `EVM` 的 `chain-id` 为 `1223`；如果想要修改此端口，请在编译前修改 makefile 中的 `github.com/evmos/ethermint/types.EvmChainID=<your_chain_id>`
 - `EVM` 的相关的 `API` 端口是: `8545` 和 `8546`
 - 默认是开启 `EVM`的相关功能。默认开启的 `namespace`  有：`"eth,net,web3"`
 - 兼容 web3 相关的组件。例如： `metamask` 和 `Remix` 等其他相关的开发组件
