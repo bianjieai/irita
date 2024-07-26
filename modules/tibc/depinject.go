@@ -1,10 +1,10 @@
 package tibc
 
 import (
+	"slices"
+
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/depinject"
-	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	store "github.com/cosmos/cosmos-sdk/store/types"
@@ -15,18 +15,18 @@ import (
 	clienttypes "github.com/bianjieai/tibc-go/modules/tibc/core/02-client/types"
 	packetkeeper "github.com/bianjieai/tibc-go/modules/tibc/core/04-packet/keeper"
 	routingkeeper "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/keeper"
-	tibcroutingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
-	"github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
+	routingtypes "github.com/bianjieai/tibc-go/modules/tibc/core/26-routing/types"
 
 	tibmodulev1 "github.com/bianjieai/irita/api/irita/tibc/module/v1"
 	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
+	"github.com/bianjieai/tibc-go/modules/tibc/core/keeper"
 )
 
 // App Wiring Setup
 func init() {
 	appmodule.Register(&tibmodulev1.Module{},
 		appmodule.Provide(ProvideModule),
-		appmodule.Invoke(InvokeTibcRouter),
+		appmodule.Invoke(InvokeAddRoutes),
 	)
 }
 
@@ -89,18 +89,24 @@ func ProvideModule(in Inputs) Outputs {
 	}
 }
 
-// InvokeTibcRouter invokes the TIBC router with the TIBC modules.
-func InvokeTibcRouter(tibcKeeper *tibckeeper.Keeper, tibcModules map[string]tibcroutingtypes.TIBCModule) {
-	if tibcModules == nil || len(tibcModules) == 0 {
+// InvokeAddRoutes adds routes to the TIBC router
+func InvokeAddRoutes(keeper *tibckeeper.Keeper, routes []routingtypes.Route) {
+	if keeper == nil || routes == nil {
 		return
 	}
 
-	modules := maps.Keys(tibcModules)
-	slices.Sort(modules)
+	// Default route order is a lexical sort by RouteKey.
+	// Explicit ordering can be added to the module config if required.
+	slices.SortFunc(routes, func(a, b routingtypes.Route) int {
+		if a.Port < b.Port {
+			return -1
+		}
+		return 1
+	})
 
-	tibcRouter := tibcroutingtypes.NewRouter()
-	for _, moduleName := range modules {
-		tibcRouter.AddRoute(tibcroutingtypes.Port(moduleName), tibcModules[moduleName])
+	router := routingtypes.NewRouter()
+	for _, r := range routes {
+		router.Add(r)
 	}
-	tibcKeeper.SetRouter(tibcRouter)
+	keeper.SetRouter(router)
 }
