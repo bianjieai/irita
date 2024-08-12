@@ -1,6 +1,8 @@
 package app
 
 import (
+	cosmosparamstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"io"
 	"os"
 
@@ -14,6 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/runtime"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/store/streaming"
+	store "github.com/cosmos/cosmos-sdk/store/types"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -21,20 +24,18 @@ import (
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	consensuskeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	crisiskeeper "github.com/cosmos/cosmos-sdk/x/crisis/keeper"
 	evidencekeeper "github.com/cosmos/cosmos-sdk/x/evidence/keeper"
 	feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
-	cosmosparamstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	evmkeeper "github.com/evmos/ethermint/x/evm/keeper"
 	feemarketkeeper "github.com/evmos/ethermint/x/feemarket/keeper"
-
 	identitykeeper "iritamod.bianjie.ai/modules/identity/keeper"
 	nodekeeper "iritamod.bianjie.ai/modules/node/keeper"
 	paramskeeper "iritamod.bianjie.ai/modules/params/keeper"
 	slashingkeeper "iritamod.bianjie.ai/modules/slashing/keeper"
 	upgradekeeper "iritamod.bianjie.ai/modules/upgrade/keeper"
-
 	mtkeeper "mods.irisnet.org/modules/mt/keeper"
 	nftkeeper "mods.irisnet.org/modules/nft/keeper"
 	oraclekeeper "mods.irisnet.org/modules/oracle/keeper"
@@ -42,10 +43,6 @@ import (
 	recordkeeper "mods.irisnet.org/modules/record/keeper"
 	servicekeeper "mods.irisnet.org/modules/service/keeper"
 	tokenkeeper "mods.irisnet.org/modules/token/keeper"
-
-	tibckeeper "github.com/bianjieai/irita/modules/tibc/keeper"
-	tibcmttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/keeper"
-	tibcnfttransferkeeper "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/keeper"
 
 	"github.com/bianjieai/irita/crypto/hd"
 	"github.com/bianjieai/irita/wrapper"
@@ -64,29 +61,27 @@ type IritaAppV2 struct {
 	interfaceRegistry codectypes.InterfaceRegistry
 
 	// keepers
-	AccountKeeper     authkeeper.AccountKeeper
-	BankKeeper        bankkeeper.Keeper
-	SlashingKeeper    slashingkeeper.Keeper
-	CrisisKeeper      *crisiskeeper.Keeper
-	UpgradeKeeper     *upgradekeeper.Keeper
-	ParamsKeeper      paramskeeper.Keeper
-	EvidenceKeeper    evidencekeeper.Keeper
-	RecordKeeper      recordkeeper.Keeper
-	TokenKeeper       tokenkeeper.Keeper
-	NftKeeper         nftkeeper.Keeper
-	MtKeeper          mtkeeper.Keeper
-	ServiceKeeper     servicekeeper.Keeper
-	OracleKeeper      oraclekeeper.Keeper
-	RandomKeeper      randomkeeper.Keeper
-	IdentityKeeper    identitykeeper.Keeper
-	NodeKeeper        *nodekeeper.Keeper
-	FeeGrantKeeper    feegrantkeeper.Keeper
-	ConsensusKeeper   consensuskeeper.Keeper
-	EvmKeeper         *evmkeeper.Keeper
-	FeeMarketKeeper   feemarketkeeper.Keeper
-	TibcKeeper        *tibckeeper.Keeper
-	NftTransferKeeper tibcnfttransferkeeper.Keeper
-	MtTransferKeeper  tibcmttransferkeeper.Keeper
+	AccountKeeper         authkeeper.AccountKeeper
+	BankKeeper            bankkeeper.Keeper
+	SlashingKeeper        slashingkeeper.Keeper
+	CrisisKeeper          *crisiskeeper.Keeper
+	UpgradeKeeper         *upgradekeeper.Keeper
+	ParamsKeeper          paramskeeper.Keeper
+	EvidenceKeeper        evidencekeeper.Keeper
+	RecordKeeper          recordkeeper.Keeper
+	TokenKeeper           tokenkeeper.Keeper
+	NftKeeper             nftkeeper.Keeper
+	MtKeeper              mtkeeper.Keeper
+	ServiceKeeper         servicekeeper.Keeper
+	OracleKeeper          oraclekeeper.Keeper
+	RandomKeeper          randomkeeper.Keeper
+	IdentityKeeper        identitykeeper.Keeper
+	NodeKeeper            *nodekeeper.Keeper
+	FeeGrantKeeper        feegrantkeeper.Keeper
+	CapabilityKeeper      *capabilitykeeper.Keeper
+	ConsensusParamsKeeper consensuskeeper.Keeper
+	EvmKeeper             *evmkeeper.Keeper
+	FeeMarketKeeper       feemarketkeeper.Keeper
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -132,7 +127,6 @@ func NewIritaAppV2(
 				wrapper.ProvideICS20Keeper,
 				wrapper.ProvideEvmConstructor,
 				wrapper.ProvideStakingHooks,
-				wrapper.ProvideTibcNftKeeper,
 			),
 			depinject.Supply(
 				providers...,
@@ -174,8 +168,10 @@ func NewIritaAppV2(
 		&app.AccountKeeper,
 		&app.BankKeeper,
 		&app.CrisisKeeper,
+		&app.CapabilityKeeper,
 		&app.NodeKeeper,
 		&app.SlashingKeeper,
+		//&app.CrisisKeeper,
 		&app.UpgradeKeeper,
 		&app.ParamsKeeper,
 		&app.EvidenceKeeper,
@@ -188,12 +184,9 @@ func NewIritaAppV2(
 		&app.OracleKeeper,
 		&app.RandomKeeper,
 		&app.IdentityKeeper,
-		&app.ConsensusKeeper,
+		&app.ConsensusParamsKeeper,
 		&app.EvmKeeper,
 		&app.FeeMarketKeeper,
-		&app.TibcKeeper,
-		&app.NftTransferKeeper,
-		&app.MtTransferKeeper,
 	)
 
 	if err := depinject.Inject(appConfig, consumer...); err != nil {
@@ -238,7 +231,7 @@ func NewIritaAppV2(
 
 	/****  Module Options ****/
 
-	// app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
+	app.ModuleManager.RegisterInvariants(app.CrisisKeeper)
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	// app.RegisterUpgradeHandlers()
@@ -259,7 +252,70 @@ func NewIritaAppV2(
 
 	app.sm.RegisterStoreDecoders()
 	app.SetInitChainer(app.InitChainer)
-
+	//app.RegisterUpgradePlan(
+	//	"v4.0.0-tianzhou", store.StoreUpgrades{
+	//		Added: []string{
+	//			crisistypes.StoreKey, capabilitytypes.StoreKey, consensustypes.StoreKey,
+	//		},
+	//		//Deleted: []string{"wasm"},
+	//	},
+	//	func(ctx sdk.Context, plan sdkupgrade.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+	//		for _, subspace := range app.ParamsKeeper.GetSubspaces() {
+	//			subspace := subspace
+	//			var keyTable cosmosparamstypes.KeyTable
+	//			switch subspace.Name() {
+	//			case authtypes.ModuleName:
+	//				keyTable = authtypes.ParamKeyTable() //nolint:staticcheck
+	//			case banktypes.ModuleName:
+	//				keyTable = banktypes.ParamKeyTable() //nolint:staticcheck
+	//			case stakingtypes.ModuleName:
+	//				keyTable = stakingtypes.ParamKeyTable() //nolint:staticcheck
+	//			case crisistypes.ModuleName:
+	//				keyTable = crisistypes.ParamKeyTable() //nolint:staticcheck
+	//			case feemarkettypes.ModuleName:
+	//				keyTable = feemarkettypes.ParamKeyTable() //nolint:staticcheck
+	//			}
+	//
+	//			if !subspace.HasKeyTable() {
+	//				subspace.WithKeyTable(keyTable)
+	//			}
+	//		}
+	//		slashingsubspace := app.getSubspace(slashingtypes.ModuleName) //.ParamsKeeper.GetSubspace()
+	//		var slashingparams slashingtypes.Params
+	//		slashingsubspace.GetParamSetIfExists(ctx, &slashingparams) //.Get(ctx, []byte("SignedBlocksWindow"), &ss)
+	//		app.SlashingKeeper.SetParams(ctx, slashingparams)
+	//		//var feemarketparams feemarkettypes.Params
+	//		//feemarketsubspace, ok := app.ParamsKeeper.GetSubspace(feemarkettypes.ModuleName)
+	//		//if ok {
+	//		//	feemarketsubspace.GetParamSetIfExists(ctx, &feemarketparams)
+	//		//	app.FeeMarketKeeper.SetParams(ctx, feemarketparams)
+	//		//}
+	//
+	//		fromVM[stakingtypes.ModuleName] = staking.AppModule{}.ConsensusVersion()
+	//		fromVM[authtypes.ModuleName] = 2 // auth.AppModule{}.ConsensusVersion()
+	//		fromVM[banktypes.ModuleName] = 2 //bank.AppModule{}.ConsensusVersion()
+	//		fromVM[identitytypes.ModuleName] = identity.AppModule{}.ConsensusVersion()
+	//		fromVM[cslashing.ModuleName] = cslashing.AppModule{}.ConsensusVersion()
+	//		fromVM[capabilitytypes.ModuleName] = capability.AppModule{}.ConsensusVersion()
+	//		fromVM[nodetypes.ModuleName] = node.AppModule{}.ConsensusVersion()
+	//		fromVM[paramstypes.ModuleName] = cparams.AppModule{}.ConsensusVersion()
+	//		fromVM[crisistypes.ModuleName] = 1 //crisis.AppModule{}.ConsensusVersion()
+	//		fromVM[upgradetypes.ModuleName] = upgrade.AppModule{}.ConsensusVersion()
+	//		fromVM[evidencetypes.ModuleName] = evidence.AppModule{}.ConsensusVersion()
+	//		fromVM[feegrant.ModuleName] = 1   //feegrantmodule.AppModule{}.ConsensusVersion()
+	//		fromVM[tokentypes.ModuleName] = 1 //token.AppModule{}.ConsensusVersion()
+	//		fromVM[recordtypes.ModuleName] = record.AppModule{}.ConsensusVersion()
+	//		fromVM[nfttypes.ModuleName] = nft.AppModule{}.ConsensusVersion()
+	//		fromVM[servicetypes.ModuleName] = 1 //service.AppModule{}.ConsensusVersion()
+	//		fromVM[oracletypes.ModuleName] = oracle.AppModule{}.ConsensusVersion()
+	//		fromVM[randomtypes.ModuleName] = random.AppModule{}.ConsensusVersion()
+	//		fromVM[feemarkettypes.ModuleName] = 1 //feemarket.AppModule{}.ConsensusVersion()
+	//		fromVM[evmtypes.ModuleName] = 1       //evm.AppModule{}.ConsensusVersion()
+	//		fromVM[consensustypes.ModuleName] = consensus.AppModule{}.ConsensusVersion()
+	//
+	//		return app.ModuleManager.RunMigrations(ctx, app.Configurator(), fromVM)
+	//	},
+	//)
 	// A custom InitChainer can be set if extra pre-init-genesis logic is required.
 	// By default, when using app wiring enabled module, this is not required.
 	// For instance, the upgrade module will set automatically the module version map in its init genesis thanks to app wiring.
@@ -295,4 +351,21 @@ func (app *IritaAppV2) kvStoreKeys() map[string]*storetypes.KVStoreKey {
 func (app *IritaAppV2) getSubspace(moduleName string) cosmosparamstypes.Subspace {
 	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
 	return subspace
+}
+
+// RegisterUpgradePlan implements the upgrade execution logic of the upgrade module
+func (app *IritaAppV2) RegisterUpgradePlan(planName string,
+	upgrades store.StoreUpgrades, upgradeHandler sdkupgrade.UpgradeHandler) {
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		app.Logger().Info("not found upgrade plan", "planName", planName, "err", err.Error())
+		return
+	}
+
+	if upgradeInfo.Name == planName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		// this configures a no-op upgrade handler for the planName upgrade
+		app.UpgradeKeeper.SetUpgradeHandler(planName, upgradeHandler)
+		// configure store loader that checks if version+1 == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(sdkupgrade.UpgradeStoreLoader(upgradeInfo.Height, &upgrades))
+	}
 }

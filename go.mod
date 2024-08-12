@@ -4,8 +4,8 @@ go 1.21
 
 replace (
 	github.com/cometbft/cometbft => github.com/bianjieai/cometbft v0.37.5-irita-240628
-	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.47.12-irita-20240701
-	github.com/evmos/ethermint => github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240723100932-1e8e8edcb552
+	github.com/cosmos/cosmos-sdk => github.com/bianjieai/cosmos-sdk v0.47.12-irita-20240701.0.20240809054339-cee6b91419a2
+	github.com/evmos/ethermint => github.com/bianjieai/ethermint v0.22.0-irishub-20240512.0.20240807062803-b8f1d8d2b973
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
 )
@@ -18,9 +18,9 @@ require (
 	iritamod.bianjie.ai/api v0.0.0-20240725020316-2fe96dcb32a4
 	iritamod.bianjie.ai/modules/genutil v0.0.0-20240725020316-2fe96dcb32a4
 	iritamod.bianjie.ai/modules/identity v0.0.0-20240725020316-2fe96dcb32a4
-	iritamod.bianjie.ai/modules/node v0.0.0-20240725020316-2fe96dcb32a4
+	iritamod.bianjie.ai/modules/node v0.0.0-20240729093853-3774a911efe4
 	iritamod.bianjie.ai/modules/params v0.0.0-20240725020316-2fe96dcb32a4
-	iritamod.bianjie.ai/modules/slashing v0.0.0-20240725020316-2fe96dcb32a4
+	iritamod.bianjie.ai/modules/slashing v0.0.0-20240802061310-39af267575a2
 	iritamod.bianjie.ai/modules/upgrade v0.0.0-20240725020316-2fe96dcb32a4
 	mods.irisnet.org/modules/mt v0.0.0-20240705013837-55f906fb239e
 	mods.irisnet.org/modules/nft v0.0.0-20240705013837-55f906fb239e
@@ -91,7 +91,7 @@ require (
 	github.com/cockroachdb/errors v1.10.0 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
-	github.com/coinbase/rosetta-sdk-go v0.7.9 // indirect
+	github.com/coinbase/rosetta-sdk-go/types v1.0.0 // indirect
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect

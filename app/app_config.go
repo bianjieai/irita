@@ -5,25 +5,21 @@ import (
 	appv1alpha1 "cosmossdk.io/api/cosmos/app/v1alpha1"
 	authmodulev1 "cosmossdk.io/api/cosmos/auth/module/v1"
 	bankmodulev1 "cosmossdk.io/api/cosmos/bank/module/v1"
+	capabilitymodulev1 "cosmossdk.io/api/cosmos/capability/module/v1"
 	consensusmodulev1 "cosmossdk.io/api/cosmos/consensus/module/v1"
 	crisismodulev1 "cosmossdk.io/api/cosmos/crisis/module/v1"
 	evidencemodulev1 "cosmossdk.io/api/cosmos/evidence/module/v1"
 	feegrantmodulev1 "cosmossdk.io/api/cosmos/feegrant/module/v1"
 	txconfigv1 "cosmossdk.io/api/cosmos/tx/config/v1"
 	"cosmossdk.io/core/appconfig"
-
-	tibmodulev1 "github.com/bianjieai/irita/api/irita/tibc/module/v1"
-	_ "github.com/bianjieai/irita/modules/tibc"               // import for side-effects
-	tibctypes "github.com/bianjieai/irita/modules/tibc/types" // import for side-effects
-	tibcmtmodulev1 "github.com/bianjieai/tibc-go/api/tibc/apps/mt_transfer/module/v1"
-	tibcnftmodulev1 "github.com/bianjieai/tibc-go/api/tibc/apps/nft_transfer/module/v1"
 	_ "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer" // import for side-effects
 	tibcmttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/mt_transfer/types"
-	_ "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer" // import for side-effects
 	tibcnfttypes "github.com/bianjieai/tibc-go/modules/tibc/apps/nft_transfer/types"
+	tibchost "github.com/bianjieai/tibc-go/modules/tibc/core/24-host"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
@@ -82,6 +78,7 @@ var (
 	// so that other modules that want to create or claim capabilities afterwards in InitChain
 	// can do so safely.
 	genesisModuleOrder = []string{
+		capabilitytypes.ModuleName,
 		authtypes.ModuleName,
 		banktypes.ModuleName,
 		nodetypes.ModuleName,
@@ -101,7 +98,7 @@ var (
 		recordtypes.ModuleName,
 		identitytypes.ModuleName,
 		tokentypes.ModuleName,
-		tibctypes.ModuleName,
+		tibchost.ModuleName,
 		tibcnfttypes.ModuleName,
 		tibcmttypes.ModuleName,
 		evmtypes.ModuleName,
@@ -117,9 +114,7 @@ var (
 		{Account: servicetypes.RequestAccName},
 		{Account: servicetypes.FeeCollectorName, Permissions: []string{authtypes.Burner}},
 		{Account: tokentypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
-		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}},
-		{Account: tibcnfttypes.ModuleName},
-		{Account: tibcmttypes.ModuleName},
+		{Account: evmtypes.ModuleName, Permissions: []string{authtypes.Minter, authtypes.Burner}}, // used for secure addition and subtraction of balance using module account
 	}
 
 	// blocked account addresses
@@ -149,6 +144,7 @@ var (
 					// NOTE: capability module's beginblocker must come before any modules using capabilities (e.g. IBC)
 					BeginBlockers: []string{
 						upgradetypes.ModuleName,
+						capabilitytypes.ModuleName,
 						slashingtypes.ModuleName,
 						evidencetypes.ModuleName,
 						nodetypes.ModuleName,
@@ -169,13 +165,11 @@ var (
 						consensustypes.ModuleName,
 						evmtypes.ModuleName,
 						feemarkettypes.ModuleName,
-						tibctypes.ModuleName,
-						tibcnfttypes.ModuleName,
-						tibcmttypes.ModuleName,
 					},
 					EndBlockers: []string{
 						crisistypes.ModuleName,
 						nodetypes.ModuleName,
+						capabilitytypes.ModuleName,
 						authtypes.ModuleName,
 						banktypes.ModuleName,
 						slashingtypes.ModuleName,
@@ -197,9 +191,6 @@ var (
 						tokentypes.ModuleName,
 						evmtypes.ModuleName,
 						feemarkettypes.ModuleName,
-						tibctypes.ModuleName,
-						tibcnfttypes.ModuleName,
-						tibcmttypes.ModuleName,
 					},
 					OverrideStoreKeys: []*runtimev1alpha1.StoreKeyConfig{
 						{
@@ -207,6 +198,32 @@ var (
 							KvStoreKey: "acc",
 						},
 					},
+					OrderMigrations: []string{
+						capabilitytypes.ModuleName,
+						authtypes.ModuleName,
+						banktypes.ModuleName,
+						nodetypes.ModuleName,
+						slashingtypes.ModuleName,
+						crisistypes.ModuleName,
+						genutiltypes.ModuleName,
+						evidencetypes.ModuleName,
+						feegrant.ModuleName,
+						paramstypes.ModuleName,
+						upgradetypes.ModuleName,
+						consensustypes.ModuleName,
+						mttypes.ModuleName,
+						nfttypes.ModuleName,
+						servicetypes.ModuleName,
+						oracletypes.ModuleName,
+						randomtypes.ModuleName,
+						recordtypes.ModuleName,
+						identitytypes.ModuleName,
+						tokentypes.ModuleName,
+						tibchost.ModuleName,
+						tibcnfttypes.ModuleName,
+						tibcmttypes.ModuleName,
+						evmtypes.ModuleName,
+						feemarkettypes.ModuleName},
 					InitGenesis: genesisModuleOrder,
 					// When ExportGenesis is not specified, the export genesis module order
 					// is equal to the init genesis order
@@ -220,6 +237,9 @@ var (
 				Config: appconfig.WrapAny(&authmodulev1.Module{
 					Bech32Prefix:             "iaa",
 					ModuleAccountPermissions: moduleAccPerms,
+					// By default modules authority is the governance module. This is configurable with the following:
+					// Authority: "group", // A custom module authority can be set using a module name
+					// Authority: "cosmos1cwwv22j5ca08ggdv9c2uky355k908694z577tv", // or a specific address
 				}),
 			},
 			{
@@ -251,6 +271,12 @@ var (
 			{
 				Name:   upgradetypes.ModuleName,
 				Config: appconfig.WrapAny(&upgrademodulev1.Module{}),
+			},
+			{
+				Name: capabilitytypes.ModuleName,
+				Config: appconfig.WrapAny(&capabilitymodulev1.Module{
+					SealKeeper: true,
+				}),
 			},
 			{
 				Name:   evidencetypes.ModuleName,
@@ -314,23 +340,10 @@ var (
 				Name:   feemarkettypes.ModuleName,
 				Config: appconfig.WrapAny(&feemarketmodulev1.Module{}),
 			},
-			{
-				Name:   tibctypes.ModuleName,
-				Config: appconfig.WrapAny(&tibmodulev1.Module{}),
-			},
-			{
-				Name:   tibcnfttypes.ModuleName,
-				Config: appconfig.WrapAny(&tibcnftmodulev1.Module{}),
-			},
-			{
-				Name:   tibcmttypes.ModuleName,
-				Config: appconfig.WrapAny(&tibcmtmodulev1.Module{}),
-			},
 		},
 	})
 )
 
-// DefaultDepinjectOptions returns the default depinject options
 func DefaultDepinjectOptions() DepinjectOptions {
 	return DepinjectOptions{
 		Config:    AppConfig,
