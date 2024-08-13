@@ -1,8 +1,11 @@
 package app
 
 import (
+	"github.com/bianjieai/irita/app/ante"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	cosmosparamstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ethermintante "github.com/evmos/ethermint/app/ante"
 	"io"
 	"os"
 
@@ -82,6 +85,7 @@ type IritaAppV2 struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	EvmKeeper             *evmkeeper.Keeper
 	FeeMarketKeeper       feemarketkeeper.Keeper
+	anteHandler           sdk.AnteHandler
 
 	// simulation manager
 	sm *module.SimulationManager
@@ -220,7 +224,7 @@ func NewIritaAppV2(
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
 	app.App = appBuilder.Build(logger, db, traceStore, baseAppOptions...)
-
+	app.SetAnteHandler(app.GetAppAnteHandler())
 	// load state streaming if enabled
 	if _, _, err := streaming.LoadStreamingServices(app.App.BaseApp, appOpts, app.appCodec, logger, app.kvStoreKeys()); err != nil {
 		logger.Error("failed to load state streaming", "err", err)
@@ -368,4 +372,27 @@ func (app *IritaAppV2) RegisterUpgradePlan(planName string,
 		// configure store loader that checks if version+1 == upgradeHeight and applies store upgrades
 		app.SetStoreLoader(sdkupgrade.UpgradeStoreLoader(upgradeInfo.Height, &upgrades))
 	}
+}
+
+func (app *IritaAppV2) SetAppAnteHandler(anteHandler sdk.AnteHandler) {
+	app.anteHandler = anteHandler
+}
+
+func (app *IritaAppV2) GetAppAnteHandler() sdk.AnteHandler {
+	if app.anteHandler != nil {
+		return app.anteHandler
+	}
+	handlerOptions := ante.HandlerOptions{
+		AccountKeeper:   app.AccountKeeper,
+		BankKeeper:      app.BankKeeper,
+		TokenKeeper:     app.TokenKeeper,
+		FeegrantKeeper:  app.FeeGrantKeeper,
+		SignModeHandler: app.txConfig.SignModeHandler(),
+		SigGasConsumer:  ethermintante.DefaultSigVerificationGasConsumer,
+
+		// evm
+		FeeMarketKeeper: app.FeeMarketKeeper,
+		EvmKeeper:       app.EvmKeeper,
+	}
+	return ante.NewAnteHandler(handlerOptions)
 }
