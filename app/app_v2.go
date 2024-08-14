@@ -224,6 +224,7 @@ func NewIritaAppV2(
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
 	app.App = appBuilder.Build(logger, db, traceStore, baseAppOptions...)
+	app.RegisterUpgradePlans()
 	app.SetAnteHandler(app.GetAppAnteHandler())
 	// load state streaming if enabled
 	if _, _, err := streaming.LoadStreamingServices(app.App.BaseApp, appOpts, app.appCodec, logger, app.kvStoreKeys()); err != nil {
@@ -253,9 +254,9 @@ func NewIritaAppV2(
 		),
 	}
 	app.sm = module.NewSimulationManagerFromAppModules(app.ModuleManager.Modules, overrideModules)
-
 	app.sm.RegisterStoreDecoders()
 	app.SetInitChainer(app.InitChainer)
+
 	//app.RegisterUpgradePlan(
 	//	"v4.0.0-tianzhou", store.StoreUpgrades{
 	//		Added: []string{
@@ -365,7 +366,6 @@ func (app *IritaAppV2) RegisterUpgradePlan(planName string,
 		app.Logger().Info("not found upgrade plan", "planName", planName, "err", err.Error())
 		return
 	}
-
 	if upgradeInfo.Name == planName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
 		// this configures a no-op upgrade handler for the planName upgrade
 		app.UpgradeKeeper.SetUpgradeHandler(planName, upgradeHandler)
